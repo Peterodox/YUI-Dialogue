@@ -443,7 +443,7 @@ end
 
 function SharedTooltip:ShowHotkey(key, description, callback)
     if not self.HotkeyFrame then
-        self.HotkeyFrame = CreateFrame("Frame", nil, self, "MirageDialogHotkeyTemplate");
+        self.HotkeyFrame = CreateFrame("Frame", nil, self, "YUIDialogHotkeyTemplate");
     end
 
     local success = self.HotkeyFrame:SetKey(key);

@@ -241,9 +241,9 @@ local function OnClickFunc_CancelConfirmGossip(cancelButton)
 end
 
 
-MirageDialogOptionButtonMixin = {};
+YUIDialogOptionButtonMixin = {};
 
-function MirageDialogOptionButtonMixin:OnLoad()
+function YUIDialogOptionButtonMixin:OnLoad()
     self.Icon = self.Content.Icon;
     self.Name = self.Content.Name;
     self.Name:SetSpacing(BUTTON_TEXT_SPACING);
@@ -255,7 +255,7 @@ function MirageDialogOptionButtonMixin:OnLoad()
     self:SetHyperlinksEnabled(true);
 end
 
-function MirageDialogOptionButtonMixin:OnHyperlinkEnter(link, text, region, left, bottom, width, height)
+function YUIDialogOptionButtonMixin:OnHyperlinkEnter(link, text, region, left, bottom, width, height)
     --print(link, text);
     self:OnEnter();
     if link then
@@ -271,21 +271,21 @@ function MirageDialogOptionButtonMixin:OnHyperlinkEnter(link, text, region, left
     end
 end
 
-function MirageDialogOptionButtonMixin:OnHyperlinkLeave()
+function YUIDialogOptionButtonMixin:OnHyperlinkLeave()
     TooltipFrame:Hide();
     self:OnLeave();
 end
 
-function MirageDialogOptionButtonMixin:OnHyperlinkClick()
+function YUIDialogOptionButtonMixin:OnHyperlinkClick()
     self:Click("LeftButton");
 end
 
-function MirageDialogOptionButtonMixin:ShowHoverVisual()
+function YUIDialogOptionButtonMixin:ShowHoverVisual()
     self.t = 0;
     self:SetScript("OnUpdate", Anim_ShiftButtonCentent_OnUpdate);
 end
 
-function MirageDialogOptionButtonMixin:ShowHoverVisualIfFocusChanged()
+function YUIDialogOptionButtonMixin:ShowHoverVisualIfFocusChanged()
     if self:IsEnabled() then
         local isSameButton = self.owner:HighlightButton(self);
         if not isSameButton then
@@ -294,14 +294,14 @@ function MirageDialogOptionButtonMixin:ShowHoverVisualIfFocusChanged()
     end
 end
 
-function MirageDialogOptionButtonMixin:PlayKeyFeedback()
+function YUIDialogOptionButtonMixin:PlayKeyFeedback()
     if not self:IsMouseOver() then
         self:ShowHoverVisualIfFocusChanged();
         --PlaySound("DIALOG_OPTION_CLICK");
     end
 end
 
-function MirageDialogOptionButtonMixin:OnEnter()
+function YUIDialogOptionButtonMixin:OnEnter()
     self:ShowHoverVisualIfFocusChanged();
 
     if self.type == "gossip" and self.gossipOptionID then
@@ -319,7 +319,7 @@ function MirageDialogOptionButtonMixin:OnEnter()
     end
 end
 
-function MirageDialogOptionButtonMixin:OnLeave()
+function YUIDialogOptionButtonMixin:OnLeave()
     if self:IsMouseOver() then return end;
     self.owner:HighlightButton(nil);
     self.t = 0;
@@ -327,7 +327,7 @@ function MirageDialogOptionButtonMixin:OnLeave()
     TooltipFrame:Hide();
 end
 
-function MirageDialogOptionButtonMixin:OnClick(button)
+function YUIDialogOptionButtonMixin:OnClick(button)
     if button == "LeftButton" or button == "GamePad" then
         if self.onClickFunc then
             --PlaySound("DIALOG_OPTION_CLICK");
@@ -338,7 +338,7 @@ function MirageDialogOptionButtonMixin:OnClick(button)
     end
 end
 
-function MirageDialogOptionButtonMixin:OnMouseDown(button)
+function YUIDialogOptionButtonMixin:OnMouseDown(button)
     if button == "LeftButton" then
         if self:IsEnabled() then
             self.pushOffsetY = -1;
@@ -351,17 +351,17 @@ function MirageDialogOptionButtonMixin:OnMouseDown(button)
     end
 end
 
-function MirageDialogOptionButtonMixin:OnMouseUp(button)
+function YUIDialogOptionButtonMixin:OnMouseUp(button)
     self.pushOffsetY = 0;
     self.Content:SetPoint("TOPLEFT", self.offset, self.pushOffsetY);
 end
 
-function MirageDialogOptionButtonMixin:SetButtonText(name, bigPadding)
+function YUIDialogOptionButtonMixin:SetButtonText(name, bigPadding)
     self.Name:SetText(name);
     self:Layout(bigPadding);
 end
 
-function MirageDialogOptionButtonMixin:SetGossip(data, hotkey)
+function YUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self.gossipOptionID = data.gossipOptionID;
 
     local name = GossipDataProvider:GetOverrideName(self.gossipOptionID) or data.name;
@@ -409,7 +409,7 @@ function MirageDialogOptionButtonMixin:SetGossip(data, hotkey)
     self.isTrainer = data.icon == 132058;
 end
 
-function MirageDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
+function YUIDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
     if not self:IsEnabled() then return end;
 
     self:Disable();
@@ -420,7 +420,7 @@ function MirageDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
     end
 end
 
-function MirageDialogOptionButtonMixin:RemoveQuestTypeText()
+function YUIDialogOptionButtonMixin:RemoveQuestTypeText()
     if self.hasQuestType then
         self.hasQuestType = nil;
         self.rightFrameWidth = nil;
@@ -428,7 +428,7 @@ function MirageDialogOptionButtonMixin:RemoveQuestTypeText()
     end
 end
 
-function MirageDialogOptionButtonMixin:SetQuestTypeText(questInfo)
+function YUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     local typeText;
 
     if questInfo.isTrivial then
@@ -459,7 +459,7 @@ function MirageDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     self:RemoveQuestTypeText();
 end
 
-function MirageDialogOptionButtonMixin:SetQuestVisual(questInfo)
+function YUIDialogOptionButtonMixin:SetQuestVisual(questInfo)
     self.Icon:SetTexture(GetQuestIcon(questInfo));  --We fill in the QuestInfo through this API
 
     if questInfo.isComplete or (not questInfo.isOnQuest) then
@@ -473,7 +473,7 @@ function MirageDialogOptionButtonMixin:SetQuestVisual(questInfo)
     end
 end
 
-function MirageDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
+function YUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
     if INPUT_DEVICE_GAME_PAD then
         self:SetHotkey(nil);
     else
@@ -487,7 +487,7 @@ function MirageDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
     self:SetButtonText(questInfo.title, true);
 end
 
-function MirageDialogOptionButtonMixin:SetAvailableQuest(questInfo, index, hotkey)
+function YUIDialogOptionButtonMixin:SetAvailableQuest(questInfo, index, hotkey)
     --QuestUtil.ApplyQuestIconOfferToTextureForQuestID(self.Icon, questInfo.questID, questInfo.isLegendary, questInfo.frequency, questInfo.isRepeatable, questInfo.isImportant);
 
     self.id = index;
@@ -498,7 +498,7 @@ function MirageDialogOptionButtonMixin:SetAvailableQuest(questInfo, index, hotke
     self:Enable();
 end
 
-function MirageDialogOptionButtonMixin:SetActiveQuest(questInfo, index, hotkey)
+function YUIDialogOptionButtonMixin:SetActiveQuest(questInfo, index, hotkey)
     --QuestUtil.ApplyQuestIconOfferToTextureForQuestID(self.Icon, questInfo.questID, questInfo.isLegendary, questInfo.frequency, questInfo.isRepeatable, questInfo.isImportant);
 
     self.id = index;
@@ -510,7 +510,7 @@ function MirageDialogOptionButtonMixin:SetActiveQuest(questInfo, index, hotkey)
 end
 
 
-function MirageDialogOptionButtonMixin:SetGreetingAvailableQuest(questInfo, index, hotkey)
+function YUIDialogOptionButtonMixin:SetGreetingAvailableQuest(questInfo, index, hotkey)
     --Handle QUEST_GREETING event
     --questInfo is manully constructed. the raw data are title and questID
 
@@ -522,7 +522,7 @@ function MirageDialogOptionButtonMixin:SetGreetingAvailableQuest(questInfo, inde
     self:Enable();
 end
 
-function MirageDialogOptionButtonMixin:SetGreetingActiveQuest(questInfo, index, hotkey)
+function YUIDialogOptionButtonMixin:SetGreetingActiveQuest(questInfo, index, hotkey)
     self.id = index;
     self.type = "activeQuest";
     self.onClickFunc = OnClickFunc_SelectGreetingActiveQuest;
@@ -532,7 +532,7 @@ function MirageDialogOptionButtonMixin:SetGreetingActiveQuest(questInfo, index, 
 end
 
 
-function MirageDialogOptionButtonMixin:SetButtonExitGossip()
+function YUIDialogOptionButtonMixin:SetButtonExitGossip()
     self.showIcon = false;
     self.id = 0;
     self.type = "goodbye";
@@ -544,7 +544,7 @@ function MirageDialogOptionButtonMixin:SetButtonExitGossip()
     self:Enable();
 end
 
-function MirageDialogOptionButtonMixin:SetButtonDeclineQuest(canReturn)
+function YUIDialogOptionButtonMixin:SetButtonDeclineQuest(canReturn)
     self.showIcon = false;
     self.id = 0;
     self.type = "decline";
@@ -561,7 +561,7 @@ function MirageDialogOptionButtonMixin:SetButtonDeclineQuest(canReturn)
     self:SetButtonArt(4);
 end
 
-function MirageDialogOptionButtonMixin:SetButtonAcceptQuest()
+function YUIDialogOptionButtonMixin:SetButtonAcceptQuest()
     self.showIcon = false;
     self.id = 0;
     self.type = "accept";
@@ -586,7 +586,7 @@ function MirageDialogOptionButtonMixin:SetButtonAcceptQuest()
     end
 end
 
-function MirageDialogOptionButtonMixin:SetButtonAlreadyOnQuest()
+function YUIDialogOptionButtonMixin:SetButtonAlreadyOnQuest()
     self.showIcon = false;
     self.id = 0;
     self.type = "autoAccepted";
@@ -601,7 +601,7 @@ function MirageDialogOptionButtonMixin:SetButtonAlreadyOnQuest()
     self:SetButtonText(L["Quest Accepted"], true);
 end
 
-function MirageDialogOptionButtonMixin:SetButtonCloseAutoAcceptQuest()
+function YUIDialogOptionButtonMixin:SetButtonCloseAutoAcceptQuest()
     --For auto-accepted quest: change the "Decline" button to "OK"
     self.showIcon = false;
     self.id = 0;
@@ -614,7 +614,7 @@ function MirageDialogOptionButtonMixin:SetButtonCloseAutoAcceptQuest()
     self:Enable();
 end
 
-function MirageDialogOptionButtonMixin:SetButtonContinueQuest(canContinue, lockDuration)
+function YUIDialogOptionButtonMixin:SetButtonContinueQuest(canContinue, lockDuration)
     self.id = 0;
     self.type = "continue";
     self.onClickFunc = OnClickFunc_ContinueQuest;
@@ -650,7 +650,7 @@ function MirageDialogOptionButtonMixin:SetButtonContinueQuest(canContinue, lockD
     end
 end
 
-function MirageDialogOptionButtonMixin:SetButtonCompleteQuest()
+function YUIDialogOptionButtonMixin:SetButtonCompleteQuest()
     self.showIcon = false;
     self.id = 0;
     self.type = "complete";
@@ -673,7 +673,7 @@ function MirageDialogOptionButtonMixin:SetButtonCompleteQuest()
     end
 end
 
-function MirageDialogOptionButtonMixin:SetButtonCancelQuestProgress(canReturn)
+function YUIDialogOptionButtonMixin:SetButtonCancelQuestProgress(canReturn)
     self.showIcon = false;
     self.id = 0;
     self.type = "cancel";
@@ -690,7 +690,7 @@ function MirageDialogOptionButtonMixin:SetButtonCancelQuestProgress(canReturn)
     self:Enable();
 end
 
-function MirageDialogOptionButtonMixin:SetButtonConfirmGossip(gossipID, lockDuration)
+function YUIDialogOptionButtonMixin:SetButtonConfirmGossip(gossipID, lockDuration)
     self.showIcon = false;
     self.id = 0;
     self.type = "confirmGossip";
@@ -718,7 +718,7 @@ function MirageDialogOptionButtonMixin:SetButtonConfirmGossip(gossipID, lockDura
     end
 end
 
-function MirageDialogOptionButtonMixin:SetButtonCancelConfirmGossip()
+function YUIDialogOptionButtonMixin:SetButtonCancelConfirmGossip()
     self.showIcon = false;
     self.id = 0;
     self.type = "cancelConfirmGossip";
@@ -729,14 +729,14 @@ function MirageDialogOptionButtonMixin:SetButtonCancelConfirmGossip()
     self:Enable();
 end
 
-function MirageDialogOptionButtonMixin:SetButtonWidth(width)
+function YUIDialogOptionButtonMixin:SetButtonWidth(width)
     self:SetWidth(width);
     self.baseWidth = width;
     self.defaultNameWidth = width - NAME_OFFSET_QUEST - NAME_PADDING_H;
     self.Name:SetWidth(self.defaultNameWidth);
 end
 
-function MirageDialogOptionButtonMixin:Layout(largePadding)
+function YUIDialogOptionButtonMixin:Layout(largePadding)
     local padding = (largePadding and BUTTON_PADDING_LARGE) or BUTTON_PADDING_SMALL;
     local nameOffset;
     local iconOffset = 0;
@@ -777,7 +777,7 @@ local SharedHighlightTexture = {
     [4] = {backTexture = "ButtonHighlight-Add.png", blendMode = "ADD", color = {0.23, 0.23, 0.23}, frontTexture = "ButtonHighlight-Front.png"},
 };
 
-function MirageDialogOptionButtonMixin:SetParentHighlightTexture(parentHighlightFrame)
+function YUIDialogOptionButtonMixin:SetParentHighlightTexture(parentHighlightFrame)
     parentHighlightFrame:SetParent(self);
     parentHighlightFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
     parentHighlightFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
@@ -806,7 +806,7 @@ function MirageDialogOptionButtonMixin:SetParentHighlightTexture(parentHighlight
     parentHighlightFrame.FrontTexture:SetPoint("TOPLEFT", self.Content, "TOPLEFT", 0, 0);
 end
 
-function MirageDialogOptionButtonMixin:SetButtonArt(id)
+function YUIDialogOptionButtonMixin:SetButtonArt(id)
     if self.artID ~= id then
         self.artID = id;
     else
@@ -838,7 +838,7 @@ function MirageDialogOptionButtonMixin:SetButtonArt(id)
     end
 end
 
-function MirageDialogOptionButtonMixin:LoadTheme()
+function YUIDialogOptionButtonMixin:LoadTheme()
     local artID = self.artID;
     self.artID = nil;
     self:SetButtonArt(artID);
@@ -848,11 +848,11 @@ function MirageDialogOptionButtonMixin:LoadTheme()
     end
 end
 
-function MirageDialogOptionButtonMixin:OnFontSizeChanged()
+function YUIDialogOptionButtonMixin:OnFontSizeChanged()
     self.Icon:SetSize(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE);
 end
 
-function MirageDialogOptionButtonMixin:ResetVisual()
+function YUIDialogOptionButtonMixin:ResetVisual()
     self:SetScript("OnUpdate", nil);
     self.Content:SetPoint("TOPLEFT", 0, 0);
     self:SetAlpha(1);
@@ -861,11 +861,11 @@ function MirageDialogOptionButtonMixin:ResetVisual()
     self.pushOffsetY = 0;
 end
 
-function MirageDialogOptionButtonMixin:SetOwner(owner)
+function YUIDialogOptionButtonMixin:SetOwner(owner)
     self.owner = owner;
 end
 
-function MirageDialogOptionButtonMixin:SetHotkey(hotkey)
+function YUIDialogOptionButtonMixin:SetHotkey(hotkey)
     if hotkey then
         local hotkeyFrame = self.HotkeyFrame or addon.DialogueUI.hotkeyFramePool:Acquire();
 
@@ -916,9 +916,9 @@ HotkeyIcons.XBOX_Shift = HotkeyIcons.XBOX_PAD4;
 HotkeyIcons.PS_Shift = HotkeyIcons.PS_PAD4;
 
 
-MirageDialogHotkeyFrameMixin = {};
+YUIDialogHotkeyFrameMixin = {};
 
-function MirageDialogHotkeyFrameMixin:OnLoad()
+function YUIDialogHotkeyFrameMixin:OnLoad()
     self:LoadTheme();
     self.Icon:SetVertexColor(0.72, 0.72, 0.72);
     --API.DisableSharpening(self.Background);
@@ -929,23 +929,23 @@ function MirageDialogHotkeyFrameMixin:OnLoad()
     self:UpdateBaseHeight();
 end
 
-function MirageDialogHotkeyFrameMixin:ReloadKey()
+function YUIDialogHotkeyFrameMixin:ReloadKey()
     local key = self.key;
     self.key = nil;
     self:SetKey(key);
 end
 
-function MirageDialogHotkeyFrameMixin:LoadTheme()
+function YUIDialogHotkeyFrameMixin:LoadTheme()
     self.Background:SetTexture(ThemeUtil:GetTextureFile("HotkeyBackground.png"));
     self:ReloadKey();
 end
 
-function MirageDialogHotkeyFrameMixin:SetBaseHeight(height)
+function YUIDialogHotkeyFrameMixin:SetBaseHeight(height)
     self.baseHeight = height;
     self:SetSize(height, height);
 end
 
-function MirageDialogHotkeyFrameMixin:UpdateBaseHeight()
+function YUIDialogHotkeyFrameMixin:UpdateBaseHeight()
     --Font Size + 8
     self:SetBaseHeight(HOTKEYFRAME_SIZE);
 
@@ -956,7 +956,7 @@ function MirageDialogHotkeyFrameMixin:UpdateBaseHeight()
     self:ReloadKey();
 end
 
-function MirageDialogHotkeyFrameMixin:SetKey(key)
+function YUIDialogHotkeyFrameMixin:SetKey(key)
     if key == "PRIMARY" then
         key = GAME_PAD_CONFIRM_KEY or GetPrimaryControlKey();
     end
@@ -1029,7 +1029,7 @@ function MirageDialogHotkeyFrameMixin:SetKey(key)
     end
 end
 
-function MirageDialogHotkeyFrameMixin:ClearKey()
+function YUIDialogHotkeyFrameMixin:ClearKey()
     if self.key then
         self.key = nil;
         self.Icon:Hide();
@@ -1256,9 +1256,9 @@ function ItemButtonSharedMixin:GetClipboardOutput()
 end
 
 
-MirageDialogItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin);
+YUIDialogItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin);
 
-function MirageDialogItemButtonMixin:OnLoad()
+function YUIDialogItemButtonMixin:OnLoad()
     self.textMaxLines = 2;
     self.textShrink = ITEMBUTTON_TEXT_WDITH_SHRINK;
     self.dynamicResize = true;
@@ -1270,7 +1270,7 @@ function MirageDialogItemButtonMixin:OnLoad()
     self.Sheen:SetTexture(ThemeUtil:GetTextureFile("RewardChoice-Sheen.png"));
 end
 
-function MirageDialogItemButtonMixin:LoadTheme()
+function YUIDialogItemButtonMixin:LoadTheme()
     self.ItemOverlay:SetTexture(ThemeUtil:GetTextureFile("ItemOverlays.png"));
     self.Sheen:SetTexture(ThemeUtil:GetTextureFile("RewardChoice-Sheen.png"));
 
@@ -1280,7 +1280,7 @@ function MirageDialogItemButtonMixin:LoadTheme()
     self:SetBackgroundTexture(backgroundID);
 end
 
-function MirageDialogItemButtonMixin:SetBackgroundTexture(id)
+function YUIDialogItemButtonMixin:SetBackgroundTexture(id)
     if self.backgroundID ~= id then
         self.backgroundID = id;
     else
@@ -1309,7 +1309,7 @@ function MirageDialogItemButtonMixin:SetBackgroundTexture(id)
     self.Name:SetFontObject(fontObject);
 end
 
-function MirageDialogItemButtonMixin:UpdatePixel(scale)
+function YUIDialogItemButtonMixin:UpdatePixel(scale)
     if not scale then
         scale = self:GetEffectiveScale();
     end
@@ -1321,7 +1321,7 @@ function MirageDialogItemButtonMixin:UpdatePixel(scale)
     self.Icon:SetPoint("BOTTOMRIGHT", self.ItemBorder, "BOTTOMRIGHT", -offset, offset);
 end
 
-function MirageDialogItemButtonMixin:OnClick(button)
+function YUIDialogItemButtonMixin:OnClick(button)
     if self.type == "choice" then
         if button == "GamePad" then
             addon.DialogueUI:SelectRewardChoice(self.index);
@@ -1336,7 +1336,7 @@ function MirageDialogItemButtonMixin:OnClick(button)
     end
 end
 
-function MirageDialogItemButtonMixin:Refresh()
+function YUIDialogItemButtonMixin:Refresh()
     if self.objectType == "item" then
         self:SetItem(self.type, self.index);
     elseif self.objectType == "currency" then
@@ -1354,17 +1354,17 @@ local function RefreshAfter_OnUpdate(self, elapsed)
     end
 end
 
-function MirageDialogItemButtonMixin:RequestInfo()
+function YUIDialogItemButtonMixin:RequestInfo()
     self.t = 0;
     self:SetScript("OnUpdate", RefreshAfter_OnUpdate);
 end
 
-function MirageDialogItemButtonMixin:OnInfoReceived()
+function YUIDialogItemButtonMixin:OnInfoReceived()
     self:SetScript("OnUpdate", nil);
     self.t = nil;
 end
 
-function MirageDialogItemButtonMixin:SetItemName(name, quality)
+function YUIDialogItemButtonMixin:SetItemName(name, quality)
     if name and name ~= "" then
         self:OnInfoReceived();
     else
@@ -1379,7 +1379,7 @@ function MirageDialogItemButtonMixin:SetItemName(name, quality)
     self:UpdateNameColor(quality);
 end
 
-function MirageDialogItemButtonMixin:UpdateNameColor(quality)
+function YUIDialogItemButtonMixin:UpdateNameColor(quality)
     if self.backgroundID == 2 then  --Choose reward
         self.nameColor = nil;
         self.Name:SetTextColor(ThemeUtil:GetItemSelectColor());
@@ -1392,7 +1392,7 @@ function MirageDialogItemButtonMixin:UpdateNameColor(quality)
     end
 end
 
-function MirageDialogItemButtonMixin:SetItemCount(amount, alignToCenter)
+function YUIDialogItemButtonMixin:SetItemCount(amount, alignToCenter)
     if amount then
         if self.type == "required" and self.itemID and (not IsQuestItem(self.itemID)) then
             local numInBags = GetItemCount(self.itemID);
@@ -1434,7 +1434,7 @@ local ITEM_OVERLAYS = {
     followerQuality1 = 17,
 };
 
-function MirageDialogItemButtonMixin:SetItemOverlay(id)
+function YUIDialogItemButtonMixin:SetItemOverlay(id)
     if id and ITEM_OVERLAYS[id] and self.type ~= "required" then
         if self.itemOverlayID ~= id then
             self.itemOverlayID = id;
@@ -1451,7 +1451,7 @@ function MirageDialogItemButtonMixin:SetItemOverlay(id)
     end
 end
 
-function MirageDialogItemButtonMixin:SetItem(sourceType, index)
+function YUIDialogItemButtonMixin:SetItem(sourceType, index)
     self.objectType = "item";
     self.type = sourceType;
     self.index = index;
@@ -1479,12 +1479,12 @@ function MirageDialogItemButtonMixin:SetItem(sourceType, index)
     self:SetItemOverlay(itemOverlayID);
 end
 
-function MirageDialogItemButtonMixin:SetRewardItem(index)
+function YUIDialogItemButtonMixin:SetRewardItem(index)
     self.dynamicResize = true;
     self:SetItem("reward", index);
 end
 
-function MirageDialogItemButtonMixin:SetRewardChoiceItem(index, isOnlyChoice)
+function YUIDialogItemButtonMixin:SetRewardChoiceItem(index, isOnlyChoice)
     if isOnlyChoice then
         self.dynamicResize = true;
     else
@@ -1494,12 +1494,12 @@ function MirageDialogItemButtonMixin:SetRewardChoiceItem(index, isOnlyChoice)
     self:SetItem("choice", index);
 end
 
-function MirageDialogItemButtonMixin:SetRequiredItem(index)
+function YUIDialogItemButtonMixin:SetRequiredItem(index)
     self.dynamicResize = true;
     self:SetItem("required", index);
 end
 
-function MirageDialogItemButtonMixin:SetCurrency(sourceType, index)
+function YUIDialogItemButtonMixin:SetCurrency(sourceType, index)
     self.objectType = "currency";
     self.type = sourceType;
     self.index = index;
@@ -1535,12 +1535,12 @@ function MirageDialogItemButtonMixin:SetCurrency(sourceType, index)
     self:SetItemOverlay(nil);
 end
 
-function MirageDialogItemButtonMixin:SetRewardCurrency(index)
+function YUIDialogItemButtonMixin:SetRewardCurrency(index)
     self.dynamicResize = true;
     self:SetCurrency("reward", index);
 end
 
-function MirageDialogItemButtonMixin:SetRewardChoiceCurrency(index, isOnlyChoice)
+function YUIDialogItemButtonMixin:SetRewardChoiceCurrency(index, isOnlyChoice)
     if isOnlyChoice then
         self.dynamicResize = true;
     else
@@ -1550,12 +1550,12 @@ function MirageDialogItemButtonMixin:SetRewardChoiceCurrency(index, isOnlyChoice
     self:SetCurrency("choice", index);
 end
 
-function MirageDialogItemButtonMixin:SetRequiredCurrency(index)
+function YUIDialogItemButtonMixin:SetRequiredCurrency(index)
     self.dynamicResize = true;
     self:SetCurrency("required", index);
 end
 
-function MirageDialogItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo)    --SetUpMajorFactionReputationReward
+function YUIDialogItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo)    --SetUpMajorFactionReputationReward
     self.objectType = "reputation";
     self.dynamicResize = true;
     self.factionID = reputationRewardInfo.factionID;
@@ -1578,7 +1578,7 @@ function MirageDialogItemButtonMixin:SetMajorFactionReputation(reputationRewardI
     self:OnInfoReceived();
 end
 
-function MirageDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
+function YUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self.dynamicResize = true;
     self.objectType = "spell";
     self.spellID = spellID;
@@ -1601,7 +1601,7 @@ function MirageDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self:SetItemOverlay(nil);
 end
 
-function MirageDialogItemButtonMixin:SetRewardSkill(skillIcon, skillPoints, skillName, skillLineID)
+function YUIDialogItemButtonMixin:SetRewardSkill(skillIcon, skillPoints, skillName, skillLineID)
     self.dynamicResize = true;
     self.objectType = "skill";
     self.spellID = nil;
@@ -1617,7 +1617,7 @@ function MirageDialogItemButtonMixin:SetRewardSkill(skillIcon, skillPoints, skil
     self:SetItemOverlay("skill");
 end
 
-function MirageDialogItemButtonMixin:SetRewardTitle(titleName)
+function YUIDialogItemButtonMixin:SetRewardTitle(titleName)
     self.dynamicResize = true;
     self.objectType = "title";
     self.spellID = nil;
@@ -1629,7 +1629,7 @@ function MirageDialogItemButtonMixin:SetRewardTitle(titleName)
     self:SetItemOverlay(nil);
 end
 
-function MirageDialogItemButtonMixin:SetWarModeBonus(bonus)
+function YUIDialogItemButtonMixin:SetWarModeBonus(bonus)
     --bonus: 10%
     self.dynamicResize = true;
     self.objectType = "warmode";
@@ -1643,7 +1643,7 @@ function MirageDialogItemButtonMixin:SetWarModeBonus(bonus)
     self:SetItemOverlay(nil);
 end
 
-function MirageDialogItemButtonMixin:SetRewardHonor(honor)
+function YUIDialogItemButtonMixin:SetRewardHonor(honor)
     --Classic
 
     self.dynamicResize = true;
@@ -1659,7 +1659,7 @@ function MirageDialogItemButtonMixin:SetRewardHonor(honor)
     self:SetItemOverlay(nil);
 end
 
-function MirageDialogItemButtonMixin:SetRewardFollower(followerID)
+function YUIDialogItemButtonMixin:SetRewardFollower(followerID)
     --https://warcraft.wiki.gg/wiki/API_C_Garrison.GetFollowerInfo
 
     local followerInfo = C_Garrison.GetFollowerInfo(followerID);
@@ -1691,20 +1691,20 @@ function MirageDialogItemButtonMixin:SetRewardFollower(followerID)
 end
 
 
-MirageDialogSmallItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin); --no name, only quantity
+YUIDialogSmallItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin); --no name, only quantity
 
-function MirageDialogSmallItemButtonMixin:OnLoad()
+function YUIDialogSmallItemButtonMixin:OnLoad()
     self.textMaxLines = 1;
     self.textShrink = SMALLITEMBUTTON_TEXT_WIDTH_SHRINK;
     self.dynamicResize = true;
     self:SetBackgroundTexture();
 end
 
-function MirageDialogSmallItemButtonMixin:SetBackgroundTexture()
+function YUIDialogSmallItemButtonMixin:SetBackgroundTexture()
     self.Background:SetTexture(ThemeUtil:GetTextureFile("ItemButtonBackground.png"));
 end
 
-function MirageDialogSmallItemButtonMixin:SetIcon(file)
+function YUIDialogSmallItemButtonMixin:SetIcon(file)
     if CUSTOM_ICONS[file] then
         self.Icon:SetTexture(ICON_PATH..CUSTOM_ICONS[file]);
         self:RemoveTextureBorder(false);
@@ -1714,14 +1714,14 @@ function MirageDialogSmallItemButtonMixin:SetIcon(file)
     end
 end
 
-function MirageDialogSmallItemButtonMixin:SetItemName(name)
+function YUIDialogSmallItemButtonMixin:SetItemName(name)
     --name is in fact quantity
     self:ResetToDefaultSize();
     self.Name:SetText(name);
     self:FitToName();
 end
 
-function MirageDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
+function YUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
     self.objectType = "currency";
     self.type = sourceType;
     self.index = index;
@@ -1741,7 +1741,7 @@ function MirageDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
     --print(name, currencyID, texture); --debug
 end
 
-function MirageDialogSmallItemButtonMixin:SetRewardCurrency(index)
+function YUIDialogSmallItemButtonMixin:SetRewardCurrency(index)
     self:SetCurrency("reward", index);
 end
 
@@ -1755,7 +1755,7 @@ local function SetCoinIcon(button, rawCopper)
     end
 end
 
-function MirageDialogSmallItemButtonMixin:SetMoney(rawCopper)
+function YUIDialogSmallItemButtonMixin:SetMoney(rawCopper)
     self.objectType = "money";
     self.type = nil;
     self.index = 0;
@@ -1768,7 +1768,7 @@ function MirageDialogSmallItemButtonMixin:SetMoney(rawCopper)
     self:SetItemName(moneyText);
 end
 
-function MirageDialogSmallItemButtonMixin:SetRequiredMoney(rawCopper)
+function YUIDialogSmallItemButtonMixin:SetRequiredMoney(rawCopper)
     self.objectType = "money";
     self.type = nil;
     self.index = 0;
@@ -1787,7 +1787,7 @@ function MirageDialogSmallItemButtonMixin:SetRequiredMoney(rawCopper)
     end
 end
 
-function MirageDialogSmallItemButtonMixin:SetXP(amount)
+function YUIDialogSmallItemButtonMixin:SetXP(amount)
     self.objectType = "xp";
     self.type = nil;
     self.index = 0;
@@ -1803,7 +1803,7 @@ function MirageDialogSmallItemButtonMixin:SetXP(amount)
     self:SetItemName(amount);
 end
 
-function MirageDialogSmallItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo)    --SetUpMajorFactionReputationReward
+function YUIDialogSmallItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo)    --SetUpMajorFactionReputationReward
     self.objectType = "reputation";
     self.type = nil;
     self.index = 0;
@@ -1822,7 +1822,7 @@ function MirageDialogSmallItemButtonMixin:SetMajorFactionReputation(reputationRe
     self.rewardAmount = rewardAmount;
 end
 
-function MirageDialogSmallItemButtonMixin:SetRewardHonor(honor)
+function YUIDialogSmallItemButtonMixin:SetRewardHonor(honor)
     --Classic
 
     self.objectType = "honor";
@@ -1836,9 +1836,9 @@ function MirageDialogSmallItemButtonMixin:SetRewardHonor(honor)
     self:SetItemName(honor);
 end
 
-MirageDialogOptionButtonLockMixin = {};
+YUIDialogOptionButtonLockMixin = {};
 
-function MirageDialogOptionButtonLockMixin:ClearProgress()
+function YUIDialogOptionButtonLockMixin:ClearProgress()
     if self.fullBarCoord then
         self.fullBarCoord = nil;
         self.t = nil;
@@ -1848,17 +1848,17 @@ function MirageDialogOptionButtonLockMixin:ClearProgress()
     end
 end
 
-function MirageDialogOptionButtonLockMixin:OnHide()
+function YUIDialogOptionButtonLockMixin:OnHide()
     self:ClearProgress();
 end
 
-function MirageDialogOptionButtonLockMixin:UpdateProgress()
+function YUIDialogOptionButtonLockMixin:UpdateProgress()
     local progress = self.t / self.lockDuration;
     self.ProgressTexture:SetTexCoord(0, self.fullBarCoord * progress, 0, 1);
     self.ProgressTexture:SetWidth(self.fullWidth * progress);
 end
 
-function MirageDialogOptionButtonLockMixin:OnUpdate(elapsed)
+function YUIDialogOptionButtonLockMixin:OnUpdate(elapsed)
     self.t = self.t + elapsed;
 
     if self.t >= self.lockDuration then
@@ -1872,7 +1872,7 @@ function MirageDialogOptionButtonLockMixin:OnUpdate(elapsed)
     end
 end
 
-function MirageDialogOptionButtonLockMixin:SetParentButton(optionButton, callback, lockDuration)
+function YUIDialogOptionButtonLockMixin:SetParentButton(optionButton, callback, lockDuration)
     self:ClearProgress();
     self:SetParent(optionButton);
     self:SetPoint("TOPLEFT", optionButton, "TOPLEFT", 0, 0);
@@ -1898,11 +1898,11 @@ function MirageDialogOptionButtonLockMixin:SetParentButton(optionButton, callbac
     self:Show();
 end
 
-function MirageDialogOptionButtonLockMixin:LoadTheme()
+function YUIDialogOptionButtonLockMixin:LoadTheme()
     self.ProgressTexture:SetTexture(ThemeUtil:GetTextureFile("ButtonLockProgress.png"));
 end
 
-function MirageDialogOptionButtonLockMixin:OnLoad()
+function YUIDialogOptionButtonLockMixin:OnLoad()
     self:LoadTheme();
 end
 
@@ -1931,9 +1931,9 @@ function InputButtonScripts.OnEnterPressed(self)
 end
 
 
-MirageDialogInputBoxMixin = {};
+YUIDialogInputBoxMixin = {};
 
-function MirageDialogInputBoxMixin:OnLoad()
+function YUIDialogInputBoxMixin:OnLoad()
     self:SetBackgroundTexture();
     self:UpdateHeight();
 
@@ -1945,24 +1945,24 @@ function MirageDialogInputBoxMixin:OnLoad()
     self.owner = self:GetParent();
 end
 
-function MirageDialogInputBoxMixin:OnShow()
+function YUIDialogInputBoxMixin:OnShow()
     self:RegisterEvent("GLOBAL_MOUSE_DOWN");
 end
 
-function MirageDialogInputBoxMixin:OnHide()
+function YUIDialogInputBoxMixin:OnHide()
     self:Hide();
     self:ClearText();
     self.gossipID = nil;
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
 end
 
-function MirageDialogInputBoxMixin:OnEvent(event, ...)
+function YUIDialogInputBoxMixin:OnEvent(event, ...)
     if not self:IsMouseOver() then
         self.owner:HideInputBox();
     end
 end
 
-function MirageDialogInputBoxMixin:SetBackgroundTexture()
+function YUIDialogInputBoxMixin:SetBackgroundTexture()
     local bgFile = ThemeUtil:GetTextureFile("InputBox-SingleLine.png");
 
     self.EditBox.Background:SetTexture(bgFile);
@@ -1972,26 +1972,26 @@ function MirageDialogInputBoxMixin:SetBackgroundTexture()
     self.EditBox.Highlight:SetTexCoord(0, 1, 0.25, 0.5);
 end
 
-function MirageDialogInputBoxMixin:UpdateHeight()
+function YUIDialogInputBoxMixin:UpdateHeight()
     local textHeight = 12.0;
     local editBoxHeight = BUTTON_HEIGHT_LARGE;
 
     self:SetHeight(6 + textHeight + editBoxHeight);
 end
 
-function MirageDialogInputBoxMixin:SetLabel(text)
+function YUIDialogInputBoxMixin:SetLabel(text)
     self.Label:SetText(text);
 end
 
-function MirageDialogInputBoxMixin:SetEditboxText(text)
+function YUIDialogInputBoxMixin:SetEditboxText(text)
     self.EditBox:SetText(text);
 end
 
-function MirageDialogInputBoxMixin:ClearText()
+function YUIDialogInputBoxMixin:ClearText()
     self.EditBox:SetText("");
 end
 
-function MirageDialogInputBoxMixin:SetFocus()
+function YUIDialogInputBoxMixin:SetFocus()
     self:ClearText();
     C_Timer.After(0, function()
         --Avoid OnKeyDown propagation
@@ -1999,11 +1999,11 @@ function MirageDialogInputBoxMixin:SetFocus()
     end);
 end
 
-function MirageDialogInputBoxMixin:SetGossipID(gossipID)
+function YUIDialogInputBoxMixin:SetGossipID(gossipID)
     self.gossipID = gossipID;
 end
 
-function MirageDialogInputBoxMixin:ConfirmGossip()
+function YUIDialogInputBoxMixin:ConfirmGossip()
     C_GossipInfo.SelectOption(self.gossipID, self.EditBox:GetText(), true);
 end
 
@@ -2014,9 +2014,9 @@ do
     local ICON_TEXT_GAP = 0;
     local ICON_SIZE = 12.0;
 
-    MirageDialogQuestTypeFrameMixin = {};
+    YUIDialogQuestTypeFrameMixin = {};
 
-    function MirageDialogQuestTypeFrameMixin:Remove()
+    function YUIDialogQuestTypeFrameMixin:Remove()
         self:ClearAllPoints();
         self:Hide();
         self.Name:SetText("");
@@ -2029,25 +2029,25 @@ do
         end
     end
 
-    function MirageDialogQuestTypeFrameMixin:SetRightText(text)
+    function YUIDialogQuestTypeFrameMixin:SetRightText(text)
         self.Name:SetFontObject("DUIFont_QuestType_Right");
         self:SetNameAndIcon(text);
         self:SetAlignment("RIGHT");
     end
 
-    function MirageDialogQuestTypeFrameMixin:SetLeftText(text)
+    function YUIDialogQuestTypeFrameMixin:SetLeftText(text)
         self.Name:SetFontObject("DUIFont_QuestType_Left");
         self:SetNameAndIcon(text);
         self:SetAlignment("LEFT");
     end
 
-    function MirageDialogQuestTypeFrameMixin:SetQuestTagNameAndIcon(tagName, tagIcon)
+    function YUIDialogQuestTypeFrameMixin:SetQuestTagNameAndIcon(tagName, tagIcon)
         self.Name:SetFontObject("DUIFont_QuestType_Left");
         self:SetNameAndIcon(tagName, tagIcon);
         self:SetAlignment("LEFT");
     end
 
-    function MirageDialogQuestTypeFrameMixin:SetNameAndIcon(name, icon)
+    function YUIDialogQuestTypeFrameMixin:SetNameAndIcon(name, icon)
         self.Name:SetText(name);
 
         if icon then
@@ -2064,7 +2064,7 @@ do
         self:SetWidth(self:GetContentWidth());
     end
 
-    function MirageDialogQuestTypeFrameMixin:SetAlignment(alignment)
+    function YUIDialogQuestTypeFrameMixin:SetAlignment(alignment)
         self.Name:ClearAllPoints();
         if alignment == "RIGHT" then
             self.alignment = alignment;
@@ -2089,7 +2089,7 @@ do
         self.Name:SetJustifyH(alignment);
     end
 
-    function MirageDialogQuestTypeFrameMixin:GetContentWidth()
+    function YUIDialogQuestTypeFrameMixin:GetContentWidth()
         local width = self.Name:GetWrappedWidth();
         if self.hasIcon then
             width = width + BUTTON_ICON_SIZE + ICON_TEXT_GAP;
@@ -2119,7 +2119,7 @@ do
         TooltipFrame:Hide();
     end
 
-    function MirageDialogQuestTypeFrameMixin:SetCampaignNameID(name, campaignID)
+    function YUIDialogQuestTypeFrameMixin:SetCampaignNameID(name, campaignID)
         self:SetLeftText(name);
         self.campaignID = campaignID;
         self.hasScripts = true;
@@ -2129,15 +2129,15 @@ do
 end
 
 do
-    MirageDialogIconFrameMixin = {};
+    YUIDialogIconFrameMixin = {};
 
-    function MirageDialogIconFrameMixin:Remove()
+    function YUIDialogIconFrameMixin:Remove()
         self:ClearAllPoints();
         self:Hide();
         self.Icon:SetTexture(nil);
     end
 
-    function MirageDialogIconFrameMixin:SetCurrencyOverflow()
+    function YUIDialogIconFrameMixin:SetCurrencyOverflow()
         self:SetSize(14, 14);
         self.Icon:SetTexture(ICON_PATH.."CurrencyOverflow.png");
     end

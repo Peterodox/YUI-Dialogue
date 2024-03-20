@@ -87,9 +87,9 @@ local function SetupRepositionObject(obj)
     obj:RegisterForDrag("LeftButton");
 end
 
-MirageDialogSettingsMixin = {};
+YUIDialogSettingsMixin = {};
 
-function MirageDialogSettingsMixin:OnLoad()
+function YUIDialogSettingsMixin:OnLoad()
     MainFrame = self;
     addon.SettingsUI = self;
     addon.PixelUtil:AddPixelPerfectObject(self);
@@ -97,7 +97,7 @@ function MirageDialogSettingsMixin:OnLoad()
     SetupRepositionObject(self.Header);
 end
 
-function MirageDialogSettingsMixin:OnShow_First()
+function YUIDialogSettingsMixin:OnShow_First()
     if self.Init then
         self:Init();
     end
@@ -111,7 +111,7 @@ function MirageDialogSettingsMixin:OnShow_First()
     addon.CallbackRegistry:Trigger("SettingsUI.Show");
 end
 
-function MirageDialogSettingsMixin:OnShow()
+function YUIDialogSettingsMixin:OnShow()
     self:UpdateCurrentTab();
     self:EnableGamePadButton(true);
     self:RegisterEvent("GAME_PAD_ACTIVE_CHANGED");
@@ -119,7 +119,7 @@ function MirageDialogSettingsMixin:OnShow()
     addon.CallbackRegistry:Trigger("SettingsUI.Show");
 end
 
-function MirageDialogSettingsMixin:MoveToBestPosition()
+function YUIDialogSettingsMixin:MoveToBestPosition()
     if addon.DialogueUI:IsShown() then
         local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
         viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
@@ -133,12 +133,12 @@ function MirageDialogSettingsMixin:MoveToBestPosition()
     self:UpdateScrollFrameBound();
 end
 
-function MirageDialogSettingsMixin:UpdateScrollFrameBound()
+function YUIDialogSettingsMixin:UpdateScrollFrameBound()
     self.scrollFrameTop = self.ScrollFrame:GetTop();
     self.scrollFrameBottom = self.ScrollFrame:GetBottom();
 end
 
-function MirageDialogSettingsMixin:OnKeyDown(key)
+function YUIDialogSettingsMixin:OnKeyDown(key)
     local valid = false;
 
     if key == "ESCAPE" or key == "F1" then
@@ -151,7 +151,7 @@ function MirageDialogSettingsMixin:OnKeyDown(key)
     end
 end
 
-function MirageDialogSettingsMixin:OnGamePadButtonDown(button)
+function YUIDialogSettingsMixin:OnGamePadButtonDown(button)
     --print(button)
 
     GAME_PAD_ACTIVE = true;
@@ -183,7 +183,7 @@ function MirageDialogSettingsMixin:OnGamePadButtonDown(button)
     end
 end
 
-function MirageDialogSettingsMixin:OnMouseWheel(delta)
+function YUIDialogSettingsMixin:OnMouseWheel(delta)
 
 end
 
@@ -192,7 +192,7 @@ local function SetCheckboxTexture(checkbox, file)
     checkbox.Check:SetTexture(file);
 end
 
-function MirageDialogSettingsMixin:LoadTheme()
+function YUIDialogSettingsMixin:LoadTheme()
     if self.Init then return end;
 
     local filePath = ThemeUtil:GetTexturePath();
@@ -250,7 +250,7 @@ function MirageDialogSettingsMixin:LoadTheme()
     end
 end
 
-function MirageDialogSettingsMixin:UpdatePixel(scale)
+function YUIDialogSettingsMixin:UpdatePixel(scale)
     if not scale then
         scale = self:GetEffectiveScale();
     end
@@ -262,7 +262,7 @@ function MirageDialogSettingsMixin:UpdatePixel(scale)
     self.BackgroundShadow:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
 end
 
-function MirageDialogSettingsMixin:HighlightButton(button)
+function YUIDialogSettingsMixin:HighlightButton(button)
     self.ButtonHighlight:Hide();
     self.ButtonHighlight:ClearAllPoints();
 
@@ -274,7 +274,7 @@ function MirageDialogSettingsMixin:HighlightButton(button)
     end
 end
 
-function MirageDialogSettingsMixin:OnHide()
+function YUIDialogSettingsMixin:OnHide()
     self.focusedObject = nil;
     self.focusedObjectOffsetY = nil;
     self.scrollFrameTop = nil;
@@ -284,14 +284,14 @@ function MirageDialogSettingsMixin:OnHide()
     addon.CallbackRegistry:Trigger("SettingsUI.Hide");
 end
 
-function MirageDialogSettingsMixin:OnEvent(event, ...)
+function YUIDialogSettingsMixin:OnEvent(event, ...)
     if event == "GAME_PAD_ACTIVE_CHANGED" then
         local isActive = ...
         GAME_PAD_ACTIVE = isActive;
     end
 end
 
-function MirageDialogSettingsMixin:SetPreviewTexture(optionData)
+function YUIDialogSettingsMixin:SetPreviewTexture(optionData)
     if type(optionData.preview) == "string" then
         self.Preview:SetTexture(PREVIEW_PATH..optionData.preview);
     end
@@ -306,7 +306,7 @@ function MirageDialogSettingsMixin:SetPreviewTexture(optionData)
 end
 
 
-function MirageDialogSettingsMixin:DisplayOptionInfo(optionData, choiceTooltip)
+function YUIDialogSettingsMixin:DisplayOptionInfo(optionData, choiceTooltip)
     local hasPreview;
 
     if optionData.preview then
@@ -489,12 +489,12 @@ local function RemoveWidget(widget)
 end
 
 local function CreateOptionButton()
-    local optionButton = CreateFrame("Button", nil, MainFrame, "MirageDialogSettingsOptionTemplate");
+    local optionButton = CreateFrame("Button", nil, MainFrame, "YUIDialogSettingsOptionTemplate");
     return optionButton
 end
 
 local function CreateCheckbox()
-    local checkbox = CreateFrame("Button", nil, MainFrame, "MirageDialogSettingsCheckboxTemplate");
+    local checkbox = CreateFrame("Button", nil, MainFrame, "YUIDialogSettingsCheckboxTemplate");
     return checkbox
 end
 
@@ -503,7 +503,7 @@ local function OnAcquireCheckbox(checkbox)
 end
 
 local function CreateArrowOption()
-    local widget = CreateFrame("Frame", nil, MainFrame, "MirageDialogSettingsArrowOptionTemplate");
+    local widget = CreateFrame("Frame", nil, MainFrame, "YUIDialogSettingsArrowOptionTemplate");
     return widget
 end
 
@@ -523,7 +523,7 @@ function TextureFrameMixin:SetVertexColor(r, g, b, a)
 end
 
 local function CreateTexture()
-    local f = CreateFrame("Frame", nil, MainFrame, "MirageDialogSettingsTextureFrameTemplate");
+    local f = CreateFrame("Frame", nil, MainFrame, "YUIDialogSettingsTextureFrameTemplate");
     API.Mixin(f, TextureFrameMixin);
     return f
 end
@@ -596,7 +596,7 @@ function ScrollFrameMixin:OnMouseWheel(delta)
 end
 
 
-function MirageDialogSettingsMixin:Init()
+function YUIDialogSettingsMixin:Init()
     --Tab Buttons
     if not self.tabButtons then
         self.tabButtons = {};
@@ -608,7 +608,7 @@ function MirageDialogSettingsMixin:Init()
     self.texturePool = API.CreateObjectPool(CreateTexture);
 
     local function CreateHotkeyFrame()
-        local f = CreateFrame("Frame", nil, self, "MirageDialogHotkeyTemplate");
+        local f = CreateFrame("Frame", nil, self, "YUIDialogHotkeyTemplate");
         return f
     end
 
@@ -624,7 +624,7 @@ function MirageDialogSettingsMixin:Init()
 
     for i, tabData in ipairs(Schematic) do
         if not self.tabButtons[i] then
-            self.tabButtons[i] = CreateFrame("Button", nil, self.Header, "MirageDialogSettingsTabButtonTemplate");
+            self.tabButtons[i] = CreateFrame("Button", nil, self.Header, "YUIDialogSettingsTabButtonTemplate");
             SetupRepositionObject(self.tabButtons[i]);
         end
         self.tabButtons[i].tabID = i;
@@ -657,7 +657,7 @@ function MirageDialogSettingsMixin:Init()
     self:LoadTheme();
 end
 
-function MirageDialogSettingsMixin:Layout()
+function YUIDialogSettingsMixin:Layout()
     OPTIONBUTTON_HEIGHT = FONT_HEIGHT_NORMAL + 2*BUTTON_PADDING_LARGE;
 
     --Header
@@ -751,7 +751,7 @@ function MirageDialogSettingsMixin:Layout()
     self.DecorMask:SetPoint("BOTTOM", self.Description, "BOTTOM", 0, -16);
 end
 
-function MirageDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
+function YUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     if tabID == self.tabID and not forceUpdate then return false end;
 
     if self.tabID then  --Save Scroll Position
@@ -841,7 +841,7 @@ function MirageDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     end
 end
 
-function MirageDialogSettingsMixin:SelectTabByDelta(delta)
+function YUIDialogSettingsMixin:SelectTabByDelta(delta)
     local tabID = self.tabID or 0;
     if delta > 0 and tabID < self.numTabs then
         self:SelectTabByID(tabID + 1);
@@ -850,11 +850,11 @@ function MirageDialogSettingsMixin:SelectTabByDelta(delta)
     end
 end
 
-function MirageDialogSettingsMixin:UpdateCurrentTab()
+function YUIDialogSettingsMixin:UpdateCurrentTab()
     self:SelectTabByID(self.tabID, true)
 end
 
-function MirageDialogSettingsMixin:SetFocusedObject(object)
+function YUIDialogSettingsMixin:SetFocusedObject(object)
     self.focusedObject = object;
     if object then
         local _;
@@ -864,7 +864,7 @@ function MirageDialogSettingsMixin:SetFocusedObject(object)
     end
 end
 
-function MirageDialogSettingsMixin:ReAlignToFocusedObject()
+function YUIDialogSettingsMixin:ReAlignToFocusedObject()
     --The UI's dimension change with Font Size, so we need maintain the option's offsetY so players don't click another option by accident
     if self.focusedObject and self.focusedObject:IsShown() and self.focusedObjectOffsetY then
         local _, newOffsetY = self.focusedObject:GetCenter();
@@ -875,39 +875,39 @@ function MirageDialogSettingsMixin:ReAlignToFocusedObject()
     end
 end
 
-function MirageDialogSettingsMixin:ToggleUI()
+function YUIDialogSettingsMixin:ToggleUI()
     self:SetShown(not self:IsShown());
 end
 
 
-MirageDialogSettingsTabButtonMixin = {};
+YUIDialogSettingsTabButtonMixin = {};
 
-function MirageDialogSettingsTabButtonMixin:OnEnter()
+function YUIDialogSettingsTabButtonMixin:OnEnter()
     MainFrame:HighlightButton(self);
 end
 
-function MirageDialogSettingsTabButtonMixin:OnLeave()
+function YUIDialogSettingsTabButtonMixin:OnLeave()
     MainFrame:HighlightButton(nil);
 end
 
-function MirageDialogSettingsTabButtonMixin:OnMouseDown(button)
+function YUIDialogSettingsTabButtonMixin:OnMouseDown(button)
     if button ~= "LeftButton" or self.isSelected then return end;
     self.Name:SetPoint("CENTER", 0, -1);
 end
 
-function MirageDialogSettingsTabButtonMixin:OnMouseUp()
+function YUIDialogSettingsTabButtonMixin:OnMouseUp()
     self.Name:SetPoint("CENTER", 0, 0);
 end
 
-function MirageDialogSettingsTabButtonMixin:OnClick()
+function YUIDialogSettingsTabButtonMixin:OnClick()
     MainFrame:SelectTabByID(self.tabID);
 end
 
-function MirageDialogSettingsTabButtonMixin:SetName(name)
+function YUIDialogSettingsTabButtonMixin:SetName(name)
     self.Name:SetText(string.upper(name));
 end
 
-function MirageDialogSettingsTabButtonMixin:SetSelected(state)
+function YUIDialogSettingsTabButtonMixin:SetSelected(state)
     if state then
         self.isSelected = true;
         self.Name:SetFontObject("DUIFont_Quest_Quest");
@@ -922,9 +922,9 @@ end
 
 
 
-MirageDialogSettingsOptionMixin = {};
+YUIDialogSettingsOptionMixin = {};
 
-function MirageDialogSettingsOptionMixin:OnEnter()
+function YUIDialogSettingsOptionMixin:OnEnter()
     local choiceTooltip = self.widgetGetSelectedChoiceTooltip;
 
     if not self.isSubheader then
@@ -936,13 +936,13 @@ function MirageDialogSettingsOptionMixin:OnEnter()
     MainFrame:DisplayOptionInfo(self.optionData, choiceTooltip);
 end
 
-function MirageDialogSettingsOptionMixin:OnLeave()
+function YUIDialogSettingsOptionMixin:OnLeave()
     if not self:IsMouseOver() then
         MainFrame:HighlightButton(nil);
     end
 end
 
-function MirageDialogSettingsOptionMixin:OnClick()
+function YUIDialogSettingsOptionMixin:OnClick()
     MainFrame:SetFocusedObject(self);
 
     if self.widget and self.widget.OnClick and self.widget:IsEnabled() then
@@ -950,7 +950,7 @@ function MirageDialogSettingsOptionMixin:OnClick()
     end
 end
 
-function MirageDialogSettingsOptionMixin:SetCheckbox(optionData)
+function YUIDialogSettingsOptionMixin:SetCheckbox(optionData)
     self.widget = MainFrame.checkboxPool:Acquire();
     self.widget:SetParent(self);
     self.widget:SetPoint("RIGHT", self, "RIGHT", -BUTTON_PADDING_LARGE, 0);
@@ -959,7 +959,7 @@ function MirageDialogSettingsOptionMixin:SetCheckbox(optionData)
     self.widget:SetChecked(GetDBValue(self.dbKey) == true);
 end
 
-function MirageDialogSettingsOptionMixin:SetArrowOption(optionData)
+function YUIDialogSettingsOptionMixin:SetArrowOption(optionData)
     self.widget = MainFrame.arrowOptionPool:Acquire();
     self.widget:SetParent(self);
     self.widget:SetPoint("RIGHT", self, "RIGHT", -BUTTON_PADDING_LARGE, 0);
@@ -968,7 +968,7 @@ function MirageDialogSettingsOptionMixin:SetArrowOption(optionData)
 end
 
 
-function MirageDialogSettingsOptionMixin:SetSubheader()
+function YUIDialogSettingsOptionMixin:SetSubheader()
     --[[
     local icon = MainFrame.texturePool:Acquire();
     icon:SetSize(FONT_HEIGHT_NORMAL, FONT_HEIGHT_NORMAL);
@@ -979,7 +979,7 @@ function MirageDialogSettingsOptionMixin:SetSubheader()
     --]]
 end
 
-function MirageDialogSettingsOptionMixin:SetData(optionData)
+function YUIDialogSettingsOptionMixin:SetData(optionData)
     self.optionData = optionData;
     self.dbKey = optionData.dbKey;
     self.updateTabAfterClicks = optionData.updateTabAfterClicks;
@@ -1026,7 +1026,7 @@ end
 
 
 
-MirageDialogSettingsArrowOptionMixin = {};
+YUIDialogSettingsArrowOptionMixin = {};
 
 local function ArrowButton_OnClick(self)
     self:GetParent():SelectChoiceByDelta(self.delta);
@@ -1071,7 +1071,7 @@ local function OnAcquireBar(bar)
     bar:SetTexture(ThemeUtil:GetTextureFile("Settings-ArrowOption.png"));
 end
 
-function MirageDialogSettingsArrowOptionMixin:OnLoad()
+function YUIDialogSettingsArrowOptionMixin:OnLoad()
     self.ValueText:SetPoint("TOP", self, "TOP", 0, ARROWOPTION_VALUETEXT_OFFSET_Y);
 
     self.LeftArrow.delta = -1;
@@ -1103,7 +1103,7 @@ function MirageDialogSettingsArrowOptionMixin:OnLoad()
     self.barPool = API.CreateObjectPool(CreateBar, RemoveBar, OnAcquireBar);
 end
 
-function MirageDialogSettingsArrowOptionMixin:SetNumChoices(numChoices, forceUpdate)
+function YUIDialogSettingsArrowOptionMixin:SetNumChoices(numChoices, forceUpdate)
     if numChoices ~= self.numChoices or forceUpdate then
         self.barPool:Release();
         self.numChoices = numChoices;
@@ -1124,22 +1124,22 @@ function MirageDialogSettingsArrowOptionMixin:SetNumChoices(numChoices, forceUpd
     end
 end
 
-function MirageDialogSettingsArrowOptionMixin:GetCentralWidth()
+function YUIDialogSettingsArrowOptionMixin:GetCentralWidth()
     return self:GetWidth() - 2*self.LeftArrow:GetWidth();
 end
 
-function MirageDialogSettingsArrowOptionMixin:SetWidgetWidth(width)
+function YUIDialogSettingsArrowOptionMixin:SetWidgetWidth(width)
     local centralWidth = self:GetCentralWidth();
 end
 
-function MirageDialogSettingsArrowOptionMixin:SetWidgetHeight(height)
+function YUIDialogSettingsArrowOptionMixin:SetWidgetHeight(height)
     self.LeftArrow.Texture:SetSize(height, height);
     self.RightArrow.Texture:SetSize(height, height);
     self:SetHeight(height);
     self:SetWidth(height * ARROWOTPION_WIDTH_RATIO);
 end
 
-function MirageDialogSettingsArrowOptionMixin:SetValueTextByID(id)
+function YUIDialogSettingsArrowOptionMixin:SetValueTextByID(id)
     if self.valueTextFormatter then
         self.valueTextFormatter(self, self.choices[id].dbValue);
     else
@@ -1148,7 +1148,7 @@ function MirageDialogSettingsArrowOptionMixin:SetValueTextByID(id)
     end
 end
 
-function MirageDialogSettingsArrowOptionMixin:SelectChoiceByID(id)
+function YUIDialogSettingsArrowOptionMixin:SelectChoiceByID(id)
     if not self.choices[id] then
         id = 1;
     end
@@ -1172,7 +1172,7 @@ function MirageDialogSettingsArrowOptionMixin:SelectChoiceByID(id)
     self.RightArrow:SetEnabled(id ~= self.numChoices);
 end
 
-function MirageDialogSettingsArrowOptionMixin:SelectNextChoice()
+function YUIDialogSettingsArrowOptionMixin:SelectNextChoice()
     if ARROWOTPION_CYCLING then
         self.selectedID = self.selectedID + 1;
         if self.selectedID > self.numChoices then
@@ -1190,7 +1190,7 @@ function MirageDialogSettingsArrowOptionMixin:SelectNextChoice()
     return true
 end
 
-function MirageDialogSettingsArrowOptionMixin:SelectPreviousChoice()
+function YUIDialogSettingsArrowOptionMixin:SelectPreviousChoice()
     if ARROWOTPION_CYCLING then
         self.selectedID = self.selectedID - 1;
         if self.selectedID < 1 then
@@ -1208,7 +1208,7 @@ function MirageDialogSettingsArrowOptionMixin:SelectPreviousChoice()
     return true
 end
 
-function MirageDialogSettingsArrowOptionMixin:SelectChoiceByDelta(delta)
+function YUIDialogSettingsArrowOptionMixin:SelectChoiceByDelta(delta)
     --right = 1, left = -1
     local anyChange;
 
@@ -1223,7 +1223,7 @@ function MirageDialogSettingsArrowOptionMixin:SelectChoiceByDelta(delta)
     end
 end
 
-function MirageDialogSettingsArrowOptionMixin:PostClick()
+function YUIDialogSettingsArrowOptionMixin:PostClick()
     local optionButton = self:GetParent();
     MainFrame:SetFocusedObject(optionButton);
 
@@ -1239,7 +1239,7 @@ function MirageDialogSettingsArrowOptionMixin:PostClick()
     end
 end
 
-function MirageDialogSettingsArrowOptionMixin:SetData(optionData)
+function YUIDialogSettingsArrowOptionMixin:SetData(optionData)
     self.choices = optionData.choices;
     self.dbKey = optionData.dbKey;
     self.valueTextFormatter = optionData.valueTextFormatter;
@@ -1265,14 +1265,14 @@ function MirageDialogSettingsArrowOptionMixin:SetData(optionData)
     self:SelectChoiceByID(selectedID);
 end
 
-function MirageDialogSettingsArrowOptionMixin:SetTexture(file)
+function YUIDialogSettingsArrowOptionMixin:SetTexture(file)
     self.LeftArrow.Texture:SetTexture(file);
     self.LeftArrow.Highlight:SetTexture(file);
     self.RightArrow.Texture:SetTexture(file);
     self.RightArrow.Highlight:SetTexture(file);
 end
 
-function MirageDialogSettingsArrowOptionMixin:GetSelectedChoiceTooltip()
+function YUIDialogSettingsArrowOptionMixin:GetSelectedChoiceTooltip()
     if self.selectedID and self.choices and self.choices[self.selectedID] then
         return self.choices[self.selectedID].tooltip
     end
@@ -1281,22 +1281,22 @@ end
 
 
 
-MirageDialogSettingsCheckboxMixin = {};
+YUIDialogSettingsCheckboxMixin = {};
 
-function MirageDialogSettingsCheckboxMixin:OnEnter()
+function YUIDialogSettingsCheckboxMixin:OnEnter()
     self:GetParent():OnEnter();
 end
 
-function MirageDialogSettingsCheckboxMixin:OnLeave()
+function YUIDialogSettingsCheckboxMixin:OnLeave()
     self:GetParent():OnLeave();
 end
 
-function MirageDialogSettingsCheckboxMixin:SetTexture(file)
+function YUIDialogSettingsCheckboxMixin:SetTexture(file)
     self.Background:SetTexture(file);
     self.Check:SetTexture(file);
 end
 
-function MirageDialogSettingsCheckboxMixin:OnClick()
+function YUIDialogSettingsCheckboxMixin:OnClick()
     self:Toggle();
 
     local optionButton = self:GetParent();
@@ -1307,7 +1307,7 @@ function MirageDialogSettingsCheckboxMixin:OnClick()
     end
 end
 
-function MirageDialogSettingsCheckboxMixin:SetChecked(state)
+function YUIDialogSettingsCheckboxMixin:SetChecked(state)
     self.checked = state;
     self.Check:SetShown(state);
     if state then
@@ -1317,17 +1317,17 @@ function MirageDialogSettingsCheckboxMixin:SetChecked(state)
     end
 end
 
-function MirageDialogSettingsCheckboxMixin:Toggle()
+function YUIDialogSettingsCheckboxMixin:Toggle()
     self.checked = not self.checked;
     self:SetChecked(self.checked);
 end
 
-function MirageDialogSettingsCheckboxMixin:SetWidgetHeight(height)
+function YUIDialogSettingsCheckboxMixin:SetWidgetHeight(height)
     self:SetSize(height, height);
     self.Check:SetSize(height*0.5, height*0.5);
 end
 
-function MirageDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
+function YUIDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
     if self.checked then
         return self.checkedTooltip
     else
@@ -1336,32 +1336,32 @@ function MirageDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
 end
 
 do  --GamePad/Controller
-    function MirageDialogSettingsMixin:ResetGamePadObjects()
+    function YUIDialogSettingsMixin:ResetGamePadObjects()
         self.gamepadMaxIndex = 0;
         self.gamepadFocusIndex = nil;
         self.gamepadFocus = nil;
         self.gamepadObjects = {};
     end
 
-    function MirageDialogSettingsMixin:IndexGamePadObject(object)
+    function YUIDialogSettingsMixin:IndexGamePadObject(object)
         self.gamepadMaxIndex = self.gamepadMaxIndex + 1;
         self.gamepadObjects[self.gamepadMaxIndex] = object;
         object.gamepadIndex = self.gamepadMaxIndex;
     end
 
-    function MirageDialogSettingsMixin:ClearGamePadFocus()
+    function YUIDialogSettingsMixin:ClearGamePadFocus()
         if self.gamepadFocus then
             --self.gamepadFocus:OnLeave();
             self.gamepadFocus = nil;
         end
     end
 
-    function MirageDialogSettingsMixin:SetGamePadFocus(optionButton)
+    function YUIDialogSettingsMixin:SetGamePadFocus(optionButton)
         self.gamepadFocusIndex = optionButton.gamepadIndex;
         self.gamepadFocus = optionButton;
     end
 
-    function MirageDialogSettingsMixin:FocusObjectByIndex(index)
+    function YUIDialogSettingsMixin:FocusObjectByIndex(index)
         local object = self.gamepadObjects[index];
         if object then
             self.gamepadFocusIndex = index;
@@ -1371,7 +1371,7 @@ do  --GamePad/Controller
         end
     end
 
-    function MirageDialogSettingsMixin:FocusObjectByDelta(delta)
+    function YUIDialogSettingsMixin:FocusObjectByDelta(delta)
         local maxIndex = self.gamepadMaxIndex or 0;
         local index = self.gamepadFocusIndex;
 
@@ -1408,19 +1408,19 @@ do  --GamePad/Controller
         end
     end
 
-    function MirageDialogSettingsMixin:FocusNextObject()
+    function YUIDialogSettingsMixin:FocusNextObject()
         if self:FocusObjectByDelta(1) then
             return
         end
     end
 
-    function MirageDialogSettingsMixin:FocusPreviousObject()
+    function YUIDialogSettingsMixin:FocusPreviousObject()
         if self:FocusObjectByDelta(-1) then
             return
         end
     end
 
-    function MirageDialogSettingsMixin:ClickFocusedObject(gamepadButton)
+    function YUIDialogSettingsMixin:ClickFocusedObject(gamepadButton)
         if self.gamepadFocus then
             local optionButton = self.gamepadFocus;
             if gamepadButton == "PAD1" then

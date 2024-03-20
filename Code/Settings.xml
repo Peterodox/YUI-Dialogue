@@ -1,7 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="Settings.lua"/>
 
-    <Button name="MirageDialogSettingsTabButtonTemplate" mixin="MirageDialogSettingsTabButtonMixin" registerForClicks="LeftButtonUp" virtual="true">
+    <Button name="YUIDialogSettingsTabButtonTemplate" mixin="YUIDialogSettingsTabButtonMixin" registerForClicks="LeftButtonUp" virtual="true">
         <Size x="72" y="36"/>
         <Layers>
             <Layer level="OVERLAY">
@@ -21,7 +21,7 @@
         </Scripts>
     </Button>
 
-    <Frame name="MirageDialogSettingsTextureFrameTemplate" virtual="true" useParentLevel="true">
+    <Frame name="YUIDialogSettingsTextureFrameTemplate" virtual="true" useParentLevel="true">
         <Size x="16" y="16"/>
         <Layers>
             <Layer level="OVERLAY">
@@ -30,7 +30,7 @@
         </Layers>
     </Frame>
 
-    <Button name="MirageDialogSettingsCheckboxTemplate" mixin="MirageDialogSettingsCheckboxMixin" virtual="true">
+    <Button name="YUIDialogSettingsCheckboxTemplate" mixin="YUIDialogSettingsCheckboxMixin" virtual="true">
         <Size x="24" y="24"/>
         <Layers>
             <Layer level="BACKGROUND">
@@ -57,7 +57,7 @@
         </Scripts>
     </Button>
 
-    <Frame name="MirageDialogSettingsArrowOptionTemplate" mixin="MirageDialogSettingsArrowOptionMixin" virtual="true">
+    <Frame name="YUIDialogSettingsArrowOptionTemplate" mixin="YUIDialogSettingsArrowOptionMixin" virtual="true">
         <Size x="168" y="24"/>
         <Layers>
             <Layer level="OVERLAY">
@@ -127,7 +127,7 @@
         </Scripts>
     </Frame>
 
-    <Button name="MirageDialogSettingsOptionTemplate" mixin="MirageDialogSettingsOptionMixin" virtual="true">
+    <Button name="YUIDialogSettingsOptionTemplate" mixin="YUIDialogSettingsOptionMixin" virtual="true">
         <Size x="360" y="36"/>
         <Layers>
             <Layer level="OVERLAY">
@@ -145,7 +145,7 @@
         </Scripts>
     </Button>
 
-    <Frame name="MirageDialogSettings" mixin="MirageDialogSettingsMixin" enableMouse="true" frameStrata="DIALOG" hidden="true" topLevel="true" clampedToScreen="true" movable="true" dontSavePosition="true">
+    <Frame name="YUIDialogSettings" mixin="YUIDialogSettingsMixin" enableMouse="true" frameStrata="DIALOG" hidden="true" topLevel="true" clampedToScreen="true" movable="true" dontSavePosition="true">
         <Size x="400" y="300"/>
         <Anchors>
             <Anchor point="CENTER"/>

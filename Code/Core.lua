@@ -1,9 +1,6 @@
 local _, addon = ...
-local L = addon.L;
 local API = addon.API;
-local CameraUtil = addon.CameraUtil;
-local MainFrame = MirageQuestFrame;
-local UnitExists = UnitExists;
+local MainFrame = addon.DialogueUI;
 local IsInteractingWithDialogNPC = API.IsInteractingWithDialogNPC;
 local CancelClosingGossipInteraction = API.CancelClosingGossipInteraction;
 local QuestIsFromAreaTrigger = API.QuestIsFromAreaTrigger;

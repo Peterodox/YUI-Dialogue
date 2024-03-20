@@ -126,9 +126,9 @@ local function ScrollFrame_Easing(self, elapsed)
 end
 
 
-MirageDialogBaseMixin = {};
+YUIDialogBaseMixin = {};
 
-function MirageDialogBaseMixin:CalculateBestFrameHeight()
+function YUIDialogBaseMixin:CalculateBestFrameHeight()
     local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
 
     local heightRatio = 0.618;
@@ -193,7 +193,7 @@ local function SetupObjectSize(root, key, data)
     end
 end
 
-function MirageDialogBaseMixin:UpdateFrameSize()
+function YUIDialogBaseMixin:UpdateFrameSize()
     local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
     viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
 
@@ -299,7 +299,7 @@ function MirageDialogBaseMixin:UpdateFrameSize()
     end
 end
 
-function MirageDialogBaseMixin:OnLoad()
+function YUIDialogBaseMixin:OnLoad()
     --table.insert(UISpecialFrames, self:GetName());
     MainFrame = self;
     addon.DialogueUI = self;
@@ -319,7 +319,7 @@ function MirageDialogBaseMixin:OnLoad()
 
     self.ButtonHighlight = self.ContentFrame.ButtonHighlight;
     self.RewardSelection = self.ContentFrame.RewardSelection;
-    self.GamePadFocusIndicator = CreateFrame("Frame", nil, self.FrontFrame, "MirageDialogHotkeyTemplate");
+    self.GamePadFocusIndicator = CreateFrame("Frame", nil, self.FrontFrame, "YUIDialogHotkeyTemplate");
     self.GamePadFocusIndicator:SetIgnoreParentAlpha(true);
 
     API.DisableSharpening(self.ButtonHighlight.BackTexture);
@@ -382,7 +382,7 @@ function MirageDialogBaseMixin:OnLoad()
 
 
     local function CreateOptionButton()
-        local button = CreateFrame("Button", nil, self.ContentFrame, "MirageDialogOptionButtonTemplate");
+        local button = CreateFrame("Button", nil, self.ContentFrame, "YUIDialogOptionButtonTemplate");
         button:SetButtonWidth(self.frameWidth - 2*PADDING_H*FRAME_SIZE_MULTIPLIER);
         button:SetOwner(self);
         return button
@@ -420,7 +420,7 @@ function MirageDialogBaseMixin:OnLoad()
 
 
     local function CreateItemButton()
-        local button = CreateFrame("Button", nil, self.ContentFrame, "MirageDialogItemButtonTemplate");
+        local button = CreateFrame("Button", nil, self.ContentFrame, "YUIDialogItemButtonTemplate");
         button:SetButtonWidth(self.halfFrameWidth);
         return button
     end
@@ -438,7 +438,7 @@ function MirageDialogBaseMixin:OnLoad()
 
 
     local function CreateSmallItemButton()
-        local button = CreateFrame("Button", nil, self.ContentFrame, "MirageDialogSmallItemButtonTemplate");
+        local button = CreateFrame("Button", nil, self.ContentFrame, "YUIDialogSmallItemButtonTemplate");
         button:SetButtonWidth(self.quarterFrameWidth);
         return button
     end
@@ -451,7 +451,7 @@ function MirageDialogBaseMixin:OnLoad()
 
 
     local function CreateQuestTypeFrame()
-        local f = CreateFrame("Frame", nil, self, "MirageDialogQuestTypeFrameTemplate");
+        local f = CreateFrame("Frame", nil, self, "YUIDialogQuestTypeFrameTemplate");
         return f
     end
 
@@ -464,7 +464,7 @@ function MirageDialogBaseMixin:OnLoad()
 
 
     local function CreateIconFrame()
-        local f = CreateFrame("Frame", nil, self, "MirageDialogIconFrameTemplate");
+        local f = CreateFrame("Frame", nil, self, "YUIDialogIconFrameTemplate");
         return f
     end
 
@@ -472,7 +472,7 @@ function MirageDialogBaseMixin:OnLoad()
 
 
     local function CreateHotkeyFrame()
-        local f = CreateFrame("Frame", nil, self, "MirageDialogHotkeyTemplate");
+        local f = CreateFrame("Frame", nil, self, "YUIDialogHotkeyTemplate");
         return f
     end
 
@@ -507,7 +507,7 @@ function MirageDialogBaseMixin:OnLoad()
     self:SetScript("OnLoad", nil);
 end
 
-function MirageDialogBaseMixin:LoadTheme()
+function YUIDialogBaseMixin:LoadTheme()
     local prefix = ThemeUtil:GetTexturePath();
     local parchmentFile = prefix.."Parchment.png";
 
@@ -576,13 +576,13 @@ function MirageDialogBaseMixin:LoadTheme()
     self:OnSettingsChanged();
 end
 
-function MirageDialogBaseMixin:UpdatePixel(scale)
+function YUIDialogBaseMixin:UpdatePixel(scale)
     local cornerV = 80;
     local cornerH = 80; --128
     local a = 256;
 end
 
-function MirageDialogBaseMixin:ReleaseAllObjects()
+function YUIDialogBaseMixin:ReleaseAllObjects()
     self.textHistory = {};
     self.highlightedButton = nil;
     self.fontStringPool:Release();
@@ -602,19 +602,19 @@ function MirageDialogBaseMixin:ReleaseAllObjects()
     KeyboardControl:ResetKeyActions();
 end
 
-function MirageDialogBaseMixin:AcquireFontString()
+function YUIDialogBaseMixin:AcquireFontString()
     return self.fontStringPool:Acquire();
 end
 
-function MirageDialogBaseMixin:AcquireAcceptButton(enableHotkey)
+function YUIDialogBaseMixin:AcquireAcceptButton(enableHotkey)
     if not self.AcceptButton then
-        self.AcceptButton = CreateFrame("Button", nil, self, "MirageDialogOptionButtonTemplate");   --self.FrontFrame
+        self.AcceptButton = CreateFrame("Button", nil, self, "YUIDialogOptionButtonTemplate");   --self.FrontFrame
         self.AcceptButton:SetOwner(self);
         self.AcceptButton:SetButtonAcceptQuest();
-        self.AcceptButtonLock = CreateFrame("Frame", nil, self.AcceptButton, "MirageDialogOptionButtonLockTemplate");
+        self.AcceptButtonLock = CreateFrame("Frame", nil, self.AcceptButton, "YUIDialogOptionButtonLockTemplate");
         self.AcceptButton.ButtonLock = self.AcceptButtonLock;
         self.AcceptButton:SetButtonWidth(self.halfFrameWidth);
-        self.AcceptButton.HotkeyFrame = CreateFrame("Frame", nil, self.AcceptButton, "MirageDialogHotkeyTemplate");
+        self.AcceptButton.HotkeyFrame = CreateFrame("Frame", nil, self.AcceptButton, "YUIDialogHotkeyTemplate");
     end
 
     if not self.AcceptButton:IsMouseOver() then
@@ -631,13 +631,13 @@ function MirageDialogBaseMixin:AcquireAcceptButton(enableHotkey)
     return self.AcceptButton
 end
 
-function MirageDialogBaseMixin:AcquireExitButton()
+function YUIDialogBaseMixin:AcquireExitButton()
     if not self.ExitButton then
-        self.ExitButton = CreateFrame("Button", nil, self, "MirageDialogOptionButtonTemplate"); --self.FrontFrame
+        self.ExitButton = CreateFrame("Button", nil, self, "YUIDialogOptionButtonTemplate"); --self.FrontFrame
         self.ExitButton:SetOwner(self);
         self.ExitButton:SetButtonExitGossip();
         self.ExitButton:SetButtonWidth(self.halfFrameWidth);
-        self.ExitButton.HotkeyFrame = CreateFrame("Frame", nil, self.ExitButton, "MirageDialogHotkeyTemplate");
+        self.ExitButton.HotkeyFrame = CreateFrame("Frame", nil, self.ExitButton, "YUIDialogHotkeyTemplate");
     end
 
     self.ExitButton:ResetVisual();
@@ -649,19 +649,19 @@ function MirageDialogBaseMixin:AcquireExitButton()
     return self.ExitButton
 end
 
-function MirageDialogBaseMixin:AcquireOptionButton()
+function YUIDialogBaseMixin:AcquireOptionButton()
     return self.optionButtonPool:Acquire();
 end
 
-function MirageDialogBaseMixin:SetSelectedGossipIndex(gossipOrderIndex)
+function YUIDialogBaseMixin:SetSelectedGossipIndex(gossipOrderIndex)
     self.selectedGossipIndex = gossipOrderIndex;
 end
 
-function MirageDialogBaseMixin:SetAcceptCurrentQuest()
+function YUIDialogBaseMixin:SetAcceptCurrentQuest()
     self:SetConsumeGossipClose(false);
 end
 
-function MirageDialogBaseMixin:FlagPreviousGossipButtons()
+function YUIDialogBaseMixin:FlagPreviousGossipButtons()
     self:HighlightButton(nil);
 
     local index = self.selectedGossipIndex;
@@ -677,7 +677,7 @@ function MirageDialogBaseMixin:FlagPreviousGossipButtons()
     );
 end
 
-function MirageDialogBaseMixin:AcquireLeftFontString()
+function YUIDialogBaseMixin:AcquireLeftFontString()
     local fs = self:AcquireFontString();
     fs:SetFontObject("DUIFont_Quest_Paragraph");
     fs:SetJustifyV("TOP");
@@ -685,7 +685,7 @@ function MirageDialogBaseMixin:AcquireLeftFontString()
     return fs
 end
 
-function MirageDialogBaseMixin:AcquireAndSetSubHeader(text)
+function YUIDialogBaseMixin:AcquireAndSetSubHeader(text)
     local background = self.textBackgroundPool:Acquire();
     local fs = self:AcquireFontString();
     fs:SetFontObject("DUIFont_Quest_SubHeader");
@@ -707,7 +707,7 @@ function MirageDialogBaseMixin:AcquireAndSetSubHeader(text)
     return background
 end
 
-function MirageDialogBaseMixin:UseQuestLayout(state)
+function YUIDialogBaseMixin:UseQuestLayout(state)
     local forceUpdate = SETTINGS_UI_VISIBLE == true;
 
     if state then
@@ -747,7 +747,7 @@ end
 
 
 
-function MirageDialogBaseMixin:UpdateQuestTitle()
+function YUIDialogBaseMixin:UpdateQuestTitle()
     local text = GetQuestTitle();
 
     local headerFrame = self.FrontFrame.Header;
@@ -804,7 +804,7 @@ function MirageDialogBaseMixin:UpdateQuestTitle()
     return 6 * (FRAME_SIZE_MULTIPLIER)   --Accounted for Header Size
 end
 
-function MirageDialogBaseMixin:ScrollTo(value)
+function YUIDialogBaseMixin:ScrollTo(value)
     local f = self.ScrollFrame;
 
     value = API.Clamp(value, 0, f.range);
@@ -821,7 +821,7 @@ function MirageDialogBaseMixin:ScrollTo(value)
     end
 end
 
-function MirageDialogBaseMixin:ScrollBy(offset)
+function YUIDialogBaseMixin:ScrollBy(offset)
     local f = self.ScrollFrame;
     local value = f.scrollTarget or f:GetVerticalScroll();
     
@@ -855,12 +855,12 @@ function MirageDialogBaseMixin:ScrollBy(offset)
     --]]
 end
 
-function MirageDialogBaseMixin:ScrollToBottom()
+function YUIDialogBaseMixin:ScrollToBottom()
     self:ScrollBy(self.ScrollFrame.range);
     FadeFrame(self.ScrollFrame.borderBottom, 0, 0);
 end
 
-function MirageDialogBaseMixin:IsScrollAtBottom()
+function YUIDialogBaseMixin:IsScrollAtBottom()
     if not self:IsScrollable() then
         return true
     end
@@ -870,7 +870,7 @@ function MirageDialogBaseMixin:IsScrollAtBottom()
     return current + 0.5 > range;
 end
 
-function MirageDialogBaseMixin:ResetScroll()
+function YUIDialogBaseMixin:ResetScroll()
     self.ScrollFrame:SetScript("OnUpdate", nil);
     self.ScrollFrame:SetHorizontalScroll(0);
     self.ScrollFrame:SetVerticalScroll(0);
@@ -879,7 +879,7 @@ function MirageDialogBaseMixin:ResetScroll()
     FadeFrame(self.ScrollFrame.borderTop, 0, 0);
 end
 
-function MirageDialogBaseMixin:SetScrollable(scrollable)
+function YUIDialogBaseMixin:SetScrollable(scrollable)
     --Using ClipFrame (clipChildren or ScrollChild) breaks pixel-perfect
     --Setting parent to ScrollChild dynamically, so we can still have good looking stroke
     --Animation: ContentFrame has childChildren = true during unscroll animation
@@ -902,11 +902,11 @@ function MirageDialogBaseMixin:SetScrollable(scrollable)
     end
 end
 
-function MirageDialogBaseMixin:IsScrollable()
+function YUIDialogBaseMixin:IsScrollable()
     return self.ContentFrame.scrollable == true
 end
 
-function MirageDialogBaseMixin:SetScrollRange(contentHeight)
+function YUIDialogBaseMixin:SetScrollRange(contentHeight)
     self.contentHeight = contentHeight;
 
     local scrollViewHeight = self.scrollViewHeight; --self.ScrollFrame:GetHeight();  --affected by intro animation!
@@ -957,7 +957,7 @@ local function SortFunc_PrioritizeCompleteQuest(a, b)
     end
 end
 
-function MirageDialogBaseMixin:FadeInContentFrame()
+function YUIDialogBaseMixin:FadeInContentFrame()
     if self:IsShown() and not SETTINGS_UI_VISIBLE then
         FadeFrame(self.ContentFrame, 0.35, 1, 0);
         PlaySound("SOUNDKIT.IG_QUEST_LIST_OPEN");
@@ -966,7 +966,7 @@ function MirageDialogBaseMixin:FadeInContentFrame()
     end
 end
 
-function MirageDialogBaseMixin:InsertText(offsetY, text)
+function YUIDialogBaseMixin:InsertText(offsetY, text)
 	--Add no spacing
 	local fs = self:AcquireLeftFontString();
 	fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
@@ -976,12 +976,12 @@ function MirageDialogBaseMixin:InsertText(offsetY, text)
 	return offsetY
 end
 
-function MirageDialogBaseMixin:InsertParagraph(offsetY, paragraphText)
+function YUIDialogBaseMixin:InsertParagraph(offsetY, paragraphText)
 	--Add paragrah spacing
 	return self:InsertText(offsetY + PARAGRAPH_SPACING, paragraphText);
 end
 
-function MirageDialogBaseMixin:FormatParagraph(offsetY, text)
+function YUIDialogBaseMixin:FormatParagraph(offsetY, text)
     local paragraphs = API.SplitParagraph(text);
 	local firstObject, lastObject;
 
@@ -1013,7 +1013,7 @@ local function ConcatenateNPCName(text)
     return text
 end
 
-function MirageDialogBaseMixin:HandleGossip()
+function YUIDialogBaseMixin:HandleGossip()
     local availableQuests = GetAvailableQuests();
     local activeQuests = GetActiveQuests();
 
@@ -1229,7 +1229,7 @@ function MirageDialogBaseMixin:HandleGossip()
     return true
 end
 
-function MirageDialogBaseMixin:HandleQuestDetail()
+function YUIDialogBaseMixin:HandleQuestDetail()
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1318,7 +1318,7 @@ function MirageDialogBaseMixin:HandleQuestDetail()
     return true
 end
 
-function MirageDialogBaseMixin:HandleQuestAccepted(questID)
+function YUIDialogBaseMixin:HandleQuestAccepted(questID)
     --QUEST_ACCEPTED
     if self.handler == "HandleQuestDetail" then
         local currentQuestID = GetQuestID();
@@ -1351,7 +1351,7 @@ local function CalulateLockDuration(rawCopper)
     end
 end
 
-function MirageDialogBaseMixin:HandleQuestProgress()
+function YUIDialogBaseMixin:HandleQuestProgress()
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1440,13 +1440,13 @@ function MirageDialogBaseMixin:HandleQuestProgress()
     return true
 end
 
-function MirageDialogBaseMixin:IsRewardChosen()
+function YUIDialogBaseMixin:IsRewardChosen()
     local numRewardChoices = GetNumQuestChoices() or 0;
     local choiceID = self.rewardChoiceID;
     return numRewardChoices <= 1 or (choiceID ~= nil);
 end
 
-function MirageDialogBaseMixin:HandleQuestComplete()
+function YUIDialogBaseMixin:HandleQuestComplete()
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1499,7 +1499,7 @@ local function SortFunc_QuestGreetingActiveQuests(a, b)
     end
 end
 
-function MirageDialogBaseMixin:HandleQuestGreeting()
+function YUIDialogBaseMixin:HandleQuestGreeting()
     self:ReleaseAllObjects();
     self:UseQuestLayout(false);
 
@@ -1614,7 +1614,7 @@ function MirageDialogBaseMixin:HandleQuestGreeting()
     return true
 end
 
-function MirageDialogBaseMixin:GetQuestFinishedDelay()
+function YUIDialogBaseMixin:GetQuestFinishedDelay()
     if (self.numAvailableQuests and self.numAvailableQuests > 1) or QuestIsFromAreaTrigger() then
         return 0.5
     else
@@ -1622,7 +1622,7 @@ function MirageDialogBaseMixin:GetQuestFinishedDelay()
     end
 end
 
-function MirageDialogBaseMixin:UpdateGossipQuests()
+function YUIDialogBaseMixin:UpdateGossipQuests()
     if self.activeQuestButtons then
         local activeQuests = GetActiveQuests();
 
@@ -1641,7 +1641,7 @@ function MirageDialogBaseMixin:UpdateGossipQuests()
     end
 end
 
-function MirageDialogBaseMixin:HandleGossipConfirm(gossipID, warningText, cost)
+function YUIDialogBaseMixin:HandleGossipConfirm(gossipID, warningText, cost)
     self.hasActiveGossipQuests = false;
     self.numAvailableQuests = 0;
     self.keepGossipHistory = false;
@@ -1681,7 +1681,7 @@ function MirageDialogBaseMixin:HandleGossipConfirm(gossipID, warningText, cost)
     FadeFrame(self.ContentFrame, 0.35, 1, 0);
 end
 
-function MirageDialogBaseMixin:HideGossipConfirm()
+function YUIDialogBaseMixin:HideGossipConfirm()
     if self:IsShown() and self.requireGossipConfirm and self.handler == "HandleGossip" then
         self.requireGossipConfirm = false;
         self.keepGossipHistory = false;
@@ -1692,7 +1692,7 @@ function MirageDialogBaseMixin:HideGossipConfirm()
     end
 end
 
-function MirageDialogBaseMixin:HandleGossipEnterCode(gossipID)
+function YUIDialogBaseMixin:HandleGossipEnterCode(gossipID)
     self.inputboxShown = true;
     self.InputBox:Show();
     self.InputBox:SetGossipID(gossipID);
@@ -1701,7 +1701,7 @@ function MirageDialogBaseMixin:HandleGossipEnterCode(gossipID)
     FadeFrame(self.FrontFrame, 0.15, 0.25);
 end
 
-function MirageDialogBaseMixin:HideInputBox()
+function YUIDialogBaseMixin:HideInputBox()
     if self.inputboxShown then
         self.InputBox:Hide();
         FadeFrame(self.ContentFrame, 0.15, 1);
@@ -1713,7 +1713,7 @@ local function Predicate_ActiveChoiceButton(itemButton)
     return itemButton.type == "choice" and itemButton:IsShown()
 end
 
-function MirageDialogBaseMixin:SelectRewardChoice(choiceID)
+function YUIDialogBaseMixin:SelectRewardChoice(choiceID)
     if not self.chooseItems then return end;    --Handled in Formatter when building reward choices
 
     local claimQuestReward;
@@ -1748,7 +1748,7 @@ function MirageDialogBaseMixin:SelectRewardChoice(choiceID)
     return true
 end
 
-function MirageDialogBaseMixin:HighlightRewardChoice(rewardChoiceButton)
+function YUIDialogBaseMixin:HighlightRewardChoice(rewardChoiceButton)
     self.RewardSelection:Hide();
     self.RewardSelection:ClearAllPoints();
     self.GamePadFocusIndicator:Hide();
@@ -1770,7 +1770,7 @@ function MirageDialogBaseMixin:HighlightRewardChoice(rewardChoiceButton)
     end
 end
 
-function MirageDialogBaseMixin:FlashRewardChoices()
+function YUIDialogBaseMixin:FlashRewardChoices()
     local buttons = self.itemButtonPool:GetObjectsByPredicate(Predicate_ActiveChoiceButton);
     if buttons then
         for i, button in ipairs(buttons) do
@@ -1840,7 +1840,7 @@ end
 local ActiveAnimIntro = AnimIntro_SimpleFadeIn_OnUpdate;
 
 
-function MirageDialogBaseMixin:PlayIntroAnimation()
+function YUIDialogBaseMixin:PlayIntroAnimation()
     self.fromHeight = 0.5 * self.frameHeight;
     self.fromOffsetX = self.frameOffsetX + 72;
     self.t = 0;
@@ -1856,7 +1856,7 @@ local Handler = {
     ["QUEST_GREETING"] = "HandleQuestGreeting",     --Similar to GOSSIP_SHOW
 };
 
-function MirageDialogBaseMixin:ShowUI(event)
+function YUIDialogBaseMixin:ShowUI(event)
     local shouldShowUI;
 
     if Handler[event] then
@@ -1876,7 +1876,7 @@ function MirageDialogBaseMixin:ShowUI(event)
     self.hasInteraction = true;
 end
 
-function MirageDialogBaseMixin:HideUI(cancelPopupFirst)
+function YUIDialogBaseMixin:HideUI(cancelPopupFirst)
     if not self:IsShown() then return end;
 
     if cancelPopupFirst and self.requireGossipConfirm then
@@ -1887,7 +1887,7 @@ function MirageDialogBaseMixin:HideUI(cancelPopupFirst)
     self:Hide();
 end
 
-function MirageDialogBaseMixin:OnShow()
+function YUIDialogBaseMixin:OnShow()
     PixelUtil:RequireUpdate();
     KeyboardControl:SetParentFrame(self);
 
@@ -1904,7 +1904,7 @@ function MirageDialogBaseMixin:OnShow()
     FadeFrame(self.Vignette, 0.75, 1);
 end
 
-function MirageDialogBaseMixin:CloseDialogInteraction()
+function YUIDialogBaseMixin:CloseDialogInteraction()
     CloseQuest();
     CloseGossipInteraction();
 
@@ -1912,12 +1912,12 @@ function MirageDialogBaseMixin:CloseDialogInteraction()
     --HideUI will cause ClassTrainerFrame to not processing events (Blizzard_TrainerUI/Blizzard_TrainerUI.lua#72)
 end
 
-function MirageDialogBaseMixin:SetInteractionIsContinuing(interactionIsContinuing)
+function YUIDialogBaseMixin:SetInteractionIsContinuing(interactionIsContinuing)
     --Not used
 	self.interactionIsContinuing = true;    --?
 end
 
-function MirageDialogBaseMixin:OnHide()
+function YUIDialogBaseMixin:OnHide()
     CameraUtil:Restore();
 
     self:CloseDialogInteraction();
@@ -1948,17 +1948,17 @@ function MirageDialogBaseMixin:OnHide()
     TooltipFrame:Hide();
 end
 
-function MirageDialogBaseMixin:OnMouseUp(button)
+function YUIDialogBaseMixin:OnMouseUp(button)
     if button == "RightButton" then
         self:CloseDialogInteraction();
     end
 end
 
-function MirageDialogBaseMixin:OnMouseWheel(delta)
+function YUIDialogBaseMixin:OnMouseWheel(delta)
     self.ScrollFrame:OnMouseWheel(delta);
 end
 
-function MirageDialogBaseMixin:HighlightButton(optionButton)
+function YUIDialogBaseMixin:HighlightButton(optionButton)
     if optionButton and optionButton == self.highlightedButton then
         return true
     end
@@ -1983,11 +1983,11 @@ function MirageDialogBaseMixin:HighlightButton(optionButton)
     end
 end
 
-function MirageDialogBaseMixin:UpdateRewards()
+function YUIDialogBaseMixin:UpdateRewards()
     self.itemButtonPool:CallActive("Refresh");
 end
 
-function MirageDialogBaseMixin:OnEvent(event, ...)
+function YUIDialogBaseMixin:OnEvent(event, ...)
     if event == "QUEST_ITEM_UPDATE" then
         self:UpdateRewards();
     elseif event == "GOSSIP_SHOW" then
@@ -2027,7 +2027,7 @@ function MirageDialogBaseMixin:OnEvent(event, ...)
     end
 end
 
-function MirageDialogBaseMixin:SetConsumeGossipClose(state)
+function YUIDialogBaseMixin:SetConsumeGossipClose(state)
     --Event Sequence when selecting a quest from GossipFrame
     --1.GOSSIP_CLOSE
     --2.QUEST_DETAIL
@@ -2044,12 +2044,12 @@ function MirageDialogBaseMixin:SetConsumeGossipClose(state)
     end
 end
 
-function MirageDialogBaseMixin:MarkQuestIsFromGossip()
+function YUIDialogBaseMixin:MarkQuestIsFromGossip()
     --if the quest is from gossip, clicking Decline button will return user to previous dialog
     self.questIsFromGossip = true;
 end
 
-function MirageDialogBaseMixin:IsGossipCloseConsumed()
+function YUIDialogBaseMixin:IsGossipCloseConsumed()
     if self.consumeGossipClose then
         self.consumeGossipClose = nil;
         return true
@@ -2058,7 +2058,7 @@ function MirageDialogBaseMixin:IsGossipCloseConsumed()
     end
 end
 
-function MirageDialogBaseMixin:ScrollDownOrAcceptQuest(fromMouseClick)
+function YUIDialogBaseMixin:ScrollDownOrAcceptQuest(fromMouseClick)
     if SCROLLDOWN_THEN_ACCEPT_QUEST and not fromMouseClick then
         if not self:IsScrollAtBottom() then
             self:ScrollToBottom();
@@ -2181,7 +2181,7 @@ do  --Clipboard
         return previousText
     end
 
-    function MirageDialogBaseMixin:SendContentToClipboard()
+    function YUIDialogBaseMixin:SendContentToClipboard()
         local str;
 
         local npcName, npcID = API.GetCurrentNPCInfo();
@@ -2315,7 +2315,7 @@ do  --Quest Rewards
 
     local GetQuestItemInfoLootType = API.GetQuestItemInfoLootType;
 
-    function MirageDialogBaseMixin:FormatRewards(offsetY, rewardList)
+    function YUIDialogBaseMixin:FormatRewards(offsetY, rewardList)
         -- 4 x 2 Grid Layout:
         -- ItemButton: 2x2
         -- SmallItemButton: 1x1
@@ -2474,12 +2474,12 @@ end
 
 
 do  --GamePad/Controller
-    function MirageDialogBaseMixin:UpdateScrollFrameBound()
+    function YUIDialogBaseMixin:UpdateScrollFrameBound()
         self.scrollFrameTop = self.ScrollFrame:GetTop();
         self.scrollFrameBottom = self.ScrollFrame:GetBottom();
     end
 
-    function MirageDialogBaseMixin:ResetGamePadObjects()
+    function YUIDialogBaseMixin:ResetGamePadObjects()
         self.gamepadMaxIndex = 0;
         self.gamepadFocusIndex = nil;
         self.gamepadFocus = nil;
@@ -2487,24 +2487,24 @@ do  --GamePad/Controller
         self:UpdateScrollFrameBound();
     end
 
-    function MirageDialogBaseMixin:IndexGamePadObject(object)
+    function YUIDialogBaseMixin:IndexGamePadObject(object)
         self.gamepadMaxIndex = self.gamepadMaxIndex + 1;
         self.gamepadObjects[self.gamepadMaxIndex] = object;
         object.gamepadIndex = self.gamepadMaxIndex;
     end
 
-    function MirageDialogBaseMixin:ClearGamePadFocus()
+    function YUIDialogBaseMixin:ClearGamePadFocus()
         if self.gamepadFocus then
             self.gamepadFocus:OnLeave();
             self.gamepadFocus = nil;
         end
     end
 
-    function MirageDialogBaseMixin:SetGamePadFocusIndex(index)
+    function YUIDialogBaseMixin:SetGamePadFocusIndex(index)
         self.gamepadFocusIndex = index;
     end
 
-    function MirageDialogBaseMixin:FocusObjectByDelta(delta)
+    function YUIDialogBaseMixin:FocusObjectByDelta(delta)
         local maxIndex = self.gamepadMaxIndex or 0;
         local index = self.gamepadFocusIndex;
 
@@ -2546,7 +2546,7 @@ do  --GamePad/Controller
         end
     end
 
-    function MirageDialogBaseMixin:FocusNextObject()
+    function YUIDialogBaseMixin:FocusNextObject()
         if self:FocusObjectByDelta(-1) then
             return
         end
@@ -2556,7 +2556,7 @@ do  --GamePad/Controller
         end
     end
 
-    function MirageDialogBaseMixin:FocusPreviousObject()
+    function YUIDialogBaseMixin:FocusPreviousObject()
         if self:FocusObjectByDelta(1) then
             return
         end
@@ -2566,7 +2566,7 @@ do  --GamePad/Controller
         end
     end
 
-    function MirageDialogBaseMixin:ClickFocusedObject()
+    function YUIDialogBaseMixin:ClickFocusedObject()
         if self.gamepadFocus then
             self.gamepadFocus:OnClick("GamePad");
             return true
@@ -2574,7 +2574,7 @@ do  --GamePad/Controller
         return false
     end
 
-    function MirageDialogBaseMixin:UpdateCompleteButton(highlightedButtonSelected)
+    function YUIDialogBaseMixin:UpdateCompleteButton(highlightedButtonSelected)
         local button = self.AcceptButton;
         local hotkey = button.HotkeyFrame;
         if not hotkey then return end;
@@ -2595,7 +2595,7 @@ end
 
 
 do
-    function MirageDialogBaseMixin:OnSettingsChanged()
+    function YUIDialogBaseMixin:OnSettingsChanged()
         if self:IsVisible() and self.handler then
             self.keepGossipHistory = false;
             self[self.handler](self);
