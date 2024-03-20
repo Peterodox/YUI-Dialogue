@@ -438,9 +438,9 @@ do  --NPC Interaction
     local ModelScene, UtilityActor, CameraController;
     --local IsUnitModelReadyForUI = IsUnitModelReadyForUI;
 
-    MirageDialogUtilityActorMixin = {};
+    DUIUtilityActorMixin = {};
 
-    function MirageDialogUtilityActorMixin:OnModelLoaded()
+    function DUIUtilityActorMixin:OnModelLoaded()
         local bottomX, bottomY, bottomZ, topX, topY, topZ = self:GetActiveBoundingBox(); -- Could be nil for invisible models
         if bottomX and bottomY and bottomZ and topX and topY and topZ then
             local width = topX - bottomX;
@@ -474,7 +474,7 @@ do  --NPC Interaction
         if not ModelScene then
             ModelScene = CreateFrame("ModelScene");
             ModelScene:SetSize(1, 1);
-            UtilityActor = ModelScene:CreateActor(nil, "MirageDialogUtilityActorTemplate");
+            UtilityActor = ModelScene:CreateActor(nil, "DUIUtilityActorTemplate");
         end
 
         local success = UtilityActor:SetModelByUnit(unit);

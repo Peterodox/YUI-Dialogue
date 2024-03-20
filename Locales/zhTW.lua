@@ -1,5 +1,5 @@
-if not (GetLocale() == "zhTW") then return end;
 
+if not (GetLocale() == "zhTW") then return end;
 
 
 local _, addon = ...

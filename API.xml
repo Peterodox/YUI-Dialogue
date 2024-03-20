@@ -1,7 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="API.lua"/>
 
-    <Actor name="MirageDialogUtilityActorTemplate" mixin="MirageDialogUtilityActorMixin" virtual="true">
+    <Actor name="DUIUtilityActorTemplate" mixin="DUIUtilityActorMixin" virtual="true">
         <Scripts>
             <OnModelLoaded method="OnModelLoaded"/>
         </Scripts>
