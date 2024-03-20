@@ -1,0 +1,278 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Settings.lua"/>
+
+    <Button name="MirageDialogSettingsTabButtonTemplate" mixin="MirageDialogSettingsTabButtonMixin" registerForClicks="LeftButtonUp" virtual="true">
+        <Size x="72" y="36"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Name" inherits="DUIFont_Quest_Quest" justifyH="CENTER" justifyV="MIDDLE">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="MirageDialogSettingsTextureFrameTemplate" virtual="true" useParentLevel="true">
+        <Size x="16" y="16"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Texture" setAllPoints="true"/>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Button name="MirageDialogSettingsCheckboxTemplate" mixin="MirageDialogSettingsCheckboxMixin" virtual="true">
+        <Size x="24" y="24"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background" setAllPoints="true">
+                    <!--TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="16" right="16" top="16" bottom="16"/-->
+                    <TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Check">
+                    <Size x="12" y="12"/>
+                    <TexCoords left="0.0625" right="0.4375" top="0.5625" bottom="0.9375"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="MirageDialogSettingsArrowOptionTemplate" mixin="MirageDialogSettingsArrowOptionMixin" virtual="true">
+        <Size x="168" y="24"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="ValueText" inherits="DUIFont_Quest_SubHeader" justifyH="CENTER" justifyV="MIDDLE" text="Value">
+                    <Anchors>
+                        <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button parentKey="LeftArrow" motionScriptsWhileDisabled="true">
+                <Size x="24" y="32"/>
+                <Anchors>
+                    <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Texture">
+                            <Size x="24" y="24"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                            <TexCoords left="0.5" right="0" top="0" bottom="0.5"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="HIGHLIGHT">
+                        <Texture parentKey="Highlight">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Texture" relativePoint="TOPLEFT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Texture" relativePoint="BOTTOMRIGHT"/>
+                            </Anchors>
+                            <TexCoords left="1" right="0.5" top="0" bottom="0.5"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Button>
+            <Button parentKey="RightArrow" motionScriptsWhileDisabled="true">
+                <Size x="24" y="32"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Texture">
+                            <Size x="24" y="24"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                            <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="HIGHLIGHT">
+                        <Texture parentKey="Highlight">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.Texture" relativePoint="TOPLEFT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Texture" relativePoint="BOTTOMRIGHT"/>
+                            </Anchors>
+                            <TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
+    <Button name="MirageDialogSettingsOptionTemplate" mixin="MirageDialogSettingsOptionMixin" virtual="true">
+        <Size x="360" y="36"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Label" inherits="DUIFont_Quest_Paragraph" justifyH="LEFT" justifyV="MIDDLE">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="12" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Frame name="MirageDialogSettings" mixin="MirageDialogSettingsMixin" enableMouse="true" frameStrata="DIALOG" hidden="true" topLevel="true" clampedToScreen="true" movable="true" dontSavePosition="true">
+        <Size x="400" y="300"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture parentKey="BackgroundShadow">
+                    <TextureSliceMode mode="Stretched"/>
+                    <TextureSliceMargins left="32" right="32" top="32" bottom="32"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="0">
+                <Texture parentKey="Background" setAllPoints="true">
+                    <TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="64" right="64" top="64" bottom="64"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="BackgroundDecor">
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-4" y="4"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="DecorMask" file="Interface/AddOns/DialogueUI/Art/Theme_Shared/Mask-SettingsDecor" hWrapMode="CLAMP" vWrapMode="CLAMP">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="BackgroundDecor"/>
+                    </MaskedTextures>
+                </MaskTexture>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentKey="HeaderDivider">
+                    <Size y="9"/>
+                    <TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="32" right="32" top="8" bottom="4"/>
+                </Texture>
+
+                <Texture parentKey="VerticalDivider">
+                    <Size x="9"/>
+                    <TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="8" right="4" top="32" bottom="32"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Preview"/>
+                <FontString parentKey="Description" inherits="DUIFont_Quest_Paragraph" justifyH="LEFT" justifyV="TOP" spacing="4"/>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="2">
+                <Texture parentKey="PreviewBorder" hidden="true">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Preview" relativePoint="TOPLEFT" x="-1" y="1"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Preview" relativePoint="BOTTOMRIGHT" x="1" y="-1"/>
+                    </Anchors>
+                    <TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="8" right="8" top="8" bottom="8"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="Header" enableMouse="true">
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="5">
+                        <Texture parentKey="Selection" hidden="true">
+                            <TextureSliceMode mode="Tiled"/>
+                            <TextureSliceMargins left="16" right="16" top="16" bottom="16"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="CloseButton">
+                        <Layers>
+                            <Layer level="BACKGROUND" textureSubLevel="5">
+                                <Texture parentKey="Background">
+                                    <TextureSliceMode mode="Tiled"/>
+                                    <TextureSliceMargins left="16" right="16" top="16" bottom="16"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Highlight" hidden="true">
+                                    <TextureSliceMode mode="Tiled"/>
+                                    <TextureSliceMargins left="16" right="16" top="16" bottom="16"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Icon">
+                                    <Size x="12" y="12"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                </Frames>
+            </Frame>
+            <Frame parentKey="ButtonHighlight" hidden="true" useParentLevel="true">
+                <Size x="32" y="32"/>
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="1">
+                        <Texture parentKey="BackTexture" setAllPoints="true">
+                            <TextureSliceMode mode="Tiled"/>
+                            <TextureSliceMargins left="24" right="24" top="24" bottom="24"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+            <Frame parentKey="ScrollFrame" clipChildren="true">
+                <Frames>
+                    <Frame parentKey="Reference">
+                        <Size x="4" y="4"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT"/>
+                        </Anchors>
+                    </Frame>
+                </Frames>
+            </Frame>
+        </Frames>
+        <KeyValues>
+            <KeyValue key="nodeignore" value="true" type="boolean"/>
+        </KeyValues>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow_First"/>
+            <OnHide method="OnHide"/>
+            <OnEvent method="OnEvent"/>
+            <OnKeyDown method="OnKeyDown"/>
+            <OnGamePadButtonDown method="OnGamePadButtonDown"/>
+            <OnMouseWheel method="OnMouseWheel"/>
+        </Scripts>
+    </Frame>
+</Ui>
