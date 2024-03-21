@@ -115,12 +115,12 @@ function EL:OnEvent(event, ...)
 
     elseif event == "QUEST_PROGRESS" or event == "QUEST_COMPLETE" or event == "QUEST_GREETING" then
         MainFrame:ShowUI(event);
-        print("Area Trigger:", QuestIsFromAreaTrigger());
+
     elseif CloseDialogEvents[event] then
         MainFrame:HideUI();
     end
 
-    print(event, GetTimePreciseSec());
+    --print(event, GetTimePreciseSec());
 end
 
 
@@ -151,7 +151,7 @@ function EL:OnUpdate(elapsed)
             self.t = 0;
             self.processEvent = nil;
             if self.lastEvent then
-                print("LAST EVENT", self.lastEvent)
+                --print("LAST EVENT", self.lastEvent)
                 self:OnManualEvent(self.lastEvent);
                 self.lastEvent = nil;
             end
@@ -207,7 +207,6 @@ do
             EVENT_PROCESS_DELAY = 0.5;
         end
         DEFAULT_CAMERA_MODE = mode;
-        print("NEW DELAY", EVENT_PROCESS_DELAY)
     end
 
     addon.CallbackRegistry:Register("Camera.ModeChanged", OnCameraModeChanged, EL);

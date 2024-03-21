@@ -241,9 +241,9 @@ local function OnClickFunc_CancelConfirmGossip(cancelButton)
 end
 
 
-YUIDialogOptionButtonMixin = {};
+DUIDialogOptionButtonMixin = {};
 
-function YUIDialogOptionButtonMixin:OnLoad()
+function DUIDialogOptionButtonMixin:OnLoad()
     self.Icon = self.Content.Icon;
     self.Name = self.Content.Name;
     self.Name:SetSpacing(BUTTON_TEXT_SPACING);
@@ -255,7 +255,7 @@ function YUIDialogOptionButtonMixin:OnLoad()
     self:SetHyperlinksEnabled(true);
 end
 
-function YUIDialogOptionButtonMixin:OnHyperlinkEnter(link, text, region, left, bottom, width, height)
+function DUIDialogOptionButtonMixin:OnHyperlinkEnter(link, text, region, left, bottom, width, height)
     --print(link, text);
     self:OnEnter();
     if link then
@@ -271,21 +271,21 @@ function YUIDialogOptionButtonMixin:OnHyperlinkEnter(link, text, region, left, b
     end
 end
 
-function YUIDialogOptionButtonMixin:OnHyperlinkLeave()
+function DUIDialogOptionButtonMixin:OnHyperlinkLeave()
     TooltipFrame:Hide();
     self:OnLeave();
 end
 
-function YUIDialogOptionButtonMixin:OnHyperlinkClick()
+function DUIDialogOptionButtonMixin:OnHyperlinkClick()
     self:Click("LeftButton");
 end
 
-function YUIDialogOptionButtonMixin:ShowHoverVisual()
+function DUIDialogOptionButtonMixin:ShowHoverVisual()
     self.t = 0;
     self:SetScript("OnUpdate", Anim_ShiftButtonCentent_OnUpdate);
 end
 
-function YUIDialogOptionButtonMixin:ShowHoverVisualIfFocusChanged()
+function DUIDialogOptionButtonMixin:ShowHoverVisualIfFocusChanged()
     if self:IsEnabled() then
         local isSameButton = self.owner:HighlightButton(self);
         if not isSameButton then
@@ -294,14 +294,14 @@ function YUIDialogOptionButtonMixin:ShowHoverVisualIfFocusChanged()
     end
 end
 
-function YUIDialogOptionButtonMixin:PlayKeyFeedback()
+function DUIDialogOptionButtonMixin:PlayKeyFeedback()
     if not self:IsMouseOver() then
         self:ShowHoverVisualIfFocusChanged();
         --PlaySound("DIALOG_OPTION_CLICK");
     end
 end
 
-function YUIDialogOptionButtonMixin:OnEnter()
+function DUIDialogOptionButtonMixin:OnEnter()
     self:ShowHoverVisualIfFocusChanged();
 
     if self.type == "gossip" and self.gossipOptionID then
@@ -319,7 +319,7 @@ function YUIDialogOptionButtonMixin:OnEnter()
     end
 end
 
-function YUIDialogOptionButtonMixin:OnLeave()
+function DUIDialogOptionButtonMixin:OnLeave()
     if self:IsMouseOver() then return end;
     self.owner:HighlightButton(nil);
     self.t = 0;
@@ -327,7 +327,7 @@ function YUIDialogOptionButtonMixin:OnLeave()
     TooltipFrame:Hide();
 end
 
-function YUIDialogOptionButtonMixin:OnClick(button)
+function DUIDialogOptionButtonMixin:OnClick(button)
     if button == "LeftButton" or button == "GamePad" then
         if self.onClickFunc then
             --PlaySound("DIALOG_OPTION_CLICK");
@@ -338,7 +338,7 @@ function YUIDialogOptionButtonMixin:OnClick(button)
     end
 end
 
-function YUIDialogOptionButtonMixin:OnMouseDown(button)
+function DUIDialogOptionButtonMixin:OnMouseDown(button)
     if button == "LeftButton" then
         if self:IsEnabled() then
             self.pushOffsetY = -1;
@@ -351,17 +351,17 @@ function YUIDialogOptionButtonMixin:OnMouseDown(button)
     end
 end
 
-function YUIDialogOptionButtonMixin:OnMouseUp(button)
+function DUIDialogOptionButtonMixin:OnMouseUp(button)
     self.pushOffsetY = 0;
     self.Content:SetPoint("TOPLEFT", self.offset, self.pushOffsetY);
 end
 
-function YUIDialogOptionButtonMixin:SetButtonText(name, bigPadding)
+function DUIDialogOptionButtonMixin:SetButtonText(name, bigPadding)
     self.Name:SetText(name);
     self:Layout(bigPadding);
 end
 
-function YUIDialogOptionButtonMixin:SetGossip(data, hotkey)
+function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self.gossipOptionID = data.gossipOptionID;
 
     local name = GossipDataProvider:GetOverrideName(self.gossipOptionID) or data.name;
@@ -409,7 +409,7 @@ function YUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self.isTrainer = data.icon == 132058;
 end
 
-function YUIDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
+function DUIDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
     if not self:IsEnabled() then return end;
 
     self:Disable();
@@ -420,7 +420,7 @@ function YUIDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
     end
 end
 
-function YUIDialogOptionButtonMixin:RemoveQuestTypeText()
+function DUIDialogOptionButtonMixin:RemoveQuestTypeText()
     if self.hasQuestType then
         self.hasQuestType = nil;
         self.rightFrameWidth = nil;
@@ -428,7 +428,7 @@ function YUIDialogOptionButtonMixin:RemoveQuestTypeText()
     end
 end
 
-function YUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
+function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     local typeText;
 
     if questInfo.isTrivial then
@@ -459,7 +459,7 @@ function YUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     self:RemoveQuestTypeText();
 end
 
-function YUIDialogOptionButtonMixin:SetQuestVisual(questInfo)
+function DUIDialogOptionButtonMixin:SetQuestVisual(questInfo)
     self.Icon:SetTexture(GetQuestIcon(questInfo));  --We fill in the QuestInfo through this API
 
     if questInfo.isComplete or (not questInfo.isOnQuest) then
@@ -473,7 +473,7 @@ function YUIDialogOptionButtonMixin:SetQuestVisual(questInfo)
     end
 end
 
-function YUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
+function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
     if INPUT_DEVICE_GAME_PAD then
         self:SetHotkey(nil);
     else
@@ -487,7 +487,7 @@ function YUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
     self:SetButtonText(questInfo.title, true);
 end
 
-function YUIDialogOptionButtonMixin:SetAvailableQuest(questInfo, index, hotkey)
+function DUIDialogOptionButtonMixin:SetAvailableQuest(questInfo, index, hotkey)
     --QuestUtil.ApplyQuestIconOfferToTextureForQuestID(self.Icon, questInfo.questID, questInfo.isLegendary, questInfo.frequency, questInfo.isRepeatable, questInfo.isImportant);
 
     self.id = index;
@@ -498,7 +498,7 @@ function YUIDialogOptionButtonMixin:SetAvailableQuest(questInfo, index, hotkey)
     self:Enable();
 end
 
-function YUIDialogOptionButtonMixin:SetActiveQuest(questInfo, index, hotkey)
+function DUIDialogOptionButtonMixin:SetActiveQuest(questInfo, index, hotkey)
     --QuestUtil.ApplyQuestIconOfferToTextureForQuestID(self.Icon, questInfo.questID, questInfo.isLegendary, questInfo.frequency, questInfo.isRepeatable, questInfo.isImportant);
 
     self.id = index;
@@ -510,7 +510,7 @@ function YUIDialogOptionButtonMixin:SetActiveQuest(questInfo, index, hotkey)
 end
 
 
-function YUIDialogOptionButtonMixin:SetGreetingAvailableQuest(questInfo, index, hotkey)
+function DUIDialogOptionButtonMixin:SetGreetingAvailableQuest(questInfo, index, hotkey)
     --Handle QUEST_GREETING event
     --questInfo is manully constructed. the raw data are title and questID
 
@@ -522,7 +522,7 @@ function YUIDialogOptionButtonMixin:SetGreetingAvailableQuest(questInfo, index, 
     self:Enable();
 end
 
-function YUIDialogOptionButtonMixin:SetGreetingActiveQuest(questInfo, index, hotkey)
+function DUIDialogOptionButtonMixin:SetGreetingActiveQuest(questInfo, index, hotkey)
     self.id = index;
     self.type = "activeQuest";
     self.onClickFunc = OnClickFunc_SelectGreetingActiveQuest;
@@ -532,7 +532,7 @@ function YUIDialogOptionButtonMixin:SetGreetingActiveQuest(questInfo, index, hot
 end
 
 
-function YUIDialogOptionButtonMixin:SetButtonExitGossip()
+function DUIDialogOptionButtonMixin:SetButtonExitGossip()
     self.showIcon = false;
     self.id = 0;
     self.type = "goodbye";
@@ -544,7 +544,7 @@ function YUIDialogOptionButtonMixin:SetButtonExitGossip()
     self:Enable();
 end
 
-function YUIDialogOptionButtonMixin:SetButtonDeclineQuest(canReturn)
+function DUIDialogOptionButtonMixin:SetButtonDeclineQuest(canReturn)
     self.showIcon = false;
     self.id = 0;
     self.type = "decline";
@@ -561,7 +561,7 @@ function YUIDialogOptionButtonMixin:SetButtonDeclineQuest(canReturn)
     self:SetButtonArt(4);
 end
 
-function YUIDialogOptionButtonMixin:SetButtonAcceptQuest()
+function DUIDialogOptionButtonMixin:SetButtonAcceptQuest()
     self.showIcon = false;
     self.id = 0;
     self.type = "accept";
@@ -569,7 +569,7 @@ function YUIDialogOptionButtonMixin:SetButtonAcceptQuest()
     self.onClickFunc = OnClickFunc_AcceptQuest;
 
 
-    local canAccept = true; --debug
+    local canAccept = true;     --It's hard to determine if the player can accept more quests in Retail
 
     if canAccept then
         self:Enable();
@@ -586,7 +586,7 @@ function YUIDialogOptionButtonMixin:SetButtonAcceptQuest()
     end
 end
 
-function YUIDialogOptionButtonMixin:SetButtonAlreadyOnQuest()
+function DUIDialogOptionButtonMixin:SetButtonAlreadyOnQuest()
     self.showIcon = false;
     self.id = 0;
     self.type = "autoAccepted";
@@ -601,7 +601,7 @@ function YUIDialogOptionButtonMixin:SetButtonAlreadyOnQuest()
     self:SetButtonText(L["Quest Accepted"], true);
 end
 
-function YUIDialogOptionButtonMixin:SetButtonCloseAutoAcceptQuest()
+function DUIDialogOptionButtonMixin:SetButtonCloseAutoAcceptQuest()
     --For auto-accepted quest: change the "Decline" button to "OK"
     self.showIcon = false;
     self.id = 0;
@@ -614,7 +614,7 @@ function YUIDialogOptionButtonMixin:SetButtonCloseAutoAcceptQuest()
     self:Enable();
 end
 
-function YUIDialogOptionButtonMixin:SetButtonContinueQuest(canContinue, lockDuration)
+function DUIDialogOptionButtonMixin:SetButtonContinueQuest(canContinue, lockDuration)
     self.id = 0;
     self.type = "continue";
     self.onClickFunc = OnClickFunc_ContinueQuest;
@@ -650,7 +650,7 @@ function YUIDialogOptionButtonMixin:SetButtonContinueQuest(canContinue, lockDura
     end
 end
 
-function YUIDialogOptionButtonMixin:SetButtonCompleteQuest()
+function DUIDialogOptionButtonMixin:SetButtonCompleteQuest()
     self.showIcon = false;
     self.id = 0;
     self.type = "complete";
@@ -673,7 +673,7 @@ function YUIDialogOptionButtonMixin:SetButtonCompleteQuest()
     end
 end
 
-function YUIDialogOptionButtonMixin:SetButtonCancelQuestProgress(canReturn)
+function DUIDialogOptionButtonMixin:SetButtonCancelQuestProgress(canReturn)
     self.showIcon = false;
     self.id = 0;
     self.type = "cancel";
@@ -690,7 +690,7 @@ function YUIDialogOptionButtonMixin:SetButtonCancelQuestProgress(canReturn)
     self:Enable();
 end
 
-function YUIDialogOptionButtonMixin:SetButtonConfirmGossip(gossipID, lockDuration)
+function DUIDialogOptionButtonMixin:SetButtonConfirmGossip(gossipID, lockDuration)
     self.showIcon = false;
     self.id = 0;
     self.type = "confirmGossip";
@@ -718,7 +718,7 @@ function YUIDialogOptionButtonMixin:SetButtonConfirmGossip(gossipID, lockDuratio
     end
 end
 
-function YUIDialogOptionButtonMixin:SetButtonCancelConfirmGossip()
+function DUIDialogOptionButtonMixin:SetButtonCancelConfirmGossip()
     self.showIcon = false;
     self.id = 0;
     self.type = "cancelConfirmGossip";
@@ -729,14 +729,14 @@ function YUIDialogOptionButtonMixin:SetButtonCancelConfirmGossip()
     self:Enable();
 end
 
-function YUIDialogOptionButtonMixin:SetButtonWidth(width)
+function DUIDialogOptionButtonMixin:SetButtonWidth(width)
     self:SetWidth(width);
     self.baseWidth = width;
     self.defaultNameWidth = width - NAME_OFFSET_QUEST - NAME_PADDING_H;
     self.Name:SetWidth(self.defaultNameWidth);
 end
 
-function YUIDialogOptionButtonMixin:Layout(largePadding)
+function DUIDialogOptionButtonMixin:Layout(largePadding)
     local padding = (largePadding and BUTTON_PADDING_LARGE) or BUTTON_PADDING_SMALL;
     local nameOffset;
     local iconOffset = 0;
@@ -777,7 +777,7 @@ local SharedHighlightTexture = {
     [4] = {backTexture = "ButtonHighlight-Add.png", blendMode = "ADD", color = {0.23, 0.23, 0.23}, frontTexture = "ButtonHighlight-Front.png"},
 };
 
-function YUIDialogOptionButtonMixin:SetParentHighlightTexture(parentHighlightFrame)
+function DUIDialogOptionButtonMixin:SetParentHighlightTexture(parentHighlightFrame)
     parentHighlightFrame:SetParent(self);
     parentHighlightFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
     parentHighlightFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, 0);
@@ -806,7 +806,7 @@ function YUIDialogOptionButtonMixin:SetParentHighlightTexture(parentHighlightFra
     parentHighlightFrame.FrontTexture:SetPoint("TOPLEFT", self.Content, "TOPLEFT", 0, 0);
 end
 
-function YUIDialogOptionButtonMixin:SetButtonArt(id)
+function DUIDialogOptionButtonMixin:SetButtonArt(id)
     if self.artID ~= id then
         self.artID = id;
     else
@@ -838,7 +838,7 @@ function YUIDialogOptionButtonMixin:SetButtonArt(id)
     end
 end
 
-function YUIDialogOptionButtonMixin:LoadTheme()
+function DUIDialogOptionButtonMixin:LoadTheme()
     local artID = self.artID;
     self.artID = nil;
     self:SetButtonArt(artID);
@@ -848,11 +848,11 @@ function YUIDialogOptionButtonMixin:LoadTheme()
     end
 end
 
-function YUIDialogOptionButtonMixin:OnFontSizeChanged()
+function DUIDialogOptionButtonMixin:OnFontSizeChanged()
     self.Icon:SetSize(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE);
 end
 
-function YUIDialogOptionButtonMixin:ResetVisual()
+function DUIDialogOptionButtonMixin:ResetVisual()
     self:SetScript("OnUpdate", nil);
     self.Content:SetPoint("TOPLEFT", 0, 0);
     self:SetAlpha(1);
@@ -861,11 +861,11 @@ function YUIDialogOptionButtonMixin:ResetVisual()
     self.pushOffsetY = 0;
 end
 
-function YUIDialogOptionButtonMixin:SetOwner(owner)
+function DUIDialogOptionButtonMixin:SetOwner(owner)
     self.owner = owner;
 end
 
-function YUIDialogOptionButtonMixin:SetHotkey(hotkey)
+function DUIDialogOptionButtonMixin:SetHotkey(hotkey)
     if hotkey then
         local hotkeyFrame = self.HotkeyFrame or addon.DialogueUI.hotkeyFramePool:Acquire();
 
@@ -916,9 +916,9 @@ HotkeyIcons.XBOX_Shift = HotkeyIcons.XBOX_PAD4;
 HotkeyIcons.PS_Shift = HotkeyIcons.PS_PAD4;
 
 
-YUIDialogHotkeyFrameMixin = {};
+DUIDialogHotkeyFrameMixin = {};
 
-function YUIDialogHotkeyFrameMixin:OnLoad()
+function DUIDialogHotkeyFrameMixin:OnLoad()
     self:LoadTheme();
     self.Icon:SetVertexColor(0.72, 0.72, 0.72);
     --API.DisableSharpening(self.Background);
@@ -929,23 +929,23 @@ function YUIDialogHotkeyFrameMixin:OnLoad()
     self:UpdateBaseHeight();
 end
 
-function YUIDialogHotkeyFrameMixin:ReloadKey()
+function DUIDialogHotkeyFrameMixin:ReloadKey()
     local key = self.key;
     self.key = nil;
     self:SetKey(key);
 end
 
-function YUIDialogHotkeyFrameMixin:LoadTheme()
+function DUIDialogHotkeyFrameMixin:LoadTheme()
     self.Background:SetTexture(ThemeUtil:GetTextureFile("HotkeyBackground.png"));
     self:ReloadKey();
 end
 
-function YUIDialogHotkeyFrameMixin:SetBaseHeight(height)
+function DUIDialogHotkeyFrameMixin:SetBaseHeight(height)
     self.baseHeight = height;
     self:SetSize(height, height);
 end
 
-function YUIDialogHotkeyFrameMixin:UpdateBaseHeight()
+function DUIDialogHotkeyFrameMixin:UpdateBaseHeight()
     --Font Size + 8
     self:SetBaseHeight(HOTKEYFRAME_SIZE);
 
@@ -956,7 +956,7 @@ function YUIDialogHotkeyFrameMixin:UpdateBaseHeight()
     self:ReloadKey();
 end
 
-function YUIDialogHotkeyFrameMixin:SetKey(key)
+function DUIDialogHotkeyFrameMixin:SetKey(key)
     if key == "PRIMARY" then
         key = GAME_PAD_CONFIRM_KEY or GetPrimaryControlKey();
     end
@@ -1029,7 +1029,7 @@ function YUIDialogHotkeyFrameMixin:SetKey(key)
     end
 end
 
-function YUIDialogHotkeyFrameMixin:ClearKey()
+function DUIDialogHotkeyFrameMixin:ClearKey()
     if self.key then
         self.key = nil;
         self.Icon:Hide();
@@ -1256,9 +1256,9 @@ function ItemButtonSharedMixin:GetClipboardOutput()
 end
 
 
-YUIDialogItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin);
+DUIDialogItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin);
 
-function YUIDialogItemButtonMixin:OnLoad()
+function DUIDialogItemButtonMixin:OnLoad()
     self.textMaxLines = 2;
     self.textShrink = ITEMBUTTON_TEXT_WDITH_SHRINK;
     self.dynamicResize = true;
@@ -1270,7 +1270,7 @@ function YUIDialogItemButtonMixin:OnLoad()
     self.Sheen:SetTexture(ThemeUtil:GetTextureFile("RewardChoice-Sheen.png"));
 end
 
-function YUIDialogItemButtonMixin:LoadTheme()
+function DUIDialogItemButtonMixin:LoadTheme()
     self.ItemOverlay:SetTexture(ThemeUtil:GetTextureFile("ItemOverlays.png"));
     self.Sheen:SetTexture(ThemeUtil:GetTextureFile("RewardChoice-Sheen.png"));
 
@@ -1280,7 +1280,7 @@ function YUIDialogItemButtonMixin:LoadTheme()
     self:SetBackgroundTexture(backgroundID);
 end
 
-function YUIDialogItemButtonMixin:SetBackgroundTexture(id)
+function DUIDialogItemButtonMixin:SetBackgroundTexture(id)
     if self.backgroundID ~= id then
         self.backgroundID = id;
     else
@@ -1309,7 +1309,7 @@ function YUIDialogItemButtonMixin:SetBackgroundTexture(id)
     self.Name:SetFontObject(fontObject);
 end
 
-function YUIDialogItemButtonMixin:UpdatePixel(scale)
+function DUIDialogItemButtonMixin:UpdatePixel(scale)
     if not scale then
         scale = self:GetEffectiveScale();
     end
@@ -1321,7 +1321,7 @@ function YUIDialogItemButtonMixin:UpdatePixel(scale)
     self.Icon:SetPoint("BOTTOMRIGHT", self.ItemBorder, "BOTTOMRIGHT", -offset, offset);
 end
 
-function YUIDialogItemButtonMixin:OnClick(button)
+function DUIDialogItemButtonMixin:OnClick(button)
     if self.type == "choice" then
         if button == "GamePad" then
             addon.DialogueUI:SelectRewardChoice(self.index);
@@ -1336,7 +1336,7 @@ function YUIDialogItemButtonMixin:OnClick(button)
     end
 end
 
-function YUIDialogItemButtonMixin:Refresh()
+function DUIDialogItemButtonMixin:Refresh()
     if self.objectType == "item" then
         self:SetItem(self.type, self.index);
     elseif self.objectType == "currency" then
@@ -1354,17 +1354,17 @@ local function RefreshAfter_OnUpdate(self, elapsed)
     end
 end
 
-function YUIDialogItemButtonMixin:RequestInfo()
+function DUIDialogItemButtonMixin:RequestInfo()
     self.t = 0;
     self:SetScript("OnUpdate", RefreshAfter_OnUpdate);
 end
 
-function YUIDialogItemButtonMixin:OnInfoReceived()
+function DUIDialogItemButtonMixin:OnInfoReceived()
     self:SetScript("OnUpdate", nil);
     self.t = nil;
 end
 
-function YUIDialogItemButtonMixin:SetItemName(name, quality)
+function DUIDialogItemButtonMixin:SetItemName(name, quality)
     if name and name ~= "" then
         self:OnInfoReceived();
     else
@@ -1379,7 +1379,7 @@ function YUIDialogItemButtonMixin:SetItemName(name, quality)
     self:UpdateNameColor(quality);
 end
 
-function YUIDialogItemButtonMixin:UpdateNameColor(quality)
+function DUIDialogItemButtonMixin:UpdateNameColor(quality)
     if self.backgroundID == 2 then  --Choose reward
         self.nameColor = nil;
         self.Name:SetTextColor(ThemeUtil:GetItemSelectColor());
@@ -1392,7 +1392,7 @@ function YUIDialogItemButtonMixin:UpdateNameColor(quality)
     end
 end
 
-function YUIDialogItemButtonMixin:SetItemCount(amount, alignToCenter)
+function DUIDialogItemButtonMixin:SetItemCount(amount, alignToCenter)
     if amount then
         if self.type == "required" and self.itemID and (not IsQuestItem(self.itemID)) then
             local numInBags = GetItemCount(self.itemID);
@@ -1434,7 +1434,7 @@ local ITEM_OVERLAYS = {
     followerQuality1 = 17,
 };
 
-function YUIDialogItemButtonMixin:SetItemOverlay(id)
+function DUIDialogItemButtonMixin:SetItemOverlay(id)
     if id and ITEM_OVERLAYS[id] and self.type ~= "required" then
         if self.itemOverlayID ~= id then
             self.itemOverlayID = id;
@@ -1451,7 +1451,7 @@ function YUIDialogItemButtonMixin:SetItemOverlay(id)
     end
 end
 
-function YUIDialogItemButtonMixin:SetItem(sourceType, index)
+function DUIDialogItemButtonMixin:SetItem(sourceType, index)
     self.objectType = "item";
     self.type = sourceType;
     self.index = index;
@@ -1479,12 +1479,12 @@ function YUIDialogItemButtonMixin:SetItem(sourceType, index)
     self:SetItemOverlay(itemOverlayID);
 end
 
-function YUIDialogItemButtonMixin:SetRewardItem(index)
+function DUIDialogItemButtonMixin:SetRewardItem(index)
     self.dynamicResize = true;
     self:SetItem("reward", index);
 end
 
-function YUIDialogItemButtonMixin:SetRewardChoiceItem(index, isOnlyChoice)
+function DUIDialogItemButtonMixin:SetRewardChoiceItem(index, isOnlyChoice)
     if isOnlyChoice then
         self.dynamicResize = true;
     else
@@ -1494,12 +1494,12 @@ function YUIDialogItemButtonMixin:SetRewardChoiceItem(index, isOnlyChoice)
     self:SetItem("choice", index);
 end
 
-function YUIDialogItemButtonMixin:SetRequiredItem(index)
+function DUIDialogItemButtonMixin:SetRequiredItem(index)
     self.dynamicResize = true;
     self:SetItem("required", index);
 end
 
-function YUIDialogItemButtonMixin:SetCurrency(sourceType, index)
+function DUIDialogItemButtonMixin:SetCurrency(sourceType, index)
     self.objectType = "currency";
     self.type = sourceType;
     self.index = index;
@@ -1535,12 +1535,12 @@ function YUIDialogItemButtonMixin:SetCurrency(sourceType, index)
     self:SetItemOverlay(nil);
 end
 
-function YUIDialogItemButtonMixin:SetRewardCurrency(index)
+function DUIDialogItemButtonMixin:SetRewardCurrency(index)
     self.dynamicResize = true;
     self:SetCurrency("reward", index);
 end
 
-function YUIDialogItemButtonMixin:SetRewardChoiceCurrency(index, isOnlyChoice)
+function DUIDialogItemButtonMixin:SetRewardChoiceCurrency(index, isOnlyChoice)
     if isOnlyChoice then
         self.dynamicResize = true;
     else
@@ -1550,12 +1550,12 @@ function YUIDialogItemButtonMixin:SetRewardChoiceCurrency(index, isOnlyChoice)
     self:SetCurrency("choice", index);
 end
 
-function YUIDialogItemButtonMixin:SetRequiredCurrency(index)
+function DUIDialogItemButtonMixin:SetRequiredCurrency(index)
     self.dynamicResize = true;
     self:SetCurrency("required", index);
 end
 
-function YUIDialogItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo)    --SetUpMajorFactionReputationReward
+function DUIDialogItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo)    --SetUpMajorFactionReputationReward
     self.objectType = "reputation";
     self.dynamicResize = true;
     self.factionID = reputationRewardInfo.factionID;
@@ -1578,7 +1578,7 @@ function YUIDialogItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo
     self:OnInfoReceived();
 end
 
-function YUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
+function DUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self.dynamicResize = true;
     self.objectType = "spell";
     self.spellID = spellID;
@@ -1601,7 +1601,7 @@ function YUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self:SetItemOverlay(nil);
 end
 
-function YUIDialogItemButtonMixin:SetRewardSkill(skillIcon, skillPoints, skillName, skillLineID)
+function DUIDialogItemButtonMixin:SetRewardSkill(skillIcon, skillPoints, skillName, skillLineID)
     self.dynamicResize = true;
     self.objectType = "skill";
     self.spellID = nil;
@@ -1617,7 +1617,7 @@ function YUIDialogItemButtonMixin:SetRewardSkill(skillIcon, skillPoints, skillNa
     self:SetItemOverlay("skill");
 end
 
-function YUIDialogItemButtonMixin:SetRewardTitle(titleName)
+function DUIDialogItemButtonMixin:SetRewardTitle(titleName)
     self.dynamicResize = true;
     self.objectType = "title";
     self.spellID = nil;
@@ -1629,7 +1629,7 @@ function YUIDialogItemButtonMixin:SetRewardTitle(titleName)
     self:SetItemOverlay(nil);
 end
 
-function YUIDialogItemButtonMixin:SetWarModeBonus(bonus)
+function DUIDialogItemButtonMixin:SetWarModeBonus(bonus)
     --bonus: 10%
     self.dynamicResize = true;
     self.objectType = "warmode";
@@ -1643,7 +1643,7 @@ function YUIDialogItemButtonMixin:SetWarModeBonus(bonus)
     self:SetItemOverlay(nil);
 end
 
-function YUIDialogItemButtonMixin:SetRewardHonor(honor)
+function DUIDialogItemButtonMixin:SetRewardHonor(honor)
     --Classic
 
     self.dynamicResize = true;
@@ -1659,7 +1659,7 @@ function YUIDialogItemButtonMixin:SetRewardHonor(honor)
     self:SetItemOverlay(nil);
 end
 
-function YUIDialogItemButtonMixin:SetRewardFollower(followerID)
+function DUIDialogItemButtonMixin:SetRewardFollower(followerID)
     --https://warcraft.wiki.gg/wiki/API_C_Garrison.GetFollowerInfo
 
     local followerInfo = C_Garrison.GetFollowerInfo(followerID);
@@ -1691,20 +1691,20 @@ function YUIDialogItemButtonMixin:SetRewardFollower(followerID)
 end
 
 
-YUIDialogSmallItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin); --no name, only quantity
+DUIDialogSmallItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin); --no name, only quantity
 
-function YUIDialogSmallItemButtonMixin:OnLoad()
+function DUIDialogSmallItemButtonMixin:OnLoad()
     self.textMaxLines = 1;
     self.textShrink = SMALLITEMBUTTON_TEXT_WIDTH_SHRINK;
     self.dynamicResize = true;
     self:SetBackgroundTexture();
 end
 
-function YUIDialogSmallItemButtonMixin:SetBackgroundTexture()
+function DUIDialogSmallItemButtonMixin:SetBackgroundTexture()
     self.Background:SetTexture(ThemeUtil:GetTextureFile("ItemButtonBackground.png"));
 end
 
-function YUIDialogSmallItemButtonMixin:SetIcon(file)
+function DUIDialogSmallItemButtonMixin:SetIcon(file)
     if CUSTOM_ICONS[file] then
         self.Icon:SetTexture(ICON_PATH..CUSTOM_ICONS[file]);
         self:RemoveTextureBorder(false);
@@ -1714,14 +1714,14 @@ function YUIDialogSmallItemButtonMixin:SetIcon(file)
     end
 end
 
-function YUIDialogSmallItemButtonMixin:SetItemName(name)
+function DUIDialogSmallItemButtonMixin:SetItemName(name)
     --name is in fact quantity
     self:ResetToDefaultSize();
     self.Name:SetText(name);
     self:FitToName();
 end
 
-function YUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
+function DUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
     self.objectType = "currency";
     self.type = sourceType;
     self.index = index;
@@ -1737,11 +1737,9 @@ function YUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
     if overflow then
         self:ShowOverflowIcon();
     end
-
-    --print(name, currencyID, texture); --debug
 end
 
-function YUIDialogSmallItemButtonMixin:SetRewardCurrency(index)
+function DUIDialogSmallItemButtonMixin:SetRewardCurrency(index)
     self:SetCurrency("reward", index);
 end
 
@@ -1755,7 +1753,7 @@ local function SetCoinIcon(button, rawCopper)
     end
 end
 
-function YUIDialogSmallItemButtonMixin:SetMoney(rawCopper)
+function DUIDialogSmallItemButtonMixin:SetMoney(rawCopper)
     self.objectType = "money";
     self.type = nil;
     self.index = 0;
@@ -1768,7 +1766,7 @@ function YUIDialogSmallItemButtonMixin:SetMoney(rawCopper)
     self:SetItemName(moneyText);
 end
 
-function YUIDialogSmallItemButtonMixin:SetRequiredMoney(rawCopper)
+function DUIDialogSmallItemButtonMixin:SetRequiredMoney(rawCopper)
     self.objectType = "money";
     self.type = nil;
     self.index = 0;
@@ -1787,7 +1785,7 @@ function YUIDialogSmallItemButtonMixin:SetRequiredMoney(rawCopper)
     end
 end
 
-function YUIDialogSmallItemButtonMixin:SetXP(amount)
+function DUIDialogSmallItemButtonMixin:SetXP(amount)
     self.objectType = "xp";
     self.type = nil;
     self.index = 0;
@@ -1803,7 +1801,7 @@ function YUIDialogSmallItemButtonMixin:SetXP(amount)
     self:SetItemName(amount);
 end
 
-function YUIDialogSmallItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo)    --SetUpMajorFactionReputationReward
+function DUIDialogSmallItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo)    --SetUpMajorFactionReputationReward
     self.objectType = "reputation";
     self.type = nil;
     self.index = 0;
@@ -1822,7 +1820,7 @@ function YUIDialogSmallItemButtonMixin:SetMajorFactionReputation(reputationRewar
     self.rewardAmount = rewardAmount;
 end
 
-function YUIDialogSmallItemButtonMixin:SetRewardHonor(honor)
+function DUIDialogSmallItemButtonMixin:SetRewardHonor(honor)
     --Classic
 
     self.objectType = "honor";
@@ -1836,9 +1834,9 @@ function YUIDialogSmallItemButtonMixin:SetRewardHonor(honor)
     self:SetItemName(honor);
 end
 
-YUIDialogOptionButtonLockMixin = {};
+DUIDialogOptionButtonLockMixin = {};
 
-function YUIDialogOptionButtonLockMixin:ClearProgress()
+function DUIDialogOptionButtonLockMixin:ClearProgress()
     if self.fullBarCoord then
         self.fullBarCoord = nil;
         self.t = nil;
@@ -1848,17 +1846,17 @@ function YUIDialogOptionButtonLockMixin:ClearProgress()
     end
 end
 
-function YUIDialogOptionButtonLockMixin:OnHide()
+function DUIDialogOptionButtonLockMixin:OnHide()
     self:ClearProgress();
 end
 
-function YUIDialogOptionButtonLockMixin:UpdateProgress()
+function DUIDialogOptionButtonLockMixin:UpdateProgress()
     local progress = self.t / self.lockDuration;
     self.ProgressTexture:SetTexCoord(0, self.fullBarCoord * progress, 0, 1);
     self.ProgressTexture:SetWidth(self.fullWidth * progress);
 end
 
-function YUIDialogOptionButtonLockMixin:OnUpdate(elapsed)
+function DUIDialogOptionButtonLockMixin:OnUpdate(elapsed)
     self.t = self.t + elapsed;
 
     if self.t >= self.lockDuration then
@@ -1872,7 +1870,7 @@ function YUIDialogOptionButtonLockMixin:OnUpdate(elapsed)
     end
 end
 
-function YUIDialogOptionButtonLockMixin:SetParentButton(optionButton, callback, lockDuration)
+function DUIDialogOptionButtonLockMixin:SetParentButton(optionButton, callback, lockDuration)
     self:ClearProgress();
     self:SetParent(optionButton);
     self:SetPoint("TOPLEFT", optionButton, "TOPLEFT", 0, 0);
@@ -1898,11 +1896,11 @@ function YUIDialogOptionButtonLockMixin:SetParentButton(optionButton, callback, 
     self:Show();
 end
 
-function YUIDialogOptionButtonLockMixin:LoadTheme()
+function DUIDialogOptionButtonLockMixin:LoadTheme()
     self.ProgressTexture:SetTexture(ThemeUtil:GetTextureFile("ButtonLockProgress.png"));
 end
 
-function YUIDialogOptionButtonLockMixin:OnLoad()
+function DUIDialogOptionButtonLockMixin:OnLoad()
     self:LoadTheme();
 end
 
@@ -1931,9 +1929,9 @@ function InputButtonScripts.OnEnterPressed(self)
 end
 
 
-YUIDialogInputBoxMixin = {};
+DUIDialogInputBoxMixin = {};
 
-function YUIDialogInputBoxMixin:OnLoad()
+function DUIDialogInputBoxMixin:OnLoad()
     self:SetBackgroundTexture();
     self:UpdateHeight();
 
@@ -1945,24 +1943,24 @@ function YUIDialogInputBoxMixin:OnLoad()
     self.owner = self:GetParent();
 end
 
-function YUIDialogInputBoxMixin:OnShow()
+function DUIDialogInputBoxMixin:OnShow()
     self:RegisterEvent("GLOBAL_MOUSE_DOWN");
 end
 
-function YUIDialogInputBoxMixin:OnHide()
+function DUIDialogInputBoxMixin:OnHide()
     self:Hide();
     self:ClearText();
     self.gossipID = nil;
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
 end
 
-function YUIDialogInputBoxMixin:OnEvent(event, ...)
+function DUIDialogInputBoxMixin:OnEvent(event, ...)
     if not self:IsMouseOver() then
         self.owner:HideInputBox();
     end
 end
 
-function YUIDialogInputBoxMixin:SetBackgroundTexture()
+function DUIDialogInputBoxMixin:SetBackgroundTexture()
     local bgFile = ThemeUtil:GetTextureFile("InputBox-SingleLine.png");
 
     self.EditBox.Background:SetTexture(bgFile);
@@ -1972,26 +1970,26 @@ function YUIDialogInputBoxMixin:SetBackgroundTexture()
     self.EditBox.Highlight:SetTexCoord(0, 1, 0.25, 0.5);
 end
 
-function YUIDialogInputBoxMixin:UpdateHeight()
+function DUIDialogInputBoxMixin:UpdateHeight()
     local textHeight = 12.0;
     local editBoxHeight = BUTTON_HEIGHT_LARGE;
 
     self:SetHeight(6 + textHeight + editBoxHeight);
 end
 
-function YUIDialogInputBoxMixin:SetLabel(text)
+function DUIDialogInputBoxMixin:SetLabel(text)
     self.Label:SetText(text);
 end
 
-function YUIDialogInputBoxMixin:SetEditboxText(text)
+function DUIDialogInputBoxMixin:SetEditboxText(text)
     self.EditBox:SetText(text);
 end
 
-function YUIDialogInputBoxMixin:ClearText()
+function DUIDialogInputBoxMixin:ClearText()
     self.EditBox:SetText("");
 end
 
-function YUIDialogInputBoxMixin:SetFocus()
+function DUIDialogInputBoxMixin:SetFocus()
     self:ClearText();
     C_Timer.After(0, function()
         --Avoid OnKeyDown propagation
@@ -1999,11 +1997,11 @@ function YUIDialogInputBoxMixin:SetFocus()
     end);
 end
 
-function YUIDialogInputBoxMixin:SetGossipID(gossipID)
+function DUIDialogInputBoxMixin:SetGossipID(gossipID)
     self.gossipID = gossipID;
 end
 
-function YUIDialogInputBoxMixin:ConfirmGossip()
+function DUIDialogInputBoxMixin:ConfirmGossip()
     C_GossipInfo.SelectOption(self.gossipID, self.EditBox:GetText(), true);
 end
 
@@ -2014,9 +2012,9 @@ do
     local ICON_TEXT_GAP = 0;
     local ICON_SIZE = 12.0;
 
-    YUIDialogQuestTypeFrameMixin = {};
+    DUIDialogQuestTypeFrameMixin = {};
 
-    function YUIDialogQuestTypeFrameMixin:Remove()
+    function DUIDialogQuestTypeFrameMixin:Remove()
         self:ClearAllPoints();
         self:Hide();
         self.Name:SetText("");
@@ -2029,25 +2027,25 @@ do
         end
     end
 
-    function YUIDialogQuestTypeFrameMixin:SetRightText(text)
+    function DUIDialogQuestTypeFrameMixin:SetRightText(text)
         self.Name:SetFontObject("DUIFont_QuestType_Right");
         self:SetNameAndIcon(text);
         self:SetAlignment("RIGHT");
     end
 
-    function YUIDialogQuestTypeFrameMixin:SetLeftText(text)
+    function DUIDialogQuestTypeFrameMixin:SetLeftText(text)
         self.Name:SetFontObject("DUIFont_QuestType_Left");
         self:SetNameAndIcon(text);
         self:SetAlignment("LEFT");
     end
 
-    function YUIDialogQuestTypeFrameMixin:SetQuestTagNameAndIcon(tagName, tagIcon)
+    function DUIDialogQuestTypeFrameMixin:SetQuestTagNameAndIcon(tagName, tagIcon)
         self.Name:SetFontObject("DUIFont_QuestType_Left");
         self:SetNameAndIcon(tagName, tagIcon);
         self:SetAlignment("LEFT");
     end
 
-    function YUIDialogQuestTypeFrameMixin:SetNameAndIcon(name, icon)
+    function DUIDialogQuestTypeFrameMixin:SetNameAndIcon(name, icon)
         self.Name:SetText(name);
 
         if icon then
@@ -2064,7 +2062,7 @@ do
         self:SetWidth(self:GetContentWidth());
     end
 
-    function YUIDialogQuestTypeFrameMixin:SetAlignment(alignment)
+    function DUIDialogQuestTypeFrameMixin:SetAlignment(alignment)
         self.Name:ClearAllPoints();
         if alignment == "RIGHT" then
             self.alignment = alignment;
@@ -2089,7 +2087,7 @@ do
         self.Name:SetJustifyH(alignment);
     end
 
-    function YUIDialogQuestTypeFrameMixin:GetContentWidth()
+    function DUIDialogQuestTypeFrameMixin:GetContentWidth()
         local width = self.Name:GetWrappedWidth();
         if self.hasIcon then
             width = width + BUTTON_ICON_SIZE + ICON_TEXT_GAP;
@@ -2119,7 +2117,7 @@ do
         TooltipFrame:Hide();
     end
 
-    function YUIDialogQuestTypeFrameMixin:SetCampaignNameID(name, campaignID)
+    function DUIDialogQuestTypeFrameMixin:SetCampaignNameID(name, campaignID)
         self:SetLeftText(name);
         self.campaignID = campaignID;
         self.hasScripts = true;
@@ -2129,15 +2127,15 @@ do
 end
 
 do
-    YUIDialogIconFrameMixin = {};
+    DUIDialogIconFrameMixin = {};
 
-    function YUIDialogIconFrameMixin:Remove()
+    function DUIDialogIconFrameMixin:Remove()
         self:ClearAllPoints();
         self:Hide();
         self.Icon:SetTexture(nil);
     end
 
-    function YUIDialogIconFrameMixin:SetCurrencyOverflow()
+    function DUIDialogIconFrameMixin:SetCurrencyOverflow()
         self:SetSize(14, 14);
         self.Icon:SetTexture(ICON_PATH.."CurrencyOverflow.png");
     end

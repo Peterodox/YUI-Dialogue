@@ -93,6 +93,7 @@ function KeyboardControl:OnHide()
     self:UnregisterEvent("PLAYER_REGEN_DISABLED");
     self:UnregisterEvent("PLAYER_REGEN_ENABLED");
     self:ResetKeyActions();
+    self:StopRepeatingAction();
 end
 KeyboardControl:SetScript("OnHide", KeyboardControl.OnHide);
 
@@ -136,6 +137,9 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
         if Clipboard:IsShown() then
             Clipboard:Hide();
             processed = true;
+        elseif addon.SettingsUI:IsShown() then
+            addon.SettingsUI:Hide();
+            processed = true;
         else
             if fromGamePad then
 
@@ -150,11 +154,11 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
                 end
             end
         end
-    elseif key == "UP" then
+    elseif key == "GAMEPAD_UP" then
         valid = true;
         processed = true;
         KeyboardControl.parent:FocusPreviousObject();
-    elseif key == "DOWN" then
+    elseif key == "GAMEPAD_DOWN" then
         valid = true;
         processed = true;
         KeyboardControl.parent:FocusNextObject();
@@ -207,6 +211,7 @@ function KeyboardControl:SetParentFrame(frame)
     if listener then
         listener:SetScript("OnKeyDown", self.OnKeyDown);
         listener:SetScript("OnGamePadButtonDown", self.OnGamePadButtonDown);
+        listener:SetScript("OnGamePadButtonUp", self.OnGamePadButtonUp)
         listener:EnableGamePadButton(true);
         listener:EnableKeyboard(true);
     end
@@ -218,6 +223,8 @@ function KeyboardControl:StopListeningKeys()
 
     self:SetScript("OnGamePadButtonDown", nil);
     self.noPropagateFrame:SetScript("OnGamePadButtonDown", nil);
+    self:SetScript("OnGamePadButtonUp", nil);
+    self.noPropagateFrame:SetScript("OnGamePadButtonUp", nil);
 
     self:EnableGamePadButton(false);
     self.noPropagateFrame:EnableGamePadButton(false);
@@ -234,16 +241,27 @@ end
 do  --GamePad/Controller
     local KeyRemap = {
         PAD2 = "ESCAPE",
-        PADDUP = "UP",
-        PADDDOWN = "DOWN",
+        PADDUP = "GAMEPAD_UP",
+        PADDDOWN = "GAMEPAD_DOWN",
         PADFORWARD = "F1",  --Toggle Settings
         PADBACK = "ESCAPE",
-        PADDLEFT = "UP",
-        PADDRIGHT = "DOWN",
+        PADDLEFT = "GAMEPAD_UP",
+        PADDRIGHT = "GAMEPAD_DOWN",
     };
+
+    local RepeatableButton = {
+        PADDUP = true,
+        PADDDOWN = true,
+        PADDLEFT = true,
+        PADDRIGHT = true,
+    };
+
+    local REPEAT_INTERVAL = 0.125;
 
     function KeyboardControl:OnGamePadButtonDown(button)
         --print("|cFF8cd964"..button);
+        self:StopRepeatingAction();
+
         if button == "PAD1" then
 
         elseif button == "PAD4" then
@@ -252,12 +270,43 @@ do  --GamePad/Controller
                 TooltipFrame:ToggleAlternateInfo()
             end
         else
+            if RepeatableButton[button] then
+                self:RepeatAction(KeyRemap[button]);
+            end
             button = KeyRemap[button];
         end
-        
+
         if button then
             KeyboardControl:OnKeyDown(button, true);
         end
+    end
+
+    function KeyboardControl:OnGamePadButtonUp(button)
+        --print("|cFF8cd964"..button);
+        self:StopRepeatingAction();
+    end
+
+    local function RepeatGamePadButton_OnUpdate(self, elapsed)
+        self.repeatElapsed = self.repeatElapsed + elapsed;
+        if self.repeatElapsed >= REPEAT_INTERVAL then
+            self.repeatElapsed = 0;
+            if self.repeatButton then
+                KeyboardControl:OnKeyDown(self.repeatButton, true);
+            else
+                self:StopRepeatingAction();
+            end
+        end
+    end
+
+    function KeyboardControl:RepeatAction(button)
+        self.repeatElapsed = -0.375;
+        self.repeatButton = button;
+        self:SetScript("OnUpdate", RepeatGamePadButton_OnUpdate);
+    end
+
+    function KeyboardControl:StopRepeatingAction()
+        self:SetScript("OnUpdate", nil);
+        self.repeatElapsed = nil;
     end
 end
 
@@ -279,7 +328,6 @@ do  --Settings
         if newKey and newKey ~= PRIMARY_CONTROL_KEY then
             PRIMARY_CONTROL_KEY = newKey;
             addon.DialogueUI:OnSettingsChanged();
-            print("KEY", dbValue, newKey)
         end
     end
     addon.CallbackRegistry:Register("SettingChanged.PrimaryControlKey", Settings_PrimaryControlKey);

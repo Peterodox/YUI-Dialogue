@@ -1,5 +1,5 @@
 ## Interface: 30499
-## Version: 0.1.0
+## Version: 0.1.2
 
 ## Title: |cffff2020Dialogue UI|r
 

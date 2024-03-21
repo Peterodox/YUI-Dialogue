@@ -1,9 +1,9 @@
 ## Interface: 11501
-## Version: 0.1.0
+## Version: 0.1.2
 
 ## Title: Dialogue UI
 
-## Notes: Immersive dialog UI
+## Notes: Immersive dialogue UI
 
 ## Author: Peterodox
 ## SavedVariables: DialogueUI_DB

@@ -87,6 +87,18 @@ local FONT_OBJECT_HEIGHT = {
     DUIFont_ItemCount = {10, 10, 12},
 };
 
+local CONSTANT_FONT = {
+    DUIFont_Item = true,
+    DUIFont_ItemSelect = true,
+    DUIFont_Hotkey = true,
+    DUIFont_QuestType_Left = true,
+    DUIFont_QuestType_Right = true,
+    DUIFont_Tooltip_Large = true,
+    DUIFont_Tooltip_Medium = true,
+    DUIFont_Tooltip_Small = true,
+    DUIFont_ItemCount = true,
+};
+
 local function SetFontColor(fontObject, key)
     local color = COLORS[key];
     fontObject:SetTextColor(color[1], color[2], color[3]);

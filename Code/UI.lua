@@ -126,9 +126,9 @@ local function ScrollFrame_Easing(self, elapsed)
 end
 
 
-YUIDialogBaseMixin = {};
+DUIDialogBaseMixin = {};
 
-function YUIDialogBaseMixin:CalculateBestFrameHeight()
+function DUIDialogBaseMixin:CalculateBestFrameHeight()
     local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
 
     local heightRatio = 0.618;
@@ -193,7 +193,7 @@ local function SetupObjectSize(root, key, data)
     end
 end
 
-function YUIDialogBaseMixin:UpdateFrameSize()
+function DUIDialogBaseMixin:UpdateFrameSize()
     local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
     viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
 
@@ -251,6 +251,7 @@ function YUIDialogBaseMixin:UpdateFrameSize()
     self.ContentFrame:SetHeight(contentHeight);     --Irrelevant
     self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame, "TOPLEFT", 0, 0);
     self.ContentFrame:SetPoint("BOTTOMRIGHT", self.ScrollFrame, "BOTTOMRIGHT", 0, 0);
+    self.contentWidth = contentWidth;
 
     local parchmentWidth = 546.13 * FRAME_SIZE_MULTIPLIER;  --API.GetPixelForScale(1, 1024);
     local parchmentheight = 136.53 * FRAME_SIZE_MULTIPLIER; --API.GetPixelForScale(1, 256);
@@ -299,7 +300,7 @@ function YUIDialogBaseMixin:UpdateFrameSize()
     end
 end
 
-function YUIDialogBaseMixin:OnLoad()
+function DUIDialogBaseMixin:OnLoad()
     --table.insert(UISpecialFrames, self:GetName());
     MainFrame = self;
     addon.DialogueUI = self;
@@ -319,7 +320,7 @@ function YUIDialogBaseMixin:OnLoad()
 
     self.ButtonHighlight = self.ContentFrame.ButtonHighlight;
     self.RewardSelection = self.ContentFrame.RewardSelection;
-    self.GamePadFocusIndicator = CreateFrame("Frame", nil, self.FrontFrame, "YUIDialogHotkeyTemplate");
+    self.GamePadFocusIndicator = CreateFrame("Frame", nil, self.FrontFrame, "DUIDialogHotkeyTemplate");
     self.GamePadFocusIndicator:SetIgnoreParentAlpha(true);
 
     API.DisableSharpening(self.ButtonHighlight.BackTexture);
@@ -382,7 +383,7 @@ function YUIDialogBaseMixin:OnLoad()
 
 
     local function CreateOptionButton()
-        local button = CreateFrame("Button", nil, self.ContentFrame, "YUIDialogOptionButtonTemplate");
+        local button = CreateFrame("Button", nil, self.ContentFrame, "DUIDialogOptionButtonTemplate");
         button:SetButtonWidth(self.frameWidth - 2*PADDING_H*FRAME_SIZE_MULTIPLIER);
         button:SetOwner(self);
         return button
@@ -420,7 +421,7 @@ function YUIDialogBaseMixin:OnLoad()
 
 
     local function CreateItemButton()
-        local button = CreateFrame("Button", nil, self.ContentFrame, "YUIDialogItemButtonTemplate");
+        local button = CreateFrame("Button", nil, self.ContentFrame, "DUIDialogItemButtonTemplate");
         button:SetButtonWidth(self.halfFrameWidth);
         return button
     end
@@ -438,7 +439,7 @@ function YUIDialogBaseMixin:OnLoad()
 
 
     local function CreateSmallItemButton()
-        local button = CreateFrame("Button", nil, self.ContentFrame, "YUIDialogSmallItemButtonTemplate");
+        local button = CreateFrame("Button", nil, self.ContentFrame, "DUIDialogSmallItemButtonTemplate");
         button:SetButtonWidth(self.quarterFrameWidth);
         return button
     end
@@ -451,7 +452,7 @@ function YUIDialogBaseMixin:OnLoad()
 
 
     local function CreateQuestTypeFrame()
-        local f = CreateFrame("Frame", nil, self, "YUIDialogQuestTypeFrameTemplate");
+        local f = CreateFrame("Frame", nil, self, "DUIDialogQuestTypeFrameTemplate");
         return f
     end
 
@@ -464,7 +465,7 @@ function YUIDialogBaseMixin:OnLoad()
 
 
     local function CreateIconFrame()
-        local f = CreateFrame("Frame", nil, self, "YUIDialogIconFrameTemplate");
+        local f = CreateFrame("Frame", nil, self, "DUIDialogIconFrameTemplate");
         return f
     end
 
@@ -472,7 +473,7 @@ function YUIDialogBaseMixin:OnLoad()
 
 
     local function CreateHotkeyFrame()
-        local f = CreateFrame("Frame", nil, self, "YUIDialogHotkeyTemplate");
+        local f = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
         return f
     end
 
@@ -507,7 +508,7 @@ function YUIDialogBaseMixin:OnLoad()
     self:SetScript("OnLoad", nil);
 end
 
-function YUIDialogBaseMixin:LoadTheme()
+function DUIDialogBaseMixin:LoadTheme()
     local prefix = ThemeUtil:GetTexturePath();
     local parchmentFile = prefix.."Parchment.png";
 
@@ -576,13 +577,13 @@ function YUIDialogBaseMixin:LoadTheme()
     self:OnSettingsChanged();
 end
 
-function YUIDialogBaseMixin:UpdatePixel(scale)
+function DUIDialogBaseMixin:UpdatePixel(scale)
     local cornerV = 80;
     local cornerH = 80; --128
     local a = 256;
 end
 
-function YUIDialogBaseMixin:ReleaseAllObjects()
+function DUIDialogBaseMixin:ReleaseAllObjects()
     self.textHistory = {};
     self.highlightedButton = nil;
     self.fontStringPool:Release();
@@ -602,19 +603,19 @@ function YUIDialogBaseMixin:ReleaseAllObjects()
     KeyboardControl:ResetKeyActions();
 end
 
-function YUIDialogBaseMixin:AcquireFontString()
+function DUIDialogBaseMixin:AcquireFontString()
     return self.fontStringPool:Acquire();
 end
 
-function YUIDialogBaseMixin:AcquireAcceptButton(enableHotkey)
+function DUIDialogBaseMixin:AcquireAcceptButton(enableHotkey)
     if not self.AcceptButton then
-        self.AcceptButton = CreateFrame("Button", nil, self, "YUIDialogOptionButtonTemplate");   --self.FrontFrame
+        self.AcceptButton = CreateFrame("Button", nil, self, "DUIDialogOptionButtonTemplate");   --self.FrontFrame
+        self.AcceptButton.HotkeyFrame = CreateFrame("Frame", nil, self.AcceptButton, "DUIDialogHotkeyTemplate");
         self.AcceptButton:SetOwner(self);
         self.AcceptButton:SetButtonAcceptQuest();
-        self.AcceptButtonLock = CreateFrame("Frame", nil, self.AcceptButton, "YUIDialogOptionButtonLockTemplate");
+        self.AcceptButtonLock = CreateFrame("Frame", nil, self.AcceptButton, "DUIDialogOptionButtonLockTemplate");
         self.AcceptButton.ButtonLock = self.AcceptButtonLock;
         self.AcceptButton:SetButtonWidth(self.halfFrameWidth);
-        self.AcceptButton.HotkeyFrame = CreateFrame("Frame", nil, self.AcceptButton, "YUIDialogHotkeyTemplate");
     end
 
     if not self.AcceptButton:IsMouseOver() then
@@ -631,13 +632,13 @@ function YUIDialogBaseMixin:AcquireAcceptButton(enableHotkey)
     return self.AcceptButton
 end
 
-function YUIDialogBaseMixin:AcquireExitButton()
+function DUIDialogBaseMixin:AcquireExitButton()
     if not self.ExitButton then
-        self.ExitButton = CreateFrame("Button", nil, self, "YUIDialogOptionButtonTemplate"); --self.FrontFrame
+        self.ExitButton = CreateFrame("Button", nil, self, "DUIDialogOptionButtonTemplate"); --self.FrontFrame
+        self.ExitButton.HotkeyFrame = CreateFrame("Frame", nil, self.ExitButton, "DUIDialogHotkeyTemplate");
         self.ExitButton:SetOwner(self);
         self.ExitButton:SetButtonExitGossip();
         self.ExitButton:SetButtonWidth(self.halfFrameWidth);
-        self.ExitButton.HotkeyFrame = CreateFrame("Frame", nil, self.ExitButton, "YUIDialogHotkeyTemplate");
     end
 
     self.ExitButton:ResetVisual();
@@ -649,19 +650,19 @@ function YUIDialogBaseMixin:AcquireExitButton()
     return self.ExitButton
 end
 
-function YUIDialogBaseMixin:AcquireOptionButton()
+function DUIDialogBaseMixin:AcquireOptionButton()
     return self.optionButtonPool:Acquire();
 end
 
-function YUIDialogBaseMixin:SetSelectedGossipIndex(gossipOrderIndex)
+function DUIDialogBaseMixin:SetSelectedGossipIndex(gossipOrderIndex)
     self.selectedGossipIndex = gossipOrderIndex;
 end
 
-function YUIDialogBaseMixin:SetAcceptCurrentQuest()
+function DUIDialogBaseMixin:SetAcceptCurrentQuest()
     self:SetConsumeGossipClose(false);
 end
 
-function YUIDialogBaseMixin:FlagPreviousGossipButtons()
+function DUIDialogBaseMixin:FlagPreviousGossipButtons()
     self:HighlightButton(nil);
 
     local index = self.selectedGossipIndex;
@@ -677,7 +678,7 @@ function YUIDialogBaseMixin:FlagPreviousGossipButtons()
     );
 end
 
-function YUIDialogBaseMixin:AcquireLeftFontString()
+function DUIDialogBaseMixin:AcquireLeftFontString()
     local fs = self:AcquireFontString();
     fs:SetFontObject("DUIFont_Quest_Paragraph");
     fs:SetJustifyV("TOP");
@@ -685,7 +686,7 @@ function YUIDialogBaseMixin:AcquireLeftFontString()
     return fs
 end
 
-function YUIDialogBaseMixin:AcquireAndSetSubHeader(text)
+function DUIDialogBaseMixin:AcquireAndSetSubHeader(text)
     local background = self.textBackgroundPool:Acquire();
     local fs = self:AcquireFontString();
     fs:SetFontObject("DUIFont_Quest_SubHeader");
@@ -707,7 +708,7 @@ function YUIDialogBaseMixin:AcquireAndSetSubHeader(text)
     return background
 end
 
-function YUIDialogBaseMixin:UseQuestLayout(state)
+function DUIDialogBaseMixin:UseQuestLayout(state)
     local forceUpdate = SETTINGS_UI_VISIBLE == true;
 
     if state then
@@ -747,7 +748,7 @@ end
 
 
 
-function YUIDialogBaseMixin:UpdateQuestTitle()
+function DUIDialogBaseMixin:UpdateQuestTitle()
     local text = GetQuestTitle();
 
     local headerFrame = self.FrontFrame.Header;
@@ -786,7 +787,7 @@ function YUIDialogBaseMixin:UpdateQuestTitle()
     else
         local questTagID = API.GetQuestTag(questID);
         if questTagID then
-            print("questTagID", questTagID) --debug
+            --print("questTagID", questTagID) --debug
             local tagName, tagIcon = API.GetQuestTagNameIcon(questTagID);
             if tagName then
                 local questTypeFrame = self.questTypeFramePool:Acquire();
@@ -804,7 +805,7 @@ function YUIDialogBaseMixin:UpdateQuestTitle()
     return 6 * (FRAME_SIZE_MULTIPLIER)   --Accounted for Header Size
 end
 
-function YUIDialogBaseMixin:ScrollTo(value)
+function DUIDialogBaseMixin:ScrollTo(value)
     local f = self.ScrollFrame;
 
     value = API.Clamp(value, 0, f.range);
@@ -821,7 +822,7 @@ function YUIDialogBaseMixin:ScrollTo(value)
     end
 end
 
-function YUIDialogBaseMixin:ScrollBy(offset)
+function DUIDialogBaseMixin:ScrollBy(offset)
     local f = self.ScrollFrame;
     local value = f.scrollTarget or f:GetVerticalScroll();
     
@@ -855,12 +856,12 @@ function YUIDialogBaseMixin:ScrollBy(offset)
     --]]
 end
 
-function YUIDialogBaseMixin:ScrollToBottom()
+function DUIDialogBaseMixin:ScrollToBottom()
     self:ScrollBy(self.ScrollFrame.range);
     FadeFrame(self.ScrollFrame.borderBottom, 0, 0);
 end
 
-function YUIDialogBaseMixin:IsScrollAtBottom()
+function DUIDialogBaseMixin:IsScrollAtBottom()
     if not self:IsScrollable() then
         return true
     end
@@ -870,7 +871,7 @@ function YUIDialogBaseMixin:IsScrollAtBottom()
     return current + 0.5 > range;
 end
 
-function YUIDialogBaseMixin:ResetScroll()
+function DUIDialogBaseMixin:ResetScroll()
     self.ScrollFrame:SetScript("OnUpdate", nil);
     self.ScrollFrame:SetHorizontalScroll(0);
     self.ScrollFrame:SetVerticalScroll(0);
@@ -879,7 +880,7 @@ function YUIDialogBaseMixin:ResetScroll()
     FadeFrame(self.ScrollFrame.borderTop, 0, 0);
 end
 
-function YUIDialogBaseMixin:SetScrollable(scrollable)
+function DUIDialogBaseMixin:SetScrollable(scrollable)
     --Using ClipFrame (clipChildren or ScrollChild) breaks pixel-perfect
     --Setting parent to ScrollChild dynamically, so we can still have good looking stroke
     --Animation: ContentFrame has childChildren = true during unscroll animation
@@ -902,11 +903,11 @@ function YUIDialogBaseMixin:SetScrollable(scrollable)
     end
 end
 
-function YUIDialogBaseMixin:IsScrollable()
+function DUIDialogBaseMixin:IsScrollable()
     return self.ContentFrame.scrollable == true
 end
 
-function YUIDialogBaseMixin:SetScrollRange(contentHeight)
+function DUIDialogBaseMixin:SetScrollRange(contentHeight)
     self.contentHeight = contentHeight;
 
     local scrollViewHeight = self.scrollViewHeight; --self.ScrollFrame:GetHeight();  --affected by intro animation!
@@ -957,7 +958,7 @@ local function SortFunc_PrioritizeCompleteQuest(a, b)
     end
 end
 
-function YUIDialogBaseMixin:FadeInContentFrame()
+function DUIDialogBaseMixin:FadeInContentFrame()
     if self:IsShown() and not SETTINGS_UI_VISIBLE then
         FadeFrame(self.ContentFrame, 0.35, 1, 0);
         PlaySound("SOUNDKIT.IG_QUEST_LIST_OPEN");
@@ -966,7 +967,7 @@ function YUIDialogBaseMixin:FadeInContentFrame()
     end
 end
 
-function YUIDialogBaseMixin:InsertText(offsetY, text)
+function DUIDialogBaseMixin:InsertText(offsetY, text)
 	--Add no spacing
 	local fs = self:AcquireLeftFontString();
 	fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
@@ -976,12 +977,12 @@ function YUIDialogBaseMixin:InsertText(offsetY, text)
 	return offsetY
 end
 
-function YUIDialogBaseMixin:InsertParagraph(offsetY, paragraphText)
+function DUIDialogBaseMixin:InsertParagraph(offsetY, paragraphText)
 	--Add paragrah spacing
 	return self:InsertText(offsetY + PARAGRAPH_SPACING, paragraphText);
 end
 
-function YUIDialogBaseMixin:FormatParagraph(offsetY, text)
+function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
     local paragraphs = API.SplitParagraph(text);
 	local firstObject, lastObject;
 
@@ -1013,7 +1014,7 @@ local function ConcatenateNPCName(text)
     return text
 end
 
-function YUIDialogBaseMixin:HandleGossip()
+function DUIDialogBaseMixin:HandleGossip()
     local availableQuests = GetAvailableQuests();
     local activeQuests = GetActiveQuests();
 
@@ -1048,7 +1049,7 @@ function YUIDialogBaseMixin:HandleGossip()
         for i, data in ipairs(options) do
             if IsAutoSelectOption(data.gossipOptionID) then
                 C_GossipInfo.SelectOption(data.gossipOptionID);
-                API.PrintMessage("Auto Select", data.name);
+                API.PrintMessage(L["Auto Select"], data.name);
                 return false
             end
         end
@@ -1088,6 +1089,7 @@ function YUIDialogBaseMixin:HandleGossip()
     --Welcome text
     local gossipText = ConcatenateNPCName(GetGossipText());
     offsetY, firstObject, lastObject = self:FormatParagraph(offsetY, gossipText);
+
 
     local hotkeyIndex = 0;
     local hotkey;
@@ -1229,7 +1231,7 @@ function YUIDialogBaseMixin:HandleGossip()
     return true
 end
 
-function YUIDialogBaseMixin:HandleQuestDetail()
+function DUIDialogBaseMixin:HandleQuestDetail()
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1318,7 +1320,7 @@ function YUIDialogBaseMixin:HandleQuestDetail()
     return true
 end
 
-function YUIDialogBaseMixin:HandleQuestAccepted(questID)
+function DUIDialogBaseMixin:HandleQuestAccepted(questID)
     --QUEST_ACCEPTED
     if self.handler == "HandleQuestDetail" then
         local currentQuestID = GetQuestID();
@@ -1351,7 +1353,7 @@ local function CalulateLockDuration(rawCopper)
     end
 end
 
-function YUIDialogBaseMixin:HandleQuestProgress()
+function DUIDialogBaseMixin:HandleQuestProgress()
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1440,13 +1442,13 @@ function YUIDialogBaseMixin:HandleQuestProgress()
     return true
 end
 
-function YUIDialogBaseMixin:IsRewardChosen()
+function DUIDialogBaseMixin:IsRewardChosen()
     local numRewardChoices = GetNumQuestChoices() or 0;
     local choiceID = self.rewardChoiceID;
     return numRewardChoices <= 1 or (choiceID ~= nil);
 end
 
-function YUIDialogBaseMixin:HandleQuestComplete()
+function DUIDialogBaseMixin:HandleQuestComplete()
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1499,7 +1501,7 @@ local function SortFunc_QuestGreetingActiveQuests(a, b)
     end
 end
 
-function YUIDialogBaseMixin:HandleQuestGreeting()
+function DUIDialogBaseMixin:HandleQuestGreeting()
     self:ReleaseAllObjects();
     self:UseQuestLayout(false);
 
@@ -1614,7 +1616,7 @@ function YUIDialogBaseMixin:HandleQuestGreeting()
     return true
 end
 
-function YUIDialogBaseMixin:GetQuestFinishedDelay()
+function DUIDialogBaseMixin:GetQuestFinishedDelay()
     if (self.numAvailableQuests and self.numAvailableQuests > 1) or QuestIsFromAreaTrigger() then
         return 0.5
     else
@@ -1622,7 +1624,7 @@ function YUIDialogBaseMixin:GetQuestFinishedDelay()
     end
 end
 
-function YUIDialogBaseMixin:UpdateGossipQuests()
+function DUIDialogBaseMixin:UpdateGossipQuests()
     if self.activeQuestButtons then
         local activeQuests = GetActiveQuests();
 
@@ -1641,7 +1643,7 @@ function YUIDialogBaseMixin:UpdateGossipQuests()
     end
 end
 
-function YUIDialogBaseMixin:HandleGossipConfirm(gossipID, warningText, cost)
+function DUIDialogBaseMixin:HandleGossipConfirm(gossipID, warningText, cost)
     self.hasActiveGossipQuests = false;
     self.numAvailableQuests = 0;
     self.keepGossipHistory = false;
@@ -1681,7 +1683,7 @@ function YUIDialogBaseMixin:HandleGossipConfirm(gossipID, warningText, cost)
     FadeFrame(self.ContentFrame, 0.35, 1, 0);
 end
 
-function YUIDialogBaseMixin:HideGossipConfirm()
+function DUIDialogBaseMixin:HideGossipConfirm()
     if self:IsShown() and self.requireGossipConfirm and self.handler == "HandleGossip" then
         self.requireGossipConfirm = false;
         self.keepGossipHistory = false;
@@ -1692,7 +1694,7 @@ function YUIDialogBaseMixin:HideGossipConfirm()
     end
 end
 
-function YUIDialogBaseMixin:HandleGossipEnterCode(gossipID)
+function DUIDialogBaseMixin:HandleGossipEnterCode(gossipID)
     self.inputboxShown = true;
     self.InputBox:Show();
     self.InputBox:SetGossipID(gossipID);
@@ -1701,7 +1703,7 @@ function YUIDialogBaseMixin:HandleGossipEnterCode(gossipID)
     FadeFrame(self.FrontFrame, 0.15, 0.25);
 end
 
-function YUIDialogBaseMixin:HideInputBox()
+function DUIDialogBaseMixin:HideInputBox()
     if self.inputboxShown then
         self.InputBox:Hide();
         FadeFrame(self.ContentFrame, 0.15, 1);
@@ -1713,7 +1715,7 @@ local function Predicate_ActiveChoiceButton(itemButton)
     return itemButton.type == "choice" and itemButton:IsShown()
 end
 
-function YUIDialogBaseMixin:SelectRewardChoice(choiceID)
+function DUIDialogBaseMixin:SelectRewardChoice(choiceID)
     if not self.chooseItems then return end;    --Handled in Formatter when building reward choices
 
     local claimQuestReward;
@@ -1748,7 +1750,7 @@ function YUIDialogBaseMixin:SelectRewardChoice(choiceID)
     return true
 end
 
-function YUIDialogBaseMixin:HighlightRewardChoice(rewardChoiceButton)
+function DUIDialogBaseMixin:HighlightRewardChoice(rewardChoiceButton)
     self.RewardSelection:Hide();
     self.RewardSelection:ClearAllPoints();
     self.GamePadFocusIndicator:Hide();
@@ -1770,7 +1772,7 @@ function YUIDialogBaseMixin:HighlightRewardChoice(rewardChoiceButton)
     end
 end
 
-function YUIDialogBaseMixin:FlashRewardChoices()
+function DUIDialogBaseMixin:FlashRewardChoices()
     local buttons = self.itemButtonPool:GetObjectsByPredicate(Predicate_ActiveChoiceButton);
     if buttons then
         for i, button in ipairs(buttons) do
@@ -1840,7 +1842,7 @@ end
 local ActiveAnimIntro = AnimIntro_SimpleFadeIn_OnUpdate;
 
 
-function YUIDialogBaseMixin:PlayIntroAnimation()
+function DUIDialogBaseMixin:PlayIntroAnimation()
     self.fromHeight = 0.5 * self.frameHeight;
     self.fromOffsetX = self.frameOffsetX + 72;
     self.t = 0;
@@ -1856,7 +1858,7 @@ local Handler = {
     ["QUEST_GREETING"] = "HandleQuestGreeting",     --Similar to GOSSIP_SHOW
 };
 
-function YUIDialogBaseMixin:ShowUI(event)
+function DUIDialogBaseMixin:ShowUI(event)
     local shouldShowUI;
 
     if Handler[event] then
@@ -1876,7 +1878,7 @@ function YUIDialogBaseMixin:ShowUI(event)
     self.hasInteraction = true;
 end
 
-function YUIDialogBaseMixin:HideUI(cancelPopupFirst)
+function DUIDialogBaseMixin:HideUI(cancelPopupFirst)
     if not self:IsShown() then return end;
 
     if cancelPopupFirst and self.requireGossipConfirm then
@@ -1887,7 +1889,7 @@ function YUIDialogBaseMixin:HideUI(cancelPopupFirst)
     self:Hide();
 end
 
-function YUIDialogBaseMixin:OnShow()
+function DUIDialogBaseMixin:OnShow()
     PixelUtil:RequireUpdate();
     KeyboardControl:SetParentFrame(self);
 
@@ -1904,7 +1906,7 @@ function YUIDialogBaseMixin:OnShow()
     FadeFrame(self.Vignette, 0.75, 1);
 end
 
-function YUIDialogBaseMixin:CloseDialogInteraction()
+function DUIDialogBaseMixin:CloseDialogInteraction()
     CloseQuest();
     CloseGossipInteraction();
 
@@ -1912,12 +1914,12 @@ function YUIDialogBaseMixin:CloseDialogInteraction()
     --HideUI will cause ClassTrainerFrame to not processing events (Blizzard_TrainerUI/Blizzard_TrainerUI.lua#72)
 end
 
-function YUIDialogBaseMixin:SetInteractionIsContinuing(interactionIsContinuing)
+function DUIDialogBaseMixin:SetInteractionIsContinuing(interactionIsContinuing)
     --Not used
 	self.interactionIsContinuing = true;    --?
 end
 
-function YUIDialogBaseMixin:OnHide()
+function DUIDialogBaseMixin:OnHide()
     CameraUtil:Restore();
 
     self:CloseDialogInteraction();
@@ -1948,17 +1950,17 @@ function YUIDialogBaseMixin:OnHide()
     TooltipFrame:Hide();
 end
 
-function YUIDialogBaseMixin:OnMouseUp(button)
+function DUIDialogBaseMixin:OnMouseUp(button)
     if button == "RightButton" then
         self:CloseDialogInteraction();
     end
 end
 
-function YUIDialogBaseMixin:OnMouseWheel(delta)
+function DUIDialogBaseMixin:OnMouseWheel(delta)
     self.ScrollFrame:OnMouseWheel(delta);
 end
 
-function YUIDialogBaseMixin:HighlightButton(optionButton)
+function DUIDialogBaseMixin:HighlightButton(optionButton)
     if optionButton and optionButton == self.highlightedButton then
         return true
     end
@@ -1983,11 +1985,11 @@ function YUIDialogBaseMixin:HighlightButton(optionButton)
     end
 end
 
-function YUIDialogBaseMixin:UpdateRewards()
+function DUIDialogBaseMixin:UpdateRewards()
     self.itemButtonPool:CallActive("Refresh");
 end
 
-function YUIDialogBaseMixin:OnEvent(event, ...)
+function DUIDialogBaseMixin:OnEvent(event, ...)
     if event == "QUEST_ITEM_UPDATE" then
         self:UpdateRewards();
     elseif event == "GOSSIP_SHOW" then
@@ -2027,7 +2029,7 @@ function YUIDialogBaseMixin:OnEvent(event, ...)
     end
 end
 
-function YUIDialogBaseMixin:SetConsumeGossipClose(state)
+function DUIDialogBaseMixin:SetConsumeGossipClose(state)
     --Event Sequence when selecting a quest from GossipFrame
     --1.GOSSIP_CLOSE
     --2.QUEST_DETAIL
@@ -2044,12 +2046,12 @@ function YUIDialogBaseMixin:SetConsumeGossipClose(state)
     end
 end
 
-function YUIDialogBaseMixin:MarkQuestIsFromGossip()
+function DUIDialogBaseMixin:MarkQuestIsFromGossip()
     --if the quest is from gossip, clicking Decline button will return user to previous dialog
     self.questIsFromGossip = true;
 end
 
-function YUIDialogBaseMixin:IsGossipCloseConsumed()
+function DUIDialogBaseMixin:IsGossipCloseConsumed()
     if self.consumeGossipClose then
         self.consumeGossipClose = nil;
         return true
@@ -2058,7 +2060,7 @@ function YUIDialogBaseMixin:IsGossipCloseConsumed()
     end
 end
 
-function YUIDialogBaseMixin:ScrollDownOrAcceptQuest(fromMouseClick)
+function DUIDialogBaseMixin:ScrollDownOrAcceptQuest(fromMouseClick)
     if SCROLLDOWN_THEN_ACCEPT_QUEST and not fromMouseClick then
         if not self:IsScrollAtBottom() then
             self:ScrollToBottom();
@@ -2181,7 +2183,7 @@ do  --Clipboard
         return previousText
     end
 
-    function YUIDialogBaseMixin:SendContentToClipboard()
+    function DUIDialogBaseMixin:SendContentToClipboard()
         local str;
 
         local npcName, npcID = API.GetCurrentNPCInfo();
@@ -2315,7 +2317,7 @@ do  --Quest Rewards
 
     local GetQuestItemInfoLootType = API.GetQuestItemInfoLootType;
 
-    function YUIDialogBaseMixin:FormatRewards(offsetY, rewardList)
+    function DUIDialogBaseMixin:FormatRewards(offsetY, rewardList)
         -- 4 x 2 Grid Layout:
         -- ItemButton: 2x2
         -- SmallItemButton: 1x1
@@ -2474,37 +2476,36 @@ end
 
 
 do  --GamePad/Controller
-    function YUIDialogBaseMixin:UpdateScrollFrameBound()
+    function DUIDialogBaseMixin:UpdateScrollFrameBound()
         self.scrollFrameTop = self.ScrollFrame:GetTop();
         self.scrollFrameBottom = self.ScrollFrame:GetBottom();
     end
 
-    function YUIDialogBaseMixin:ResetGamePadObjects()
+    function DUIDialogBaseMixin:ResetGamePadObjects()
         self.gamepadMaxIndex = 0;
         self.gamepadFocusIndex = nil;
         self.gamepadFocus = nil;
         self.gamepadObjects = {};
-        self:UpdateScrollFrameBound();
     end
 
-    function YUIDialogBaseMixin:IndexGamePadObject(object)
+    function DUIDialogBaseMixin:IndexGamePadObject(object)
         self.gamepadMaxIndex = self.gamepadMaxIndex + 1;
         self.gamepadObjects[self.gamepadMaxIndex] = object;
         object.gamepadIndex = self.gamepadMaxIndex;
     end
 
-    function YUIDialogBaseMixin:ClearGamePadFocus()
+    function DUIDialogBaseMixin:ClearGamePadFocus()
         if self.gamepadFocus then
             self.gamepadFocus:OnLeave();
             self.gamepadFocus = nil;
         end
     end
 
-    function YUIDialogBaseMixin:SetGamePadFocusIndex(index)
+    function DUIDialogBaseMixin:SetGamePadFocusIndex(index)
         self.gamepadFocusIndex = index;
     end
 
-    function YUIDialogBaseMixin:FocusObjectByDelta(delta)
+    function DUIDialogBaseMixin:FocusObjectByDelta(delta)
         local maxIndex = self.gamepadMaxIndex or 0;
         local index = self.gamepadFocusIndex;
 
@@ -2528,13 +2529,15 @@ do  --GamePad/Controller
         self.gamepadFocus = self.gamepadObjects[index];
 
         if self.gamepadFocus then
+            self:UpdateScrollFrameBound();
+
             self.gamepadFocus:OnEnter();
             local buttonHeight = self.gamepadFocus:GetHeight();
             local threshold = 2 * buttonHeight - 4;
             if delta > 0 then
                 local top = self.gamepadFocus:GetTop();
                 if top + threshold >= self.scrollFrameTop then
-                    self:ScrollBy(3*buttonHeight);
+                    self:ScrollBy(-3*buttonHeight);
                 end
             else
                 local bottom = self.gamepadFocus:GetBottom();
@@ -2546,7 +2549,7 @@ do  --GamePad/Controller
         end
     end
 
-    function YUIDialogBaseMixin:FocusNextObject()
+    function DUIDialogBaseMixin:FocusNextObject()
         if self:FocusObjectByDelta(-1) then
             return
         end
@@ -2556,7 +2559,7 @@ do  --GamePad/Controller
         end
     end
 
-    function YUIDialogBaseMixin:FocusPreviousObject()
+    function DUIDialogBaseMixin:FocusPreviousObject()
         if self:FocusObjectByDelta(1) then
             return
         end
@@ -2566,7 +2569,7 @@ do  --GamePad/Controller
         end
     end
 
-    function YUIDialogBaseMixin:ClickFocusedObject()
+    function DUIDialogBaseMixin:ClickFocusedObject()
         if self.gamepadFocus then
             self.gamepadFocus:OnClick("GamePad");
             return true
@@ -2574,7 +2577,7 @@ do  --GamePad/Controller
         return false
     end
 
-    function YUIDialogBaseMixin:UpdateCompleteButton(highlightedButtonSelected)
+    function DUIDialogBaseMixin:UpdateCompleteButton(highlightedButtonSelected)
         local button = self.AcceptButton;
         local hotkey = button.HotkeyFrame;
         if not hotkey then return end;
@@ -2595,7 +2598,7 @@ end
 
 
 do
-    function YUIDialogBaseMixin:OnSettingsChanged()
+    function DUIDialogBaseMixin:OnSettingsChanged()
         if self:IsVisible() and self.handler then
             self.keepGossipHistory = false;
             self[self.handler](self);

@@ -12,6 +12,8 @@ local HIDE_UNIT_NAMES = false;
 local CHANGE_FOV = false;
 local FOV_DEFAULT = 90;
 local FOV_ZOOMED_IN = 75;
+local FOCUS_STRENGTH_PITCH = 1.0;
+local FOCUS_SHOULDER_OFFSET = 1.5;
 ------------------
 
 local Lerp = API.Lerp;
@@ -30,6 +32,7 @@ local UnitIsUnit = UnitIsUnit;
 local ConsoleExec = ConsoleExec;
 local SetUIVisibility = SetUIVisibility;
 local InCombatLockdown = InCombatLockdown;
+local IsMounted = IsMounted;
 
 local UIParent = UIParent;
 UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EXPERIMENTAL_CVAR_WARNING
@@ -40,7 +43,7 @@ local CVar_TargetFocus = {  --Can be used in combat
     test_cameraTargetFocusInteractEnable = 1,
     test_cameraTargetFocusInteractStrengthPitch = 0,
     test_cameraTargetFocusInteractStrengthYaw = 0,
-    test_cameraOverShoulder = 1.5,
+    test_cameraOverShoulder = FOCUS_SHOULDER_OFFSET,
     test_cameraHeadMovementStrength = 0,
 };
 
@@ -68,7 +71,6 @@ function CameraUtil:SetDefaultCameraMode(mode)
     --0: No Zoom
     --1: Zoom to NPC
     --2: Shift camear horizontally
-    print(mode)
     self.defaultCameraMode = mode;
     CallbackRegistry:Trigger("Camera.ModeChanged", mode);   --Core.lua: Affects event process delay
 end
@@ -80,11 +82,14 @@ function CameraUtil:ChangeCVars()
     self.cvarStored = true;
 
     if self.cameraMode == 1 then
-        ConsoleExec("actioncam on");
+        --ConsoleExec("actioncam on");
         for cvar, value in pairs(CVar_TargetFocus) do
             CVar_Backup[cvar] = GetCVar(cvar);
             SetCVar(cvar, value);
         end
+    elseif self.cameraMode == 2 then
+        local cvar = "test_cameraOverShoulder";
+        CVar_Backup[cvar] = GetCVar(cvar);
     end
 
     if (not InCombatLockdown()) and HIDE_UNIT_NAMES then
@@ -125,19 +130,60 @@ function CameraUtil:RestoreCombatCVar()
 end
 
 function CameraUtil:OnEvent(event, ...)
-    self:RestoreCVars();
+    if event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
+        self:OnMountChanged();
+    else
+        self:RestoreCVars();
+    end
 end
+
+function CameraUtil:UpdateMounted()
+    self.isMounted = IsMounted();
+    if self.isMounted then
+        self.offsetMultiplier = 6;
+    else
+        self.offsetMultiplier = 1;
+    end
+end
+
+function CameraUtil:OnMountChanged()
+    if (not self.isActive) or (self.cameraMode == 0) then return end;
+
+    local changed;
+
+    if IsMounted() then
+        if not self.isMounted then
+            self:UpdateMounted();
+            changed = true;
+        end
+    else
+        if self.isMounted then
+            self:UpdateMounted();
+            changed = true;
+        end
+    end
+
+    if changed then
+        local baseOffset = (self.cameraMode == 1 and FOCUS_SHOULDER_OFFSET) or (self:GetShoulderOffsetForCurrentZoom());
+        local offset = self.offsetMultiplier * baseOffset;
+        self.shoulderOffset = offset;
+        SetCVar("test_cameraOverShoulder", self.shoulderOffset);
+    end
+end
+
 
 function CameraUtil:ListenEvent(state)
     if state then
         self:RegisterEvent("PLAYER_LOGOUT");
         self:RegisterEvent("PLAYER_QUITING");
         self:RegisterEvent("PLAYER_CAMPING");
+        self:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
         self:SetScript("OnEvent", self.OnEvent);
     else
         self:UnregisterEvent("PLAYER_LOGOUT");
         self:UnregisterEvent("PLAYER_QUITING");
         self:UnregisterEvent("PLAYER_CAMPING");
+        self:UnregisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
         self:SetScript("OnEvent", nil);
     end
 end
@@ -145,6 +191,8 @@ end
 local function GetShoulderOffsetByZoom(zoom)
 	return zoom * 0.3283 - 0.02
 end
+
+CameraUtil.offsetMultiplier = 1;
 
 function CameraUtil:GetShoulderOffsetForCurrentZoom()
     return GetShoulderOffsetByZoom(GetCameraZoom())
@@ -222,12 +270,12 @@ local function ZoomIn_FocusNPC_OnUpdate(self, elapsed)
 
 
     local pitch = Esaing_OutSine(self.t, 88,  15, CAMERA_MOVEMENT_DURATION) --Lerp(88, 15, self.t/CAMERA_MOVEMENT_DURATION);
-    local targetStrengh = Esaing_OutSine(self.t, 0.0, 1.0, CAMERA_MOVEMENT_DURATION);
+    local targetStrengh = Esaing_OutSine(self.t, 0.0, FOCUS_STRENGTH_PITCH, CAMERA_MOVEMENT_DURATION);
 
     if self.t >= CAMERA_MOVEMENT_DURATION then
         ConsoleExec("pitchlimit "..15);
         pitch = 88;
-        targetStrengh = 1.0;
+        targetStrengh = FOCUS_STRENGTH_PITCH;
         self:SetScript("OnUpdate", nil);
     end
 
@@ -243,7 +291,7 @@ local function ZoomIn_PanCamera_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
     if self.t > 0.03 then
         self.t = 0;
-        self.shoulderOffset = DeltaLerp(self.shoulderOffset, self:GetShoulderOffsetForCurrentZoom(), self.shoulderBlend, elapsed);
+        self.shoulderOffset = DeltaLerp(self.shoulderOffset, self.offsetMultiplier * self:GetShoulderOffsetForCurrentZoom(), self.shoulderBlend, elapsed);
         SetCVar("test_cameraOverShoulder", self.shoulderOffset);
     end
 end
@@ -281,9 +329,18 @@ function CameraUtil:Intro_PanCamera()
     self:SetScript("OnUpdate", ZoomIn_PanCamera_OnUpdate);
 end
 
+function CameraUtil:OnInteractionStart()
+
+end
+
+function CameraUtil:OnInteractionStop()
+
+end
+
 function CameraUtil:InitiateInteraction()
     self.isActive = true;
 
+    self:UpdateMounted();
     FadeHelper:FadeOutUI();
 
     if self.defaultCameraMode == 0 then
@@ -296,7 +353,13 @@ function CameraUtil:InitiateInteraction()
         end
     end
 
+    self:OnInteractionStart();
     self:ChangeCVars();
+
+    if self.cameraMode == 1 then
+        local offset = self.offsetMultiplier * FOCUS_SHOULDER_OFFSET;
+        SetCVar("test_cameraOverShoulder", offset);
+    end
 end
 
 function CameraUtil:Restore()
@@ -306,7 +369,7 @@ function CameraUtil:Restore()
         return
     end
 
-    ConsoleExec("actioncam off");
+    --ConsoleExec("actioncam off");
     ConsoleExec("pitchlimit 88");
 
     if self.fovChanged then
@@ -314,14 +377,15 @@ function CameraUtil:Restore()
         self.fovChanged = nil;
     end
 
+    self:SetScript("OnUpdate", nil);
+    FadeHelper:FadeInUI();
+
     if self.oldZoom then
         self:ZoomTo(self.oldZoom);
         self.oldZoom = nil;
     end
 
-    self:SetScript("OnUpdate", nil);
-
-    FadeHelper:FadeInUI();
+    self:OnInteractionStop();
 end
 
 function CameraUtil:OnFovSettingsChanged()
@@ -498,4 +562,63 @@ do
         HIDE_UNIT_NAMES = dbValue == true;
     end
     addon.CallbackRegistry:Register("SettingChanged.HideUnitNames", Settings_HideUnitNames);
+end
+
+
+do  --DynamicCam
+    local function CheckRequiredMethods()
+        if not (C_AddOns.IsAddOnLoaded("DynamicCam") and DynamicCam) then return end;
+
+        local dc = DynamicCam;
+
+        local methods = {
+            "BlockShoulderOffsetZoom",      --We handle the camera motion during NPC interaction
+            "AllowShoulderOffsetZoom",
+            "ApplySettings",
+        };
+
+        for _, v in ipairs(methods) do
+            if not dc[v] then
+                return false
+            end
+        end
+
+
+        local function ReApplySettings(oldShoulderOffset)
+            local self = dc;
+
+            local curSituation = self.db.profile.situations[self.currentSituationID]
+
+            self.virtualCameraZoom = nil
+            self.easeShoulderOffsetInProgress = false;
+
+            for cvar, value in pairs(self.db.profile.standardSettings.cvars) do
+                if CVar_TargetFocus[cvar] then
+                    if curSituation and curSituation.situationSettings.cvars[cvar] then
+                        value = curSituation.situationSettings.cvars[cvar]
+                    end
+
+                    if cvar == "test_cameraOverShoulder" then
+                        SetCVar(cvar, oldShoulderOffset or value);
+                    else
+                        self:DC_SetCVar(cvar, value);
+                    end
+                end
+            end
+        end
+
+        function CameraUtil:OnInteractionStart()
+            dc:BlockShoulderOffsetZoom();
+            self.oldShoulderOffset = GetCVar("test_cameraOverShoulder");
+        end
+        
+        function CameraUtil:OnInteractionStop()
+            dc:AllowShoulderOffsetZoom();
+            ReApplySettings(self.oldShoulderOffset);
+        end
+
+        return true
+    end
+
+    addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckRequiredMethods);
 end

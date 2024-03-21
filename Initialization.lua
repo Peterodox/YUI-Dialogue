@@ -1,4 +1,4 @@
-local VERSION_TEXT = "v1.0.0";
+local VERSION_TEXT = "v0.1.2";
 local VERSION_DATE = 1704471247;
 
 
@@ -86,6 +86,8 @@ EL:SetScript("OnEvent", function(self, event, ...)
 
         local dbKey = "PrimaryControlKey";
         SetDBValue(dbKey, DB[dbKey]);
+
+        addon.CallbackRegistry:Trigger("PLAYER_ENTERING_WORLD");
     end
 end);
 

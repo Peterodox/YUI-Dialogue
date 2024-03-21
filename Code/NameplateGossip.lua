@@ -115,7 +115,7 @@ end
 
 function Controller:IsLastInteractNPC()
     if self.interactGUID then
-        print(self.interactGUID, UnitGUID("npc"))
+        --print(self.interactGUID, UnitGUID("npc"))
         return self.interactGUID == UnitGUID("npc")
     end
 
@@ -149,7 +149,7 @@ function NameplateGossip:Init()
     self:SetIgnoreParentScale(true);
     self:SetIgnoreParentAlpha(false);
 
-    self.Text = self:CreateFontString(nil, "OVERLAY", "MirageFont_NameplateGossip");
+    self.Text = self:CreateFontString(nil, "OVERLAY", "DUIFont_NameplateGossip");
     self.Text:SetJustifyV("BOTTOM");
     self.Text:SetJustifyH("CENTER");
     self.Text:SetPoint("BOTTOM", self, "BOTTOM", 0, 0);
@@ -242,10 +242,10 @@ end
 function NameplateGossip:ShouldUseNameplate()
     if USE_NAMPLATE_GOSSIP then
         if Controller:IsLastInteractNPC() then
-            print("YES UNIT")
+            --print("YES UNIT")
             return true
         else
-            print("NOT LAST UNIT")
+            --print("NOT LAST UNIT")
         end
     end
 

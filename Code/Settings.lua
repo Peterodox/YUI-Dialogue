@@ -87,9 +87,9 @@ local function SetupRepositionObject(obj)
     obj:RegisterForDrag("LeftButton");
 end
 
-YUIDialogSettingsMixin = {};
+DUIDialogSettingsMixin = {};
 
-function YUIDialogSettingsMixin:OnLoad()
+function DUIDialogSettingsMixin:OnLoad()
     MainFrame = self;
     addon.SettingsUI = self;
     addon.PixelUtil:AddPixelPerfectObject(self);
@@ -97,7 +97,7 @@ function YUIDialogSettingsMixin:OnLoad()
     SetupRepositionObject(self.Header);
 end
 
-function YUIDialogSettingsMixin:OnShow_First()
+function DUIDialogSettingsMixin:OnShow_First()
     if self.Init then
         self:Init();
     end
@@ -111,7 +111,7 @@ function YUIDialogSettingsMixin:OnShow_First()
     addon.CallbackRegistry:Trigger("SettingsUI.Show");
 end
 
-function YUIDialogSettingsMixin:OnShow()
+function DUIDialogSettingsMixin:OnShow()
     self:UpdateCurrentTab();
     self:EnableGamePadButton(true);
     self:RegisterEvent("GAME_PAD_ACTIVE_CHANGED");
@@ -119,7 +119,7 @@ function YUIDialogSettingsMixin:OnShow()
     addon.CallbackRegistry:Trigger("SettingsUI.Show");
 end
 
-function YUIDialogSettingsMixin:MoveToBestPosition()
+function DUIDialogSettingsMixin:MoveToBestPosition()
     if addon.DialogueUI:IsShown() then
         local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
         viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
@@ -133,12 +133,12 @@ function YUIDialogSettingsMixin:MoveToBestPosition()
     self:UpdateScrollFrameBound();
 end
 
-function YUIDialogSettingsMixin:UpdateScrollFrameBound()
+function DUIDialogSettingsMixin:UpdateScrollFrameBound()
     self.scrollFrameTop = self.ScrollFrame:GetTop();
     self.scrollFrameBottom = self.ScrollFrame:GetBottom();
 end
 
-function YUIDialogSettingsMixin:OnKeyDown(key)
+function DUIDialogSettingsMixin:OnKeyDown(key)
     local valid = false;
 
     if key == "ESCAPE" or key == "F1" then
@@ -151,7 +151,7 @@ function YUIDialogSettingsMixin:OnKeyDown(key)
     end
 end
 
-function YUIDialogSettingsMixin:OnGamePadButtonDown(button)
+function DUIDialogSettingsMixin:OnGamePadButtonDown(button)
     --print(button)
 
     GAME_PAD_ACTIVE = true;
@@ -183,7 +183,7 @@ function YUIDialogSettingsMixin:OnGamePadButtonDown(button)
     end
 end
 
-function YUIDialogSettingsMixin:OnMouseWheel(delta)
+function DUIDialogSettingsMixin:OnMouseWheel(delta)
 
 end
 
@@ -192,7 +192,7 @@ local function SetCheckboxTexture(checkbox, file)
     checkbox.Check:SetTexture(file);
 end
 
-function YUIDialogSettingsMixin:LoadTheme()
+function DUIDialogSettingsMixin:LoadTheme()
     if self.Init then return end;
 
     local filePath = ThemeUtil:GetTexturePath();
@@ -250,7 +250,7 @@ function YUIDialogSettingsMixin:LoadTheme()
     end
 end
 
-function YUIDialogSettingsMixin:UpdatePixel(scale)
+function DUIDialogSettingsMixin:UpdatePixel(scale)
     if not scale then
         scale = self:GetEffectiveScale();
     end
@@ -262,7 +262,7 @@ function YUIDialogSettingsMixin:UpdatePixel(scale)
     self.BackgroundShadow:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
 end
 
-function YUIDialogSettingsMixin:HighlightButton(button)
+function DUIDialogSettingsMixin:HighlightButton(button)
     self.ButtonHighlight:Hide();
     self.ButtonHighlight:ClearAllPoints();
 
@@ -274,7 +274,7 @@ function YUIDialogSettingsMixin:HighlightButton(button)
     end
 end
 
-function YUIDialogSettingsMixin:OnHide()
+function DUIDialogSettingsMixin:OnHide()
     self.focusedObject = nil;
     self.focusedObjectOffsetY = nil;
     self.scrollFrameTop = nil;
@@ -284,14 +284,14 @@ function YUIDialogSettingsMixin:OnHide()
     addon.CallbackRegistry:Trigger("SettingsUI.Hide");
 end
 
-function YUIDialogSettingsMixin:OnEvent(event, ...)
+function DUIDialogSettingsMixin:OnEvent(event, ...)
     if event == "GAME_PAD_ACTIVE_CHANGED" then
         local isActive = ...
         GAME_PAD_ACTIVE = isActive;
     end
 end
 
-function YUIDialogSettingsMixin:SetPreviewTexture(optionData)
+function DUIDialogSettingsMixin:SetPreviewTexture(optionData)
     if type(optionData.preview) == "string" then
         self.Preview:SetTexture(PREVIEW_PATH..optionData.preview);
     end
@@ -306,7 +306,7 @@ function YUIDialogSettingsMixin:SetPreviewTexture(optionData)
 end
 
 
-function YUIDialogSettingsMixin:DisplayOptionInfo(optionData, choiceTooltip)
+function DUIDialogSettingsMixin:DisplayOptionInfo(optionData, choiceTooltip)
     local hasPreview;
 
     if optionData.preview then
@@ -409,7 +409,7 @@ local Schematic = {
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
             {type = "Checkbox", name = L["Force Gossip"], description = L["Force Gossip Desc"], dbKey = "ForceGossip"},
-            {type = "Checkbox", name = L["Nameplate Dialog"], description = L["Nameplate Dialog Desc"], dbKey = "NameplateDialogEnabled", preview = "NameplateDialogEnabled", ratio = 1},
+            --{type = "Checkbox", name = L["Nameplate Dialog"], description = L["Nameplate Dialog Desc"], dbKey = "NameplateDialogEnabled", preview = "NameplateDialogEnabled", ratio = 1},
         },
     },
 
@@ -447,7 +447,7 @@ local Schematic = {
             },
 
             {type = "Subheader", name = L["Quest"]},
-            {type = "Checkbox", name = L["Press Key To Scroll Down"], description = L["Press Key To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
+            {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
         },
     },
 };
@@ -489,12 +489,12 @@ local function RemoveWidget(widget)
 end
 
 local function CreateOptionButton()
-    local optionButton = CreateFrame("Button", nil, MainFrame, "YUIDialogSettingsOptionTemplate");
+    local optionButton = CreateFrame("Button", nil, MainFrame, "DUIDialogSettingsOptionTemplate");
     return optionButton
 end
 
 local function CreateCheckbox()
-    local checkbox = CreateFrame("Button", nil, MainFrame, "YUIDialogSettingsCheckboxTemplate");
+    local checkbox = CreateFrame("Button", nil, MainFrame, "DUIDialogSettingsCheckboxTemplate");
     return checkbox
 end
 
@@ -503,7 +503,7 @@ local function OnAcquireCheckbox(checkbox)
 end
 
 local function CreateArrowOption()
-    local widget = CreateFrame("Frame", nil, MainFrame, "YUIDialogSettingsArrowOptionTemplate");
+    local widget = CreateFrame("Frame", nil, MainFrame, "DUIDialogSettingsArrowOptionTemplate");
     return widget
 end
 
@@ -523,7 +523,7 @@ function TextureFrameMixin:SetVertexColor(r, g, b, a)
 end
 
 local function CreateTexture()
-    local f = CreateFrame("Frame", nil, MainFrame, "YUIDialogSettingsTextureFrameTemplate");
+    local f = CreateFrame("Frame", nil, MainFrame, "DUIDialogSettingsTextureFrameTemplate");
     API.Mixin(f, TextureFrameMixin);
     return f
 end
@@ -596,7 +596,7 @@ function ScrollFrameMixin:OnMouseWheel(delta)
 end
 
 
-function YUIDialogSettingsMixin:Init()
+function DUIDialogSettingsMixin:Init()
     --Tab Buttons
     if not self.tabButtons then
         self.tabButtons = {};
@@ -608,7 +608,7 @@ function YUIDialogSettingsMixin:Init()
     self.texturePool = API.CreateObjectPool(CreateTexture);
 
     local function CreateHotkeyFrame()
-        local f = CreateFrame("Frame", nil, self, "YUIDialogHotkeyTemplate");
+        local f = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
         return f
     end
 
@@ -624,7 +624,7 @@ function YUIDialogSettingsMixin:Init()
 
     for i, tabData in ipairs(Schematic) do
         if not self.tabButtons[i] then
-            self.tabButtons[i] = CreateFrame("Button", nil, self.Header, "YUIDialogSettingsTabButtonTemplate");
+            self.tabButtons[i] = CreateFrame("Button", nil, self.Header, "DUIDialogSettingsTabButtonTemplate");
             SetupRepositionObject(self.tabButtons[i]);
         end
         self.tabButtons[i].tabID = i;
@@ -657,7 +657,7 @@ function YUIDialogSettingsMixin:Init()
     self:LoadTheme();
 end
 
-function YUIDialogSettingsMixin:Layout()
+function DUIDialogSettingsMixin:Layout()
     OPTIONBUTTON_HEIGHT = FONT_HEIGHT_NORMAL + 2*BUTTON_PADDING_LARGE;
 
     --Header
@@ -751,7 +751,7 @@ function YUIDialogSettingsMixin:Layout()
     self.DecorMask:SetPoint("BOTTOM", self.Description, "BOTTOM", 0, -16);
 end
 
-function YUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
+function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     if tabID == self.tabID and not forceUpdate then return false end;
 
     if self.tabID then  --Save Scroll Position
@@ -841,7 +841,7 @@ function YUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     end
 end
 
-function YUIDialogSettingsMixin:SelectTabByDelta(delta)
+function DUIDialogSettingsMixin:SelectTabByDelta(delta)
     local tabID = self.tabID or 0;
     if delta > 0 and tabID < self.numTabs then
         self:SelectTabByID(tabID + 1);
@@ -850,11 +850,11 @@ function YUIDialogSettingsMixin:SelectTabByDelta(delta)
     end
 end
 
-function YUIDialogSettingsMixin:UpdateCurrentTab()
+function DUIDialogSettingsMixin:UpdateCurrentTab()
     self:SelectTabByID(self.tabID, true)
 end
 
-function YUIDialogSettingsMixin:SetFocusedObject(object)
+function DUIDialogSettingsMixin:SetFocusedObject(object)
     self.focusedObject = object;
     if object then
         local _;
@@ -864,7 +864,7 @@ function YUIDialogSettingsMixin:SetFocusedObject(object)
     end
 end
 
-function YUIDialogSettingsMixin:ReAlignToFocusedObject()
+function DUIDialogSettingsMixin:ReAlignToFocusedObject()
     --The UI's dimension change with Font Size, so we need maintain the option's offsetY so players don't click another option by accident
     if self.focusedObject and self.focusedObject:IsShown() and self.focusedObjectOffsetY then
         local _, newOffsetY = self.focusedObject:GetCenter();
@@ -875,39 +875,39 @@ function YUIDialogSettingsMixin:ReAlignToFocusedObject()
     end
 end
 
-function YUIDialogSettingsMixin:ToggleUI()
+function DUIDialogSettingsMixin:ToggleUI()
     self:SetShown(not self:IsShown());
 end
 
 
-YUIDialogSettingsTabButtonMixin = {};
+DUIDialogSettingsTabButtonMixin = {};
 
-function YUIDialogSettingsTabButtonMixin:OnEnter()
+function DUIDialogSettingsTabButtonMixin:OnEnter()
     MainFrame:HighlightButton(self);
 end
 
-function YUIDialogSettingsTabButtonMixin:OnLeave()
+function DUIDialogSettingsTabButtonMixin:OnLeave()
     MainFrame:HighlightButton(nil);
 end
 
-function YUIDialogSettingsTabButtonMixin:OnMouseDown(button)
+function DUIDialogSettingsTabButtonMixin:OnMouseDown(button)
     if button ~= "LeftButton" or self.isSelected then return end;
     self.Name:SetPoint("CENTER", 0, -1);
 end
 
-function YUIDialogSettingsTabButtonMixin:OnMouseUp()
+function DUIDialogSettingsTabButtonMixin:OnMouseUp()
     self.Name:SetPoint("CENTER", 0, 0);
 end
 
-function YUIDialogSettingsTabButtonMixin:OnClick()
+function DUIDialogSettingsTabButtonMixin:OnClick()
     MainFrame:SelectTabByID(self.tabID);
 end
 
-function YUIDialogSettingsTabButtonMixin:SetName(name)
+function DUIDialogSettingsTabButtonMixin:SetName(name)
     self.Name:SetText(string.upper(name));
 end
 
-function YUIDialogSettingsTabButtonMixin:SetSelected(state)
+function DUIDialogSettingsTabButtonMixin:SetSelected(state)
     if state then
         self.isSelected = true;
         self.Name:SetFontObject("DUIFont_Quest_Quest");
@@ -922,9 +922,9 @@ end
 
 
 
-YUIDialogSettingsOptionMixin = {};
+DUIDialogSettingsOptionMixin = {};
 
-function YUIDialogSettingsOptionMixin:OnEnter()
+function DUIDialogSettingsOptionMixin:OnEnter()
     local choiceTooltip = self.widgetGetSelectedChoiceTooltip;
 
     if not self.isSubheader then
@@ -936,13 +936,13 @@ function YUIDialogSettingsOptionMixin:OnEnter()
     MainFrame:DisplayOptionInfo(self.optionData, choiceTooltip);
 end
 
-function YUIDialogSettingsOptionMixin:OnLeave()
+function DUIDialogSettingsOptionMixin:OnLeave()
     if not self:IsMouseOver() then
         MainFrame:HighlightButton(nil);
     end
 end
 
-function YUIDialogSettingsOptionMixin:OnClick()
+function DUIDialogSettingsOptionMixin:OnClick()
     MainFrame:SetFocusedObject(self);
 
     if self.widget and self.widget.OnClick and self.widget:IsEnabled() then
@@ -950,7 +950,7 @@ function YUIDialogSettingsOptionMixin:OnClick()
     end
 end
 
-function YUIDialogSettingsOptionMixin:SetCheckbox(optionData)
+function DUIDialogSettingsOptionMixin:SetCheckbox(optionData)
     self.widget = MainFrame.checkboxPool:Acquire();
     self.widget:SetParent(self);
     self.widget:SetPoint("RIGHT", self, "RIGHT", -BUTTON_PADDING_LARGE, 0);
@@ -959,7 +959,7 @@ function YUIDialogSettingsOptionMixin:SetCheckbox(optionData)
     self.widget:SetChecked(GetDBValue(self.dbKey) == true);
 end
 
-function YUIDialogSettingsOptionMixin:SetArrowOption(optionData)
+function DUIDialogSettingsOptionMixin:SetArrowOption(optionData)
     self.widget = MainFrame.arrowOptionPool:Acquire();
     self.widget:SetParent(self);
     self.widget:SetPoint("RIGHT", self, "RIGHT", -BUTTON_PADDING_LARGE, 0);
@@ -968,7 +968,7 @@ function YUIDialogSettingsOptionMixin:SetArrowOption(optionData)
 end
 
 
-function YUIDialogSettingsOptionMixin:SetSubheader()
+function DUIDialogSettingsOptionMixin:SetSubheader()
     --[[
     local icon = MainFrame.texturePool:Acquire();
     icon:SetSize(FONT_HEIGHT_NORMAL, FONT_HEIGHT_NORMAL);
@@ -979,7 +979,7 @@ function YUIDialogSettingsOptionMixin:SetSubheader()
     --]]
 end
 
-function YUIDialogSettingsOptionMixin:SetData(optionData)
+function DUIDialogSettingsOptionMixin:SetData(optionData)
     self.optionData = optionData;
     self.dbKey = optionData.dbKey;
     self.updateTabAfterClicks = optionData.updateTabAfterClicks;
@@ -1026,7 +1026,7 @@ end
 
 
 
-YUIDialogSettingsArrowOptionMixin = {};
+DUIDialogSettingsArrowOptionMixin = {};
 
 local function ArrowButton_OnClick(self)
     self:GetParent():SelectChoiceByDelta(self.delta);
@@ -1071,7 +1071,7 @@ local function OnAcquireBar(bar)
     bar:SetTexture(ThemeUtil:GetTextureFile("Settings-ArrowOption.png"));
 end
 
-function YUIDialogSettingsArrowOptionMixin:OnLoad()
+function DUIDialogSettingsArrowOptionMixin:OnLoad()
     self.ValueText:SetPoint("TOP", self, "TOP", 0, ARROWOPTION_VALUETEXT_OFFSET_Y);
 
     self.LeftArrow.delta = -1;
@@ -1103,7 +1103,7 @@ function YUIDialogSettingsArrowOptionMixin:OnLoad()
     self.barPool = API.CreateObjectPool(CreateBar, RemoveBar, OnAcquireBar);
 end
 
-function YUIDialogSettingsArrowOptionMixin:SetNumChoices(numChoices, forceUpdate)
+function DUIDialogSettingsArrowOptionMixin:SetNumChoices(numChoices, forceUpdate)
     if numChoices ~= self.numChoices or forceUpdate then
         self.barPool:Release();
         self.numChoices = numChoices;
@@ -1124,22 +1124,22 @@ function YUIDialogSettingsArrowOptionMixin:SetNumChoices(numChoices, forceUpdate
     end
 end
 
-function YUIDialogSettingsArrowOptionMixin:GetCentralWidth()
+function DUIDialogSettingsArrowOptionMixin:GetCentralWidth()
     return self:GetWidth() - 2*self.LeftArrow:GetWidth();
 end
 
-function YUIDialogSettingsArrowOptionMixin:SetWidgetWidth(width)
+function DUIDialogSettingsArrowOptionMixin:SetWidgetWidth(width)
     local centralWidth = self:GetCentralWidth();
 end
 
-function YUIDialogSettingsArrowOptionMixin:SetWidgetHeight(height)
+function DUIDialogSettingsArrowOptionMixin:SetWidgetHeight(height)
     self.LeftArrow.Texture:SetSize(height, height);
     self.RightArrow.Texture:SetSize(height, height);
     self:SetHeight(height);
     self:SetWidth(height * ARROWOTPION_WIDTH_RATIO);
 end
 
-function YUIDialogSettingsArrowOptionMixin:SetValueTextByID(id)
+function DUIDialogSettingsArrowOptionMixin:SetValueTextByID(id)
     if self.valueTextFormatter then
         self.valueTextFormatter(self, self.choices[id].dbValue);
     else
@@ -1148,7 +1148,7 @@ function YUIDialogSettingsArrowOptionMixin:SetValueTextByID(id)
     end
 end
 
-function YUIDialogSettingsArrowOptionMixin:SelectChoiceByID(id)
+function DUIDialogSettingsArrowOptionMixin:SelectChoiceByID(id)
     if not self.choices[id] then
         id = 1;
     end
@@ -1172,7 +1172,7 @@ function YUIDialogSettingsArrowOptionMixin:SelectChoiceByID(id)
     self.RightArrow:SetEnabled(id ~= self.numChoices);
 end
 
-function YUIDialogSettingsArrowOptionMixin:SelectNextChoice()
+function DUIDialogSettingsArrowOptionMixin:SelectNextChoice()
     if ARROWOTPION_CYCLING then
         self.selectedID = self.selectedID + 1;
         if self.selectedID > self.numChoices then
@@ -1190,7 +1190,7 @@ function YUIDialogSettingsArrowOptionMixin:SelectNextChoice()
     return true
 end
 
-function YUIDialogSettingsArrowOptionMixin:SelectPreviousChoice()
+function DUIDialogSettingsArrowOptionMixin:SelectPreviousChoice()
     if ARROWOTPION_CYCLING then
         self.selectedID = self.selectedID - 1;
         if self.selectedID < 1 then
@@ -1208,7 +1208,7 @@ function YUIDialogSettingsArrowOptionMixin:SelectPreviousChoice()
     return true
 end
 
-function YUIDialogSettingsArrowOptionMixin:SelectChoiceByDelta(delta)
+function DUIDialogSettingsArrowOptionMixin:SelectChoiceByDelta(delta)
     --right = 1, left = -1
     local anyChange;
 
@@ -1223,7 +1223,7 @@ function YUIDialogSettingsArrowOptionMixin:SelectChoiceByDelta(delta)
     end
 end
 
-function YUIDialogSettingsArrowOptionMixin:PostClick()
+function DUIDialogSettingsArrowOptionMixin:PostClick()
     local optionButton = self:GetParent();
     MainFrame:SetFocusedObject(optionButton);
 
@@ -1239,7 +1239,7 @@ function YUIDialogSettingsArrowOptionMixin:PostClick()
     end
 end
 
-function YUIDialogSettingsArrowOptionMixin:SetData(optionData)
+function DUIDialogSettingsArrowOptionMixin:SetData(optionData)
     self.choices = optionData.choices;
     self.dbKey = optionData.dbKey;
     self.valueTextFormatter = optionData.valueTextFormatter;
@@ -1265,14 +1265,14 @@ function YUIDialogSettingsArrowOptionMixin:SetData(optionData)
     self:SelectChoiceByID(selectedID);
 end
 
-function YUIDialogSettingsArrowOptionMixin:SetTexture(file)
+function DUIDialogSettingsArrowOptionMixin:SetTexture(file)
     self.LeftArrow.Texture:SetTexture(file);
     self.LeftArrow.Highlight:SetTexture(file);
     self.RightArrow.Texture:SetTexture(file);
     self.RightArrow.Highlight:SetTexture(file);
 end
 
-function YUIDialogSettingsArrowOptionMixin:GetSelectedChoiceTooltip()
+function DUIDialogSettingsArrowOptionMixin:GetSelectedChoiceTooltip()
     if self.selectedID and self.choices and self.choices[self.selectedID] then
         return self.choices[self.selectedID].tooltip
     end
@@ -1281,22 +1281,22 @@ end
 
 
 
-YUIDialogSettingsCheckboxMixin = {};
+DUIDialogSettingsCheckboxMixin = {};
 
-function YUIDialogSettingsCheckboxMixin:OnEnter()
+function DUIDialogSettingsCheckboxMixin:OnEnter()
     self:GetParent():OnEnter();
 end
 
-function YUIDialogSettingsCheckboxMixin:OnLeave()
+function DUIDialogSettingsCheckboxMixin:OnLeave()
     self:GetParent():OnLeave();
 end
 
-function YUIDialogSettingsCheckboxMixin:SetTexture(file)
+function DUIDialogSettingsCheckboxMixin:SetTexture(file)
     self.Background:SetTexture(file);
     self.Check:SetTexture(file);
 end
 
-function YUIDialogSettingsCheckboxMixin:OnClick()
+function DUIDialogSettingsCheckboxMixin:OnClick()
     self:Toggle();
 
     local optionButton = self:GetParent();
@@ -1307,7 +1307,7 @@ function YUIDialogSettingsCheckboxMixin:OnClick()
     end
 end
 
-function YUIDialogSettingsCheckboxMixin:SetChecked(state)
+function DUIDialogSettingsCheckboxMixin:SetChecked(state)
     self.checked = state;
     self.Check:SetShown(state);
     if state then
@@ -1317,17 +1317,17 @@ function YUIDialogSettingsCheckboxMixin:SetChecked(state)
     end
 end
 
-function YUIDialogSettingsCheckboxMixin:Toggle()
+function DUIDialogSettingsCheckboxMixin:Toggle()
     self.checked = not self.checked;
     self:SetChecked(self.checked);
 end
 
-function YUIDialogSettingsCheckboxMixin:SetWidgetHeight(height)
+function DUIDialogSettingsCheckboxMixin:SetWidgetHeight(height)
     self:SetSize(height, height);
     self.Check:SetSize(height*0.5, height*0.5);
 end
 
-function YUIDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
+function DUIDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
     if self.checked then
         return self.checkedTooltip
     else
@@ -1336,32 +1336,32 @@ function YUIDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
 end
 
 do  --GamePad/Controller
-    function YUIDialogSettingsMixin:ResetGamePadObjects()
+    function DUIDialogSettingsMixin:ResetGamePadObjects()
         self.gamepadMaxIndex = 0;
         self.gamepadFocusIndex = nil;
         self.gamepadFocus = nil;
         self.gamepadObjects = {};
     end
 
-    function YUIDialogSettingsMixin:IndexGamePadObject(object)
+    function DUIDialogSettingsMixin:IndexGamePadObject(object)
         self.gamepadMaxIndex = self.gamepadMaxIndex + 1;
         self.gamepadObjects[self.gamepadMaxIndex] = object;
         object.gamepadIndex = self.gamepadMaxIndex;
     end
 
-    function YUIDialogSettingsMixin:ClearGamePadFocus()
+    function DUIDialogSettingsMixin:ClearGamePadFocus()
         if self.gamepadFocus then
             --self.gamepadFocus:OnLeave();
             self.gamepadFocus = nil;
         end
     end
 
-    function YUIDialogSettingsMixin:SetGamePadFocus(optionButton)
+    function DUIDialogSettingsMixin:SetGamePadFocus(optionButton)
         self.gamepadFocusIndex = optionButton.gamepadIndex;
         self.gamepadFocus = optionButton;
     end
 
-    function YUIDialogSettingsMixin:FocusObjectByIndex(index)
+    function DUIDialogSettingsMixin:FocusObjectByIndex(index)
         local object = self.gamepadObjects[index];
         if object then
             self.gamepadFocusIndex = index;
@@ -1371,7 +1371,7 @@ do  --GamePad/Controller
         end
     end
 
-    function YUIDialogSettingsMixin:FocusObjectByDelta(delta)
+    function DUIDialogSettingsMixin:FocusObjectByDelta(delta)
         local maxIndex = self.gamepadMaxIndex or 0;
         local index = self.gamepadFocusIndex;
 
@@ -1408,19 +1408,19 @@ do  --GamePad/Controller
         end
     end
 
-    function YUIDialogSettingsMixin:FocusNextObject()
+    function DUIDialogSettingsMixin:FocusNextObject()
         if self:FocusObjectByDelta(1) then
             return
         end
     end
 
-    function YUIDialogSettingsMixin:FocusPreviousObject()
+    function DUIDialogSettingsMixin:FocusPreviousObject()
         if self:FocusObjectByDelta(-1) then
             return
         end
     end
 
-    function YUIDialogSettingsMixin:ClickFocusedObject(gamepadButton)
+    function DUIDialogSettingsMixin:ClickFocusedObject(gamepadButton)
         if self.gamepadFocus then
             local optionButton = self.gamepadFocus;
             if gamepadButton == "PAD1" then

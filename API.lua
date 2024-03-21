@@ -1471,79 +1471,15 @@ do  --Faction --Reputation
 end
 
 do  --Chat Message
+    local ADDON_ICON = "|TInterface\\AddOns\\DialogueUI\\Art\\Icons\\Logo:0:0|t";
     local function PrintMessage(header, msg)
-        print("|cff8080FF"..header..": "..msg.."|r")
+        if StripHyperlinks then
+            msg = StripHyperlinks(msg);
+        end
+        print(ADDON_ICON.."|cffffd100"..header.."  |cffffffff"..msg.."|r");
     end
     API.PrintMessage = PrintMessage;
 end
-
-do  --Dev Tool
-    local DEV_MODE = true;
-
-    if not DEV_MODE then return end;
-
-    --GetQuestID()
-
-    local IsAccountQuest = C_QuestLog.IsAccountQuest;
-    local GetQuestIDForLogIndex = C_QuestLog.GetQuestIDForLogIndex;
-    local GetQuestInfo = C_QuestLog.GetInfo;
-
-    local function GetNumQuestCanAccept()
-        --numQuests include all types of quests.
-        --(Account/Daily) quests don't count towards MaxQuest(35)
-        if not MAX_QUESTS then
-            MAX_QUESTS = C_QuestLog.GetMaxNumQuestsCanAccept();
-        end
-
-        local numShownEntries, numAllQuests = GetNumQuestLogEntries();
-        local numQuests = 0;
-        local questID;
-
-        for i = 1, numShownEntries do
-            questID = GetQuestIDForLogIndex(i);
-            if questID ~= 0 then
-                print(i, questID)
-            end
-            if questID ~= 0 and not IsAccountQuest(questID) then
-                local info = GetQuestInfo(i);
-                if info and (not (info.isHidden or info.isHeader)) and info.frequency == 1 then
-                    numAllQuests = numAllQuests - 1;
-                end
-            end
-        end
-
-        return MAX_QUESTS - numAllQuests, MAX_QUESTS
-    end
-
-    local function TooltipAddInfo(tooltip, info, key)
-        tooltip:AddDoubleLine(key, tostring(info[key]));
-    end
-
-    local QuestInfoFields = {
-        "questID", "campaignID", "frequency", "isHeader", "isTask", "isBounty", "isStory", "isAutoComplete",
-    };
-
-    local function QuestMapLogTitleButton_OnEnter_Callback(_, button, questID)
-        print(questID);
-        local tooltip = GameTooltip;
-        if not tooltip:IsShown() then return end;
-
-        local info = C_QuestLog.GetInfo(button.questLogIndex);
-
-        for _, key in ipairs(QuestInfoFields) do
-            TooltipAddInfo(tooltip, info, key)
-        end
-        tooltip:AddDoubleLine("Account", tostring(IsAccountQuest(questID)));
-        tooltip:AddDoubleLine("isCalling", tostring(C_QuestLog.IsQuestCalling(questID)));
-        tooltip:AddDoubleLine("QuestType", C_QuestLog.GetQuestType(questID));
-        tooltip:AddDoubleLine("isRepeatable", tostring(C_QuestLog.IsRepeatableQuest(questID)));
-
-        tooltip:Show();
-    end
-
-    EventRegistry:RegisterCallback("QuestMapLogTitleButton.OnEnter", QuestMapLogTitleButton_OnEnter_Callback, nil);
-end
-
 
 do  --Tooltip
     if C_TooltipInfo then
@@ -1894,4 +1830,69 @@ do  --Keybindings
         return key, errorText
     end
     API.GetBestInteractKey = GetBestInteractKey;
+end
+
+do  --Dev Tool
+    local DEV_MODE = false;
+
+    if not DEV_MODE then return end;
+
+    local IsAccountQuest = C_QuestLog.IsAccountQuest;
+    local GetQuestIDForLogIndex = C_QuestLog.GetQuestIDForLogIndex;
+    local GetQuestInfo = C_QuestLog.GetInfo;
+
+    local function GetNumQuestCanAccept()
+        --numQuests include all types of quests.
+        --(Account/Daily) quests don't count towards MaxQuest(35)
+        if not MAX_QUESTS then
+            MAX_QUESTS = C_QuestLog.GetMaxNumQuestsCanAccept();
+        end
+
+        local numShownEntries, numAllQuests = GetNumQuestLogEntries();
+        local numQuests = 0;
+        local questID;
+
+        for i = 1, numShownEntries do
+            questID = GetQuestIDForLogIndex(i);
+            if questID ~= 0 then
+                print(i, questID)
+            end
+            if questID ~= 0 and not IsAccountQuest(questID) then
+                local info = GetQuestInfo(i);
+                if info and (not (info.isHidden or info.isHeader)) and info.frequency == 1 then
+                    numAllQuests = numAllQuests - 1;
+                end
+            end
+        end
+
+        return MAX_QUESTS - numAllQuests, MAX_QUESTS
+    end
+
+    local function TooltipAddInfo(tooltip, info, key)
+        tooltip:AddDoubleLine(key, tostring(info[key]));
+    end
+
+    local QuestInfoFields = {
+        "questID", "campaignID", "frequency", "isHeader", "isTask", "isBounty", "isStory", "isAutoComplete",
+    };
+
+    local function QuestMapLogTitleButton_OnEnter_Callback(_, button, questID)
+        print(questID);
+        local tooltip = GameTooltip;
+        if not tooltip:IsShown() then return end;
+
+        local info = C_QuestLog.GetInfo(button.questLogIndex);
+
+        for _, key in ipairs(QuestInfoFields) do
+            TooltipAddInfo(tooltip, info, key)
+        end
+        tooltip:AddDoubleLine("Account", tostring(IsAccountQuest(questID)));
+        tooltip:AddDoubleLine("isCalling", tostring(C_QuestLog.IsQuestCalling(questID)));
+        tooltip:AddDoubleLine("QuestType", C_QuestLog.GetQuestType(questID));
+        tooltip:AddDoubleLine("isRepeatable", tostring(C_QuestLog.IsRepeatableQuest(questID)));
+
+        tooltip:Show();
+    end
+
+    EventRegistry:RegisterCallback("QuestMapLogTitleButton.OnEnter", QuestMapLogTitleButton_OnEnter_Callback, nil);
 end

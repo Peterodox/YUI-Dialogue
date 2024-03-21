@@ -443,7 +443,7 @@ end
 
 function SharedTooltip:ShowHotkey(key, description, callback)
     if not self.HotkeyFrame then
-        self.HotkeyFrame = CreateFrame("Frame", nil, self, "YUIDialogHotkeyTemplate");
+        self.HotkeyFrame = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
     end
 
     local success = self.HotkeyFrame:SetKey(key);
@@ -496,7 +496,7 @@ do
 
             local comparisonItem = TooltipComparisonManager:CreateComparisonItem(self.tooltipData);
             local compairsonInfo = comparisonItem and C_TooltipComparison.GetItemComparisonInfo(comparisonItem);
-            API.GetItemComparisonInfo(itemID)
+
             if compairsonInfo and compairsonInfo.item and compairsonInfo.item.guid then
                 local displayedItem = compairsonInfo.item;
                 local delta = C_TooltipComparison.GetItemComparisonDelta(comparisonItem, displayedItem);

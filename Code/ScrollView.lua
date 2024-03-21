@@ -235,7 +235,7 @@ function ScrollViewMixin:UpdateView(forceUpdate)
             else
                 object = self:CreateObject();
                 tinsert(self.objectPool, object);
-                print("Created. Total:", #self.objectPool);
+                --print("Created. Total:", #self.objectPool);
             end
 
             self.activeObjects[object] = index;

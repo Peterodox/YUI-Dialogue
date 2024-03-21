@@ -1,9 +1,9 @@
 --Reserved space below so all localization files line up
 
-
-
 local _, addon = ...
-local L = addon.L;
+local L = {};
+addon.L = L;
+addon.L_enUS = L;
 
 L["Quest Frequency Daily"] = DAILY or "Daily";
 L["Quest Frequency Weekly"] = WEEKLY or "Weekly";
@@ -91,6 +91,7 @@ L["Show NPC Name On Page"] = "Show NPC Name";
 L["Show NPC Name On Page Desc"] = "Show the NPC name on the page.";
 L["Simplify Currency Rewards"] = "Simplify Currency Rewards";
 L["Simplify Currency Rewards Desc"] = "Use smaller icons for currency rewards and omit their names.";
+L["Auto Select"] = "Auto Select";
 L["Auto Select Gossip"] = "Auto Select Option";
 L["Auto Select Gossip Desc"] = "Automatically select the best dialog option when interacting with certain NPC.";
 L["Force Gossip"] = "Force Gossip";
@@ -111,13 +112,13 @@ L["Input Device"] = "Input Device";
 L["Input Device Desc"] = "Affects hotkey icons and UI layout.";
 L["Input Device KBM"] = "KB&M";
 L["Input Device Xbox"] = "Xbox";
-L["Input Device Xbox Tooltip"] = "Confirm Key: [KEY:XBOX:PAD1]\nCancel Key: [KEY:XBOX:PAD2]";
+L["Input Device Xbox Tooltip"] = "Confirm Button: [KEY:XBOX:PAD1]\nCancel Button: [KEY:XBOX:PAD2]";
 L["Input Device PlayStation"] = "PlayStation";
-L["Input Device PlayStation Tooltip"] = "Confirm Key: [KEY:PS:PAD1]\nCancel Key: [KEY:PS:PAD2]";
-L["Primary Control Key"] = "Confirm Key";
+L["Input Device PlayStation Tooltip"] = "Confirm Button: [KEY:PS:PAD1]\nCancel Button: [KEY:PS:PAD2]";
+L["Primary Control Key"] = "Confirm Button";
 L["Primary Control Key Desc"] = "Press this key to select the first available option like Accept Quest."
-L["Press Key To Scroll Down"] = "Press Key To Scroll Down";
-L["Press Key To Scroll Down Desc"] = "If the content is taller than the viewport, pressing the Confirm Key will scroll the page down instead of accepting quest.";
+L["Press Button To Scroll Down"] = "Press Button To Scroll Down";
+L["Press Button To Scroll Down Desc"] = "If the content is taller than the viewport, pressing the Confirm Button will scroll the page down instead of accepting quest.";
 
 L["Key Space"] = "Space";
 L["Key Interact"] = "Interact";

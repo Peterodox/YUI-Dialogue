@@ -9,7 +9,7 @@
     <Script file="FriendshipBar.lua"/>
     <Script file="UI.lua"/>
 
-    <Frame name="YUIDialogHotkeyTemplate" mixin="YUIDialogHotkeyFrameMixin" hidden="true" virtual="true">
+    <Frame name="DUIDialogHotkeyTemplate" mixin="DUIDialogHotkeyFrameMixin" hidden="true" virtual="true">
         <Size x="34" y="34"/>
         <Layers>
             <Layer level="OVERLAY" textureSubLevel="4">
@@ -37,7 +37,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="YUIDialogQuestTypeFrameTemplate" mixin="YUIDialogQuestTypeFrameMixin" useParentLevel="true" virtual="true">
+    <Frame name="DUIDialogQuestTypeFrameTemplate" mixin="DUIDialogQuestTypeFrameMixin" useParentLevel="true" virtual="true">
         <Size x="48" y="16"/>
         <Layers>
             <Layer level="OVERLAY">
@@ -50,7 +50,7 @@
         </Layers>
     </Frame>
 
-    <Frame name="YUIDialogIconFrameTemplate" mixin="YUIDialogIconFrameMixin" useParentLevel="true" virtual="true">
+    <Frame name="DUIDialogIconFrameTemplate" mixin="DUIDialogIconFrameMixin" useParentLevel="true" virtual="true">
         <Size x="14" y="14"/>
         <Layers>
             <Layer level="OVERLAY" textureSubLevel="6">
@@ -59,7 +59,7 @@
         </Layers>
     </Frame>
         
-    <Button name="YUIDialogOptionButtonTemplate" mixin="YUIDialogOptionButtonMixin" registerForClicks="LeftButtonUp, RightButtonUp" hyperlinksEnabled="true" motionScriptsWhileDisabled="true" virtual="true">
+    <Button name="DUIDialogOptionButtonTemplate" mixin="DUIDialogOptionButtonMixin" registerForClicks="LeftButtonUp, RightButtonUp" hyperlinksEnabled="true" motionScriptsWhileDisabled="true" virtual="true">
         <Size x="256" y="20"/>
         <Layers>
             <Layer level="BACKGROUND" textureSubLevel="1">
@@ -105,7 +105,7 @@
         </Scripts>
     </Button>
 
-    <Frame name="YUIDialogOptionButtonLockTemplate" mixin="YUIDialogOptionButtonLockMixin" useParentLevel="true" hidden="true" virtual="true">
+    <Frame name="DUIDialogOptionButtonLockTemplate" mixin="DUIDialogOptionButtonLockMixin" useParentLevel="true" hidden="true" virtual="true">
         <Size x="256" y="20"/>
         <Layers>
             <Layer level="BACKGROUND" textureSubLevel="5">
@@ -123,7 +123,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="YUIDialogInputBoxTemplate" mixin="YUIDialogInputBoxMixin" virtual="true" enableMouse="true">
+    <Frame name="DUIDialogInputBoxTemplate" mixin="DUIDialogInputBoxMixin" virtual="true" enableMouse="true">
         <Size x="256" y="54"/>
         <Layers>
             <Layer level="OVERLAY" textureSubLevel="5">
@@ -169,7 +169,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="YUIDialogItemButtonTemplate" mixin="YUIDialogItemButtonMixin" flattenRenderLayers="true" hidden="true" virtual="true"> <!--Display Items-->
+    <Frame name="DUIDialogItemButtonTemplate" mixin="DUIDialogItemButtonMixin" flattenRenderLayers="true" hidden="true" virtual="true"> <!--Display Items-->
         <Size x="174" y="36"/>
         <Layers>
             <Layer level="BACKGROUND" textureSubLevel="1">
@@ -240,7 +240,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="YUIDialogSmallItemButtonTemplate" mixin="YUIDialogSmallItemButtonMixin" hidden="true" virtual="true"> <!--Display XP, Money-->
+    <Frame name="DUIDialogSmallItemButtonTemplate" mixin="DUIDialogSmallItemButtonMixin" hidden="true" virtual="true"> <!--Display XP, Money-->
         <Size x="174" y="15"/>
         <Layers>
             <Layer level="ARTWORK">
@@ -279,7 +279,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="YUIQuestFrame" mixin="YUIDialogBaseMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">
+    <Frame name="DUIQuestFrame" mixin="DUIDialogBaseMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">
         <size x="300" y="400"/>
         <Frames>
             <Frame parentKey="BackgroundFrame" setAllPoints="true" useParentLevel="true">
@@ -423,7 +423,7 @@
                 </ScrollChild>
             </ScrollFrame>
 
-            <Frame parentKey="InputBox" inherits="YUIDialogInputBoxTemplate" hidden="true"/>
+            <Frame parentKey="InputBox" inherits="DUIDialogInputBoxTemplate" hidden="true"/>
         </Frames>
         <KeyValues>
             <KeyValue key="nodeignore" value="true" type="boolean"/>
