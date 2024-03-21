@@ -1,11 +1,11 @@
 ## Interface: 30499
-## Version: 0.1.2
+## Version: 0.1.3
 
 ## Title: |cffff2020Dialogue UI|r
 
 ## Notes: Incompatible with Wrath 3.4.3
 
 ## Author: Peterodox
-## SavedVariables: DialogUI_DB
+## SavedVariables: DialogueUI_DB
 
 ## IconTexture: Interface\AddOns\DialogueUI\Art\Icons\Logo

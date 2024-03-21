@@ -40,10 +40,10 @@ local NPC_NAME1 = "Bronze Timekeeper";
 local NPC_NAME2 = " ";
 
 local RankIcons = {
-    [1] = "Interface/AddOns/DialogUI/Art/Dialog/Icons/Racing-Gold.png",
-    [2] = "Interface/AddOns/DialogUI/Art/Dialog/Icons/Racing-Silver.png",
-    [3] = "Interface/AddOns/DialogUI/Art/Dialog/Icons/Racing-Bronze.png",
-    [4] = "Interface/AddOns/DialogUI/Art/Dialog/Icons/Racing-None.png",
+    [1] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Gold.png",
+    [2] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Silver.png",
+    [3] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Bronze.png",
+    [4] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-None.png",
 };
 
 function DataSource:IsDragonRacingNPC(npcName)
@@ -110,7 +110,7 @@ end
 
 
 local function UpdateGossipIcons(ranks)
-    local f = MirageQuestFrame;
+    local f = addon.DialogueUI;
 
     if not f:IsShown() then return end;
 
@@ -118,7 +118,6 @@ local function UpdateGossipIcons(ranks)
     for i = 1, #ranks do
         if optionButtons[i] then
             optionButtons[i].Icon:SetTexture(RankIcons[ranks[i]]);
-            print(i)
         end
     end
 end

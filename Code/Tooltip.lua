@@ -1109,7 +1109,6 @@ function SharedTooltip:OnEvent(event, ...)
 		if dataInstanceID and dataInstanceID == self.dataInstanceID then
             self.triggeredByEvent = true;
 			self:ProcessInfo(self.tooltipInfo);
-            print("UPDATE TOOLTIP")
 		end
     elseif event == "MODIFIER_STATE_CHANGED" then
         local key, down = ...

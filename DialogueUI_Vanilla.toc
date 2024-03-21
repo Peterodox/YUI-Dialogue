@@ -1,9 +1,9 @@
 ## Interface: 11501
-## Version: 0.1.2
+## Version: 0.1.3
 
 ## Title: Dialogue UI
 
-## Notes: Immersive dialogue UI
+## Notes: Quest Dialogue UI with built-in camera control and gamepad support.
 
 ## Author: Peterodox
 ## SavedVariables: DialogueUI_DB
