@@ -2,6 +2,7 @@
     <Script file="Clipboard.lua"/>
     <Script file="KeyboardControl.lua"/>
     <Script file="SharedUITemplates.lua"/>
+    <Script file="Banner.lua"/>
     <Script file="QuestRewards.lua"/>
     <Script file="AlertFrame.lua"/>     <!--Quest/Criteria Complete-->
     <Script file="StatusBar.lua"/>

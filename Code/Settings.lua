@@ -35,37 +35,8 @@ local TAB_BUTTON_GAP = 4;
 local DISABLED_TEXTURE_ALPHA = 0.2;
 
 local PREVIEW_PATH = "Interface/AddOns/DialogueUI/Art/PreviewPicture/";
-local HOTKEY_PATH = "Interface/AddOns/DialogueUI/Art/Keys/";
 
 local MainFrame;
-
-
-local ReplaceStringWithKey;
-do
-    local count = 0;    --Limit the number of loops in case of localization error
-
-    local function ReplaceStringWithKey_Recursive(text)
-        count = count + 1;
-        if count > 4 then
-            return text
-        end
-
-        local type, device, button = match(text, "%[(%w+):(%w+):(%w+)%]");
-        if type and device and button then
-            local iconSize = 16;
-            local texture = ("|T%s%s-%s-32.png:%s:%s:0:-4|t"):format(HOTKEY_PATH, device, button, iconSize, iconSize);
-            text = gsub(text, "%[[%w:]+%]", texture, 1);
-            return ReplaceStringWithKey_Recursive(text);
-        else
-            return text
-        end
-    end
-
-    function ReplaceStringWithKey(text)
-        count = 0;
-        return ReplaceStringWithKey_Recursive(text)
-    end
-end
 
 
 local function Reposition_OnDragStart(self)
@@ -104,17 +75,15 @@ function DUIDialogSettingsMixin:OnShow_First()
     self:Layout();
     self:UpdatePixel();
     self:SetScript("OnShow", self.OnShow);
-    self:SelectTabByID(1);
-    self:EnableGamePadButton(true);
-    self:RegisterEvent("GAME_PAD_ACTIVE_CHANGED");
-    self:MoveToBestPosition();
-    addon.CallbackRegistry:Trigger("SettingsUI.Show");
+    self.tabID = 1;
+    self:OnShow();
 end
 
 function DUIDialogSettingsMixin:OnShow()
     self:UpdateCurrentTab();
     self:EnableGamePadButton(true);
     self:RegisterEvent("GAME_PAD_ACTIVE_CHANGED");
+    self:RegisterEvent("GAME_PAD_DISCONNECTED");
     self:MoveToBestPosition();
     addon.CallbackRegistry:Trigger("SettingsUI.Show");
 end
@@ -281,6 +250,7 @@ function DUIDialogSettingsMixin:OnHide()
     self.scrollFrameBottom = nil;
     self:EnableGamePadButton(false);
     self:UnregisterEvent("GAME_PAD_ACTIVE_CHANGED");
+    self:UnregisterEvent("GAME_PAD_DISCONNECTED");
     addon.CallbackRegistry:Trigger("SettingsUI.Hide");
 end
 
@@ -288,6 +258,8 @@ function DUIDialogSettingsMixin:OnEvent(event, ...)
     if event == "GAME_PAD_ACTIVE_CHANGED" then
         local isActive = ...
         GAME_PAD_ACTIVE = isActive;
+    elseif event == "GAME_PAD_DISCONNECTED" then
+        GAME_PAD_ACTIVE = false;
     end
 end
 
@@ -334,7 +306,6 @@ function DUIDialogSettingsMixin:DisplayOptionInfo(optionData, choiceTooltip)
     end
 
     if choiceTooltip and optionData.description then
-        choiceTooltip = ReplaceStringWithKey(choiceTooltip);
         self.Description:SetText(optionData.description.."\n\n"..choiceTooltip);
     else
         self.Description:SetText(optionData.description);
@@ -918,8 +889,6 @@ function DUIDialogSettingsTabButtonMixin:SetSelected(state)
         end
     end
 end
-
-
 
 
 DUIDialogSettingsOptionMixin = {};

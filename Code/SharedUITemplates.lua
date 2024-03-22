@@ -77,8 +77,8 @@ local GOSSIP_ICONS = {
     ["Stable Master"] = ICON_PATH.."Stablemaster.png",
     [1673939] = "interface/minimap/tracking/transmogrifier.blp",
 
-    ["Trading Post"] = ICON_PATH.."TradingPost",
-    ["Battle Pet Trainer"] = ICON_PATH.."BattlePet",
+    ["Trading Post"] = ICON_PATH.."TradingPost.png",
+    ["Battle Pet Trainer"] = ICON_PATH.."BattlePet.png",
 
     ["Transmogrification"] = "interface/minimap/tracking/transmogrifier.blp",
     ["Void Storage"] = "interface/cursor/crosshair/voidstorage.blp",

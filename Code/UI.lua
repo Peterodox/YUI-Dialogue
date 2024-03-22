@@ -318,6 +318,8 @@ function DUIDialogBaseMixin:OnLoad()
     ExperienceBar:SetFrameStrata("BACKGROUND");
     ExperienceBar:SetFixedFrameStrata(true);
 
+    addon.Banner:SetParent(self);
+
     self.ButtonHighlight = self.ContentFrame.ButtonHighlight;
     self.RewardSelection = self.ContentFrame.RewardSelection;
     self.GamePadFocusIndicator = CreateFrame("Frame", nil, self.FrontFrame, "DUIDialogHotkeyTemplate");

@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.1.2";
-local VERSION_DATE = 1704471247;
+local VERSION_TEXT = "v0.1.4";
+local VERSION_DATE = 1711118000;
 
 
 local addonName, addon = ...
@@ -49,6 +49,21 @@ local function SetDBValue(dbKey, value)
 end
 addon.SetDBValue = SetDBValue;
 
+local function LoadTutorials()
+    --Tutorial Flags (false means haven't shown)
+    local flags = {
+        "OpenSettings",
+    };
+
+    for _, flag in pairs(flags) do
+        local dbKey = "Tutorial_"..flag;
+
+        if DB[dbKey] == nil then
+            addon.CallbackRegistry:Trigger("Tutorial."..flag);
+        end
+    end
+end
+
 local function LoadDatabase()
     DialogueUI_DB = DialogueUI_DB or {};
     DB = DialogueUI_DB;
@@ -67,7 +82,16 @@ local function LoadDatabase()
     end
 
     DefaultValues = nil;
+
+    LoadTutorials();
 end
+
+local function SetTutorialRead(tutorialFlag)
+    local dbKey = "Tutorial_"..tutorialFlag;
+    DB[dbKey] = true;
+end
+addon.SetTutorialRead = SetTutorialRead;
+
 
 local EL = CreateFrame("Frame");
 EL:RegisterEvent("ADDON_LOADED");

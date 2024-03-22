@@ -48,6 +48,7 @@ L["Level Maxed"] = "(Maxed)";   --Reached max level
 L["Paragon Reputation"] = "Paragon";
 L["Different Item Types Alert"] = "The item types are different!";
 
+
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
 L["Format You Have X"] = "- You have |cffffffff%d|r";
@@ -65,6 +66,7 @@ L["Format Silver Amount"] = SILVER_AMOUNT or "%d Silver";
 L["Format Copper Amount"] = COPPER_AMOUNT or "%d Copper";
 L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Level %d";
 L["Format Replace Item"] = "Replace %s";
+
 
 --Settings
 L["UI"] = "UI";
@@ -124,3 +126,8 @@ L["Key Space"] = "Space";
 L["Key Interact"] = "Interact";
 L["Cannot Use Key Combination"] = "Key combination is not supported.";
 L["Interact Key Not Set"] = "You haven't set an Interact Key."
+
+
+--Tutorial
+L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";
+L["Tutorial Settings Hotkey Console"] = "Press [KEY:PC:F1] or [KEY:CONSOLE:MENU] to toggle Settings";   --Use this if gamepad enabled

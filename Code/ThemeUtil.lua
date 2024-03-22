@@ -104,6 +104,10 @@ local function SetFontColor(fontObject, key)
     fontObject:SetTextColor(color[1], color[2], color[3]);
 end
 
+function ThemeUtil:SetFontColor(fontObject, key)
+    SetFontColor(fontObject, key);
+end
+
 function ThemeUtil:SetThemeByID(themeID)
     local colorIndex;
 

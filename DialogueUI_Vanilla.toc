@@ -1,9 +1,9 @@
 ## Interface: 11501
-## Version: 0.1.3
+## Version: 0.1.4
 
 ## Title: Dialogue UI
 
-## Notes: Quest Dialogue UI with built-in camera control and gamepad support.
+## Notes: Quest Dialogue UI
 
 ## Author: Peterodox
 ## SavedVariables: DialogueUI_DB
@@ -19,6 +19,7 @@ API.xml
 
 Code\CallbackRegistry.lua
 Code\ThemeUtil.lua
+Code\LocaleFormatter.lua
 Code\Sound.lua
 Code\Camera.lua
 Code\Tooltip.xml
