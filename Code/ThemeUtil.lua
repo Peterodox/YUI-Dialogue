@@ -137,6 +137,10 @@ function ThemeUtil:SetThemeByID(themeID)
     if addon.SettingsUI then
         addon.SettingsUI:LoadTheme();
     end
+
+    if addon.QuestItemDisplay then
+        addon.QuestItemDisplay:LoadTheme();
+    end
 end
 
 function ThemeUtil:GetTexturePath()

@@ -43,6 +43,7 @@ local IsQuestItem = API.IsQuestItem;
 local IsCosmeticItem = API.IsCosmeticItem;
 local strlen = string.len;
 local CreateFrame = CreateFrame;
+local GetItemCount = C_Item.GetItemCount or GetItemCount;
 local IsEquippableItem = IsEquippableItem;
 local C_GossipInfo = C_GossipInfo;
 local CompleteQuest = CompleteQuest;
@@ -56,7 +57,6 @@ local GetQuestReward = GetQuestReward;
 local GetSpellInfo = GetSpellInfo;
 local SelectActiveQuest = SelectActiveQuest;        --QUEST_GREETING
 local SelectAvailableQuest = SelectAvailableQuest;  --QUEST_GREETING
-local GetItemCount = GetItemCount;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
 
 

@@ -347,8 +347,6 @@ function DUIDialogBaseMixin:OnLoad()
 
     self.BackgroundDecor = self.BackgroundFrame.ClipFrame.BackgroundDecor;
 
-    PixelUtil:AddPixelPerfectObject(self);
-
     do
         self.ScrollFrame.borderTop = self.FrontFrame.HeaderDivider;
         self.ScrollFrame.borderBottom = self.FrontFrame.FooterDivider;
@@ -577,12 +575,6 @@ function DUIDialogBaseMixin:LoadTheme()
     self.ButtonHighlight.artID = nil;
 
     self:OnSettingsChanged();
-end
-
-function DUIDialogBaseMixin:UpdatePixel(scale)
-    local cornerV = 80;
-    local cornerH = 80; --128
-    local a = 256;
 end
 
 function DUIDialogBaseMixin:ReleaseAllObjects()
@@ -1892,7 +1884,6 @@ function DUIDialogBaseMixin:HideUI(cancelPopupFirst)
 end
 
 function DUIDialogBaseMixin:OnShow()
-    PixelUtil:RequireUpdate();
     KeyboardControl:SetParentFrame(self);
 
     self:RegisterEvent("GOSSIP_SHOW");

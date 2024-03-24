@@ -1,9 +1,9 @@
+--To all contributors: Thank you for providing a localization!
 --Reserved space below so all localization files line up
 
 local _, addon = ...
-local L = {};
-addon.L = L;
-addon.L_enUS = L;
+local L = addon.L;
+
 
 L["Quest Frequency Daily"] = DAILY or "Daily";
 L["Quest Frequency Weekly"] = WEEKLY or "Weekly";
@@ -47,6 +47,7 @@ L["Quest Auto Accepted Tooltip"] = "This quest is accepted automatically by the 
 L["Level Maxed"] = "(Maxed)";   --Reached max level
 L["Paragon Reputation"] = "Paragon";
 L["Different Item Types Alert"] = "The item types are different!";
+L["Click To Read"] = "Left Click to Read";
 
 
 --String Format

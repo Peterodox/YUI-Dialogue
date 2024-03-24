@@ -1,4 +1,4 @@
-local VERSION_TEXT = "v0.1.4";
+local VERSION_TEXT = "v0.1.5";
 local VERSION_DATE = 1711118000;
 
 
@@ -22,9 +22,6 @@ local DefaultValues = {
     ShowNPCNameOnPage = false,
     QuestTypeText = false,
     SimplifyCurrencyReward = false,
-    AutoSelectGossip = false,
-    ForceGossip = false,
-    NameplateDialogEnabled = false,
 
     CameraMovement = 1,                         --0:OFF  1:Zoom-In  2:Horizontal
     CameraChangeFov = true,
@@ -35,7 +32,20 @@ local DefaultValues = {
     PrimaryControlKey = 1,                      --1: Space  2:Interact Key
     ScrollDownThenAcceptQuest = false,
 
-    TooltipShowItemComparison = false,
+    AutoSelectGossip = false,
+    ForceGossip = false,
+    NameplateDialogEnabled = false,
+    QuestItemDisplay = true,
+    QuestItemDisplayHideSeen = false,
+
+    --Not shown in the Settings. Accessible by other means
+    TooltipShowItemComparison = false,          --Tooltip
+};
+
+local TutorialFlags = {
+    --Saved in the DB, prefix: Tutorial_
+    --e.g. Tutorial_OpenSettings = true
+    "OpenSettings",
 };
 
 local function GetDBValue(dbKey)
@@ -51,11 +61,8 @@ addon.SetDBValue = SetDBValue;
 
 local function LoadTutorials()
     --Tutorial Flags (false means haven't shown)
-    local flags = {
-        "OpenSettings",
-    };
 
-    for _, flag in pairs(flags) do
+    for _, flag in pairs(TutorialFlags) do
         local dbKey = "Tutorial_"..flag;
 
         if DB[dbKey] == nil then

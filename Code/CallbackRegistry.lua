@@ -46,6 +46,11 @@ function CallbackRegistry:Trigger(event, ...)
     end
 end
 
+function CallbackRegistry:RegisterTutorial(tutorialFlag, func, owner)
+    local event = "Tutorial."..tutorialFlag;
+    self:Register(event, func, owner);
+end
+
 
 do  --UIParent OnShow/OnHide
     local frame = CreateFrame("Frame", nil, UIParent);

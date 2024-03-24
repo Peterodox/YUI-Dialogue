@@ -134,6 +134,8 @@ do  --Pixel
 
     function PixelUtil:MarkScaleDirty()
         self.scaleDirty = true;
+        self.t = 0;
+        self:SetScript("OnUpdate", self.OnUpdate);
     end
     PixelUtil:MarkScaleDirty();
 
@@ -146,6 +148,15 @@ do  --Pixel
                 scale = object:GetEffectiveScale();
                 object:UpdatePixel(scale);
             end
+        end
+    end
+
+    function PixelUtil:OnUpdate(elpased)
+        self.t = self.t + elpased;
+        if self.t > 0.1 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            self:RequireUpdate();
         end
     end
 
@@ -691,7 +702,6 @@ do  --Quest
 
         return ICON_PATH..file
     end
-
     API.GetQuestIcon = GetQuestIcon;
 
     local function IsQuestAutoAccepted()
@@ -789,7 +799,7 @@ do  --Quest
         return MAX_QUESTS - numQuests, MAX_QUESTS
     end
 
-    local GetItemInfoInstant = GetItemInfoInstant;
+    local GetItemInfoInstant = C_Item.GetItemInfoInstant or GetItemInfoInstant;
     local select = select;
 
     local function IsQuestItem(item)
@@ -799,7 +809,24 @@ do  --Quest
     end
     API.IsQuestItem = IsQuestItem;
 
+    local function GetQuestName(questID)
+        local questName = C_TaskQuest.GetQuestInfoByQuestID(questID);
+        if not questName then
+            if C_QuestLog.GetTitleForQuestID then   --Retail
+                return C_QuestLog.GetTitleForQuestID(questID);
+            end
 
+            --Classic
+            local questIndex = GetQuestLogIndexByID(questID);
+            if questIndex and questIndex > 0 then
+                questName = GetQuestLogTitle(questIndex);
+            else
+                questName = C_QuestLog.GetQuestInfo(questID);
+            end
+        end
+        return questName
+    end
+    API.GetQuestName = GetQuestName;
 
     local HoldableItems = {
         INVTYPE_WEAPON = true,
@@ -1482,6 +1509,43 @@ do  --Chat Message
 end
 
 do  --Tooltip
+    local GetInventoryItemLink = GetInventoryItemLink;
+    local GetItemInfoInstant = C_Item.GetItemInfoInstant or GetItemInfoInstant;
+
+    local EQUIPLOC_SLOTID = {
+        INVTYPE_HEAD = 1,
+        INVTYPE_NECK = 2,
+        INVTYPE_SHOULDER = 3,
+        INVTYPE_BODY = 4,
+        INVTYPE_CHEST = 5,
+        INVTYPE_WAIST = 6,
+        INVTYPE_LEGS = 7,
+        INVTYPE_FEET = 8,
+        INVTYPE_WRIST = 9,
+        INVTYPE_HAND = 10,
+        INVTYPE_FINGER = 11,    --12
+        INVTYPE_TRINKET = 13,
+        INVTYPE_WEAPON = 16,
+        INVTYPE_SHIELD = 17,
+        INVTYPE_CLOAK = 15,
+        INVTYPE_2HWEAPON = 16,
+        INVTYPE_WEAPONMAINHAND = 16,
+        INVTYPE_WEAPONOFFHAND = 17,
+        INVTYPE_HOLDABLE = 17,
+        INVTYPE_RANGED = 18,    --Classic
+        INVTYPE_RANGEDRIGHT = 18,
+    };
+
+    local function GetEquippedItemLink(comparisonItem)
+        local _, _, _, itemEquipLoc = GetItemInfoInstant(comparisonItem);
+        local slotID = itemEquipLoc and EQUIPLOC_SLOTID[itemEquipLoc];
+        if slotID then
+            return GetInventoryItemLink("player", slotID);
+        end
+    end
+    API.GetEquippedItemLink = GetEquippedItemLink;
+
+
     if C_TooltipInfo then
         addon.TooltipAPI = C_TooltipInfo;
 
@@ -1608,31 +1672,6 @@ do  --Tooltip
         addon.TooltipAPI = TooltipAPI;
 
 
-        local EQUIPLOC_SLOTID = {
-            INVTYPE_HEAD = 1,
-            INVTYPE_NECK = 2,
-            INVTYPE_SHOULDER = 3,
-            INVTYPE_BODY = 4,
-            INVTYPE_CHEST = 5,
-            INVTYPE_WAIST = 6,
-            INVTYPE_LEGS = 7,
-            INVTYPE_FEET = 8,
-            INVTYPE_WRIST = 9,
-            INVTYPE_HAND = 10,
-            INVTYPE_FINGER = 11,    --12
-            INVTYPE_TRINKET = 13,
-            INVTYPE_WEAPON = 16,
-            INVTYPE_SHIELD = 17,
-            INVTYPE_CLOAK = 15,
-            INVTYPE_2HWEAPON = 16,
-            INVTYPE_WEAPONMAINHAND = 16,
-            INVTYPE_WEAPONOFFHAND = 17,
-            INVTYPE_HOLDABLE = 17,
-            INVTYPE_RANGED = 18,    --Classic
-            INVTYPE_RANGEDRIGHT = 18,
-        };
-
-
         local tinsert = table.insert;
         local match = string.match;
 
@@ -1731,8 +1770,6 @@ do  --Tooltip
             end
         end
 
-        local GetItemInfoInstant = GetItemInfoInstant;
-
         local function AreItemsSameType(item1, item2)
             local classID1, subclassID1 = select(6, GetItemInfoInstant(item1));
             local classID2, subclassID2 = select(6, GetItemInfoInstant(item2));
@@ -1830,6 +1867,57 @@ do  --Keybindings
         return key, errorText
     end
     API.GetBestInteractKey = GetBestInteractKey;
+end
+
+do  --TextureUtil
+    local function RemoveIconBorder(texture)
+        texture:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375);
+    end
+    API.RemoveIconBorder = RemoveIconBorder;
+end
+
+do  --Inventory Bags Container
+    local NUM_BAG_SLOTS = 4;
+    local GetItemCount = C_Item.GetItemCount or GetItemCount;
+    local GetContainerNumSlots = C_Container.GetContainerNumSlots;
+    local GetContainerItemID = C_Container.GetContainerItemID;
+    local GetContainerItemQuestInfo = C_Container.GetContainerItemQuestInfo;
+    local GetContainerItemInfo = C_Container.GetContainerItemInfo;
+
+    local function GetItemBagPosition(itemID)
+        local count = GetItemCount(itemID); --unused arg2: Include banks
+        if count and count > 0 then 
+            for bagID = 0, NUM_BAG_SLOTS do
+                for slotID = 1, GetContainerNumSlots(bagID) do
+                    if(GetContainerItemID(bagID, slotID) == itemID) then
+                        return bagID, slotID
+                    end
+                end
+            end
+        end
+    end
+    API.GetItemBagPosition = GetItemBagPosition;
+
+    local function GetBagQuestItemInfo(itemID)
+        --used in 
+        local bagID, slotID = GetItemBagPosition(itemID);
+        if bagID and slotID then
+            local containerInfo = GetContainerItemInfo(bagID, slotID);
+            if containerInfo then
+                local itemInfo = {};
+                itemInfo.isReadable = containerInfo.isReadable;
+                itemInfo.hasLoot = containerInfo.hasLoot;
+                local questInfo = GetContainerItemQuestInfo(bagID, slotID);
+                if questInfo then
+                    itemInfo.questID = questInfo.itemInfo;
+                    itemInfo.isOnQuest = questInfo.isActive;
+                end
+                
+                return itemInfo
+            end
+        end
+    end
+    API.GetBagQuestItemInfo = GetBagQuestItemInfo;
 end
 
 do  --Dev Tool

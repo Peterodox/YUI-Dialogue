@@ -506,7 +506,14 @@ do
                     canCompare = true;
                     if shouldShowComparison then
                         self:AddBlankLine();
-                        self:AddLeftLine(ITEM_DELTA_DESCRIPTION, 1, 0.82, 0, true);
+
+                        local equippedItemLink = API.GetEquippedItemLink(itemID);
+                        if equippedItemLink then
+                            self:AddLeftLine(L["Format Replace Item"]:format(equippedItemLink), 1, 0.82, 0, true);
+                        else
+                            self:AddLeftLine(ITEM_DELTA_DESCRIPTION, 1, 0.82, 0, true);
+                        end
+
                         for i, deltaLine in ipairs(delta) do
                             self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
                         end
@@ -537,7 +544,7 @@ do
                     self:AddLeftLine(L["Format Replace Item"]:format(equippedItemLink), 1, 0.82, 0, true);
 
                     if not areItemsSameType then
-                        self:AddLeftLine(L["Different Item Types Alert"], 1.000, 0.125, 0.125, true);
+                        self:AddLeftLine(L["Different Item Types Alert"], 1.000, 0.125, 0.125, true);   --TODO: this red on the Dark theme doesn't look comforting.
                     end
 
                     for i, deltaLine in ipairs(compairsonInfo) do
