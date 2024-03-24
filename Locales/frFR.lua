@@ -1,5 +1,5 @@
 --Reserved space below so all localization files line up
-
+if not (GetLocale() == "frFR") then return end;
 local _, addon = ...
 local L = {};
 addon.L = L;
