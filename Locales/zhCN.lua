@@ -72,14 +72,19 @@ L["Format Replace Item"] = "替换 %s";
 --Settings
 L["UI"] = "界面";
 L["Camera"] = "镜头";
-L["Control"] = "操控";
+L["Control"] = "控制";
 
 L["Quest"] = "任务";
 L["Gossip"] = "对话";
 L["Theme"] = "主题";
 L["Theme Desc"] = "选择一个主题色。";
-L["Frame Size"] = "窗口大小";
+L["Theme Brown"] = "棕色";
+L["Theme Dark"] = "深色";
+L["Frame Size"] = "界面大小";
 L["Frame Size Desc"] = "改变对话界面的大小。";
+L["Size Small"] = "小";
+L["Size Medium"] = "中";
+L["Size Large"] = "大";
 L["Font Size"] = "字号";
 L["Font Size Desc"] = "改变整个界面的字号。";
 L["Hide UI"] = "隐藏界面";

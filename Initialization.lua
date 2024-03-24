@@ -1,5 +1,5 @@
 local VERSION_TEXT = "v0.1.5";
-local VERSION_DATE = 1711118000;
+local VERSION_DATE = 1711280000;
 
 
 local addonName, addon = ...
@@ -35,7 +35,7 @@ local DefaultValues = {
     AutoSelectGossip = false,
     ForceGossip = false,
     NameplateDialogEnabled = false,
-    QuestItemDisplay = true,
+    QuestItemDisplay = false,
     QuestItemDisplayHideSeen = false,
 
     --Not shown in the Settings. Accessible by other means

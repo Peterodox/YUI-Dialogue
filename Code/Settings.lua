@@ -350,15 +350,15 @@ local Schematic = {
         options = {
             {type = "ArrowOption", name = L["Theme"], description = L["Theme Desc"], dbKey = "Theme", preview = "Theme", ratio = 2,
                 choices = {
-                    {dbValue = 1, valueText = "Brown"},
-                    {dbValue = 2, valueText = "Dark"},
+                    {dbValue = 1, valueText = L["Theme Brown"]},
+                    {dbValue = 2, valueText = L["Theme Dark"]},
                 },
             },
             {type = "ArrowOption", name = L["Frame Size"], description = L["Frame Size Desc"], dbKey = "FrameSize",
                 choices = {
-                    {dbValue = 1, valueText = "Small"},
-                    {dbValue = 2, valueText = "Medium"},
-                    {dbValue = 3, valueText = "Large"},
+                    {dbValue = 1, valueText = L["Size Small"]},
+                    {dbValue = 2, valueText = L["Size Medium"]},
+                    {dbValue = 3, valueText = L["Size Large"]},
                 },
             },
             {type = "ArrowOption", name = L["Font Size"], description = L["Font Size Desc"], dbKey = "FontSizeBase", realignAfterClicks = true,
