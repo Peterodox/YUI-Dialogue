@@ -49,6 +49,7 @@ L["Paragon Reputation"] = "Parangon";
 L["Different Item Types Alert"] = "Le type d'objet est different!";
 L["Click To Read"] = "Clic gauche pour lire";
 
+
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Récompense %d de réputation avec les %s";
 L["Format You Have X"] = "- Vous avez |cffffffff%d|r";
@@ -77,7 +78,7 @@ L["Quest"] = "Quête";
 L["Gossip"] = "Discussion";
 L["Theme"] = "Theme";
 L["Theme Desc"] = "Selectionnez un theme pour l'UI.";
-L["Theme Brown"] = "Brun";
+L["Theme Brown"] = "Clair";
 L["Theme Dark"] = "Sombre";
 L["Frame Size"] = "Taille de la fenêtre";
 L["Frame Size Desc"] = "Ajuste la taille de l'UI de dialogue.";
