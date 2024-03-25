@@ -82,9 +82,10 @@ L["Theme Desc"] = "Sélectionnez un thème pour l'UI.";
 L["Theme Brown"] = "Clair";
 L["Theme Dark"] = "Sombre";
 L["Frame Size"] = "Taille de la fenêtre";
-L["Frame Size Desc"] = "Ajuste la taille de l'UI de dialogue.";
+L["Frame Size Desc"] = "Ajuste la taille de l'UI de dialogue.\n\nDéfaut : Moyenne";
 L["Font Size"] = "Taille de la police";
-L["Font Size Desc"] = "Ajuste la taille de la police.";
+L["Font Size Desc"] = "Ajuste la taille de la police.\n\nDéfaut : 12";
+L["Size Extra Small"] = "Très petite";
 L["Size Small"] = "Petite";
 L["Size Medium"] = "Moyenne";
 L["Size Large"] = "Large";
@@ -134,6 +135,10 @@ L["Key Interact"] = "Interagir";
 L["Cannot Use Key Combination"] = "La combinaison de touches n'est pas prise en charge.";
 L["Interact Key Not Set"] = "Vous n'avez pas défini de raccourci pour Interagir."
 
+L["Quest Item Display"] = "Affichage de l'objet de quête"; --better translate ?
+L["Quest Item Display Desc"] = "Affiche automatiquement la description de l'objet de quête et vous permet de l'utiliser sans ouvrir les sacs.";
+L["Quest Item Display Hide Seen"] = "Ignorer les objets connus"; --better translate ?
+L["Quest Item Display Hide Seen Desc"] = "Ignore les objets qui ont été découverts par l'un de vos personnages.";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Utilisez [KEY:PC:F1] pour afficher les options";
