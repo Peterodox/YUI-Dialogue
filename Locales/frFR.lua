@@ -47,6 +47,7 @@ L["Quest Auto Accepted Tooltip"] = "Cette quête est automatiquement acceptée p
 L["Level Maxed"] = "(Max)";   --Reached max level
 L["Paragon Reputation"] = "Parangon";
 L["Different Item Types Alert"] = "Le type d'objet est different!";
+L["Click To Read"] = "Clic gauche pour lire";
 
 
 --String Format
@@ -77,8 +78,13 @@ L["Quest"] = "Quête";
 L["Gossip"] = "Discussion";
 L["Theme"] = "Theme";
 L["Theme Desc"] = "Selectionnez un theme pour l'UI.";
+L["Theme Brown"] = "Clair";
+L["Theme Dark"] = "Sombre";
 L["Frame Size"] = "Taille de la fenêtre";
 L["Frame Size Desc"] = "Ajuste la taille de l'UI de dialogue.";
+L["Size Small"] = "Petite";
+L["Size Medium"] = "Moyenne";
+L["Size Large"] = "Large";
 L["Font Size"] = "Taille de la police";
 L["Font Size Desc"] = "Ajuste la taille de la police.";
 L["Hide UI"] = "Cacher l'UI";
