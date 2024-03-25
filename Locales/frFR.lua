@@ -1,4 +1,4 @@
---Contributors: Brainc3ll
+--Contributors: Brainc3ll, Zazou89
 if not (GetLocale() == "frFR") then return end;
 
 local _, addon = ...
@@ -16,7 +16,7 @@ L["Quest Type Covenant Calling"] = "Appel de Congrégation";
 
 L["Accept"] = ACCEPT or "Accepter";
 L["Continue"] = CONTINUE or "Continuer";
-L["Complete Quest"] = COMPLETE_QUEST or "Quête complétée";
+L["Complete Quest"] = COMPLETE_QUEST or "Terminer la quête";
 L["Incomplete"] = INCOMPLETE or "Incomplète";
 L["Cancel"] = CANCEL or "Annuler";
 L["Goodbye"] = GOODBYE or "Au revoir";
@@ -46,7 +46,8 @@ L["Quest Log Full"] = "Journal de quêtes complet";
 L["Quest Auto Accepted Tooltip"] = "Cette quête est automatiquement acceptée par le jeu.";
 L["Level Maxed"] = "(Max)";   --Reached max level
 L["Paragon Reputation"] = "Parangon";
-L["Different Item Types Alert"] = "Le type d'objet est différent !";
+L["Different Item Types Alert"] = "Le type d'objet est different!";
+L["Click To Read"] = "Clic gauche pour lire";
 
 
 --String Format
@@ -76,9 +77,14 @@ L["Control"] = "Contrôle";
 L["Quest"] = "Quête";
 L["Gossip"] = "Discussion";
 L["Theme"] = "Thème";
-L["Theme Desc"] = "Sélectionnez un thème pour l'UI.";
+L["Theme Desc"] = "Selectionnez un thème pour l'UI.";
+L["Theme Brown"] = "Clair";
+L["Theme Dark"] = "Sombre";
 L["Frame Size"] = "Taille de la fenêtre";
 L["Frame Size Desc"] = "Ajuste la taille de l'UI de dialogue.";
+L["Size Small"] = "Petite";
+L["Size Medium"] = "Moyenne";
+L["Size Large"] = "Large";
 L["Font Size"] = "Taille de la police";
 L["Font Size Desc"] = "Ajuste la taille de la police.";
 L["Hide UI"] = "Cacher l'UI";
