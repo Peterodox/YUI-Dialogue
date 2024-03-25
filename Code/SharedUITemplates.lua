@@ -2204,6 +2204,11 @@ do
         --BUTTON_PADDING_SMALL = v[3];
         --BUTTON_PADDING_LARGE = v[4];
 
+        --BUTTON_PADDING_LARGE = baseFontSize
+        HOTKEYFRAME_PADDING = math.min(8, (BUTTON_HEIGHT_LARGE - HOTKEYFRAME_SIZE)/2);
+        BUTTON_PADDING_LARGE = (2*HOTKEYFRAME_PADDING + HOTKEYFRAME_SIZE - baseFontSize)/2
+        --print("HOTKEYFRAME_PADDING", HOTKEYFRAME_PADDING)
+
         addon.CallbackRegistry:Trigger("PostFontSizeChanged");
     end
 

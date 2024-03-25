@@ -14,6 +14,7 @@ local FOV_DEFAULT = 90;
 local FOV_ZOOMED_IN = 75;
 local FOCUS_STRENGTH_PITCH = 1.0;
 local FOCUS_SHOULDER_OFFSET = 1.5;
+local MOUNTED_CAMERA_MULTIPLIER = 6;    --6 when on the left, 0.4 right
 ------------------
 
 local Lerp = API.Lerp;
@@ -140,10 +141,14 @@ end
 function CameraUtil:UpdateMounted()
     self.isMounted = IsMounted();
     if self.isMounted then
-        self.offsetMultiplier = 6;
+        self.offsetMultiplier = MOUNTED_CAMERA_MULTIPLIER;
     else
         self.offsetMultiplier = 1;
     end
+end
+
+local function SetCameraOverShoulder(value)
+    SetCVar("test_cameraOverShoulder", value);
 end
 
 function CameraUtil:OnMountChanged()
@@ -167,7 +172,7 @@ function CameraUtil:OnMountChanged()
         local baseOffset = (self.cameraMode == 1 and FOCUS_SHOULDER_OFFSET) or (self:GetShoulderOffsetForCurrentZoom());
         local offset = self.offsetMultiplier * baseOffset;
         self.shoulderOffset = offset;
-        SetCVar("test_cameraOverShoulder", self.shoulderOffset);
+        SetCameraOverShoulder(offset);
     end
 end
 
@@ -292,7 +297,7 @@ local function ZoomIn_PanCamera_OnUpdate(self, elapsed)
     if self.t > 0.03 then
         self.t = 0;
         self.shoulderOffset = DeltaLerp(self.shoulderOffset, self.offsetMultiplier * self:GetShoulderOffsetForCurrentZoom(), self.shoulderBlend, elapsed);
-        SetCVar("test_cameraOverShoulder", self.shoulderOffset);
+        SetCameraOverShoulder(self.shoulderOffset);
     end
 end
 
@@ -358,7 +363,7 @@ function CameraUtil:InitiateInteraction()
 
     if self.cameraMode == 1 then
         local offset = self.offsetMultiplier * FOCUS_SHOULDER_OFFSET;
-        SetCVar("test_cameraOverShoulder", offset);
+        SetCameraOverShoulder(offset);
     end
 end
 

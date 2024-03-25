@@ -72,6 +72,7 @@ L["Format Replace Item"] = "Ersetzt %s";
 L["UI"] = "UI";
 L["Camera"] = "Kamera";
 L["Control"] = "Steuerung";
+L["Gameplay"] = SETTING_GROUP_GAMEPLAY or "Gameplay";
 
 L["Quest"] = "Quest";
 L["Gossip"] = "Begrüßungsfenster";

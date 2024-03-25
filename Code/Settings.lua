@@ -6,9 +6,6 @@ local ThemeUtil = addon.ThemeUtil;
 local InCombatLockdown = InCombatLockdown;
 local CreateFrame = CreateFrame;
 
-local match = string.match;
-local gsub = string.gsub;
-
 local GetDBValue = addon.GetDBValue;
 local SetDBValue = addon.SetDBValue;
 
@@ -356,6 +353,7 @@ local Schematic = {
             },
             {type = "ArrowOption", name = L["Frame Size"], description = L["Frame Size Desc"], dbKey = "FrameSize",
                 choices = {
+                    {dbValue = 0, valueText = L["Size Extra Small"]},
                     {dbValue = 1, valueText = L["Size Small"]},
                     {dbValue = 2, valueText = L["Size Medium"]},
                     {dbValue = 3, valueText = L["Size Large"]},
@@ -363,6 +361,7 @@ local Schematic = {
             },
             {type = "ArrowOption", name = L["Font Size"], description = L["Font Size Desc"], dbKey = "FontSizeBase", realignAfterClicks = true,
                 choices = {
+                    {dbValue = 0, valueText = "10"},
                     {dbValue = 1, valueText = "12"},
                     {dbValue = 2, valueText = "14"},
                     {dbValue = 3, valueText = "16"},
@@ -376,11 +375,6 @@ local Schematic = {
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},
-
-            {type = "Subheader", name = L["Gossip"]},
-            {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
-            {type = "Checkbox", name = L["Force Gossip"], description = L["Force Gossip Desc"], dbKey = "ForceGossip"},
-            --{type = "Checkbox", name = L["Nameplate Dialog"], description = L["Nameplate Dialog Desc"], dbKey = "NameplateDialogEnabled", preview = "NameplateDialogEnabled", ratio = 1},
         },
     },
 
@@ -419,6 +413,19 @@ local Schematic = {
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
+        },
+    },
+
+    {
+        tabName = L["Gameplay"],
+        options = {
+            {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay"},
+            {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", parentKey = "QuestItemDisplay", requiredParentValue = true},
+            
+            {type = "Subheader", name = L["Gossip"]},
+            {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
+            {type = "Checkbox", name = L["Force Gossip"], description = L["Force Gossip Desc"], dbKey = "ForceGossip"},
+            --{type = "Checkbox", name = L["Nameplate Dialog"], description = L["Nameplate Dialog Desc"], dbKey = "NameplateDialogEnabled", preview = "NameplateDialogEnabled", ratio = 1},
         },
     },
 };
@@ -1426,7 +1433,7 @@ do
 
         local widthMultiplier;
 
-        if fontSizeID == 1 then
+        if fontSizeID <= 1 then
             NUM_VISIBLE_OPTIONS = 10.5;
             widthMultiplier = 12;
             ARROWOTPION_WIDTH_RATIO = 7;

@@ -1,12 +1,12 @@
 ## Interface: 11501
-## Version: 0.1.5
+## Version: 0.2.0
 
 ## Title: Dialogue UI
 
 ## Notes: Quest Dialogue UI
 
 ## Author: Peterodox
-## SavedVariables: DialogueUI_DB
+## SavedVariables: DialogueUI_DB, DialogueUI_Saves
 
 ## IconTexture: Interface\AddOns\DialogueUI\Art\Icons\Logo
 ## AddonCompartmentFunc: DialogueUI_ShowSettingsFrame

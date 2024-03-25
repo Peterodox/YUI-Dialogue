@@ -1,4 +1,4 @@
-local VERSION_TEXT = "v0.1.5";
+local VERSION_TEXT = "v0.2.0";
 local VERSION_DATE = 1711280000;
 
 
@@ -32,11 +32,11 @@ local DefaultValues = {
     PrimaryControlKey = 1,                      --1: Space  2:Interact Key
     ScrollDownThenAcceptQuest = false,
 
+    QuestItemDisplay = false,
+    QuestItemDisplayHideSeen = false,
     AutoSelectGossip = false,
     ForceGossip = false,
     NameplateDialogEnabled = false,
-    QuestItemDisplay = false,
-    QuestItemDisplayHideSeen = false,
 
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
@@ -74,6 +74,9 @@ end
 local function LoadDatabase()
     DialogueUI_DB = DialogueUI_DB or {};
     DB = DialogueUI_DB;
+
+    DialogueUI_Saves = DialogueUI_Saves or {};
+
     local type = type;
 
     for dbKey, defaultValue in pairs(DefaultValues) do

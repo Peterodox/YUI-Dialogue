@@ -73,6 +73,7 @@ L["Format Replace Item"] = "替换 %s";
 L["UI"] = "界面";
 L["Camera"] = "镜头";
 L["Control"] = "控制";
+L["Gameplay"] = "游戏功能";
 
 L["Quest"] = "任务";
 L["Gossip"] = "对话";
@@ -82,6 +83,7 @@ L["Theme Brown"] = "棕色";
 L["Theme Dark"] = "深色";
 L["Frame Size"] = "界面大小";
 L["Frame Size Desc"] = "改变对话界面的大小。";
+L["Size Extra Small"] = "特小";
 L["Size Small"] = "小";
 L["Size Medium"] = "中";
 L["Size Large"] = "大";
@@ -133,6 +135,10 @@ L["Key Interact"] = "交互键";
 L["Cannot Use Key Combination"] = "不支持组合键。";
 L["Interact Key Not Set"] = "未绑定交互键。"
 
+L["Quest Item Display"] = "任务物品说明";
+L["Quest Item Display Desc"] = "自动显示任务物品上的说明，并且允许你在不打开背包的情况下就能使用它。";
+L["Quest Item Display Hide Seen"] = "忽略见过的物品";
+L["Quest Item Display Hide Seen Desc"] = "忽略你账号上角色见过的物品。";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";

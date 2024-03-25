@@ -3,18 +3,23 @@ local _, addon = ...
 local L = addon.L;
 local API = addon.API;
 local C_TooltipInfo = addon.TooltipAPI;
+local ThemeUtil = addon.ThemeUtil;
 local match = string.match;
 local GetNumLetters = strlenutf8 or string.len;
 local Round = API.Round;
 local IsQuestItem = API.IsQuestItem;
 local PI = math.pi;
 
+-- User Settings
+local IGNORE_SEEN_ITEM = false;
+------------------
+
 local MAX_TEXT_WIDTH = 224; --256 when font size >12
 local TEXT_SPACING = 2;
 local ICON_SIZE = 32;
 local PADDING_OUTER = 12;    --To boundary
 local PADDING_TEXT_BUTTON_V = 4;
-local PADDING_TEXT_BUTTON_H = 6;
+local PADDING_TEXT_BUTTON_H = 8;
 local GAP_TEXT_ICON = 8;
 local GAP_TITLE_DESC = 4;
 local CLOSE_BUTTON_SIZE = 34;
@@ -24,7 +29,9 @@ local DURATION_MIN = 5;
 
 local PLAYER_GUID;
 local PLAYER_NAME;
-local SEEN_ITEMS = {};
+
+local SEEN_ITEMS_SESSION = {};  --Items seen in this game session
+local SEEN_ITEMS_ALL = {};      --Items discovered by any of the characters
 
 local READABLE_ITEM = ITEM_CAN_BE_READ or "<This item can be read>";
 local START_QUEST_ITEM = ITEM_STARTS_QUEST or "This Item Begins a Quest";
@@ -51,13 +58,13 @@ function QuestItemDisplay:Init()
     self.BackgroundShadow = bgShadow;
     local margin = 24;
     bgShadow:SetTextureSliceMargins(margin, margin, margin, margin);
-    bgShadow:SetTextureSliceMode(1);
-    local pixelOffset = 12.0;
+    bgShadow:SetTextureSliceMode(0);
+    bgShadow:SetTexCoord(0.5, 0.75, 0.5, 1);
+    local pixelOffset = 16.0;
     local offset = API.GetPixelForScale(self:GetEffectiveScale(), pixelOffset);
     bgShadow:ClearAllPoints();
     bgShadow:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset);
     bgShadow:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
-    bgShadow:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestItemDisplay-Shadow.png");
 
     local icon = self:CreateTexture(nil, "ARTWORK");
     self.ItemIcon = icon;
@@ -156,7 +163,7 @@ function QuestItemDisplay:Init()
     local function CreateQueueMarker()
         --Sit below the frame, marker indicates the number of items in the queue
         local texture = self:CreateTexture(nil, "OVERLAY");
-        texture:SetTexture(addon.ThemeUtil:GetTextureFile("QuestItemDisplay-UI.png"));
+        texture:SetTexture(ThemeUtil:GetTextureFile("QuestItemDisplay-UI.png"));
         texture:SetTexCoord(0, 0.0625, 0.375, 0.5);
         texture:SetSize(QUEUE_MARKER_SIZE, QUEUE_MARKER_SIZE);
         return texture
@@ -234,6 +241,7 @@ local function FadeOut_OnUpdate(self, elapsed)
         self:SetAlpha(0);
         if self.alpha <= -1 then    --extend fade out duration (delay)
             self:SetScript("OnUpdate", nil);
+            self.isFadingOut = nil;
             self:Hide();
             self:ProcessQueue();
         end
@@ -250,14 +258,16 @@ function QuestItemDisplay:SetCountdown(second)
     self.SwipeMask1:SetRotation(0);
     self.SwipeMask2:SetRotation(-PI);
     self.isCountingDown = true;
-
+    self.isFadingOut = nil;
     self:SetScript("OnUpdate", Countdown_OnUpdate);
 end
 
 function QuestItemDisplay:OnCountdownFinished()
     self.isCountingDown = nil;
     self.alpha = self:GetAlpha();
+    self.isFadingOut = true;
     self:SetScript("OnUpdate", FadeOut_OnUpdate);
+    self:ReleaseActionButton();
 end
 
 function QuestItemDisplay:LoadTheme()
@@ -265,10 +275,11 @@ function QuestItemDisplay:LoadTheme()
         return
     end
 
-    local file = addon.ThemeUtil:GetTextureFile("QuestItemDisplay-UI.png");
-    local isDarkMode = addon.ThemeUtil:IsDarkMode();
+    local file = ThemeUtil:GetTextureFile("QuestItemDisplay-UI.png");
+    local isDarkMode = ThemeUtil:IsDarkMode();
 
     self.Background:SetTexture(file);
+    self.BackgroundShadow:SetTexture(file);
     self.IconBorder:SetTexture(file);
     self.TitleBackground:SetTexture(file);
     self.TextButtonBackground:SetTexture(file);
@@ -278,10 +289,10 @@ function QuestItemDisplay:LoadTheme()
 
     if isDarkMode then
         self.themeID = 2;
-        addon.ThemeUtil:SetFontColor(self.ButtonText, "DarkModeGold");
+        ThemeUtil:SetFontColor(self.ButtonText, "DarkModeGold");
     else
         self.themeID = 1;
-        addon.ThemeUtil:SetFontColor(self.ButtonText, "Ivory");
+        ThemeUtil:SetFontColor(self.ButtonText, "Ivory");
     end
 
     local function SetBackGround(texture)
@@ -394,7 +405,6 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     local itemInfo = API.GetBagQuestItemInfo(itemID);
     if itemInfo then
         startQuestID = itemInfo.questID;
-        print(startQuestID)
         if startQuestID then
             local questName = API.GetQuestName(startQuestID);
             if questName then
@@ -405,7 +415,7 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
             extraText = nil;
         end
     else
-        if isReadable then
+        if isReadable or isStartQuestItem then
             --Event Order: item has not been pushed into bags
             --clear name to force a requery
             name = nil;
@@ -414,9 +424,13 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
 
     if not (name and (description or extraText or isReadable)) then
         if not isRequery then
-            C_Timer.After(0.5, function()
-                self:TryDisplayItem(itemID, true);
-            end);
+            if not self.pauseUpdate then
+                self.pauseUpdate = true;
+                C_Timer.After(0.5, function()
+                    self.pauseUpdate = nil;
+                    self:TryDisplayItem(itemID, true);
+                end);
+            end
         else
             self:ProcessQueue();
         end
@@ -440,10 +454,9 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
 
     local buttonText;
     if isReadable then
-        buttonText= L["Click To Read"];
-        self:SetUsableItem(itemID, buttonText);
+        self:SetReadableItem(itemID);
     elseif startQuestID then
-        self:SetStartQuestItem(itemID, startQuestID);
+        self:SetStartQuestItem(itemID, startQuestID, isOnQuest);
     end
 
     self.itemID = itemID;
@@ -471,18 +484,107 @@ function QuestItemDisplay:ShowTextButton(state)
     end
 end
 
+function QuestItemDisplay:SetTextButtonEnabled(isEnabled)
+    local colorKey;
+
+    if isEnabled then
+        if self.themeID == 2 then
+            colorKey = "DarkModeGold";
+        else
+            colorKey = "Ivory";
+        end
+
+        if self.ActionButton and self.ActionButton:IsFocused() then
+            self:SetTextBackgroundID(2);
+        else
+            self:SetTextBackgroundID(1);
+        end
+    else
+        if self.themeID == 2 then
+            colorKey = "DarkModeGrey70";
+        else
+            colorKey = "DarkBrown"; --LightBrown
+        end
+        self:SetTextBackgroundID(3);
+    end
+
+    ThemeUtil:SetFontColor(self.ButtonText, colorKey);
+end
+
+function QuestItemDisplay:SetTextBackgroundID(id)
+    if id == 1 then --Normal
+        self.TextButtonBackground:SetTexCoord(0.5, 1, 0.25, 0.375);
+    elseif id == 2 then --Highlighted
+        self.TextButtonBackground:SetTexCoord(0.5, 1, 0.375, 0.5);
+    elseif id == 3 then --Disabled
+        self.TextButtonBackground:SetTexCoord(0.75, 1, 0.5, 0.625);
+    end
+end
+
+local function onEnterCombatCallback()
+    QuestItemDisplay:SetTextButtonEnabled(false);
+end
+
+function QuestItemDisplay:GetActionButton()
+    local ActionButton = addon.AcquireSecureActionButton("QuestItemDisplay");
+    if ActionButton then
+        self.ActionButton = ActionButton;
+        ActionButton:SetScript("OnEnter", function()
+            self:OnEnter();
+            self:SetTextBackgroundID(2);
+        end);
+        ActionButton:SetScript("OnLeave", function()
+            self:OnLeave();
+            self:SetTextBackgroundID(1);
+        end);
+        ActionButton:SetScript("PostClick", function(f, button)
+            self:OnMouseDown(button);
+            self:Clear();
+        end);
+        ActionButton:SetParent(self);
+        ActionButton:SetFrameStrata(self:GetFrameStrata());
+        ActionButton:SetFrameLevel(self:GetFrameLevel() + 1);
+        ActionButton.onEnterCombatCallback = onEnterCombatCallback;
+        --ActionButton:ShowDebugHitRect(true);
+        self:SetTextButtonEnabled(true);
+        return ActionButton
+    else
+        self:SetTextButtonEnabled(false);
+    end
+end
+
+function QuestItemDisplay:ReleaseActionButton()
+    if self.ActionButton then
+        self.ActionButton:Release();
+    end
+end
+
 function QuestItemDisplay:SetUsableItem(itemID, buttonText)
+    local ActionButton = self:GetActionButton();
+    if ActionButton then
+        ActionButton:SetUseItemByID(itemID, "LeftButton");
+        ActionButton:CoverObject(self.TextButtonBackground, 4);
+    end
+
     self:ShowTextButton(true);
     self.ButtonText:SetText(buttonText);
+
+    self:RegisterEvent("PLAYER_REGEN_ENABLED");
+end
+
+function QuestItemDisplay:SetReadableItem(itemID)
+    self.itemType = "book";
+    local buttonText= L["Click To Read"];
+    self:SetUsableItem(itemID, buttonText);
 end
 
 function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
-    --TODO: Replace "This item starts a quest" with the actual quest name
+    self.itemType = "questOffer";
     local icon = "Interface/AddOns/DialogueUI/Art/Icons/QuestItem-NotOnQuest.png";
     self.ButtonIcon:SetTexture(icon);
     self.ButtonIcon:Show();
     local questName = API.GetQuestName(startQuestID);
-    self:SetUsableItem(itemID, questName)
+    self:SetUsableItem(itemID, questName);
 end
 
 function QuestItemDisplay:UpdateQueueMarkers()
@@ -500,6 +602,8 @@ function QuestItemDisplay:UpdateQueueMarkers()
 end
 
 function QuestItemDisplay:QueueItem(itemID)
+    if itemID == self.itemID then return end;
+
     for i, id in ipairs(self.queue) do
         if id == itemID then
             return
@@ -529,13 +633,16 @@ function QuestItemDisplay:Clear()
     self.progress = nil;
     self.isCountingDown = nil;
     self.itemID = nil;
+    self.itemType = nil;
     self.queue = {};
     self:Hide();
 end
 
 function QuestItemDisplay:OnHide()
     self.isCountingDown = nil;
+    self.isFadingOut = nil;
     self:StopAnimating();
+    self:UnregisterEvent("PLAYER_REGEN_ENABLED");
 end
 
 function QuestItemDisplay:OnEnter()
@@ -561,7 +668,18 @@ function QuestItemDisplay:OnMouseDown(button)
 end
 
 function QuestItemDisplay:OnEvent(event, ...)
-    self:CHAT_MSG_LOOT(...);
+    if event == "CHAT_MSG_LOOT" then
+        self:CHAT_MSG_LOOT(...);
+    elseif event == "PLAYER_REGEN_ENABLED" then
+        if self.itemID and not self.isFadingOut then
+            if self.itemType == "book" then
+                self:SetReadableItem(self.itemID);
+            elseif self.itemType == "questOffer" then
+                local questName = self.ButtonText:GetText();
+                self:SetUsableItem(self.itemID, questName);
+            end
+        end
+    end
 end
 
 function QuestItemDisplay:CHAT_MSG_LOOT_RETAIL(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid)
@@ -580,26 +698,49 @@ function QuestItemDisplay:ProcessLootMessage(text)
     local itemID = match(text, "item:(%d+)", 1);
     if itemID then
         itemID = tonumber(itemID);
-        if itemID and not SEEN_ITEMS[itemID] then
-            SEEN_ITEMS[itemID] = true;
+        if itemID and not SEEN_ITEMS_SESSION[itemID] then
+            SEEN_ITEMS_SESSION[itemID] = true;
             if IsQuestItem(itemID) then
-                self:TryDisplayItem(itemID);
+                if (not IGNORE_SEEN_ITEM) or (not SEEN_ITEMS_ALL[itemID]) then
+                    SEEN_ITEMS_ALL[itemID] = true;
+                    self:TryDisplayItem(itemID);
+                end
             end
         end
     end
 end
 
+function QuestItemDisplay:LoadSaves()
+    if not DialogueUI_Saves then return end;
+
+    if (not DialogueUI_Saves.QuestItems) or type(DialogueUI_Saves.QuestItems) ~= "table" then
+        DialogueUI_Saves.QuestItems = {};
+    end
+
+    SEEN_ITEMS_ALL = DialogueUI_Saves.QuestItems;
+end
 
 function QuestItemDisplay:EnableModule(state)
     if state then
         self:RegisterEvent("CHAT_MSG_LOOT");
         self:SetScript("OnEvent", self.OnEvent);
+        self:LoadSaves();
     else
         self:UnregisterEvent("CHAT_MSG_LOOT");
         self:Clear();
         self:SetScript("OnEvent", nil);
     end
 end
+
+
+do
+    if addon.IsToCVersionEqualOrNewerThan(100000) then
+        QuestItemDisplay.CHAT_MSG_LOOT = QuestItemDisplay.CHAT_MSG_LOOT_RETAIL;
+    else
+        QuestItemDisplay.CHAT_MSG_LOOT = QuestItemDisplay.CHAT_MSG_LOOT_CLASSIC;
+    end
+end
+
 
 do
     local function GetPlayerGUID()
@@ -612,23 +753,9 @@ do
         QuestItemDisplay:EnableModule(dbValue == true);
     end
     addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplay", Settings_QuestItemDisplay);
-end
 
-do
-    if addon.IsToCVersionEqualOrNewerThan(100000) then
-        QuestItemDisplay.CHAT_MSG_LOOT = QuestItemDisplay.CHAT_MSG_LOOT_RETAIL;
-    else
-        QuestItemDisplay.CHAT_MSG_LOOT = QuestItemDisplay.CHAT_MSG_LOOT_CLASSIC;
+    local function Settings_QuestItemDisplayHideSeen(dbValue)
+        IGNORE_SEEN_ITEM = dbValue == true;
     end
-end
-
-
-
-function ShowItems()
-    if addon.IsToCVersionEqualOrNewerThan(100000) then
-        QuestItemDisplay:TryDisplayItem(119208);
-        QuestItemDisplay:TryDisplayItem(198979);
-    else
-        QuestItemDisplay:TryDisplayItem(9570);
-    end
+    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplayHideSeen", Settings_QuestItemDisplayHideSeen);
 end

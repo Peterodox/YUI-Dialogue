@@ -2608,6 +2608,7 @@ do
 
 
     local FrameSizeIndexScale = {
+        [0] = 0.92,
         [1] = 1.0,
         [2] = 1.1,
         [3] = 1.25,

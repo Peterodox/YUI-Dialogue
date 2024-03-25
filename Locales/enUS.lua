@@ -73,6 +73,7 @@ L["Format Replace Item"] = "Replace %s";
 L["UI"] = "UI";
 L["Camera"] = "Camera";
 L["Control"] = "Control";
+L["Gameplay"] = SETTING_GROUP_GAMEPLAY or "Gameplay";
 
 L["Quest"] = "Quest";
 L["Gossip"] = "Gossip";
@@ -81,12 +82,13 @@ L["Theme Desc"] = "Select a color theme for the UI.";
 L["Theme Brown"] = "Brown";
 L["Theme Dark"] = "Dark";
 L["Frame Size"] = "Frame Size";
-L["Frame Size Desc"] = "Set the size of the dialog UI.";
+L["Frame Size Desc"] = "Set the size of the dialog UI.\n\nDefault: Medium";
+L["Size Extra Small"] = "Extra Small";
 L["Size Small"] = "Small";
 L["Size Medium"] = "Medium";
 L["Size Large"] = "Large";
 L["Font Size"] = "Font Size";
-L["Font Size Desc"] = "Set the font size for the UI.";
+L["Font Size Desc"] = "Set the font size for the UI.\n\nDefault: 12";
 L["Hide UI"] = "Hide UI";
 L["Hide UI Desc"] = "Fade out the game UI when you interact with an NPC.";
 L["Hide Unit Names"] = "Hide Unit Names";
@@ -133,6 +135,10 @@ L["Key Interact"] = "Interact";
 L["Cannot Use Key Combination"] = "Key combination is not supported.";
 L["Interact Key Not Set"] = "You haven't set an Interact Key."
 
+L["Quest Item Display"] = "Quest Item Display";
+L["Quest Item Display Desc"] = "Auto display the quest item's description and allow you to use it without opening bags.";
+L["Quest Item Display Hide Seen"] = "Ignore Seen Items";
+L["Quest Item Display Hide Seen Desc"] = "Ignore items that have been discovered by any of your characters.";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";

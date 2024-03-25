@@ -1,6 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="Clipboard.lua"/>
     <Script file="KeyboardControl.lua"/>
+    <Script file="ActionButton.lua"/>
     <Script file="SharedUITemplates.lua"/>
     <Script file="Banner.lua"/>
     <Script file="QuestRewards.lua"/>
