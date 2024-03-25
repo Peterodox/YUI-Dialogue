@@ -127,7 +127,7 @@ L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "Bouton de confirmation: [KEY:PS:PAD1]\nBouton d'annulation: [KEY:PS:PAD2]";
 L["Primary Control Key"] = "Bouton de confirmation";
 L["Primary Control Key Desc"] = "Appuyez sur cette touche pour sélectionner la première option disponible comme Accepter."
-L["Press Button To Scroll Down"] = "Appuyez sur le bouton pour défiler vers le bas";
+L["Press Button To Scroll Down"] = "Appuyer sur le bouton fait défiler vers le bas";
 L["Press Button To Scroll Down Desc"] = "Si le contenu est plus grand que la fenêtre d'affichage, appuyer sur le bouton Confirmer fera défiler la page vers le bas au lieu d'accepter la quête.";
 
 L["Key Space"] = "Espace";
@@ -135,10 +135,10 @@ L["Key Interact"] = "Interagir";
 L["Cannot Use Key Combination"] = "La combinaison de touches n'est pas prise en charge.";
 L["Interact Key Not Set"] = "Vous n'avez pas défini de raccourci pour Interagir."
 
-L["Quest Item Display"] = "Affichage de l'objet de quête"; --better translate ?
+L["Quest Item Display"] = "Afficher l'objet de quête"
 L["Quest Item Display Desc"] = "Affiche automatiquement la description de l'objet de quête et vous permet de l'utiliser sans ouvrir les sacs.";
-L["Quest Item Display Hide Seen"] = "Ignorer les objets connus"; --better translate ?
-L["Quest Item Display Hide Seen Desc"] = "Ignore les objets qui ont été découverts par l'un de vos personnages.";
+L["Quest Item Display Hide Seen"] = "Ignorer les objets déjà vus";
+L["Quest Item Display Hide Seen Desc"] = "Ignore les objets qui ont déjà été découverts par l'un de vos personnages.";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Utilisez [KEY:PC:F1] pour afficher les options";
