@@ -136,32 +136,8 @@ function DUIDialogBaseMixin:CalculateBestFrameHeight()
     local heightInPixel = API.GetSizeInPixel(self:GetEffectiveScale(), frameHeight);
 
     if heightInPixel < 640 then
-        heightRatio = 0.72;
-        frameHeight = heightRatio * viewportHeight;
+        --Switch to low resolution textures?
     end
-
-    --[[
-    print(frameHeight, heightInPixel)
-    local HeartSize = API.GetPixelForScale(1, 1);
-    print("HeartSize", HeartSize);
-
-    --debug
-    local parchmentWidth = API.GetPixelForScale(1, 1024);
-    local parchmentheight = API.GetPixelForScale(1, 1152);
-    print("Parchment", parchmentWidth, parchmentheight);
-
-    local headerWidth = API.GetPixelForScale(1, 672);
-    local headerheight = API.GetPixelForScale(1, 96);
-    print("Header", headerWidth, headerheight);
-
-    local titleOffset = API.GetPixelForScale(1, 100);
-    print("Title Offset", titleOffset);
-
-    print("Portrait Size", API.GetPixelForScale(1, 64));
-    print("Portrait Offset", API.GetPixelForScale(1, 44));
-
-    print("Footer Width", API.GetPixelForScale(1, 736));
-    --]]
 
     return frameHeight
 end
@@ -255,6 +231,7 @@ function DUIDialogBaseMixin:UpdateFrameSize()
 
     local parchmentWidth = 546.13 * FRAME_SIZE_MULTIPLIER;  --API.GetPixelForScale(1, 1024);
     local parchmentheight = 136.53 * FRAME_SIZE_MULTIPLIER; --API.GetPixelForScale(1, 256);
+
     self.Parchments[1]:SetSize(parchmentWidth, parchmentheight);
     self.Parchments[3]:SetSize(parchmentWidth, parchmentheight);
 

@@ -115,6 +115,12 @@ function QuestItemDisplay:Init()
     ButtonText:Hide();
     ButtonText:SetPoint("TOPLEFT", tbBG, "TOPLEFT", PADDING_TEXT_BUTTON_H, -PADDING_TEXT_BUTTON_V);
 
+    local ButtonIcon = self:CreateTexture(nil, "OVERLAY");
+    self.ButtonIcon = ButtonIcon;
+    ButtonIcon:SetSize(12, 12);
+    ButtonIcon:SetPoint("LEFT", tbBG, "LEFT", PADDING_TEXT_BUTTON_V, 0);
+    ButtonIcon:Hide();
+
 
     --Pseudo Close Button
     local bt = self:CreateTexture(nil, "OVERLAY");
@@ -304,7 +310,16 @@ function QuestItemDisplay:Layout(hasDescription)
     local textButtonWidth, bottomObject;
 
     if self.ButtonText:IsShown() then
-        textButtonWidth = self.ButtonText:GetWrappedWidth() + 2*PADDING_TEXT_BUTTON_H;
+        self.ButtonText:ClearAllPoints();
+        local iconWidth;
+        if self.ButtonIcon:IsShown() then
+            iconWidth = 16;
+            self.ButtonText:SetPoint("LEFT", self.ButtonIcon, "RIGHT", 0, 0);
+        else
+            iconWidth = 0;
+            self.ButtonText:SetPoint("TOPLEFT", self.TextButtonBackground, "TOPLEFT", PADDING_TEXT_BUTTON_H, -PADDING_TEXT_BUTTON_V);
+        end
+        textButtonWidth = iconWidth + self.ButtonText:GetWrappedWidth() + 2*PADDING_TEXT_BUTTON_H;
         bottomObject = self.TextButtonBackground;
         self.TextButtonBackground:SetHeight(Round(self.ButtonText:GetHeight() + 2 * PADDING_TEXT_BUTTON_V));
     else
@@ -378,10 +393,12 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
 
     local itemInfo = API.GetBagQuestItemInfo(itemID);
     if itemInfo then
-        if itemInfo.questID then
+        startQuestID = itemInfo.questID;
+        print(startQuestID)
+        if startQuestID then
             local questName = API.GetQuestName(startQuestID);
             if questName then
-                extraText = questName;
+                extraText = nil;
             end
         elseif itemInfo.isReadable then
             isReadable = true;
@@ -425,6 +442,8 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     if isReadable then
         buttonText= L["Click To Read"];
         self:SetUsableItem(itemID, buttonText);
+    elseif startQuestID then
+        self:SetStartQuestItem(itemID, startQuestID);
     end
 
     self.itemID = itemID;
@@ -445,6 +464,10 @@ function QuestItemDisplay:ShowTextButton(state)
     if self.TextButtonBackground then
         self.TextButtonBackground:SetShown(state);
         self.ButtonText:SetShown(state);
+
+        if not state then
+            self.ButtonIcon:Hide();
+        end
     end
 end
 
@@ -455,9 +478,11 @@ end
 
 function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
     --TODO: Replace "This item starts a quest" with the actual quest name
-    if startQuestID then
-        --print(QuestUtils_GetQuestName(startQuestID), isOnQuest)
-    end
+    local icon = "Interface/AddOns/DialogueUI/Art/Icons/QuestItem-NotOnQuest.png";
+    self.ButtonIcon:SetTexture(icon);
+    self.ButtonIcon:Show();
+    local questName = API.GetQuestName(startQuestID);
+    self:SetUsableItem(itemID, questName)
 end
 
 function QuestItemDisplay:UpdateQueueMarkers()
@@ -586,7 +611,7 @@ do
     local function Settings_QuestItemDisplay(dbValue)
         QuestItemDisplay:EnableModule(dbValue == true);
     end
-    --addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplay", Settings_QuestItemDisplay);
+    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplay", Settings_QuestItemDisplay);
 end
 
 do
@@ -598,8 +623,12 @@ do
 end
 
 
---[[
+
 function ShowItems()
-    QuestItemDisplay:TryDisplayItem(9570);
+    if addon.IsToCVersionEqualOrNewerThan(100000) then
+        QuestItemDisplay:TryDisplayItem(119208);
+        QuestItemDisplay:TryDisplayItem(198979);
+    else
+        QuestItemDisplay:TryDisplayItem(9570);
+    end
 end
---]]

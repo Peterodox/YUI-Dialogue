@@ -1909,7 +1909,7 @@ do  --Inventory Bags Container
                 itemInfo.hasLoot = containerInfo.hasLoot;
                 local questInfo = GetContainerItemQuestInfo(bagID, slotID);
                 if questInfo then
-                    itemInfo.questID = questInfo.itemInfo;
+                    itemInfo.questID = questInfo.questID;
                     itemInfo.isOnQuest = questInfo.isActive;
                 end
                 
