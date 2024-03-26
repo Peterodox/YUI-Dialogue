@@ -34,6 +34,7 @@ local ConsoleExec = ConsoleExec;
 local SetUIVisibility = SetUIVisibility;
 local InCombatLockdown = InCombatLockdown;
 local IsMounted = IsMounted;
+local IsInInstance = IsInInstance;
 
 local UIParent = UIParent;
 UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EXPERIMENTAL_CVAR_WARNING
@@ -133,6 +134,8 @@ end
 function CameraUtil:OnEvent(event, ...)
     if event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
         self:OnMountChanged();
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        self:UpdateInstance();
     else
         self:RestoreCVars();
     end
@@ -348,7 +351,7 @@ function CameraUtil:InitiateInteraction()
     self:UpdateMounted();
     FadeHelper:FadeOutUI();
 
-    if self.defaultCameraMode == 0 then
+    if self.defaultCameraMode == 0 or self.inInstance then
         self:Intro_None();
     else
         if (self.defaultCameraMode == 1) and UnitExists("npc") and (not UnitIsUnit("npc", "player")) then
@@ -545,6 +548,10 @@ function CameraUtil:OnEnterCombatDuringInteraction()
     end
 end
 
+function CameraUtil:UpdateInstance()
+    self.inInstance = IsInInstance();
+end
+
 
 do
     local function Settings_CameraMovement(dbValue)
@@ -567,6 +574,17 @@ do
         HIDE_UNIT_NAMES = dbValue == true;
     end
     addon.CallbackRegistry:Register("SettingChanged.HideUnitNames", Settings_HideUnitNames);
+
+    local function Settings_CameraMovementDisableInstance(dbValue)
+        if dbValue == true then
+            CameraUtil:RegisterEvent("PLAYER_ENTERING_WORLD");
+            CameraUtil:UpdateInstance();
+        else
+            CameraUtil:UnregisterEvent("PLAYER_ENTERING_WORLD");
+            CameraUtil.inInstance = nil;
+        end
+    end
+    addon.CallbackRegistry:Register("SettingChanged.CameraMovementDisableInstance", Settings_CameraMovementDisableInstance);
 end
 
 
@@ -616,7 +634,7 @@ do  --DynamicCam
             dc:BlockShoulderOffsetZoom();
             self.oldShoulderOffset = GetCVar("test_cameraOverShoulder");
         end
-        
+
         function CameraUtil:OnInteractionStop()
             dc:AllowShoulderOffsetZoom();
             ReApplySettings(self.oldShoulderOffset);

@@ -22,11 +22,13 @@ local DefaultValues = {
     ShowNPCNameOnPage = false,
     QuestTypeText = false,
     SimplifyCurrencyReward = false,
+    MarkHighestSellPrice = true,
 
     CameraMovement = 1,                         --0:OFF  1:Zoom-In  2:Horizontal
     CameraChangeFov = true,
     CameraMovement1MaintainPosition = false,
     CameraMovement2MaintainPosition = true,
+    CameraMovementDisableInstance = false,
 
     InputDevice = 1,                            --1:K&M  2:XBOX  3.PS  4.Mobile
     PrimaryControlKey = 1,                      --1: Space  2:Interact Key

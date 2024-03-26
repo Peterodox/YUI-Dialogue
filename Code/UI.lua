@@ -24,6 +24,7 @@ local SCROLLDOWN_THEN_ACCEPT_QUEST = false;
 local AUTO_SELECT_GOSSIP = true;
 local INPUT_DEVICE_GAME_PAD = false;
 local SHOW_NPC_NAME = false;
+local MARK_HIGHEST_SELL_PRICE = false;
 ------------------
 
 local PADDING_H = 26.0;
@@ -1752,6 +1753,51 @@ function DUIDialogBaseMixin:FlashRewardChoices()
     end
 end
 
+function DUIDialogBaseMixin:RequestSellPrice(isRequery)
+    if not MARK_HIGHEST_SELL_PRICE then return end;
+
+    local numRewardChoices = GetNumQuestChoices() or 0;
+    if numRewardChoices <= 1 then return end;
+
+    local maxPrice = 0;
+    local price, index;
+    local anyZero;
+
+    for i = 1, numRewardChoices do
+        price = API.GetQuestChoiceSellPrice(i);
+
+        if price == 0 then
+            anyZero = true;
+        end
+
+        if price > maxPrice then
+            maxPrice = price;
+            index = i;
+        end
+    end
+
+    if (index and anyZero) or (not index) then
+        if not isRequery then
+            After(0.8, function()
+                self:RequestSellPrice(true);
+            end);
+        end
+    else
+        local buttons = self.itemButtonPool:GetObjectsByPredicate(Predicate_ActiveChoiceButton);
+        if buttons then
+            for i, button in ipairs(buttons) do
+                if button.index == index then
+                    local iconFrame = self.iconFramePool:Acquire();
+                    iconFrame:SetHighestSellPrice();
+                    iconFrame:SetParent(button);
+                    iconFrame:SetPoint("CENTER", button.Icon, "TOPLEFT", 3, -3);
+                    break
+                end
+            end
+        end
+    end
+end
+
 
 local ANIM_DURATION_SCROLL_EXPAND = 0.75;
 
@@ -1874,6 +1920,8 @@ function DUIDialogBaseMixin:OnShow()
     self:RegisterEvent("LOADING_SCREEN_ENABLED");
 
     FadeFrame(self.Vignette, 0.75, 1);
+
+    addon.CallbackRegistry:Trigger("DialogueUI.Show");
 end
 
 function DUIDialogBaseMixin:CloseDialogInteraction()
@@ -1918,6 +1966,8 @@ function DUIDialogBaseMixin:OnHide()
 
     FadeFrame(self.Vignette, 0.5, 0);
     TooltipFrame:Hide();
+
+    addon.CallbackRegistry:Trigger("DialogueUI.Hide");
 end
 
 function DUIDialogBaseMixin:OnMouseUp(button)
@@ -2316,7 +2366,9 @@ do  --Quest Rewards
                 
                 sizeX = (INPUT_DEVICE_GAME_PAD and 4) or 2;
 
-                if data.chooseItems then
+                local isChoosingRewards = data.chooseItems;
+
+                if isChoosingRewards then
                     backgroundID = 2;
                     offsetY = self:InsertText(offsetY, REWARD_CHOOSE);		--Choose
                 else
@@ -2359,6 +2411,10 @@ do  --Quest Rewards
                 if #rewardList > 1 then
                     offsetY = self:InsertText(offsetY, REWARD_ITEMS);	--You will also receive
                     offsetY = offsetY + ITEM_BUTTON_SPACING;
+                end
+
+                if isChoosingRewards then
+                    self:RequestSellPrice();
                 end
             else
                 if data.title then
@@ -2638,6 +2694,11 @@ do
     end
     addon.CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", Settings_ShowNPCNameOnPage);
 
+    local function Settings_MarkHighestSellPrice(dbValue)
+        MARK_HIGHEST_SELL_PRICE = dbValue == true;
+        MainFrame:OnSettingsChanged();
+    end
+    addon.CallbackRegistry:Register("SettingChanged.MarkHighestSellPrice", Settings_MarkHighestSellPrice);
 
     local function SettingsUI_Show()
         SETTINGS_UI_VISIBLE = true;

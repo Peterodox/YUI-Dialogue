@@ -41,10 +41,9 @@ local Round = API.Round;
 local GetQuestIcon = API.GetQuestIcon;
 local IsQuestItem = API.IsQuestItem;
 local IsCosmeticItem = API.IsCosmeticItem;
+local IsEquippableItem = API.IsEquippableItem;
 local strlen = string.len;
-local CreateFrame = CreateFrame;
 local GetItemCount = C_Item.GetItemCount or GetItemCount;
-local IsEquippableItem = IsEquippableItem;
 local C_GossipInfo = C_GossipInfo;
 local CompleteQuest = CompleteQuest;
 local CloseQuest = CloseQuest;
@@ -1186,7 +1185,14 @@ function ItemButtonSharedMixin:FitToName()
         return
     end
 
-    local nameWidth = self.Name:GetWrappedWidth();
+    local nameWidth;
+
+    if self.isSmall then
+        nameWidth = self.Name:GetUnboundedStringWidth();
+    else
+        nameWidth = self.Name:GetWrappedWidth();
+    end
+
     local isTruncated = self:IsNameTruncated(nameWidth);
 
     if isTruncated and self.dynamicResize then
@@ -1694,6 +1700,7 @@ end
 DUIDialogSmallItemButtonMixin = API.CreateFromMixins(ItemButtonSharedMixin); --no name, only quantity
 
 function DUIDialogSmallItemButtonMixin:OnLoad()
+    self.isSmall = true;
     self.textMaxLines = 1;
     self.textShrink = SMALLITEMBUTTON_TEXT_WIDTH_SHRINK;
     self.dynamicResize = true;
@@ -2138,6 +2145,11 @@ do
     function DUIDialogIconFrameMixin:SetCurrencyOverflow()
         self:SetSize(14, 14);
         self.Icon:SetTexture(ICON_PATH.."CurrencyOverflow.png");
+    end
+
+    function DUIDialogIconFrameMixin:SetHighestSellPrice()
+        self:SetSize(15, 15);
+        self.Icon:SetTexture(ICON_PATH.."Coin-Gold.png");
     end
 end
 

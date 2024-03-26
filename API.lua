@@ -1556,6 +1556,8 @@ do  --Tooltip
         local CreateColor = CreateColor;
         local TOOLTIP_NAME = "DialogueUIVirtualTooltip";
         local TP = CreateFrame("GameTooltip", TOOLTIP_NAME, nil, "GameTooltipTemplate");
+        local UIParent = UIParent;
+
         TP:SetOwner(UIParent, 'ANCHOR_NONE');
         TP:SetClampedToScreen(false);
         TP:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", 0, -128);
@@ -1599,19 +1601,35 @@ do  --Tooltip
             local tooltipData = {};
             tooltipData.dataInstanceID = 0;
 
-            local newLink = GetTooltipHyperlink();
-            if newLink and newLink ~= TP.hperlink then
-                UpdateFrame:OnItemChanged(numLines);
+            local addItemLevel;
+            local itemLink = GetTooltipHyperlink();
+            
+            if itemLink then
+                if itemLink ~= TP.hyperlink then
+                    UpdateFrame:OnItemChanged(numLines);
+                end
+
+                if API.IsEquippableItem(itemLink) then
+                    addItemLevel = API.GetItemLevel(itemLink);
+                end
             end
 
-            TP.hperlink = newLink;
-            tooltipData.hyperlink = newLink;
+            TP.hyperlink = itemLink;
+            tooltipData.hyperlink = itemLink;
 
             local lines = {};
             local n = 0;
 
             local fs, text;
             for i = 1, numLines do
+                if i == 2 and addItemLevel then
+                    n = n + 1;
+                    lines[n] = {
+                        leftText = L["Format Item Level"]:format(addItemLevel);
+                        leftColor = CreateColor(1, 0.82, 0),
+                    };
+                end
+
                 fs = _G[TOOLTIP_NAME.."TextLeft"..i];
                 if fs then
                     n = n + 1;
@@ -1638,6 +1656,15 @@ do  --Tooltip
 
                     lines[n] = lineData;
                 end
+            end
+
+            local sellPrice = API.GetItemSellPrice(itemLink);
+            if sellPrice then
+                n = n + 1;
+                lines[n] = {
+                    leftText = "",  --this will be ignored by our tooltip
+                    price = sellPrice,
+                };
             end
 
             tooltipData.lines = lines;
@@ -1696,7 +1723,7 @@ do  --Tooltip
         local FORMAT_NEGATIVE_VALUE = "|cffff2020%s|r %s";
 
         local STATS_NAME = {
-            dps = ITEM_MOD_DAMAGE_PER_SECOND_SHORT or "Damage per Second",
+            dps = STAT_DPS_SHORT or "DPS",      --ITEM_MOD_DAMAGE_PER_SECOND_SHORT
             armor = RESISTANCE0_NAME or "Armor",
             stamina = SPELL_STAT3_NAME or "Stamina",
             strength = SPELL_STAT1_NAME or "Strengh",
@@ -1798,8 +1825,21 @@ do  --Tooltip
                     local stats2 = GetItemStatsFromTooltip();
 
                     if stats1 and stats2 then
+                        local v1;   --new item
+                        local v2;   --equipped item
                         local deltaStats;
-                        local v1, v2;
+
+                        --Show item level diffs
+                        v1 = API.GetItemLevel(item);
+                        v2 = API.GetItemLevel(equippedItemLink);
+
+                        if v1 and v2 and v1 ~= v2 then
+                            if not deltaStats then
+                                deltaStats = {};
+                            end
+                            tinsert(deltaStats, FormatValueDiff(v1 - v2, L["Item Level"]));
+                        end
+
                         for _, k in ipairs(STATS_ORDER) do
                             v1 = stats1[k] or 0;
                             v2 = stats2[k] or 0;
@@ -1821,17 +1861,41 @@ end
 
 
 do  --Items
-    local IsEquippableItem = IsEquippableItem;
-    local IsCosmeticItem = IsCosmeticItem or AlwaysFalse;
+    local IsEquippableItem = C_Item.IsEquippableItem or IsEquippableItem;
+    local IsCosmeticItem = C_Item.IsCosmeticItem or IsCosmeticItem or AlwaysFalse;
     local GetTransmogItemInfo = (C_TransmogCollection and C_TransmogCollection.GetItemInfo) or AlwaysFalse;
+    local GetItemLevel = C_Item.GetDetailedItemLevelInfo or GetDetailedItemLevelInfo or AlwaysZero;
+    local GetItemInfo = C_Item.GetItemInfo or GetItemInfo;
+    local GetQuestItemLink = GetQuestItemLink;
 
+    API.IsEquippableItem = IsEquippableItem;
     API.IsCosmeticItem = IsCosmeticItem;
     API.GetTransmogItemInfo = GetTransmogItemInfo;
+    API.GetItemLevel = GetItemLevel;
+    API.GetItemInfo = GetItemInfo;
 
     local function IsItemValidForComparison(itemID)
         return itemID and (not IsCosmeticItem(itemID)) and IsEquippableItem(itemID)
     end
     API.IsItemValidForComparison = IsItemValidForComparison;
+
+    local function GetItemSellPrice(item)
+        local sellPrice = select(11, GetItemInfo(item));
+        if sellPrice and sellPrice > 0 then
+            return sellPrice
+        end
+    end
+    API.GetItemSellPrice = GetItemSellPrice;
+
+    local function GetQuestChoiceSellPrice(index)
+        local hyperlink = GetQuestItemLink("choice", index);
+        if hyperlink and string.find(hyperlink, "[Ii]tem:") then
+            return GetItemSellPrice(hyperlink) or 0
+        else
+            return 0
+        end
+    end
+    API.GetQuestChoiceSellPrice = GetQuestChoiceSellPrice;
 end
 
 do  --Keybindings

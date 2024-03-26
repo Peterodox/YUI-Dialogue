@@ -1,5 +1,5 @@
 ## Interface: 11501
-## Version: 0.2.0
+## Version: 0.2.1
 
 ## Title: Dialogue UI
 
@@ -18,8 +18,7 @@ Fonts.xml
 API.xml
 
 Code\CallbackRegistry.lua
-Code\ThemeUtil.lua
-Code\LocaleFormatter.lua
+Code\Utility.xml
 Code\Sound.lua
 Code\Camera.lua
 Code\Tooltip.xml

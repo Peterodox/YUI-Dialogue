@@ -48,6 +48,7 @@ L["Level Maxed"] = "(Maxed)";   --Reached max level
 L["Paragon Reputation"] = "Paragon";
 L["Different Item Types Alert"] = "The item types are different!";
 L["Click To Read"] = "Left Click to Read";
+L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "Item Level";
 
 
 --String Format
@@ -67,6 +68,7 @@ L["Format Silver Amount"] = SILVER_AMOUNT or "%d Silver";
 L["Format Copper Amount"] = COPPER_AMOUNT or "%d Copper";
 L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Level %d";
 L["Format Replace Item"] = "Replace %s";
+L["Format Item Level"] = "Item Level %d";   --_G.ITEM_LEVEL in Classic is different
 
 
 --Settings
@@ -101,13 +103,8 @@ L["Show NPC Name On Page"] = "Show NPC Name";
 L["Show NPC Name On Page Desc"] = "Show the NPC name on the page.";
 L["Simplify Currency Rewards"] = "Simplify Currency Rewards";
 L["Simplify Currency Rewards Desc"] = "Use smaller icons for currency rewards and omit their names.";
-L["Auto Select"] = "Auto Select";
-L["Auto Select Gossip"] = "Auto Select Option";
-L["Auto Select Gossip Desc"] = "Automatically select the best dialog option when interacting with certain NPC.";
-L["Force Gossip"] = "Force Gossip";
-L["Force Gossip Desc"] = "By default, the game sometimes automatically selects the first option without showing the dialog. By enabling Force Gossip, the dialog will become visible.";
-L["Nameplate Dialog"] = "Display Dialog On Nameplate";
-L["Nameplate Dialog Desc"] = "Display the dialog on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
+L["Mark Highest Sell Price"] = "Mark Highest Sell Price";
+L["Mark Highest Sell Price Desc"] = "Show you which item has the highest sell price when you are choosing a reward.";
 
 L["Camera Movement"] = "Camera Movement";
 L["Camera Movement Off"] = "OFF";
@@ -117,6 +114,8 @@ L["Maintain Camera Position"] = "Maintain Camera Position";
 L["Maintain Camera Position Desc"] = "Maintain camera position briefly after NPC interaction ends. Enabling this option will reduce the camera's sudden movement caused by the latency between dialogs.";
 L["Change FOV"] = "Change FOV";
 L["Change FOV Desc"] = "Reduce the camera\'s field of view to zoom in closer to the NPC.";
+L["Disable Camera Movement Instance"] = "Disable In Instance";
+L["Disable Camera Movement Instance Desc"] = "Disable camera movement while in dungeon or raid.";
 
 L["Input Device"] = "Input Device";
 L["Input Device Desc"] = "Affects hotkey icons and UI layout.";
@@ -139,6 +138,14 @@ L["Quest Item Display"] = "Quest Item Display";
 L["Quest Item Display Desc"] = "Auto display the quest item's description and allow you to use it without opening bags.";
 L["Quest Item Display Hide Seen"] = "Ignore Seen Items";
 L["Quest Item Display Hide Seen Desc"] = "Ignore items that have been discovered by any of your characters.";
+L["Auto Select"] = "Auto Select";
+L["Auto Select Gossip"] = "Auto Select Option";
+L["Auto Select Gossip Desc"] = "Automatically select the best dialog option when interacting with certain NPC.";
+L["Force Gossip"] = "Force Gossip";
+L["Force Gossip Desc"] = "By default, the game sometimes automatically selects the first option without showing the dialog. By enabling Force Gossip, the dialog will become visible.";
+L["Nameplate Dialog"] = "Display Dialog On Nameplate";
+L["Nameplate Dialog Desc"] = "Display the dialog on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
+
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";

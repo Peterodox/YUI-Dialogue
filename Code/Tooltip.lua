@@ -833,10 +833,7 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
                     end
                 end
 
-                if lineData.type ~= LINE_TYPE_PRICE then
-                    r, g, b = leftColor:GetRGB();
-                    self:AddLeftLine(leftText, r, g, b, wrapText, nil, (i == 1 and 1) or 2);
-                elseif lineData.price and lineData.price > 0 then
+                if lineData.price and lineData.price > 0 then
                     local colorized = true;
                     local cointText = API.GenerateMoneyText(lineData.price, colorized);
                     if cointText then
@@ -844,6 +841,9 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
                         --self:AddBlankLine();
                         self:AddLeftLine(leftText, 1, 1, 1, false, nil, 2);
                     end
+                else    --lineData.type ~= LINE_TYPE_PRICE
+                    r, g, b = leftColor:GetRGB();
+                    self:AddLeftLine(leftText, r, g, b, wrapText, nil, (i == 1 and 1) or 2);
                 end
 
                 if rightText then

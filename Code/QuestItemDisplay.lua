@@ -9,6 +9,7 @@ local GetNumLetters = strlenutf8 or string.len;
 local Round = API.Round;
 local IsQuestItem = API.IsQuestItem;
 local PI = math.pi;
+local After = C_Timer.After;
 
 -- User Settings
 local IGNORE_SEEN_ITEM = false;
@@ -52,14 +53,14 @@ function QuestItemDisplay:Init()
     bg:SetTextureSliceMargins(margin, margin, margin, margin);
     bg:SetTextureSliceMode(1);
     bg:SetAllPoints(true);
-    bg:SetTexCoord(0.25, 0.5, 0.5, 1);
+    bg:SetTexCoord(0.25, 0.5, 0.25, 0.5);
 
     local bgShadow = self:CreateTexture(nil, "BACKGROUND", nil, -1);
     self.BackgroundShadow = bgShadow;
     local margin = 24;
     bgShadow:SetTextureSliceMargins(margin, margin, margin, margin);
     bgShadow:SetTextureSliceMode(0);
-    bgShadow:SetTexCoord(0.5, 0.75, 0.5, 1);
+    bgShadow:SetTexCoord(0.515625, 0.765625, 0.25, 0.5);
     local pixelOffset = 16.0;
     local offset = API.GetPixelForScale(self:GetEffectiveScale(), pixelOffset);
     bgShadow:ClearAllPoints();
@@ -92,7 +93,7 @@ function QuestItemDisplay:Init()
     ttBG:SetHeight(CLOSE_BUTTON_SIZE);
     ttBG:SetPoint("LEFT", icon, "RIGHT", -24, 8);
     ttBG:SetPoint("RIGHT", self, "RIGHT", 0, 0);
-    ttBG:SetTexCoord(0.1875, 1, 0, 0.25);
+    ttBG:SetTexCoord(0.1875, 1, 0, 0.125);
     ttBG:SetBlendMode("ADD");
     ttBG:SetAlpha(0.15);
 
@@ -101,7 +102,7 @@ function QuestItemDisplay:Init()
     local margin = 18;
     ib:SetTextureSliceMargins(margin, margin, margin, margin);
     ib:SetTextureSliceMode(0);
-    ib:SetTexCoord(0, 0.15625, 0, 0.3125);
+    ib:SetTexCoord(0, 0.15625, 0, 0.15625);
 
 
     --Pseudo Text Button <Click to Read>
@@ -110,10 +111,10 @@ function QuestItemDisplay:Init()
     local margin = 8;
     tbBG:SetTextureSliceMargins(margin, margin, margin, margin);
     tbBG:SetTextureSliceMode(0);
-    tbBG:SetTexCoord(0.5, 1, 0.25, 0.375);
     tbBG:Hide();
     tbBG:ClearAllPoints();
     tbBG:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", 0, -GAP_TITLE_DESC);
+    tbBG:SetTexCoord(0, 0.5, 0.515625, 0.578125);
 
     local ButtonText = self:CreateFontString(nil, "OVERLAY", "DUIFont_Item", 1);
     self.ButtonText = ButtonText;
@@ -134,17 +135,17 @@ function QuestItemDisplay:Init()
     self.CloseButtonTexture = bt;
     bt:SetSize(CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE);
     bt:SetPoint("CENTER", self, "TOPRIGHT", -8, -8);
-    bt:SetTexCoord(0, 0.125, 0.5, 0.75);
+    bt:SetTexCoord(0, 0.125, 0.25, 0.375);
 
     local function CreateSwipe(isRight)
         local sw = self:CreateTexture(nil, "OVERLAY", nil, 1);
         sw:SetSize(CLOSE_BUTTON_SIZE/2, CLOSE_BUTTON_SIZE);
         if isRight then
             sw:SetPoint("LEFT", bt, "CENTER", 0, 0);
-            sw:SetTexCoord(0.0625, 0.125, 0.75, 1);
+            sw:SetTexCoord(0.0625, 0.125, 0.375, 0.5);
         else
             sw:SetPoint("RIGHT", bt, "CENTER", 0, 0);
-            sw:SetTexCoord(0, 0.0625, 0.75, 1);
+            sw:SetTexCoord(0, 0.0625, 0.375, 0.5);
         end
 
         local mask = self:CreateMaskTexture(nil, "OVERLAY", nil, 1);
@@ -164,7 +165,7 @@ function QuestItemDisplay:Init()
         --Sit below the frame, marker indicates the number of items in the queue
         local texture = self:CreateTexture(nil, "OVERLAY");
         texture:SetTexture(ThemeUtil:GetTextureFile("QuestItemDisplay-UI.png"));
-        texture:SetTexCoord(0, 0.0625, 0.375, 0.5);
+        texture:SetTexCoord(0, 0.0625, 0.1875, 0.25);
         texture:SetSize(QUEUE_MARKER_SIZE, QUEUE_MARKER_SIZE);
         return texture
     end
@@ -355,6 +356,12 @@ function QuestItemDisplay:Layout(hasDescription)
     self:SetSize(textWidth + ICON_SIZE + 2*PADDING_OUTER + GAP_TEXT_ICON, textHeight + 2*PADDING_OUTER);
 end
 
+function QuestItemDisplay:ShouldDeferDisplay()
+    if addon.DialogueUI:IsShown() then
+        return true
+    end
+end
+
 function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     if self.Init then
         self:Init();
@@ -422,11 +429,18 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
         end
     end
 
+    if isReadable and self:ShouldDeferDisplay() then
+        --We defer readable items to the end of NPC interaction, because using the item exits interaction
+        self:QueueItem(itemID);
+        self.anyDeferred = true;
+        return
+    end
+
     if not (name and (description or extraText or isReadable)) then
         if not isRequery then
             if not self.pauseUpdate then
                 self.pauseUpdate = true;
-                C_Timer.After(0.5, function()
+                After(0.5, function()
                     self.pauseUpdate = nil;
                     self:TryDisplayItem(itemID, true);
                 end);
@@ -513,11 +527,11 @@ end
 
 function QuestItemDisplay:SetTextBackgroundID(id)
     if id == 1 then --Normal
-        self.TextButtonBackground:SetTexCoord(0.5, 1, 0.25, 0.375);
+        self.TextButtonBackground:SetTexCoord(0, 0.5, 0.515625, 0.578125);
     elseif id == 2 then --Highlighted
-        self.TextButtonBackground:SetTexCoord(0.5, 1, 0.375, 0.5);
+        self.TextButtonBackground:SetTexCoord(0, 0.5, 0.59375, 0.65625);
     elseif id == 3 then --Disabled
-        self.TextButtonBackground:SetTexCoord(0.75, 1, 0.5, 0.625);
+        self.TextButtonBackground:SetTexCoord(0, 0.5, 0.671875, 0.734375);
     end
 end
 
@@ -634,6 +648,7 @@ function QuestItemDisplay:Clear()
     self.isCountingDown = nil;
     self.itemID = nil;
     self.itemType = nil;
+    self.anyDeferred = nil;
     self.queue = {};
     self:Hide();
 end
@@ -758,4 +773,15 @@ do
         IGNORE_SEEN_ITEM = dbValue == true;
     end
     addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplayHideSeen", Settings_QuestItemDisplayHideSeen);
+end
+
+do
+    local function DialogueUI_OnHide()
+        if QuestItemDisplay.anyDeferred then
+            After(0.25, function()
+                QuestItemDisplay:ProcessQueue();
+            end);
+        end
+    end
+    addon.CallbackRegistry:Register("DialogueUI.Hide", DialogueUI_OnHide);
 end

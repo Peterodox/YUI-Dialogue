@@ -59,45 +59,6 @@ local FONT_OBJECT_COLOR = {
     DUIFont_QuestType_Right = {"DarkModeGrey70", "DarkModeGrey70"},
 };
 
-local FONT_OBJECT_HEIGHT = {
-    --FontObjectName = {12, 14, 16}     --Paragraph Font Size as Base
-
-    DUIFont_Quest_Title_18 = {14, 18, 18, 18},
-    DUIFont_Quest_Title_16 = {12, 16, 16, 16},
-    DUIFont_Quest_SubHeader = {10, 12, 14, 16},
-    DUIFont_Quest_Paragraph = {10, 12, 14, 16},
-    DUIFont_Quest_Gossip = {10, 12, 14, 16},
-    DUIFont_Quest_Quest = {10, 12, 14, 16},
-    DUIFont_Quest_Disabled = {10, 12, 14, 16},
-
-    DUIFont_Settings_Disabled = {10, 12, 14, 16},
-
-    DUIFont_Item = {8, 10, 12, 12},
-    DUIFont_ItemSelect = {8, 10, 12, 12},
-
-    DUIFont_Hotkey = {8, 10, 12, 12},
-
-    DUIFont_QuestType_Left = {8, 10, 12, 12},
-    DUIFont_QuestType_Right = {8, 10, 12, 12},
-
-    DUIFont_Tooltip_Large = {10, 12, 14, 16},
-    DUIFont_Tooltip_Medium = {8, 10, 12, 12},
-    DUIFont_Tooltip_Small = {8, 10, 12, 12},
-
-    DUIFont_ItemCount = {8, 10, 10, 12},
-};
-
-local CONSTANT_FONT = {
-    DUIFont_Item = true,
-    DUIFont_ItemSelect = true,
-    DUIFont_Hotkey = true,
-    DUIFont_QuestType_Left = true,
-    DUIFont_QuestType_Right = true,
-    DUIFont_Tooltip_Large = true,
-    DUIFont_Tooltip_Medium = true,
-    DUIFont_Tooltip_Small = true,
-    DUIFont_ItemCount = true,
-};
 
 local function SetFontColor(fontObject, key)
     local color = COLORS[key];
@@ -182,34 +143,6 @@ function ThemeUtil:AdjustTextColor(text)
 end
 
 
-local DEFAULT_FONT_SIZE = 12;
-
-local FONT_SIZE_INDEX = {
-    [0] = 10,
-    [1] = 12,
-    [2] = 14,
-    [3] = 16,
-};
-
-function ThemeUtil:SetFontSizeByID(id)
-    if not (id and FONT_SIZE_INDEX[id]) then return end;
-    if FONT_SIZE_INDEX[id] == DEFAULT_FONT_SIZE then return end;
-
-    local fontSize = FONT_SIZE_INDEX[id];
-    DEFAULT_FONT_SIZE = fontSize;
-
-    local k = id + 1;
-    local _G = _G;
-
-    for fontName, v in pairs(FONT_OBJECT_HEIGHT) do
-        local fontFile, _, flags = _G[fontName]:GetFont();
-        _G[fontName]:SetFont(fontFile, v[k], flags);
-    end
-
-    addon.CallbackRegistry:Trigger("FontSizeChanged", fontSize, id);
-end
-
-
 do
     ThemeUtil:SetThemeByID(1);
 
@@ -223,9 +156,4 @@ do
         ThemeUtil:SetThemeByID(themeID);
     end
     addon.CallbackRegistry:Register("SettingChanged.Theme", Settings_Theme);
-
-    local function Settings_FontSizeBase(dbValue)
-        ThemeUtil:SetFontSizeByID(dbValue);
-    end
-    addon.CallbackRegistry:Register("SettingChanged.FontSizeBase", Settings_FontSizeBase);
 end

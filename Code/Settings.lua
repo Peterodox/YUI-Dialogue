@@ -375,6 +375,7 @@ local Schematic = {
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},
+            {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
         },
     },
 
@@ -391,6 +392,8 @@ local Schematic = {
             {type = "Checkbox", name = L["Change FOV"], description = L["Change FOV Desc"], dbKey = "CameraChangeFov", parentKey = "CameraMovement", requiredParentValue = 1, preview = "CameraChangeFov", ratio = 2,},
             {type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement1MaintainPosition", parentKey = "CameraMovement", requiredParentValue = 1, },
             --{type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement2MaintainPosition", parentKey = "CameraMovement", requiredParentValue = 2, },
+            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", parentKey = "CameraMovement", requiredParentValue = 1, },
+            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", parentKey = "CameraMovement", requiredParentValue = 2, },
         },
     },
 
