@@ -17,7 +17,6 @@ local FOCUS_SHOULDER_OFFSET = 1.5;
 local MOUNTED_CAMERA_MULTIPLIER = 6;    --6 when on the left, 0.4 right
 ------------------
 
-local Lerp = API.Lerp;
 local DeltaLerp = API.DeltaLerp;
 local Esaing_OutSine = addon.EasingFunctions.outSine;
 local IsPlayingCutscene = API.IsPlayingCutscene;
@@ -264,7 +263,7 @@ local CAMERA_MOVEMENT_DURATION = 1.0;
 local function ZoomIn_Fov_OnUpdate(self, elapsed)
     self.fovChanged = true;
 
-    local fov = Esaing_OutSine(self.t, FOV_DEFAULT,  FOV_ZOOMED_IN, CAMERA_MOVEMENT_DURATION)--Lerp(90, 75, self.t/CAMERA_MOVEMENT_DURATION);
+    local fov = Esaing_OutSine(self.t, FOV_DEFAULT,  FOV_ZOOMED_IN, CAMERA_MOVEMENT_DURATION);
 
     if self.t >= CAMERA_MOVEMENT_DURATION then
         fov = FOV_ZOOMED_IN;
@@ -277,7 +276,7 @@ local function ZoomIn_FocusNPC_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
 
 
-    local pitch = Esaing_OutSine(self.t, 88,  15, CAMERA_MOVEMENT_DURATION) --Lerp(88, 15, self.t/CAMERA_MOVEMENT_DURATION);
+    local pitch = Esaing_OutSine(self.t, 88,  15, CAMERA_MOVEMENT_DURATION);
     local targetStrengh = Esaing_OutSine(self.t, 0.0, FOCUS_STRENGTH_PITCH, CAMERA_MOVEMENT_DURATION);
 
     if self.t >= CAMERA_MOVEMENT_DURATION then

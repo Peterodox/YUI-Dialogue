@@ -22,7 +22,7 @@ local DefaultValues = {
     ShowNPCNameOnPage = false,
     QuestTypeText = false,
     SimplifyCurrencyReward = false,
-    MarkHighestSellPrice = true,
+    MarkHighestSellPrice = false,
 
     CameraMovement = 1,                         --0:OFF  1:Zoom-In  2:Horizontal
     CameraChangeFov = true,

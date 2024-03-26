@@ -101,13 +101,6 @@ L["Show NPC Name On Page"] = "Afficher le nom du PNJ";
 L["Show NPC Name On Page Desc"] = "Affiche le nom de PNJ sur la page.";
 L["Simplify Currency Rewards"] = "Simplifier les récompenses en monnaie";
 L["Simplify Currency Rewards Desc"] = "Utilise des icônes plus petites pour les récompenses en monnaie et cache leurs noms.";
-L["Auto Select"] = "Selection Auto";
-L["Auto Select Gossip"] = "Sélection automatique";
-L["Auto Select Gossip Desc"] = "Sélectionne automatiquement la meilleure option de dialogue lors de l’interaction avec certains PNJ.";
-L["Force Gossip"] = "Forcer la discussion";
-L["Force Gossip Desc"] = "Par défaut, le jeu sélectionne parfois automatiquement la première option sans afficher la boîte de dialogue. En activant Forcer la discussion, la boîte de dialogue deviendra visible.";
-L["Nameplate Dialog"] = "Afficher le dialogue sur la barre d'info";
-L["Nameplate Dialog Desc"] = "Affiche le dialogue sur la barre d'info du PNJ s'il ne propose pas de choix.\n\nCette option modifie la CVar \"SoftTarget Nameplate Interact\".";
 
 L["Camera Movement"] = "Mouvement de la caméra";
 L["Camera Movement Off"] = "DÉSACTIVÉ";
@@ -139,6 +132,14 @@ L["Quest Item Display"] = "Afficher l'objet de quête"
 L["Quest Item Display Desc"] = "Affiche automatiquement la description de l'objet de quête et vous permet de l'utiliser sans ouvrir les sacs.";
 L["Quest Item Display Hide Seen"] = "Ignorer les objets déjà vus";
 L["Quest Item Display Hide Seen Desc"] = "Ignore les objets qui ont déjà été découverts par l'un de vos personnages.";
+L["Auto Select"] = "Selection Auto";
+L["Auto Select Gossip"] = "Sélection automatique";
+L["Auto Select Gossip Desc"] = "Sélectionne automatiquement la meilleure option de dialogue lors de l’interaction avec certains PNJ.";
+L["Force Gossip"] = "Forcer la discussion";
+L["Force Gossip Desc"] = "Par défaut, le jeu sélectionne parfois automatiquement la première option sans afficher la boîte de dialogue. En activant Forcer la discussion, la boîte de dialogue deviendra visible.";
+L["Nameplate Dialog"] = "Afficher le dialogue sur la barre d'info";
+L["Nameplate Dialog Desc"] = "Affiche le dialogue sur la barre d'info du PNJ s'il ne propose pas de choix.\n\nCette option modifie la CVar \"SoftTarget Nameplate Interact\".";
+
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Utilisez [KEY:PC:F1] pour afficher les options";

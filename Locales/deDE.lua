@@ -94,13 +94,6 @@ L["Show NPC Name On Page"] = "NPC Namen anzeigen";
 L["Show NPC Name On Page Desc"] = "Zeigt den NPC Namen in der Beschreibung an.";
 L["Simplify Currency Rewards"] = "Vereinfachte Währungsbelohnungen";
 L["Simplify Currency Rewards Desc"] = "Kleinere Icons ohne Text für Währungsbelohnungen.";
-L["Auto Select"] = "Automatische Auswahl";
-L["Auto Select Gossip"] = "Automatische Optionen Auswahl";
-L["Auto Select Gossip Desc"] = "Wählt automatisch die beste Option, wenn du mit einem NPC interagierst.";
-L["Force Gossip"] = "Dialogfenster erzwingen";
-L["Force Gossip Desc"] = "Manchmal wählt das Spiel automatisch die erste Option des Dialogs aus. Wenn du Dialogfenster erzwingen anschaltest, umgehst du dies.";
-L["Nameplate Dialog"] = "Dialog auf Namensplaketten anzeigen";
-L["Nameplate Dialog Desc"] = "Den Dialog auf der Namensplakette des NPCs anzeigen, wenn sie keine Wahl anbieten.\n\nDiese Option ändert die CVar \"SoftTarget Nameplate Interact\".";
 
 L["Camera Movement"] = "Kamera Bewegung";
 L["Camera Movement Off"] = "AUS";
@@ -127,6 +120,14 @@ L["Key Space"] = "Leertaste";
 L["Key Interact"] = "Interagieren";
 L["Cannot Use Key Combination"] = "Tastenkombination wird nicht unterstützt.";
 L["Interact Key Not Set"] = "Du hast keine Interaktionstaste festgelegt."
+
+L["Auto Select"] = "Automatische Auswahl";
+L["Auto Select Gossip"] = "Automatische Optionen Auswahl";
+L["Auto Select Gossip Desc"] = "Wählt automatisch die beste Option, wenn du mit einem NPC interagierst.";
+L["Force Gossip"] = "Dialogfenster erzwingen";
+L["Force Gossip Desc"] = "Manchmal wählt das Spiel automatisch die erste Option des Dialogs aus. Wenn du Dialogfenster erzwingen anschaltest, umgehst du dies.";
+L["Nameplate Dialog"] = "Dialog auf Namensplaketten anzeigen";
+L["Nameplate Dialog Desc"] = "Den Dialog auf der Namensplakette des NPCs anzeigen, wenn sie keine Wahl anbieten.\n\nDiese Option ändert die CVar \"SoftTarget Nameplate Interact\".";
 
 
 --Tutorial
