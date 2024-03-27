@@ -48,6 +48,7 @@ L["Level Maxed"] = "(Max)";   --Reached max level
 L["Paragon Reputation"] = "Parangon";
 L["Different Item Types Alert"] = "Le type d'objet est different !";
 L["Click To Read"] = "Clic gauche pour lire";
+L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "Niveau d'objet";														  
 
 
 --String Format
@@ -67,6 +68,7 @@ L["Format Silver Amount"] = SILVER_AMOUNT or "%d Argent";
 L["Format Copper Amount"] = COPPER_AMOUNT or "%d Cuivre";
 L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Niveau %d";
 L["Format Replace Item"] = "Remplace %s";
+L["Format Item Level"] = "Niveau d'objet %d";   --_G.ITEM_LEVEL in Classic is different																				   
 
 
 --Settings
@@ -83,12 +85,12 @@ L["Theme Brown"] = "Clair";
 L["Theme Dark"] = "Sombre";
 L["Frame Size"] = "Taille de la fenêtre";
 L["Frame Size Desc"] = "Ajuste la taille de l'UI de dialogue.\n\nDéfaut : Moyenne";
-L["Font Size"] = "Taille de la police";
-L["Font Size Desc"] = "Ajuste la taille de la police.\n\nDéfaut : 12";
 L["Size Extra Small"] = "Très petite";
 L["Size Small"] = "Petite";
 L["Size Medium"] = "Moyenne";
 L["Size Large"] = "Large";
+L["Font Size"] = "Taille de la police";
+L["Font Size Desc"] = "Ajuste la taille de la police.\n\nDéfaut : 12";
 L["Hide UI"] = "Cacher l'UI";
 L["Hide UI Desc"] = "Cacher l’interface du jeu lorsque vous interagissez avec un PNJ.";
 L["Hide Unit Names"] = "Cacher le nom des unités";
@@ -101,6 +103,8 @@ L["Show NPC Name On Page"] = "Afficher le nom du PNJ";
 L["Show NPC Name On Page Desc"] = "Affiche le nom de PNJ sur la page.";
 L["Simplify Currency Rewards"] = "Simplifier les récompenses en monnaie";
 L["Simplify Currency Rewards Desc"] = "Utilise des icônes plus petites pour les récompenses en monnaie et cache leurs noms.";
+L["Mark Highest Sell Price"] = "Marquer l'objet le plus rentable";
+L["Mark Highest Sell Price Desc"] = "Marque l'objet en récompense ayant la plus grande valeur de revente.";
 
 L["Camera Movement"] = "Mouvement de la caméra";
 L["Camera Movement Off"] = "DÉSACTIVÉ";
@@ -110,9 +114,11 @@ L["Maintain Camera Position"] = "Maintenir la position de la caméra";
 L["Maintain Camera Position Desc"] = "Maintien brièvement la position de la caméra après la fin de l’interaction avec les PNJ. L'activation de cette option réduira les mouvements brusques de la caméra causés par la latence entre les dialogues.";
 L["Change FOV"] = "Changer le FOV";
 L["Change FOV Desc"] = "Réduit le champ de vision de la caméra pour zoomer plus près du PNJ.";
+L["Disable Camera Movement Instance"] = "Disable In Instance";
+L["Disable Camera Movement Instance Desc"] = "Disable camera movement while in dungeon or raid.";
 
 L["Input Device"] = "Périphérique d'entrée";
-L["Input Device Desc"] = "Affecte les icônes de raccourci clavier et la disposition de l'UI.";
+L["Input Device Desc"] = "Affecte les icônes de raccourci clavier et la disposition de l'UI.";													   
 L["Input Device KBM"] = "Clavier";
 L["Input Device Xbox"] = "Xbox";
 L["Input Device Xbox Tooltip"] = "Bouton de confirmation: [KEY:XBOX:PAD1]\nBouton d'annulation: [KEY:XBOX:PAD2]";
