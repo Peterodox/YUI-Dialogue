@@ -114,8 +114,8 @@ L["Maintain Camera Position"] = "Maintenir la position de la caméra";
 L["Maintain Camera Position Desc"] = "Maintien brièvement la position de la caméra après la fin de l’interaction avec les PNJ. L'activation de cette option réduira les mouvements brusques de la caméra causés par la latence entre les dialogues.";
 L["Change FOV"] = "Changer le FOV";
 L["Change FOV Desc"] = "Réduit le champ de vision de la caméra pour zoomer plus près du PNJ.";
-L["Disable Camera Movement Instance"] = "Disable In Instance";
-L["Disable Camera Movement Instance Desc"] = "Disable camera movement while in dungeon or raid.";
+L["Disable Camera Movement Instance"] = "Désactiver lors d'une instance";
+L["Disable Camera Movement Instance Desc"] = "Désactive les mouvements de la caméra en donjon ou en raid.";
 
 L["Input Device"] = "Périphérique d'entrée";
 L["Input Device Desc"] = "Affecte les icônes de raccourci clavier et la disposition de l'UI.";
