@@ -1,9 +1,10 @@
 local _, addon = ...
 local L = addon.L;
 local API = addon.API;
+local CallbackRegistry = addon.CallbackRegistry;
 local CameraUtil = addon.CameraUtil;
 local ThemeUtil = addon.ThemeUtil;
-local PixelUtil = addon.PixelUtil;
+local TTSUtil = addon.TTSUtil;
 local TooltipFrame = addon.SharedTooltip;
 local KeyboardControl = addon.KeyboardControl;
 local NameplateGossip = addon.NameplateGossip;
@@ -1893,6 +1894,8 @@ function DUIDialogBaseMixin:ShowUI(event)
 
     self:Show();
     self.hasInteraction = true;
+
+    CallbackRegistry:Trigger("DialogueUI.HandleEvent", event);
 end
 
 function DUIDialogBaseMixin:HideUI(cancelPopupFirst)
@@ -1921,7 +1924,7 @@ function DUIDialogBaseMixin:OnShow()
 
     FadeFrame(self.Vignette, 0.75, 1);
 
-    addon.CallbackRegistry:Trigger("DialogueUI.Show");
+    CallbackRegistry:Trigger("DialogueUI.Show");
 end
 
 function DUIDialogBaseMixin:CloseDialogInteraction()
@@ -1967,7 +1970,7 @@ function DUIDialogBaseMixin:OnHide()
     FadeFrame(self.Vignette, 0.5, 0);
     TooltipFrame:Hide();
 
-    addon.CallbackRegistry:Trigger("DialogueUI.Hide");
+    CallbackRegistry:Trigger("DialogueUI.Hide");
 end
 
 function DUIDialogBaseMixin:OnMouseUp(button)
@@ -2480,13 +2483,13 @@ do
             end
         end
     end
-    addon.CallbackRegistry:Register("SettingChanged.ShowCopyTextButton", Settings_ShowCopyTextButton);
+    CallbackRegistry:Register("SettingChanged.ShowCopyTextButton", Settings_ShowCopyTextButton);
 
 
     local function Settings_ScrollDownThenAcceptQuest(dbValue)
         SCROLLDOWN_THEN_ACCEPT_QUEST = dbValue == true;
     end
-    addon.CallbackRegistry:Register("SettingChanged.ScrollDownThenAcceptQuest", Settings_ScrollDownThenAcceptQuest);
+    CallbackRegistry:Register("SettingChanged.ScrollDownThenAcceptQuest", Settings_ScrollDownThenAcceptQuest);
 
     local function Settings_CameraMovement(dbValue)
         if dbValue == 0 then
@@ -2497,7 +2500,7 @@ do
             ActiveAnimIntro = AnimIntro_FlyInRight_OnUpdate;
         end
     end
-    addon.CallbackRegistry:Register("SettingChanged.CameraMovement", Settings_CameraMovement);
+    CallbackRegistry:Register("SettingChanged.CameraMovement", Settings_CameraMovement);
 end
 
 
@@ -2660,7 +2663,7 @@ do
 
         f:OnSettingsChanged();
     end
-    addon.CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
+    CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 
 
     local FrameSizeIndexScale = {
@@ -2680,36 +2683,36 @@ do
             f:OnSettingsChanged();
         end
     end
-    addon.CallbackRegistry:Register("SettingChanged.FrameSize", Settings_FrameSize);
+    CallbackRegistry:Register("SettingChanged.FrameSize", Settings_FrameSize);
 
 
     local function Settings_ForceGossip(dbValue)
         ALWAYS_GOSSIP = dbValue == true;
     end
-    addon.CallbackRegistry:Register("SettingChanged.ForceGossip", Settings_ForceGossip);
+    CallbackRegistry:Register("SettingChanged.ForceGossip", Settings_ForceGossip);
 
     local function Settings_ShowNPCNameOnPage(dbValue)
         SHOW_NPC_NAME = dbValue == true;
         MainFrame:OnSettingsChanged();
     end
-    addon.CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", Settings_ShowNPCNameOnPage);
+    CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", Settings_ShowNPCNameOnPage);
 
     local function Settings_MarkHighestSellPrice(dbValue)
         MARK_HIGHEST_SELL_PRICE = dbValue == true;
         MainFrame:OnSettingsChanged();
     end
-    addon.CallbackRegistry:Register("SettingChanged.MarkHighestSellPrice", Settings_MarkHighestSellPrice);
+    CallbackRegistry:Register("SettingChanged.MarkHighestSellPrice", Settings_MarkHighestSellPrice);
 
     local function SettingsUI_Show()
         SETTINGS_UI_VISIBLE = true;
     end
-    addon.CallbackRegistry:Register("SettingsUI.Show", SettingsUI_Show);
+    CallbackRegistry:Register("SettingsUI.Show", SettingsUI_Show);
 
 
     local function SettingsUI_Hide()
         SETTINGS_UI_VISIBLE = false;
     end
-    addon.CallbackRegistry:Register("SettingsUI.Hide", SettingsUI_Hide);
+    CallbackRegistry:Register("SettingsUI.Hide", SettingsUI_Hide);
 
 
     local function UpdateMainOptionButtonHotkey(b, key)
@@ -2738,5 +2741,5 @@ do
             MainFrame.GamePadFocusIndicator:ClearKey();
         end
     end
-    addon.CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
+    CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
 end

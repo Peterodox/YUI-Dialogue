@@ -12,6 +12,8 @@ local DEFAULT_CONTROL_KEY = "SPACE";
 local ENABLE_KEYCONTROL_IN_COMBAT = true;
 local PRIMARY_CONTROL_KEY = DEFAULT_CONTROL_KEY;
 local USE_INTERACT_KEY = false;
+local DISABLE_CONTROL_KEY = false;          --If true, pressing the key (Space) will not continue quest
+local DEBUG_SHOW_GAMEPAD_BUTTON = false;    --[TEMP] Console user
 ------------------
 
 local InCombatLockdown = InCombatLockdown;
@@ -125,7 +127,14 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
         else
             key = PRIMARY_CONTROL_KEY;
         end
+    else
+        if DISABLE_CONTROL_KEY and key == PRIMARY_CONTROL_KEY then
+            key = "DISABLED";
+            processed = true;
+            valid = false;
+        end
     end
+
 
     if (not processed) and (key == PRIMARY_CONTROL_KEY) and (not KeyboardControl.keyActions[key]) then
         key = "1";
@@ -165,7 +174,7 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
     elseif key == "F1" then
         valid = true;
         processed = true;
-        DialogueUI_ShowSettingsFrame();
+        addon.SettingsUI:ToggleUI();
     end
 
     if (not processed) and KeyboardControl.keyActions[key] then
@@ -244,6 +253,7 @@ do  --GamePad/Controller
         PADDUP = "GAMEPAD_UP",
         PADDDOWN = "GAMEPAD_DOWN",
         PADFORWARD = "F1",  --Toggle Settings
+        PADMENU = "F1",
         PADBACK = "ESCAPE",
         PADDLEFT = "GAMEPAD_UP",
         PADDRIGHT = "GAMEPAD_DOWN",
@@ -259,8 +269,25 @@ do  --GamePad/Controller
     local REPEAT_INTERVAL = 0.125;
 
     function KeyboardControl:OnGamePadButtonDown(button)
-        --print("|cFF8cd964"..button);
         self:StopRepeatingAction();
+
+
+        if button == "PADLTRIGGER" then --Debug Console
+            DEBUG_SHOW_GAMEPAD_BUTTON = not DEBUG_SHOW_GAMEPAD_BUTTON;
+            if DEBUG_SHOW_GAMEPAD_BUTTON then
+                addon.DevTool:PrintText("|cffffd100Display Pressed Buttons|r");
+            else
+                addon.DevTool:PrintText("|cffffd100No Longer Display Pressed Buttons|r");
+            end
+            if not InCombatLockdown() then
+                KeyboardControl:SetPropagateKeyboardInput(false);
+            end
+            return
+        end
+
+        if DEBUG_SHOW_GAMEPAD_BUTTON then
+            addon.DevTool:PrintText(button);
+        end
 
         if button == "PAD1" then
 
@@ -282,7 +309,6 @@ do  --GamePad/Controller
     end
 
     function KeyboardControl:OnGamePadButtonUp(button)
-        --print("|cFF8cd964"..button);
         self:StopRepeatingAction();
     end
 
@@ -315,6 +341,8 @@ do  --Settings
     local function Settings_PrimaryControlKey(dbValue)
         local newKey;
 
+        DISABLE_CONTROL_KEY = false;
+
         if dbValue == 1 then
             newKey = DEFAULT_CONTROL_KEY;
             KeyboardControl:UnregisterEvent("UPDATE_BINDINGS");
@@ -323,6 +351,11 @@ do  --Settings
             newKey = API.GetBestInteractKey();
             KeyboardControl:RegisterEvent("UPDATE_BINDINGS");
             USE_INTERACT_KEY = true;
+        elseif dbValue == 0 then
+            newKey = "DISABLED";
+            KeyboardControl:UnregisterEvent("UPDATE_BINDINGS");
+            USE_INTERACT_KEY = false;
+            DISABLE_CONTROL_KEY = true;
         end
 
         if newKey and newKey ~= PRIMARY_CONTROL_KEY then

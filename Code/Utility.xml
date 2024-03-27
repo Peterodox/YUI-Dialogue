@@ -2,4 +2,7 @@
     <Script file="FontUtil.lua"/>
     <Script file="ThemeUtil.lua"/>
     <Script file="LocaleFormatter.lua"/>
+    <Script file="TTS.lua"/>
+
+    <Script file="DevTool.lua"/>
 </Ui>

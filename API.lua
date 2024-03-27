@@ -1068,7 +1068,9 @@ do  --Currency
             if ratio > 1 then
                 
             end
-            return API.Round(ratio*100)
+            return API.Round(ratio*100);
+        else
+            return 0
         end
     end
     API.GetXPPercentage = GetXPPercentage;

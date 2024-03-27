@@ -75,8 +75,12 @@ do
     local LOCALE_KEYS = {
         --See enUS.lua
         --[key] = iconOffsetY (compensated for fontString Spacing)
+
         ["Input Device Xbox Tooltip"] = SETTINGS_DESC_SPACING,
         ["Input Device PlayStation Tooltip"] = SETTINGS_DESC_SPACING,
+        ["Interact Key Not Set"] = SETTINGS_DESC_SPACING,
+        ["Use Default Control Key Alert"] = SETTINGS_DESC_SPACING,
+
         ["Tutorial Settings Hotkey"] = 0,
         ["Tutorial Settings Hotkey Console"] = 0,
     };
