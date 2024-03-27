@@ -118,7 +118,7 @@ L["Disable Camera Movement Instance"] = "Disable In Instance";
 L["Disable Camera Movement Instance Desc"] = "Disable camera movement while in dungeon or raid.";
 
 L["Input Device"] = "Périphérique d'entrée";
-L["Input Device Desc"] = "Affecte les icônes de raccourci clavier et la disposition de l'UI.";													   
+L["Input Device Desc"] = "Affecte les icônes de raccourci clavier et la disposition de l'UI.";
 L["Input Device KBM"] = "Clavier";
 L["Input Device Xbox"] = "Xbox";
 L["Input Device Xbox Tooltip"] = "Bouton de confirmation: [KEY:XBOX:PAD1]\nBouton d'annulation: [KEY:XBOX:PAD2]";
