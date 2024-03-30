@@ -23,6 +23,8 @@ ChatFrame:Hide();
 addon.ChatFrame = ChatFrame;
 
 local ScrollView = addon.CreateScrollView(ChatFrame);
+ScrollView:SetAllowNegativeScrollRange(true);
+
 local MessageFader = CreateFrame("Frame", nil, ChatFrame);
 
 local NUM_MAX_ENTRY = 500;
@@ -251,7 +253,7 @@ do
 
     function ScrollViewDataProvider:UpdateView()
         self.isDisplayDirty = nil;
-        self.owner:OnContentChanged();
+        self.owner:OnContentChanged(true);
     end
 
     function ScrollViewDataProvider:GetMaxDataIndex()
@@ -468,13 +470,6 @@ function ChatFrame:AddMessage(text, name, event)
     )
 end
 
---[[
-function ChatFrame:OnEnter()
-    self:SetScript("OnEnter", nil);
-    self:EnableMouse(false);
-    self:UpdateFocused();
-end
---]]
 
 local function HiddenFrame_OnUpdate_FadeIn(self, elapsed)
     self.alpha = self.alpha + FADE_MULTIPLIER_UI_IN*elapsed;

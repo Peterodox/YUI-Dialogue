@@ -49,7 +49,8 @@ L["Paragon Reputation"] = "Paragon";
 L["Different Item Types Alert"] = "The item types are different!";
 L["Click To Read"] = "Left Click to Read";
 L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "Item Level";
-
+L["Gossip Quest Option Prepend"] = "(Quest)";   --Some gossip options start with blue (Quest), we prioritize them when sorting. See GOSSIP_QUEST_OPTION_PREPEND
+L["TTS Button Tooltip"] = "Left Click: Play/Stop Reading.\nRight Click: Toggle Auto Play";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -69,13 +70,17 @@ L["Format Copper Amount"] = COPPER_AMOUNT or "%d Copper";
 L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Level %d";
 L["Format Replace Item"] = "Replace %s";
 L["Format Item Level"] = "Item Level %d";   --_G.ITEM_LEVEL in Classic is different
-
+L["Format Breadcrumb Quests Available"] = "Available Breadcrumb Quests: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 
 --Settings
 L["UI"] = "UI";
 L["Camera"] = "Camera";
 L["Control"] = "Control";
 L["Gameplay"] = SETTING_GROUP_GAMEPLAY or "Gameplay";
+L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accessibility";
+
+L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Enabled";
+L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Disabled";
 
 L["Quest"] = "Quest";
 L["Gossip"] = "Gossip";
@@ -101,14 +106,6 @@ L["Show Quest Type Text"] = "Show Quest Type Text";
 L["Show Quest Type Text Desc"] = "Show quest type on the right of the option if it's special.\n\nLow level quests are always labeled.";
 L["Show NPC Name On Page"] = "Show NPC Name";
 L["Show NPC Name On Page Desc"] = "Show the NPC name on the page.";
-L["TTS"] = TEXT_TO_SPEECH or "Text To Speech";
-L["TTS Desc"] = "Read dialogue text out loud.";
-L["TTS Trigger None"] = "None";
-L["TTS Trigger None Tooltip"] = "Click the button on the top left of the dialogue UI to read the text out loud.";
-L["TTS Trigger Button Tooltip"] = "Start or stop reading by pressing this button: ";
-L["TTS Trigger Button PC"] = "[KEY:PC:R]";
-L["TTS Trigger Auto"] = "Auto Play";
-L["TTS Trigger Auto Tooltip"] = "Auto play dialogue texts.";
 L["Simplify Currency Rewards"] = "Simplify Currency Rewards";
 L["Simplify Currency Rewards Desc"] = "Use smaller icons for currency rewards and omit their names.";
 L["Mark Highest Sell Price"] = "Mark Highest Sell Price";
@@ -157,6 +154,17 @@ L["Force Gossip Desc"] = "By default, the game sometimes automatically selects t
 L["Nameplate Dialog"] = "Display Dialogue On Nameplate";
 L["Nameplate Dialog Desc"] = "Display the dialogue on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
 
+L["TTS"] = TEXT_TO_SPEECH or "Text To Speech";
+L["TTS Desc"] = "Read dialogue text out loud by clicking the button on the top left of the UI.\n\nVoice, volume and speed follow your game's text-to-speech settings.";
+L["TTS Use Hotkey"] = "Use Hotkey";
+L["TTS Use Hotkey Desc"] = "Start or stop reading by pressing:";
+L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
+L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
+L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
+L["TTS Auto Play"] = "Auto Play";
+L["TTS Auto Play Desc"] = "Auto play dialogue texts.";
+L["TTS Auto Stop"] = "Stop When Leaving";
+L["TTS Auto Stop Desc"] = "Stop reading when you leave the NPC.";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";

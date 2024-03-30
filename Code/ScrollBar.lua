@@ -236,6 +236,8 @@ end
 
 function ScrollBarMixin:OnSizeChanged()
     self.railSize = self.Rail:GetHeight();
+    self:UpdateThumbSize();
+    self:UpdateThumbPosition();
 end
 
 function ScrollBarMixin:SetHasNewMessage()
@@ -245,7 +247,6 @@ end
 function ScrollBarMixin:SetOwner(scrollView)
     self.owner = scrollView;
     self:OnSizeChanged();
-    self:UpdateThumbSize();
 end
 
 function ScrollBarMixin:Detach()
@@ -267,8 +268,6 @@ function ScrollBarMixin:ShowScrollToBottomButton(state)
     end
 
     self:OnSizeChanged();
-    self:UpdateThumbSize();
-    self:UpdateThumbPosition();
 end
 
 function ScrollBarMixin:SetTheme(themeID)

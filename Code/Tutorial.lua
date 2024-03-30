@@ -17,9 +17,9 @@ do  --Teach players how to open Settings
             if not TUTORIAL_SHOWN then
                 local delay = 1;
                 if C_CVar.GetCVarBool("GamePadEnable") then
-                    Banner:DisplayMessage(addon.L["Tutorial Settings Hotkey Console"], delay);
+                    Banner:DisplayAutoFadeMessage(addon.L["Tutorial Settings Hotkey Console"], delay);
                 else
-                    Banner:DisplayMessage(addon.L["Tutorial Settings Hotkey"], delay);
+                    Banner:DisplayAutoFadeMessage(addon.L["Tutorial Settings Hotkey"], delay);
                 end
             end
         end

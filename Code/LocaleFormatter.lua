@@ -71,6 +71,7 @@ do
     end
 
     local SETTINGS_DESC_SPACING = -4;
+    local BANNER_TEXT_SPACING = -6;
 
     local LOCALE_KEYS = {
         --See enUS.lua
@@ -80,9 +81,12 @@ do
         ["Input Device PlayStation Tooltip"] = SETTINGS_DESC_SPACING,
         ["Interact Key Not Set"] = SETTINGS_DESC_SPACING,
         ["Use Default Control Key Alert"] = SETTINGS_DESC_SPACING,
+        ["TTS Use Hotkey Tooltip PC"] = SETTINGS_DESC_SPACING,
+        ["TTS Use Hotkey Tooltip Xbox"] = SETTINGS_DESC_SPACING,
+        ["TTS Use Hotkey Tooltip PlayStation"] = SETTINGS_DESC_SPACING,
 
-        ["Tutorial Settings Hotkey"] = 0,
-        ["Tutorial Settings Hotkey Console"] = 0,
+        ["Tutorial Settings Hotkey"] = BANNER_TEXT_SPACING,
+        ["Tutorial Settings Hotkey Console"] = BANNER_TEXT_SPACING,
     };
 
     for lkey, iconOffsetY in pairs(LOCALE_KEYS) do

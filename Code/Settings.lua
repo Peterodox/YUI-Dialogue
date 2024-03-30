@@ -11,6 +11,7 @@ local GetDBValue = addon.GetDBValue;
 local SetDBValue = addon.SetDBValue;
 
 local INPUT_DEVICE_GAME_PAD = false;
+local INPUT_DEVICE_ID = 1;
 local GAME_PAD_ACTIVE = false;
 local BUTTON_PADDING_LARGE = 12;
 local FONT_HEIGHT_LARGE = 12;
@@ -152,11 +153,6 @@ end
 
 function DUIDialogSettingsMixin:OnMouseWheel(delta)
 
-end
-
-local function SetCheckboxTexture(checkbox, file)
-    checkbox.Background:SetTexture(file);
-    checkbox.Check:SetTexture(file);
 end
 
 function DUIDialogSettingsMixin:LoadTheme()
@@ -353,6 +349,22 @@ local function PrimaryControlKey_Interact_Tooltip()
     end
 end
 
+local function TTSHotkey_Tooltip()
+    local device;
+
+    if INPUT_DEVICE_ID == 1 then
+        device = "PC";
+    elseif INPUT_DEVICE_ID == 2 then
+        device = "Xbox";
+    elseif INPUT_DEVICE_ID == 3 then
+        device = "PlayStation";
+    else
+        device = "PC";
+    end
+
+    return L["TTS Use Hotkey Tooltip "..device]
+end
+
 local Schematic = {
     {
         tabName = L["UI"],
@@ -385,9 +397,9 @@ local Schematic = {
             {type = "Checkbox", name = L["Show NPC Name On Page"], description = L["Show NPC Name On Page Desc"], dbKey = "ShowNPCNameOnPage"},
 
             {type = "Subheader", name = L["Quest"]},
+            {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
             {type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},
-            {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
         },
     },
 
@@ -435,13 +447,23 @@ local Schematic = {
     {
         tabName = L["Gameplay"],
         options = {
-            {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay"},
+            {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay", ratio = 2},
             {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", parentKey = "QuestItemDisplay", requiredParentValue = true},
-            
+
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
             {type = "Checkbox", name = L["Force Gossip"], description = L["Force Gossip Desc"], dbKey = "ForceGossip"},
             --{type = "Checkbox", name = L["Nameplate Dialog"], description = L["Nameplate Dialog Desc"], dbKey = "NameplateDialogEnabled", preview = "NameplateDialogEnabled", ratio = 1},
+        },
+    },
+
+    {
+        tabName = L["Accessibility"],
+        options = {
+            {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
+            {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_Tooltip, dbKey = "TTSUseHotkey", parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "Checkbox", name = L["TTS Auto Play"], description = L["TTS Auto Play Desc"], dbKey = "TTSAutoPlay", parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "Checkbox", name = L["TTS Auto Stop"], description = L["TTS Auto Stop Desc"], dbKey = "TTSAutoStop", parentKey = "TTSEnabled", requiredParentValue = true},
         },
     },
 };
@@ -619,7 +641,7 @@ function DUIDialogSettingsMixin:Init()
 
     for i, tabData in ipairs(Schematic) do
         if not self.tabButtons[i] then
-            self.tabButtons[i] = CreateFrame("Button", nil, self.Header, "DUIDialogSettingsTabButtonTemplate");
+            self.tabButtons[i] = CreateFrame("Button", nil, self.Header.Container, "DUIDialogSettingsTabButtonTemplate");
             SetupRepositionObject(self.tabButtons[i]);
         end
         self.tabButtons[i].tabID = i;
@@ -665,8 +687,11 @@ function DUIDialogSettingsMixin:Layout()
     self.Header:SetPoint("TOPRIGHT", self, "TOPRIGHT", -FRAME_PADDING, -FRAME_PADDING);
     self.Header:SetHeight(headerHeight);
 
+    local tabButtonContainer = self.Header.Container;
+
     self.Header.CloseButton:ClearAllPoints();
-    self.Header.CloseButton:SetPoint("RIGHT", self.Header, "RIGHT", 0, 0);
+    self.Header.CloseButton:SetParent(tabButtonContainer);
+    self.Header.CloseButton:SetPoint("RIGHT", tabButtonContainer, "RIGHT", 0, 0);
     self.Header.CloseButton:SetSize(minTabButtonWidth, tabButtonHeight);
     self.Header.CloseButton.Icon:SetSize(FONT_HEIGHT_LARGE, FONT_HEIGHT_LARGE);
 
@@ -695,7 +720,8 @@ function DUIDialogSettingsMixin:Layout()
 
     local tabFromOffsetX = (INPUT_DEVICE_GAME_PAD and 60) or 0;
     local firstTabButton = self.tabButtons[1];
-    firstTabButton:SetPoint("TOPLEFT", self.Header, "TOPLEFT", tabFromOffsetX, 0);
+    firstTabButton:ClearAllPoints();
+    firstTabButton:SetPoint("LEFT", tabButtonContainer, "LEFT", tabFromOffsetX, 0);
 
     --ScrollFrame
     local scrollFrameWidth = OPTIONBUTTON_WIDTH;
@@ -744,6 +770,24 @@ function DUIDialogSettingsMixin:Layout()
     self.DecorMask:SetSize(rightAreaWidth, rightAreaWidth);
     self.DecorMask:ClearAllPoints();
     self.DecorMask:SetPoint("BOTTOM", self.Description, "BOTTOM", 0, -16);
+
+    --Reduce tab button size if necessary
+    local headerObjectWidth = tabButtonsSpan + minTabButtonWidth + TAB_BUTTON_GAP;
+    if INPUT_DEVICE_GAME_PAD then
+        headerObjectWidth = headerObjectWidth + tabFromOffsetX + 4 * TAB_BUTTON_GAP + minTabButtonWidth;
+    end
+
+    local headerWidth = frameWidth - 2*FRAME_PADDING;
+
+    if headerObjectWidth > headerWidth then
+        if headerObjectWidth * 0.8 < headerWidth then
+            tabButtonContainer:SetScale(0.8);
+        else
+            tabButtonContainer:SetScale(0.6);
+        end
+    else
+        tabButtonContainer:SetScale(1);
+    end
 end
 
 function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
@@ -784,7 +828,11 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
         local gap = 4 * TAB_BUTTON_GAP;
         local lb = self.hotkeyFramePool:Acquire();
         lb:SetKey("PADLSHOULDER");
-        lb:SetPoint("RIGHT", self.tabButtons[1], "LEFT", -gap, 0);
+        lb:SetPoint("LEFT", self.Header.Container, "LEFT", 0, 0);
+
+        local firstTabButton = self.tabButtons[1];
+        firstTabButton:ClearAllPoints();
+        firstTabButton:SetPoint("LEFT", lb, "RIGHT", gap, 0);
 
         local rb = self.hotkeyFramePool:Acquire();
         rb:SetKey("PADRSHOULDER");
@@ -847,6 +895,12 @@ end
 
 function DUIDialogSettingsMixin:UpdateCurrentTab()
     self:SelectTabByID(self.tabID, true)
+end
+
+function DUIDialogSettingsMixin:RequestUpdate()
+    if self:IsVisible() then
+        self:UpdateCurrentTab();
+    end
 end
 
 function DUIDialogSettingsMixin:SetFocusedObject(object)
@@ -1321,6 +1375,10 @@ function DUIDialogSettingsCheckboxMixin:SetChecked(state)
     end
 end
 
+function DUIDialogSettingsCheckboxMixin:GetChecked()
+    return self.checked == true
+end
+
 function DUIDialogSettingsCheckboxMixin:Toggle()
     self.checked = not self.checked;
     self:SetChecked(self.checked);
@@ -1332,10 +1390,14 @@ function DUIDialogSettingsCheckboxMixin:SetWidgetHeight(height)
 end
 
 function DUIDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
-    if self.checked then
-        return self.checkedTooltip
-    else
-        return self.uncheckedTooltip
+    local optionButton = self:GetParent();
+    local tooltip = optionButton.optionData and optionButton.optionData.tooltip;
+    if tooltip then
+        if type(tooltip) == "function" then
+            return tooltip(self.checked)
+        else
+            return tooltip
+        end
     end
 end
 
@@ -1513,6 +1575,7 @@ do
 
     local function PostInputDeviceChanged(dbValue)
         INPUT_DEVICE_GAME_PAD = dbValue ~= 1;
+        INPUT_DEVICE_ID = dbValue;
 
         local f = MainFrame;
         if f.Init then return end;

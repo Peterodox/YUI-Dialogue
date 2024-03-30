@@ -29,3 +29,5 @@ Code\GossipDataProvider.xml
 Code\NameplateGossip.lua
 Code\UI.xml
 Code\Core.lua
+
+Code\SupportedAddOns\SupportedAddOns.xml

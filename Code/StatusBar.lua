@@ -358,7 +358,10 @@ function PlayerXPDataProvider:OnLoad(bar)
 end
 
 function PlayerXPDataProvider:OnShow(bar)
-    if self.isCapped then return end;
+    if self.isCapped then
+        bar:Hide();
+        return
+    end
 
     self.isCapped = API.IsPlayerAtMaxLevel();
 

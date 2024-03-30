@@ -26,12 +26,24 @@ function ScrollViewMixin:GetScrollOffset()
     return self.scrollOffset or 0;
 end
 
+function ScrollViewMixin:SetAllowNegativeScrollRange(state)
+    self.allowNegativeScrollRange = state;
+end
+
 function ScrollViewMixin:SetScrollRange(maxScrollOffset)
+    if (not self.allowNegativeScrollRange) and maxScrollOffset < 0 then
+        maxScrollOffset = 0;
+    end
+
     self.maxScrollOffset = maxScrollOffset;
 end
 
 function ScrollViewMixin:GetScrollRange()
     return self.maxScrollOffset or 0
+end
+
+function ScrollViewMixin:IsScrollable()
+    return self:GetScrollRange() > 0
 end
 
 function ScrollViewMixin:IsAtBottom()
@@ -40,6 +52,10 @@ end
 
 function ScrollViewMixin:ScrollBy(offset)
     self:SetScrollOffset( self:GetScrollOffset() + offset);
+end
+
+function ScrollViewMixin:ScrollToTop()
+    self:SetScrollOffset(0);
 end
 
 function ScrollViewMixin:ScrollToBottom()
@@ -74,11 +90,19 @@ function ScrollViewMixin:SetObjectData(object, dataIndex)
     return self.dataProvider:SetObjectData(object, dataIndex);
 end
 
-function ScrollViewMixin:OnContentChanged()
-    local isAtBttom = self:IsAtBottom();
-    self:SetScrollRange(self.dataProvider:GetMaxExtent() - self:GetViewSize());
+function ScrollViewMixin:GetMaxExtent()
+    return self.dataProvider and self.dataProvider:GetMaxExtent() or 0
+end
 
-    if isAtBttom then
+function ScrollViewMixin:UpdateScrollRange()
+    self:SetScrollRange(self:GetMaxExtent() - self:GetViewSize());
+end
+
+function ScrollViewMixin:OnContentChanged(updateWhenAtBottom)
+    local instantUpdate = (not updateWhenAtBottom) or (self:IsAtBottom());
+    self:UpdateScrollRange();
+
+    if instantUpdate then
         self.scrollOffset = self:GetScrollRange();
         self:UpdateView();
         self.dataProvider:OnViewUpdated();
@@ -89,7 +113,7 @@ function ScrollViewMixin:OnContentChanged()
 
     if self.scrollBar then
         self.scrollBar:UpdateThumbSize();
-        if isAtBttom then
+        if instantUpdate then
             self.scrollBar:UpdateThumbPosition();
         else
             self.scrollBar:SetHasNewMessage();

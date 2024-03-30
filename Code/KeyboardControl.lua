@@ -13,10 +13,12 @@ local ENABLE_KEYCONTROL_IN_COMBAT = true;
 local PRIMARY_CONTROL_KEY = DEFAULT_CONTROL_KEY;
 local USE_INTERACT_KEY = false;
 local DISABLE_CONTROL_KEY = false;          --If true, pressing the key (Space) will not continue quest
+local TTS_HOTKEY_ENABLED = false;
 local DEBUG_SHOW_GAMEPAD_BUTTON = false;    --[TEMP] Console user
 ------------------
 
 local InCombatLockdown = InCombatLockdown;
+local IsModifierKeyDown = IsModifierKeyDown;
 local tostring = tostring;
 local type = type;
 
@@ -175,6 +177,12 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
         valid = true;
         processed = true;
         addon.SettingsUI:ToggleUI();
+    elseif (key == "R" and not IsModifierKeyDown()) then
+        if TTS_HOTKEY_ENABLED then
+            valid = true;
+            processed = true;
+            addon.TTSUtil:ToggleSpeaking();
+        end
     end
 
     if (not processed) and KeyboardControl.keyActions[key] then
@@ -272,7 +280,7 @@ do  --GamePad/Controller
         self:StopRepeatingAction();
 
 
-        if button == "PADLTRIGGER" then --Debug Console
+        if button == "PADRTRIGGER" then --Debug Console
             DEBUG_SHOW_GAMEPAD_BUTTON = not DEBUG_SHOW_GAMEPAD_BUTTON;
             if DEBUG_SHOW_GAMEPAD_BUTTON then
                 addon.DevTool:PrintText("|cffffd100Display Pressed Buttons|r");
@@ -283,6 +291,16 @@ do  --GamePad/Controller
                 KeyboardControl:SetPropagateKeyboardInput(false);
             end
             return
+        end
+
+        if button == "PADLTRIGGER" then
+            if TTS_HOTKEY_ENABLED then
+                addon.TTSUtil:ToggleSpeaking();
+                if not InCombatLockdown() then
+                    KeyboardControl:SetPropagateKeyboardInput(false);
+                end
+                return
+            end
         end
 
         if DEBUG_SHOW_GAMEPAD_BUTTON then
@@ -364,4 +382,10 @@ do  --Settings
         end
     end
     addon.CallbackRegistry:Register("SettingChanged.PrimaryControlKey", Settings_PrimaryControlKey);
+
+
+    local function Settings_TTSUseHotkey(dbValue)
+        TTS_HOTKEY_ENABLED = dbValue == true
+    end
+    addon.CallbackRegistry:Register("SettingChanged.TTSUseHotkey", Settings_TTSUseHotkey);
 end

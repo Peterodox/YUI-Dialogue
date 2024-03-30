@@ -37,6 +37,8 @@ function Banner:Init()
     self.Text:SetJustifyH("CENTER");
     self.Text:SetJustifyV("MIDDLE");
     self.Text:SetPoint("CENTER", self, "CENTER", 0, 0);
+    self.Text:SetWidth(400);    --maxwidth
+    self.Text:SetSpacing(4);
 
     addon.ThemeUtil:SetFontColor(self.Text, "DarkBrown");
 
@@ -48,6 +50,8 @@ function Banner:Init()
     self:SetScript("OnShow", self.OnShow);
     self:SetScript("OnHide", self.OnHide);
     self:SetScript("OnMouseDown", self.OnMouseDown);
+    self:SetScript("OnEnter", self.OnEnter);
+    self:SetScript("OnLeave", self.OnLeave);
 
     self.Init = nil;
 end
@@ -84,6 +88,15 @@ function Banner:OnMouseDown(button)
     end
 end
 
+function Banner:OnEnter()
+    self.isMouseOver = true;
+end
+
+function Banner:OnLeave()
+    self.isMouseOver = nil;
+end
+
+
 function Banner:OnShow()
     if self.onShowFunc then
         self.onShowFunc(self);
@@ -93,8 +106,27 @@ end
 function Banner:OnHide()
     self:Hide();
     self:SetScript("OnUpdate", nil);
+    self.t = nil;
+    self.autoFade = nil;
+    self.isMouseOver = nil;
 end
 
+
+local function FadeOut_OnUpdate(self, elapsed)
+    if ((self.t <= 0) and (not self.isMouseOver)) or self.t > 0 then
+        self.t = self.t + elapsed;
+    end
+
+    if self.t > 0 then
+        local alpha = 1 - 4 * self.t;
+        if alpha <= 0 then
+            alpha = 0;
+            self:SetScript("OnUpdate", nil);
+            self:Hide();
+        end
+        self:SetAlpha(alpha);
+    end
+end
 
 local ANIM_DURATION = 0.5;
 local function AnimIntro_FlyUp_OnUpdate(self, elapsed)
@@ -111,6 +143,11 @@ local function AnimIntro_FlyUp_OnUpdate(self, elapsed)
     if self.t >= ANIM_DURATION then
         offsetY = self.frameOffsetY;
         self:SetScript("OnUpdate", nil);
+
+        if self.autoFade then
+            self.t = -5;    --AutoFadeDelay
+            self:SetScript("OnUpdate", FadeOut_OnUpdate);
+        end
     end
 
     self:SetPoint("TOP", nil, "TOP", 0, offsetY);
@@ -118,7 +155,7 @@ local function AnimIntro_FlyUp_OnUpdate(self, elapsed)
 end
 
 
-function Banner:DisplayMessage(msg, delay)
+function Banner:DisplayMessage(msg, delay, autoFade)
     if self.Init then
         self:Init();
     end
@@ -128,6 +165,11 @@ function Banner:DisplayMessage(msg, delay)
 
     self:Show();
     self.t = (delay and -delay) or 0;
+    self.autoFade = autoFade and true;
     self:SetScript("OnUpdate", AnimIntro_FlyUp_OnUpdate);
     self:SetAlpha(0);
+end
+
+function Banner:DisplayAutoFadeMessage(msg, delay)
+    self:DisplayMessage(msg, delay, true);
 end

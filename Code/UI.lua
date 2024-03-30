@@ -4,7 +4,6 @@ local API = addon.API;
 local CallbackRegistry = addon.CallbackRegistry;
 local CameraUtil = addon.CameraUtil;
 local ThemeUtil = addon.ThemeUtil;
-local TTSUtil = addon.TTSUtil;
 local TooltipFrame = addon.SharedTooltip;
 local KeyboardControl = addon.KeyboardControl;
 local NameplateGossip = addon.NameplateGossip;
@@ -22,7 +21,7 @@ local CloseGossipInteraction = API.CloseGossipInteraction;
 local ALWAYS_GOSSIP = false;
 local FRAME_SIZE_MULTIPLIER = 1.1;  --Default: 1.1
 local SCROLLDOWN_THEN_ACCEPT_QUEST = false;
-local AUTO_SELECT_GOSSIP = true;
+local AUTO_SELECT_GOSSIP = false;
 local INPUT_DEVICE_GAME_PAD = false;
 local SHOW_NPC_NAME = false;
 local MARK_HIGHEST_SELL_PRICE = false;
@@ -32,6 +31,7 @@ local PADDING_H = 26.0;
 local PADDING_TOP = 48.0;
 local PADDING_BOTTOM = 36.0;
 local BUTTON_HORIZONTAL_GAP = 8.0;
+local FRAME_OFFSET_RATIO = 3/4;     --Center align to 1/4 of the WorldFrame width (to the right)
 
 local FONT_SIZE = 12;
 local TEXT_SPACING = FONT_SIZE*0.35;                 --Font Size /3
@@ -78,6 +78,7 @@ local GetNumQuestChoices = GetNumQuestChoices;
 local After = C_Timer.After;
 local tinsert = table.insert;
 local tsort = table.sort;
+local find = string.find;
 
 local Esaing_OutSine = addon.EasingFunctions.outSine;
 local Round = API.Round;
@@ -205,7 +206,7 @@ function DUIDialogBaseMixin:UpdateFrameSize()
     self.halfFrameWidth = Round(0.5* (frameWidth - 2*paddingH - BUTTON_HORIZONTAL_GAP));
     self.quarterFrameWidth = Round(0.25* (frameWidth - 2*paddingH - 3*BUTTON_HORIZONTAL_GAP));
 
-    local offsetRatio = 3/4;
+    local offsetRatio = FRAME_OFFSET_RATIO;
     local frameOffsetX = Round(viewportWidth*(offsetRatio - 0.5));
     self.frameOffsetX = frameOffsetX;
     self:ClearAllPoints();
@@ -213,23 +214,6 @@ function DUIDialogBaseMixin:UpdateFrameSize()
 
     self.FrontFrame:SetPoint("TOPLEFT", self, "TOPLEFT", paddingH, 0);
     self.FrontFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -paddingH, 0);
-
-    --Using ClipFrame like ScrollFrame affects texel snapping!
-    self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", paddingH, -42);
-    self.ScrollFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -paddingH, 96);
-
-    local scrollFrameBaseHeight = self.ScrollFrame:GetHeight();
-    self.ScrollFrame.range = 0;
-    self.scrollFrameBaseHeight = scrollFrameBaseHeight;
-    self.scrollViewHeight = scrollFrameBaseHeight;
-
-    local contentWidth = frameWidth - 2*paddingH;
-    local contentHeight = Round(scrollFrameBaseHeight);
-    self.ContentFrame:SetWidth(Round(contentWidth));
-    self.ContentFrame:SetHeight(contentHeight);     --Irrelevant
-    self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame, "TOPLEFT", 0, 0);
-    self.ContentFrame:SetPoint("BOTTOMRIGHT", self.ScrollFrame, "BOTTOMRIGHT", 0, 0);
-    self.contentWidth = contentWidth;
 
     local parchmentWidth = 546.13 * FRAME_SIZE_MULTIPLIER;  --API.GetPixelForScale(1, 1024);
     local parchmentheight = 136.53 * FRAME_SIZE_MULTIPLIER; --API.GetPixelForScale(1, 256);
@@ -249,10 +233,31 @@ function DUIDialogBaseMixin:UpdateFrameSize()
     GoodbyeButton:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -paddingH, paddingBottom);
     GoodbyeButton:SetButtonWidth(self.halfFrameWidth);
 
+    --Resize Footer
+    local footerButtonHeight = GoodbyeButton:GetHeight();
+    local footerOffset = Round(footerButtonHeight + paddingBottom + BUTTON_HORIZONTAL_GAP*2);    --Default: 96     Affected by GoddbyeButton height
+
+    self.FrontFrame.FooterDivider:ClearAllPoints();
+    self.FrontFrame.FooterDivider:SetPoint("CENTER", self.FrontFrame, "BOTTOM", 0, footerOffset);
+    self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", paddingH, -42);
+    self.ScrollFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -paddingH, footerOffset);
+
+    local scrollFrameBaseHeight = self.ScrollFrame:GetHeight();
+    self.ScrollFrame.range = 0;
+    self.scrollFrameBaseHeight = scrollFrameBaseHeight;
+    self.scrollViewHeight = scrollFrameBaseHeight;
+
+    local contentWidth = frameWidth - 2*paddingH;
+    local contentHeight = Round(scrollFrameBaseHeight);
+    self.ContentFrame:SetWidth(Round(contentWidth));
+    self.ContentFrame:SetHeight(contentHeight);     --Irrelevant
+    self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame, "TOPLEFT", 0, 0);
+    self.ContentFrame:SetPoint("BOTTOMRIGHT", self.ScrollFrame, "BOTTOMRIGHT", 0, 0);
+    self.contentWidth = contentWidth;
+
     self.InputBox:ClearAllPoints();
     self.InputBox:SetPoint("LEFT", self, "LEFT", PADDING_H, 0);
     self.InputBox:SetPoint("RIGHT", self, "RIGHT", -PADDING_H, 0);
-
 
     if self.optionButtonPool then
         local buttonWidth = self.frameWidth - 2*PADDING_H*FRAME_SIZE_MULTIPLIER;
@@ -490,6 +495,7 @@ end
 function DUIDialogBaseMixin:LoadTheme()
     local prefix = ThemeUtil:GetTexturePath();
     local parchmentFile = prefix.."Parchment.png";
+    local themeID = ThemeUtil:GetThemeID();
 
     for _, piece in ipairs(self.Parchments) do
         piece:SetTexture(parchmentFile);
@@ -512,7 +518,11 @@ function DUIDialogBaseMixin:LoadTheme()
     self.RewardSelection.BackTexture:SetVertexColor(0.65, 0, 0);
 
     if self.CopyTextButton then
-        self.CopyTextButton:SetTheme(ThemeUtil:GetThemeID());
+        self.CopyTextButton:SetTheme(themeID);
+    end
+
+    if self.TTSButton then
+        self.TTSButton:SetTheme(themeID);
     end
 
     if self.textBackgroundPool then
@@ -914,10 +924,22 @@ local function SortFunc_GossipOrder(a, b)
 	return a.orderIndex < b.orderIndex;
 end
 
+local GOSSIP_QUEST_LABEL = L["Gossip Quest Option Prepend"] or "(Quest)";
+
 local function SortFunc_GossipPrioritizeQuest(a, b)
     if a.flags and b.flags and (a.flags ~= b.flags) then
         return a.flags > b.flags
     end
+
+    local isQuestA = find(a.name, GOSSIP_QUEST_LABEL);
+    local isQuestB = find(b.name, GOSSIP_QUEST_LABEL);
+
+    if isQuestA ~= nil and isQuestB == nil then
+        return true
+    elseif isQuestA == nil and isQuestB ~= nil then
+        return false
+    end
+
 	return a.orderIndex < b.orderIndex;
 end
 
@@ -1356,10 +1378,6 @@ function DUIDialogBaseMixin:HandleQuestProgress()
             local subheader = self:AcquireAndSetSubHeader(L["Costs"]);
             subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
             offsetY = Round(offsetY + subheader.size);
-
-            --local warningText = CONFIRM_COMPLETE_EXPENSIVE_QUEST;
-            --offsetY = self:InsertText(offsetY, warningText);
-            --offsetY = offsetY + PARAGRAPH_SPACING;
 
             local itemList = {
                 {"SetRequiredMoney", numRequiredMoney, small = true}
@@ -2133,12 +2151,17 @@ do  --Clipboard
         return str
     end
 
-    local function ConcatenateQuestIDTitle(previousText)
+    local function ConcatenateQuestIDTitle(previousText, includeID)
         local questID = GetQuestID();
         local title = GetQuestTitle();
         local idFormat = "[Quest: %d] %s";
         if questID and questID ~= 0 then
-            local text = idFormat:format(questID, title);
+            local text;
+            if includeID then
+                text = idFormat:format(questID, title);
+            else
+                text = title
+            end
             if previousText then
                 previousText = JoinText(previousText, text);
             else
@@ -2206,21 +2229,22 @@ do  --Clipboard
         return previousText
     end
 
-    function DUIDialogBaseMixin:SendContentToClipboard()
+    function DUIDialogBaseMixin:GetContent(clipboardMode)
+        --For TTS and Clipboard
+        --clipboardMode = true includes item rewards and IDs
+
         local str;
 
-        local npcName, npcID = API.GetCurrentNPCInfo();
-        if npcName and npcID then
-            local idFormat = "[NPC: %d] %s";
-            str = idFormat:format(npcID, npcName);
+        if clipboardMode then
+            local npcName, npcID = API.GetCurrentNPCInfo();
+            if npcName and npcID then
+                local idFormat = "[NPC: %d] %s";
+                str = idFormat:format(npcID, npcName);
+            end
         end
 
         if self.handler == "HandleGossip" then
             local gossipText = GetGossipText();
-            local availableQuests = GetAvailableQuests();
-            local activeQuests = GetActiveQuests();
-            local options = GetOptions();
-            tsort(options, SortFunc_GossipOrder);
 
             if str then
                 str = JoinText(str, gossipText);
@@ -2228,95 +2252,119 @@ do  --Clipboard
                 str = gossipText;
             end
 
-            if #availableQuests > 0 then
-                str = str..ConcatenateQuestTable(availableQuests);
-            end
+            if clipboardMode then
+                local availableQuests = GetAvailableQuests();
+                local activeQuests = GetActiveQuests();
+                local options = GetOptions();
+                tsort(options, SortFunc_GossipOrder);
 
-            if #activeQuests > 0 then
-                str = str..ConcatenateQuestTable(activeQuests);
-            end
+                if #availableQuests > 0 then
+                    str = str..ConcatenateQuestTable(availableQuests);
+                end
 
-            if #options > 0 then
-                str = str..ConcatenateOptionTable(options);
+                if #activeQuests > 0 then
+                    str = str..ConcatenateQuestTable(activeQuests);
+                end
+
+                if #options > 0 then
+                    str = str..ConcatenateOptionTable(options);
+                end
             end
 
         elseif self.handler == "HandleQuestDetail" then
-            str = ConcatenateQuestIDTitle(str);
+            str = ConcatenateQuestIDTitle(str, clipboardMode);
             str = JoinText(str, "", GetQuestText("Detail"));
+
             local objective = GetObjectiveText();
             if objective and objective ~= "" then
                 str = JoinText(str, "", L["Quest Objectives"], "", objective);
             end
-            str = ConcatenateRewards(str);
+
+            if clipboardMode then
+                str = ConcatenateRewards(str);
+            end
 
         elseif self.handler == "HandleQuestProgress" then
-            str = ConcatenateQuestIDTitle(str);
+            str = ConcatenateQuestIDTitle(str, clipboardMode);
             str = JoinText(str, "", GetQuestText("Progress"));
 
-            local numRequiredItems = GetNumQuestItems();
-            local numRequiredCurrencies = GetNumQuestCurrencies();
-            local numRequiredMoney = GetQuestMoneyToGet();
+            if clipboardMode then
+                local numRequiredItems = GetNumQuestItems();
+                local numRequiredCurrencies = GetNumQuestCurrencies();
+                local numRequiredMoney = GetQuestMoneyToGet();
 
-            if numRequiredItems > 0 or numRequiredMoney > 0 or numRequiredCurrencies > 0 then
-                str = JoinText(str, "", L["Requirements"]);
+                if numRequiredItems > 0 or numRequiredMoney > 0 or numRequiredCurrencies > 0 then
+                    str = JoinText(str, "", L["Requirements"]);
 
-                if numRequiredMoney > 0 then
-                    local colorized = false;
-                    local noAbbreviation = true;
-                    local moneyText = API.GenerateMoneyText(numRequiredMoney, colorized, noAbbreviation);
-                    str = JoinText(str, moneyText);
-                end
+                    if numRequiredMoney > 0 then
+                        local colorized = false;
+                        local noAbbreviation = true;
+                        local moneyText = API.GenerateMoneyText(numRequiredMoney, colorized, noAbbreviation);
+                        str = JoinText(str, moneyText);
+                    end
 
-                if numRequiredItems > 0 then
-                    str = JoinText(str, ConcatenateQuestItems("required", numRequiredItems));
-                end
+                    if numRequiredItems > 0 then
+                        str = JoinText(str, ConcatenateQuestItems("required", numRequiredItems));
+                    end
 
-                if numRequiredCurrencies > 0 then
-                    str = JoinText(str, ConcatenateCurrencies("required", numRequiredCurrencies));
+                    if numRequiredCurrencies > 0 then
+                        str = JoinText(str, ConcatenateCurrencies("required", numRequiredCurrencies));
+                    end
                 end
             end
 
         elseif self.handler == "HandleQuestComplete" then
-            str = ConcatenateQuestIDTitle(str);
+            str = ConcatenateQuestIDTitle(str, clipboardMode);
             str = JoinText(str, "", GetQuestText("Complete"));
-            str = ConcatenateRewards(str);
+
+            if clipboardMode then
+                str = ConcatenateRewards(str);
+            end
 
         elseif self.handler == "HandleQuestGreeting" then
-            str = ConcatenateQuestIDTitle(str);
+            str = ConcatenateQuestIDTitle(str, clipboardMode);
             str = JoinText(str, "", GetQuestText("Greeting"));
 
-            local numAvailableQuests = GetNumAvailableQuests();
-            local availableQuests = {};
-            for i = 1, numAvailableQuests do
-                local title = GetAvailableTitle(i);
-                local isTrivial, frequency, isRepeatable, isLegendary, questID = GetAvailableQuestInfo(i);
-                local questInfo = {
-                    title = title,
-                    questID = questID,
-                };
-                tinsert(availableQuests, questInfo);
-            end
+            if clipboardMode then
+                local numAvailableQuests = GetNumAvailableQuests();
+                local availableQuests = {};
+                for i = 1, numAvailableQuests do
+                    local title = GetAvailableTitle(i);
+                    local isTrivial, frequency, isRepeatable, isLegendary, questID = GetAvailableQuestInfo(i);
+                    local questInfo = {
+                        title = title,
+                        questID = questID,
+                    };
+                    tinsert(availableQuests, questInfo);
+                end
 
-            if numAvailableQuests > 0 then
-                str = str..ConcatenateQuestTable(availableQuests);
-            end
+                if numAvailableQuests > 0 then
+                    str = str..ConcatenateQuestTable(availableQuests);
+                end
 
-            local numActiveQuests = GetNumActiveQuests();
-            local activeQuests = {};
-            for i = 1, numActiveQuests do
-                local title, isComplete = GetActiveTitle(i);
-                local questID = GetActiveQuestID(i);
-                local questInfo = {
-                    title = title,
-                    questID = questID,
-                };
-                tinsert(activeQuests, questInfo);
-            end
+                local numActiveQuests = GetNumActiveQuests();
+                local activeQuests = {};
+                for i = 1, numActiveQuests do
+                    local title, isComplete = GetActiveTitle(i);
+                    local questID = GetActiveQuestID(i);
+                    local questInfo = {
+                        title = title,
+                        questID = questID,
+                    };
+                    tinsert(activeQuests, questInfo);
+                end
 
-            if numActiveQuests > 0 then
-                str = str..ConcatenateQuestTable(activeQuests);
+                if numActiveQuests > 0 then
+                    str = str..ConcatenateQuestTable(activeQuests);
+                end
             end
         end
+
+        return str
+    end
+
+    function DUIDialogBaseMixin:SendContentToClipboard()
+        local str = self:GetContent(true);
 
         if str then
             if StripHyperlinks then
@@ -2626,6 +2674,28 @@ do  --GamePad/Controller
 end
 
 
+do  --TTS
+    local TTSButton;
+
+    local function Settings_TTSEnabled(dbValue)
+        if dbValue == true then
+            if not TTSButton then
+                local themeID = 1;
+                TTSButton = addon.CreateTTSButton(MainFrame, themeID);
+                TTSButton:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 8, -8);
+                MainFrame.TTSButton = TTSButton;
+            end
+            TTSButton:Show();
+            TTSButton:SetTheme(ThemeUtil:GetThemeID());
+        else
+            if TTSButton then
+                TTSButton:Hide();
+            end
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
+end
+
 do
     function DUIDialogBaseMixin:OnSettingsChanged()
         if self:IsVisible() and self.handler then
@@ -2665,9 +2735,17 @@ do
     end
     CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 
+    local function PostFontSizeChanged()
+        --There is delay before footer button height changed
+        After(0, function()
+            MainFrame:UpdateFrameSize();
+            MainFrame:OnSettingsChanged();
+        end);
+    end
+    CallbackRegistry:Register("PostFontSizeChanged", PostFontSizeChanged);
 
     local FrameSizeIndexScale = {
-        [0] = 0.92,
+        [0] = 0.9,
         [1] = 1.0,
         [2] = 1.1,
         [3] = 1.25,
@@ -2679,6 +2757,13 @@ do
         if newScale and newScale ~= FRAME_SIZE_MULTIPLIER then
             local f = MainFrame;
             FRAME_SIZE_MULTIPLIER = newScale;
+
+            if dbValue == 0 then
+                FRAME_OFFSET_RATIO = 4/5;
+            else
+                FRAME_OFFSET_RATIO = 3/4;
+            end
+
             f:UpdateFrameSize();
             f:OnSettingsChanged();
         end
@@ -2702,6 +2787,16 @@ do
         MainFrame:OnSettingsChanged();
     end
     CallbackRegistry:Register("SettingChanged.MarkHighestSellPrice", Settings_MarkHighestSellPrice);
+
+    local function Settings_AutoSelectGossip(dbValue)
+        AUTO_SELECT_GOSSIP = dbValue == true;
+    end
+    CallbackRegistry:Register("SettingChanged.AutoSelectGossip", Settings_AutoSelectGossip);
+
+    local function Settings_HideUI(dbValue)
+        ExperienceBar:SetShown(dbValue == true);
+    end
+    CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
 
     local function SettingsUI_Show()
         SETTINGS_UI_VISIBLE = true;

@@ -1535,7 +1535,7 @@ function DUIDialogItemButtonMixin:SetCurrency(sourceType, index)
     self.Icon:SetTexture(texture);
     self.Count:SetText(AbbreviateNumbers(amount));
 
-    if API.WillCurrencyRewardOverflow(currencyID, amount) then
+    if (sourceType ~= "required") and API.WillCurrencyRewardOverflow(currencyID, amount) then
         self.Count:SetTextColor(1.000, 0.125, 0.125);   --RED_FONT_COLOR
         self:ShowOverflowIcon();
     else

@@ -412,6 +412,7 @@ do  --NPC Interaction
     f:RegisterEvent("CINEMATIC_STOP");
     f:RegisterEvent("PLAY_MOVIE");
     f:RegisterEvent("STOP_MOVIE");
+    f:RegisterEvent("LOADING_SCREEN_DISABLED");
 
     f:SetScript("OnEvent", function(self, event, ...)
         if event == "CINEMATIC_START" then
@@ -422,6 +423,9 @@ do  --NPC Interaction
             self.isPlayingMovie = true;
         elseif event == "STOP_MOVIE" then
             self.isPlayingMovie = false;
+        elseif event == "LOADING_SCREEN_DISABLED" then
+            --Cutscene events can be stuck?
+            self.isPlayingCutscene = false;
         end
 
         if self.isPlayingCinematic or self.isPlayingMovie then
@@ -1520,6 +1524,7 @@ do  --Tooltip
         INVTYPE_SHOULDER = 3,
         INVTYPE_BODY = 4,
         INVTYPE_CHEST = 5,
+        INVTYPE_ROBE = 5,
         INVTYPE_WAIST = 6,
         INVTYPE_LEGS = 7,
         INVTYPE_FEET = 8,
@@ -1538,6 +1543,17 @@ do  --Tooltip
         INVTYPE_RANGEDRIGHT = 18,
     };
 
+    local FORMAT_POSITIVE_VALUE = "|cff19ff19+%s|r %s";
+    local FORMAT_NEGATIVE_VALUE = "|cffff2020%s|r %s";
+
+    local function FormatValueDiff(value, name)
+        if value > 0 then
+            return FORMAT_POSITIVE_VALUE:format(value, name);
+        else
+            return FORMAT_NEGATIVE_VALUE:format(value, name);
+        end
+    end
+
     local function GetEquippedItemLink(comparisonItem)
         local _, _, _, itemEquipLoc = GetItemInfoInstant(comparisonItem);
         local slotID = itemEquipLoc and EQUIPLOC_SLOTID[itemEquipLoc];
@@ -1546,6 +1562,44 @@ do  --Tooltip
         end
     end
     API.GetEquippedItemLink = GetEquippedItemLink;
+
+
+    local function GetItemLevelDelta(newItem, formatedToText)
+        local _, _, _, itemEquipLoc = GetItemInfoInstant(newItem);
+        local slotID = itemEquipLoc and EQUIPLOC_SLOTID[itemEquipLoc];
+        local diff = 0;
+
+        if slotID then
+            local newItemLevel = API.GetItemLevel(newItem) or 0;
+            local equippedItemLink = GetInventoryItemLink("player", slotID);
+
+            if equippedItemLink then
+                local oldItemLevel = API.GetItemLevel(equippedItemLink) or 0;
+                diff = newItemLevel - oldItemLevel;
+            else
+                diff = newItemLevel;
+            end
+        end
+
+        if formatedToText then
+            if diff ~= 0 then
+                return FormatValueDiff(diff, L["Item Level"])
+            end
+        else
+            return diff
+        end
+
+        if formatedToText then
+            if diff ~= 0 then
+                return diff
+            else
+                return
+            end
+        end
+
+        return diff
+    end
+    API.GetItemLevelDelta = GetItemLevelDelta;
 
 
     if C_TooltipInfo then
@@ -1721,9 +1775,6 @@ do  --Tooltip
             "dps", "armor", "stamina", "strength", "agility", "intellect", "spirit",
         };
 
-        local FORMAT_POSITIVE_VALUE = "|cff19ff19+%s|r %s";
-        local FORMAT_NEGATIVE_VALUE = "|cffff2020%s|r %s";
-
         local STATS_NAME = {
             dps = STAT_DPS_SHORT or "DPS",      --ITEM_MOD_DAMAGE_PER_SECOND_SHORT
             armor = RESISTANCE0_NAME or "Armor",
@@ -1789,14 +1840,6 @@ do  --Tooltip
             end
 
             return stats
-        end
-
-        local function FormatValueDiff(value, name)
-            if value > 0 then
-                return FORMAT_POSITIVE_VALUE:format(value, name);
-            else
-                return FORMAT_NEGATIVE_VALUE:format(value, name);
-            end
         end
 
         local function AreItemsSameType(item1, item2)

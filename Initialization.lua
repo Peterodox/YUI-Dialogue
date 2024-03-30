@@ -40,6 +40,11 @@ local DefaultValues = {
     ForceGossip = false,
     NameplateDialogEnabled = false,
 
+    TTSEnabled = false,
+    TTSUseHotkey = true,    --Default key R
+    TTSAutoPlay = false,
+    TTSAutoStop = true,     --Stop when leaving
+
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
 };

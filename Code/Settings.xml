@@ -1,4 +1,5 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Settings_DropDown.lua"/>
     <Script file="Settings.lua"/>
 
     <Button name="DUIDialogSettingsTabButtonTemplate" mixin="DUIDialogSettingsTabButtonMixin" registerForClicks="LeftButtonUp" virtual="true">
@@ -214,6 +215,7 @@
                     </Layer>
                 </Layers>
                 <Frames>
+                    <Frame parentKey="Container" setAllPoints="true"/>
                     <Button parentKey="CloseButton">
                         <Layers>
                             <Layer level="BACKGROUND" textureSubLevel="5">

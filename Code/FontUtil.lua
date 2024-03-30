@@ -103,12 +103,10 @@ function FontUtil:GetInstalledFont()
     end
 end
 
-function Debug_Font()
-    return FontUtil:GetInstalledFont();
-end
-
 do
     local DEFAULT_FONT_SIZE = 12;
+    local FONT_SIZE_ID = 1;
+    local FONT_DATA_ID = FONT_SIZE_ID + 1;
 
     local FONT_SIZE_INDEX = {
         [0] = 10,
@@ -119,12 +117,16 @@ do
 
     function FontUtil:SetFontSizeByID(id)
         if not (id and FONT_SIZE_INDEX[id]) then return end;
+
+        FONT_SIZE_ID = id;
+        FONT_DATA_ID = FONT_SIZE_ID + 1;
+
         if FONT_SIZE_INDEX[id] == DEFAULT_FONT_SIZE then return end;
 
         local fontSize = FONT_SIZE_INDEX[id];
         DEFAULT_FONT_SIZE = fontSize;
 
-        local k = id + 1;
+        local k = FONT_DATA_ID;
         local _G = _G;
 
         local textFontFile = self:GetUserFont();
@@ -144,6 +146,26 @@ do
 
         addon.CallbackRegistry:Trigger("FontSizeChanged", fontSize, id);
     end
+
+    function FontUtil:SetFontByFile(textFontFile)
+        local k = FONT_DATA_ID;
+        local _G = _G;
+
+        for fontName, v in pairs(FONT_OBJECT_HEIGHT) do
+            local _, _, flags = _G[fontName]:GetFont();
+            local fontFile;
+
+            if IS_NUMBER_FONT[fontName] then
+                fontFile = NUMBER_FONT_FILE;
+            else
+                fontFile = textFontFile;
+            end
+
+            _G[fontName]:SetFont(fontFile, v[k], flags);
+        end
+
+        addon.CallbackRegistry:Trigger("FontSizeChanged", DEFAULT_FONT_SIZE, FONT_SIZE_ID);
+    end
 end
 
 
@@ -156,6 +178,9 @@ end
 
 
 do  --Check LibSharedMedia
+
+    local DropDownMenu;
+
     local function CheckLib()
         local libName = "LibSharedMedia-3.0";
         local silent = true;
@@ -178,9 +203,15 @@ do  --Check LibSharedMedia
 
                 return fontData
             end
+
+            local fontList = FontUtil:GetInstalledFont();
+            if fontList and #fontList > 1 then
+                DropDownMenu = addon.GetDropDownMenu();
+                DropDownMenu:SetContent(fontList)
+            end
         else
 
         end
     end
-    addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckLib);
+    --addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckLib);
 end

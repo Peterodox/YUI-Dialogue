@@ -514,6 +514,11 @@ do
                             self:AddLeftLine(ITEM_DELTA_DESCRIPTION, 1, 0.82, 0, true);
                         end
 
+                        local itemLevelDelta = API.GetItemLevelDelta(itemID, true);
+                        if itemLevelDelta then
+                            self:AddLeftLine(itemLevelDelta, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                        end
+
                         for i, deltaLine in ipairs(delta) do
                             self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
                         end
