@@ -49,7 +49,8 @@ L["Paragon Reputation"] = "Parangon";
 L["Different Item Types Alert"] = "Le type d'objet est different !";
 L["Click To Read"] = "Clic gauche pour lire";
 L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "Niveau d'objet";														  
-
+L["Gossip Quest Option Prepend"] = "(Quête)";   --Some gossip options start with blue (Quest), we prioritize them when sorting. See GOSSIP_QUEST_OPTION_PREPEND
+L["TTS Button Tooltip"] = "Clic gauche : Démarrer/Arrêter la lecture.\nClic droit : Activer/désactiver la lecture automatique";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Récompense %d de réputation avec les %s";
@@ -69,13 +70,17 @@ L["Format Copper Amount"] = COPPER_AMOUNT or "%d Cuivre";
 L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Niveau %d";
 L["Format Replace Item"] = "Remplace %s";
 L["Format Item Level"] = "Niveau d'objet %d";   --_G.ITEM_LEVEL in Classic is different																				   
-
+L["Format Breadcrumb Quests Available"] = "Quêtes de changement de zone disponibles: %s"; --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 
 --Settings
 L["UI"] = "UI";
 L["Camera"] = "Camera";
 L["Control"] = "Contrôle";
 L["Gameplay"] = SETTING_GROUP_GAMEPLAY or "Jeu";
+L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accessibilité";
+
+L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Activé";
+L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Désactivé";
 
 L["Quest"] = "Quête";
 L["Gossip"] = "Discussion";
@@ -101,14 +106,6 @@ L["Show Quest Type Text"] = "Afficher le texte du type de quête";
 L["Show Quest Type Text Desc"] = "Affiche le type de quête à droite de l’option si elle est spéciale.\n\nLes quêtes de bas niveau sont toujours indiquées.";
 L["Show NPC Name On Page"] = "Afficher le nom du PNJ";
 L["Show NPC Name On Page Desc"] = "Affiche le nom de PNJ sur la page.";
-L["TTS"] = TEXT_TO_SPEECH or "Synthèse vocale (TTS)";
-L["TTS Desc"] = "Lis le texte du dialogue à haute voix.";
-L["TTS Trigger None"] = "Aucun";
-L["TTS Trigger None Tooltip"] = "Cliquez sur le bouton en haut à gauche de l’UI pour lire le texte à haute voix.";
-L["TTS Trigger Button Tooltip"] = "Démarrez ou arrêtez la lecture en appuyant sur ce bouton : ";
-L["TTS Trigger Button PC"] = "[KEY:PC:R]";
-L["TTS Trigger Auto"] = "Lecture automatique";
-L["TTS Trigger Auto Tooltip"] = "Lis automatiquement les textes de dialogue.";
 L["Simplify Currency Rewards"] = "Simplifier les récompenses en monnaie";
 L["Simplify Currency Rewards Desc"] = "Utilise des icônes plus petites pour les récompenses en monnaie et cache leurs noms.";
 L["Mark Highest Sell Price"] = "Marquer l'objet le plus rentable";
@@ -157,6 +154,17 @@ L["Force Gossip Desc"] = "Par défaut, le jeu sélectionne parfois automatiqueme
 L["Nameplate Dialog"] = "Afficher le dialogue sur la barre d'info";
 L["Nameplate Dialog Desc"] = "Affiche le dialogue sur la barre d'info du PNJ s'il ne propose pas de choix.\n\nCette option modifie la CVar \"SoftTarget Nameplate Interact\".";
 
+L["TTS"] = TEXT_TO_SPEECH or "Synthèse vocale (TTS)";
+L["TTS Desc"] = "Lis le texte du dialogue à haute voix.";
+L["TTS Use Hotkey"] = "Utiliser un raccourci";
+L["TTS Use Hotkey Desc"] = "Démarrez ou arrêtez la lecture avec:";
+L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
+L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
+L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
+L["TTS Auto Play"] = "Lecture automatique";
+L["TTS Auto Play Desc"] = "Lis automatiquement les textes de dialogue.";
+L["TTS Auto Stop"] = "Arrêter en quittant";
+L["TTS Auto Stop Desc"] = "Arrête la lecture quand on quitte le PNJ.";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Utilisez [KEY:PC:F1] pour afficher les options";
