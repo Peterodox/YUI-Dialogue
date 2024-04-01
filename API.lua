@@ -722,6 +722,7 @@ do  --Quest
     local GetProgressText = GetProgressText;
     local GetRewardText = GetRewardText;
     local GetGreetingText = GetGreetingText;
+    local GetGossipText = C_GossipInfo.GetText;
 
     local QuestTextMethod = {
         Detail = GetDetailText,
@@ -737,6 +738,9 @@ do  --Quest
         end
     end
     API.GetQuestText = GetQuestText;
+
+    API.GetGossipText = GetGossipText;
+
 
     --QuestTheme
     local GetQuestDetailsTheme = C_QuestLog.GetQuestDetailsTheme or AlwaysFalse;
@@ -918,6 +922,34 @@ do  --Quest
         return PLAYER_HONOR_ICON
     end
     API.GetHonorIcon = GetHonorIcon;
+
+
+    do
+        --Replace player name with RP name:
+        --Handled by addon when installed: Total RP 3: RP Name in Quest Text
+        --Otherwise use our own modifier
+        --See Code\SupportedAddOns\Roleplay
+        local function TextModifier_None(text)
+            return text
+        end
+
+        local TextModifier = TextModifier_None;
+
+        local function GetModifiedQuestText(method)
+            return TextModifier(GetDetailText(method))
+        end
+        API.GetModifiedQuestText = GetModifiedQuestText;
+
+        local function GetModifiedGossipText()
+            return TextModifier(GetGossipText());
+        end
+        API.GetModifiedGossipText = GetModifiedGossipText;
+
+        local function SetDialogueTextModifier(modifierFunc)
+            TextModifier = modifierFunc or TextModifier_None;
+        end
+        addon.SetDialogueTextModifier = SetDialogueTextModifier;
+    end
 end
 
 do  --Color

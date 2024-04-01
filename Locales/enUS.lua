@@ -71,6 +71,7 @@ L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Level %d";
 L["Format Replace Item"] = "Replace %s";
 L["Format Item Level"] = "Item Level %d";   --_G.ITEM_LEVEL in Classic is different
 L["Format Breadcrumb Quests Available"] = "Available Breadcrumb Quests: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
+L["Format Functionality Handled By"] = "This functionality is handled by %s";      --A functionality is provided by [another addon name] (Used in Settings.lua)
 
 --Settings
 L["UI"] = "UI";
@@ -81,6 +82,7 @@ L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accessibility";
 
 L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Enabled";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Disabled";
+L["Reset Position"] = RESET_POSITION or "Reset Position";
 
 L["Quest"] = "Quest";
 L["Gossip"] = "Gossip";
@@ -110,6 +112,9 @@ L["Simplify Currency Rewards"] = "Simplify Currency Rewards";
 L["Simplify Currency Rewards Desc"] = "Use smaller icons for currency rewards and omit their names.";
 L["Mark Highest Sell Price"] = "Mark Highest Sell Price";
 L["Mark Highest Sell Price Desc"] = "Show you which item has the highest sell price when you are choosing a reward.";
+L["Roleplaying"] = GDAPI_REALMTYPE_RP or "Roleplaying";
+L["Use RP Name In Dialogues"] = "Use RP Name In Dialogues";
+L["Use RP Name In Dialogues Desc"] = "Replace your character's name in dialogue texts with your RP name.";
 
 L["Camera Movement"] = "Camera Movement";
 L["Camera Movement Off"] = "OFF";
@@ -146,6 +151,7 @@ L["Quest Item Display"] = "Quest Item Display";
 L["Quest Item Display Desc"] = "Auto display the quest item's description and allow you to use it without opening bags.";
 L["Quest Item Display Hide Seen"] = "Ignore Seen Items";
 L["Quest Item Display Hide Seen Desc"] = "Ignore items that have been discovered by any of your characters.";
+L["Quest Item Display Reset Position Desc"] = "Reset the window's position.";
 L["Auto Select"] = "Auto Select";
 L["Auto Select Gossip"] = "Auto Select Option";
 L["Auto Select Gossip Desc"] = "Automatically select the best dialogue option when interacting with certain NPC.";

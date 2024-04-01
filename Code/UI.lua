@@ -41,7 +41,7 @@ local PARAGRAPH_BUTTON_SPACING = 2*FONT_SIZE;    --Font Size * 2
 local CreateFrame = CreateFrame;
 local C_CampaignInfo = C_CampaignInfo;
 local C_GossipInfo = C_GossipInfo;
-local GetGossipText = C_GossipInfo.GetText;
+local GetGossipText = API.GetGossipText;
 local CloseQuest = CloseQuest;
 local GetOptions = C_GossipInfo.GetOptions;
 local GetAvailableQuests = C_GossipInfo.GetAvailableQuests;
@@ -2235,6 +2235,9 @@ do  --Clipboard
 
         local str;
 
+        local GetGossipText = API.GetGossipText;
+        local GetQuestText = API.GetQuestText;
+
         if clipboardMode then
             local npcName, npcID = API.GetCurrentNPCInfo();
             if npcName and npcID then
@@ -2798,11 +2801,23 @@ do
     end
     CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
 
+    local function Settings_UseRoleplayName(dbValue)
+        if dbValue == true then
+            GetQuestText = API.GetModifiedQuestText;
+            GetGossipText = API.GetModifiedGossipText;
+        else
+            GetQuestText = API.GetQuestText;
+            GetGossipText = API.GetGossipText;
+        end
+        MainFrame:OnSettingsChanged();
+    end
+    CallbackRegistry:Register("SettingChanged.UseRoleplayName", Settings_UseRoleplayName);
+
+
     local function SettingsUI_Show()
         SETTINGS_UI_VISIBLE = true;
     end
     CallbackRegistry:Register("SettingsUI.Show", SettingsUI_Show);
-
 
     local function SettingsUI_Hide()
         SETTINGS_UI_VISIBLE = false;

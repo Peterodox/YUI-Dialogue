@@ -184,15 +184,33 @@ function QuestItemDisplay:Init()
     end);
 
     self:SetScript("OnHide", self.OnHide);
-    self:SetScript("OnEnter", self.OnEnter);
-    self:SetScript("OnLeave", self.OnLeave);
-    self:SetScript("OnMouseDown", self.OnMouseDown);
 
     self:LoadPosition();
     self:LoadTheme();
     self:UpdatePixel();
 
     addon.PixelUtil:AddPixelPerfectObject(self);
+
+
+    --Drag to reposition
+    self:SetClampedToScreen(true);
+    self:SetMovable(true);
+    local DragFrame = CreateFrame("Frame", nil, self);
+    DragFrame:SetAllPoints(true);
+    DragFrame:SetFrameLevel(self:GetFrameLevel() + 1);
+    DragFrame:SetScript("OnEnter", self.OnEnter);
+    DragFrame:SetScript("OnLeave", self.OnLeave);
+    DragFrame:SetScript("OnMouseUp", self.OnMouseUp);
+    DragFrame:RegisterForDrag("LeftButton");
+    DragFrame:SetScript("OnDragStart", function()
+        self:StartMoving();
+        self.isMoving = true;
+    end);
+    DragFrame:SetScript("OnDragStop", function()
+        self:StopMovingOrSizing();
+        self:SavePosition();
+        self.isMoving = nil;
+    end);
 end
 
 function QuestItemDisplay:UpdatePixel(scale)
@@ -210,12 +228,46 @@ function QuestItemDisplay:UpdatePixel(scale)
 end
 
 function QuestItemDisplay:ResetPosition()
+    local db = DialogueUI_DB;
 
+    if db and db.QuestItemDisplayPosition then
+        db.QuestItemDisplayPosition = nil;
+    end
+
+    self:LoadPosition();
+
+    addon.SettingsUI:RequestUpdate();
+end
+
+function QuestItemDisplay:IsUsingCustomPosition()
+    local db = DialogueUI_DB;
+    return db and db.QuestItemDisplayPosition ~= nil
 end
 
 function QuestItemDisplay:LoadPosition()
+    local db = DialogueUI_DB;
+
     self:ClearAllPoints();
-    self:SetPoint("LEFT", nil, "LEFT", 32, 32);
+
+    if db and db.QuestItemDisplayPosition then
+        self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", db.QuestItemDisplayPosition[1], db.QuestItemDisplayPosition[2]);
+    else
+        self:SetPoint("LEFT", nil, "LEFT", 32, 32);
+    end
+end
+
+function QuestItemDisplay:SavePosition()
+    local db = DialogueUI_DB;
+
+    local x = self:GetLeft();
+    local _, y = self:GetCenter();
+
+    if db then
+        db.QuestItemDisplayPosition = {
+            Round(x),
+            Round(y);
+        };
+    end
 end
 
 local function Countdown_OnUpdate(self, elapsed)
@@ -552,12 +604,12 @@ function QuestItemDisplay:GetActionButton()
             self:SetTextBackgroundID(1);
         end);
         ActionButton:SetScript("PostClick", function(f, button)
-            self:OnMouseDown(button);
+            self:OnMouseUp(button);
             self:Clear();
         end);
         ActionButton:SetParent(self);
         ActionButton:SetFrameStrata(self:GetFrameStrata());
-        ActionButton:SetFrameLevel(self:GetFrameLevel() + 1);
+        ActionButton:SetFrameLevel(self:GetFrameLevel() + 5);
         ActionButton.onEnterCombatCallback = onEnterCombatCallback;
         --ActionButton:ShowDebugHitRect(true);
         self:SetTextButtonEnabled(true);
@@ -658,27 +710,34 @@ function QuestItemDisplay:OnHide()
     self.isFadingOut = nil;
     self:StopAnimating();
     self:UnregisterEvent("PLAYER_REGEN_ENABLED");
+
+    if self.isMoving then
+        self.isMoving = nil;
+        self:StopMovingOrSizing();
+    end
 end
 
 function QuestItemDisplay:OnEnter()
-    if self.isCountingDown then
-        self:SetScript("OnUpdate", nil);
+    if QuestItemDisplay.isCountingDown then
+        QuestItemDisplay:SetScript("OnUpdate", nil);
     end
 end
 
 function QuestItemDisplay:OnLeave()
-    if self.isCountingDown then
-        self:SetScript("OnUpdate", Countdown_OnUpdate);
+    if QuestItemDisplay.isCountingDown then
+        QuestItemDisplay:SetScript("OnUpdate", Countdown_OnUpdate);
     end
 end
 
-function QuestItemDisplay:OnMouseDown(button)
-    if button == "RightButton" or button == "MiddleButton" then
-        self:Clear();
+function QuestItemDisplay:OnMouseUp(button)
+    if button == "RightButton" then
+        QuestItemDisplay:Clear();
     elseif button == "LeftButton" then
-        if self.CloseButtonTexture:IsMouseOver() then
-            self:Clear();
+        if QuestItemDisplay.CloseButtonTexture:IsMouseOver() then
+            QuestItemDisplay:Clear();
         end
+    elseif button == "MiddleButton" then
+        QuestItemDisplay:ResetPosition();
     end
 end
 
@@ -710,6 +769,7 @@ function QuestItemDisplay:CHAT_MSG_LOOT_CLASSIC(text, _, _, _, playerName)
 end
 
 function QuestItemDisplay:ProcessLootMessage(text)
+    --Some readable items are not Quest Type (e.g. Secrets of Azeroth). We don't support these items.
     local itemID = match(text, "item:(%d+)", 1);
     if itemID then
         itemID = tonumber(itemID);

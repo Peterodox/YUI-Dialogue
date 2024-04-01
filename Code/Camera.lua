@@ -435,7 +435,7 @@ function FadeHelper:ShowUIParentInstantly()
     ShowUIParent(true);
 end
 
-addon.CallbackRegistry:Register("PlayerInteraction.Trainer", "ShowUIParentInstantly", FadeHelper);  --For Classic
+addon.CallbackRegistry:Register("PlayerInteraction.ShowUI", "ShowUIParentInstantly", FadeHelper);  --For Classic
 
 
 local ALPHA_UPDATE_INTERVAL = 1/30;

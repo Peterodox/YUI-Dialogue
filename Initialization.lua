@@ -1,4 +1,4 @@
-local VERSION_TEXT = "v0.2.1";
+local VERSION_TEXT = "v0.2.4";
 local VERSION_DATE = 1711280000;
 
 
@@ -23,6 +23,7 @@ local DefaultValues = {
     QuestTypeText = false,
     SimplifyCurrencyReward = false,
     MarkHighestSellPrice = false,
+    UseRoleplayName = false,
 
     CameraMovement = 1,                         --0:OFF  1:Zoom-In  2:Horizontal
     CameraChangeFov = true,
@@ -47,6 +48,8 @@ local DefaultValues = {
 
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
+    
+    --QuestItemDisplayPosition = {x, y};
 };
 
 local TutorialFlags = {

@@ -135,8 +135,8 @@ local function OnClickFunc_SelectOption(gossipButton)
     gossipButton.owner:SetSelectedGossipIndex(gossipButton.id);     --For Dialogue History: Grey out other buttons
 
     --Classic
-    if gossipButton.isTrainer then
-        addon.CallbackRegistry:Trigger("PlayerInteraction.Trainer", true);
+    if gossipButton.isTrainer or addon.DoesOptionOpenUI(gossipButton.gossipOptionID) then
+        addon.CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
     end
 
     C_GossipInfo.SelectOptionByIndex(gossipButton.id);

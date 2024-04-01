@@ -71,6 +71,7 @@ L["Format Unit Level"] = "等级 %d";
 L["Format Replace Item"] = "替换 %s";
 L["Format Item Level"] = "物品等级 %d";
 L["Format Breadcrumb Quests Available"] = "可接受引导性任务：";
+L["Format Functionality Handled By"] = "此功能由以下插件处理：%s";
 
 --Settings
 L["UI"] = "界面";
@@ -81,6 +82,7 @@ L["Accessibility"] = "辅助功能";
 
 L["Option Enabled"] = "已启用";
 L["Option Disabled"] = "已禁用";
+L["Reset Position"] = "重置位置";
 
 L["Quest"] = "任务";
 L["Gossip"] = "对话";
@@ -110,6 +112,9 @@ L["Simplify Currency Rewards"] = "简化货币显示";
 L["Simplify Currency Rewards Desc"] = "用更小的图标来显示货币奖励，货币名称也会被省略。";
 L["Mark Highest Sell Price"] = "Mark Highest Sell Price";
 L["Mark Highest Sell Price Desc"] = "Show you which item has the highest sell price when you are choosing a reward.";
+L["Roleplaying"] = "角色扮演";
+L["Use RP Name In Dialogues"] = "对话中使用RP名字";
+L["Use RP Name In Dialogues Desc"] = "将对话文本中出现的本名替换为你RP角色的名字。";
 
 L["Camera Movement"] = "镜头运动";
 L["Camera Movement Off"] = "关";
@@ -146,6 +151,7 @@ L["Quest Item Display"] = "任务物品说明";
 L["Quest Item Display Desc"] = "自动显示任务物品上的说明，并且允许你在不打开背包的情况下就能使用它。";
 L["Quest Item Display Hide Seen"] = "忽略见过的物品";
 L["Quest Item Display Hide Seen Desc"] = "忽略你账号上角色见过的物品。";
+L["Quest Item Display Reset Position Desc"] = "重置窗口位置。";
 L["Auto Select"] = "自动选择";
 L["Auto Select Gossip"] = "自动选择对话选项";
 L["Auto Select Gossip Desc"] = "当你与特定NPC交互时自动选择最合适的选项。";

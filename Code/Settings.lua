@@ -365,6 +365,26 @@ local function TTSHotkey_Tooltip()
     return L["TTS Use Hotkey Tooltip "..device]
 end
 
+local function QuestItemDisplayPosition_OnClick()
+    addon.QuestItemDisplay:ResetPosition();
+end
+
+local function QuestItemDisplayPosition_Validation()
+    local f = addon.QuestItemDisplay;
+    return f and f:IsUsingCustomPosition();
+end
+
+local function RPAddOn_Validation()
+    return addon.GetInstalledRPAddOnName() ~= nil
+end
+
+local function RPAddOn_ReplaceName_Tooltip()
+    local addOnName = addon.GetInstalledRPAddOnName();
+    if addOnName then
+        return L["Format Functionality Handled By"]:format(addOnName);
+    end
+end
+
 local Schematic = {
     {
         tabName = L["UI"],
@@ -400,6 +420,9 @@ local Schematic = {
             {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
             {type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},
+
+            {type = "Subheader", name = L["Roleplaying"], validationFunc = RPAddOn_Validation},
+            {type = "Checkbox", name = L["Use RP Name In Dialogues"], description = L["Use RP Name In Dialogues Desc"], tooltip = RPAddOn_ReplaceName_Tooltip, dbKey = "UseRoleplayName", validationFunc = RPAddOn_Validation},
         },
     },
 
@@ -449,6 +472,7 @@ local Schematic = {
         options = {
             {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay", ratio = 2},
             {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", parentKey = "QuestItemDisplay", requiredParentValue = true},
+            {type = "Custom", name = L["Reset Position"], description = L["Quest Item Display Reset Position Desc"], parentKey = "QuestItemDisplay", requiredParentValue = true, validationFunc = QuestItemDisplayPosition_Validation, onClickFunc = QuestItemDisplayPosition_OnClick},
 
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
@@ -861,6 +885,10 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
             isOptionValid = true;
         end
 
+        if isOptionValid and optionData.validationFunc then
+            isOptionValid = optionData.validationFunc();
+        end
+
         if isOptionValid then
             numShownOptions = numShownOptions + 1;
             optionButton = self.optionButtonPool:Acquire();
@@ -977,7 +1005,9 @@ function DUIDialogSettingsOptionMixin:OnEnter()
     if not self.isSubheader then
         MainFrame:HighlightButton(self);
         MainFrame:SetGamePadFocus(self);
-        choiceTooltip = self.widget:GetSelectedChoiceTooltip();
+        if self.widget then
+            choiceTooltip = self.widget:GetSelectedChoiceTooltip();
+        end
     end
 
     MainFrame:DisplayOptionInfo(self.optionData, choiceTooltip);
@@ -989,13 +1019,16 @@ function DUIDialogSettingsOptionMixin:OnLeave()
     end
 end
 
-function DUIDialogSettingsOptionMixin:OnClick()
+function DUIDialogSettingsOptionMixin:OnClick(button)
     MainFrame:SetFocusedObject(self);
 
     if self.widget and self.widget.OnClick and self.widget:IsEnabled() then
-        self.widget:OnClick();
+        self.widget:OnClick(button);
+    elseif self.optionData.onClickFunc then
+        self.optionData.onClickFunc(self);
     end
 
+    MainFrame:HighlightButton(nil);
     self:OnEnter();
 end
 
@@ -1014,6 +1047,10 @@ function DUIDialogSettingsOptionMixin:SetArrowOption(optionData)
     self.widget:SetPoint("RIGHT", self, "RIGHT", -BUTTON_PADDING_LARGE, 0);
     self.widget:SetWidgetHeight(OPTION_WIDGET_SIZE);
     self.widget:SetData(optionData);
+end
+
+function DUIDialogSettingsOptionMixin:SetCustomButton(optionData)
+    self.widget = nil;
 end
 
 
@@ -1042,6 +1079,8 @@ function DUIDialogSettingsOptionMixin:SetData(optionData)
         self:SetCheckbox(optionData);
     elseif optionData.type == "ArrowOption" then
         self:SetArrowOption(optionData);
+    elseif optionData.type == "Custom" then
+        self:SetCustomButton(optionData);
     end
     self.widgetType = optionData.type;
 

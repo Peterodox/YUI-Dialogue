@@ -3,4 +3,5 @@
     <Script file="GossipData_AutoSelect.lua"/>
     <Script file="GossipData_Racing.lua"/>
     <Script file="GossipData_LFRQueue.lua"/>
+    <Script file="GossipData_ShowUI.lua"/>
 </Ui>
