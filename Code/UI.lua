@@ -1504,19 +1504,15 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
     local geetingText = ConcatenateNPCName(GetQuestText("Greeting"));
     offsetY, firstObject, lastObject = self:FormatParagraph(offsetY, geetingText);
 
-    local hotkeyIndex = 0;
-    local hotkey;
-    local button;
 
-    --WoW shows active quests first but we change that
+    local questIndex = 0;
+    local quests = {};
+    self.activeQuestButtons = {};
 
     local numAvailableQuests = GetNumAvailableQuests();
-	local anyQuest = numAvailableQuests > 0;
 
     for i = 1, numAvailableQuests do
-        hotkeyIndex = hotkeyIndex + 1;
-        button = self:AcquireOptionButton();
-        hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+        questIndex = questIndex + 1;
 
         local title = GetAvailableTitle(i);
         local isTrivial, frequency, isRepeatable, isLegendary, questID = GetAvailableQuestInfo(i);
@@ -1529,62 +1525,60 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
             frequency = frequency,
             repeatable = isRepeatable,
             isLegendary = isLegendary,
+            isAvailableQuest = true,
+            originalOrder = questIndex;
             --isImportant
         };
 
-        --QuestUtil.ApplyQuestIconActiveToTextureForQuestID(questTitleButton.Icon, activeQuestID, isComplete, IsActiveQuestLegendary(i));
-
-        button:SetGreetingAvailableQuest(questInfo, i, hotkey);
-
-        if i == 1 then
-            button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, -PARAGRAPH_BUTTON_SPACING);
-        else
-            button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, -1);
-        end
-
-        lastObject = button;
-
-        self:IndexGamePadObject(button);
+        quests[questIndex] = questInfo;
 	end
 
 
     local numActiveQuests = GetNumActiveQuests();
-	anyQuest = anyQuest or numActiveQuests > 0;
-
-    --In Classic, completed quest is sorted to the top, so we do it manually
-    local activeQuestData = {};
 
     for i = 1, numActiveQuests do
+        questIndex = questIndex + 1;
+
         local title, isComplete = GetActiveTitle(i);
         local questID = GetActiveQuestID(i);
-        activeQuestData[i] = {
+
+        local questInfo = {
             index = i,
             title = title,
             isComplete = isComplete,
-            questID = questID
+            questID = questID,
+            isAvailableQuest = false,
+            isOnQuest = true,
+            originalOrder = questIndex,
         };
+
+        quests[questIndex] = questInfo;
     end
 
-    tsort(activeQuestData, SortFunc_QuestGreetingActiveQuests);
+    tsort(quests, SortFunc_PrioritizeCompleteQuest);
 
-    for i = 1, numActiveQuests do
+
+    local lastQuestComplete, lastQuestAvailable;
+    local hotkeyIndex = 0;
+    local hotkey;
+    local button;
+
+    for i, questInfo in ipairs(quests) do
         hotkeyIndex = hotkeyIndex + 1;
         button = self:AcquireOptionButton();
         hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
 
-        local data = activeQuestData[i];
-        local index, title, isComplete, questID = data.index, data.title, data.isComplete, data.questID;
-        local questInfo = {
-            title = title,
-            isComplete = isComplete,
-            questID = questID,
-            isOnQuest = true,
-        };
+        if questInfo.isAvailableQuest then
+            button:SetGreetingAvailableQuest(questInfo, hotkeyIndex, hotkey);
+        else
+            button:SetGreetingActiveQuest(questInfo, hotkeyIndex, hotkey);
+            tinsert(self.activeQuestButtons, button);
+        end
 
-        button:SetGreetingActiveQuest(questInfo, index, hotkey);
-
-        if i == 1 then
+        if i == 1 or (questInfo.isAvailableQuest ~= lastQuestAvailable) or (questInfo.isComplete ~= lastQuestComplete) then
             button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, -PARAGRAPH_BUTTON_SPACING);
+            lastQuestAvailable = questInfo.isAvailableQuest;
+            lastQuestComplete = questInfo.isComplete;
         else
             button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, -1);
         end
@@ -1592,7 +1586,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         lastObject = button;
 
         self:IndexGamePadObject(button);
-	end
+    end
 
 
     self.AcceptButton:Hide();

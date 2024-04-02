@@ -650,6 +650,9 @@ function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
     self.ButtonIcon:SetTexture(icon);
     self.ButtonIcon:Show();
     local questName = API.GetQuestName(startQuestID);
+    if not (questName and questName ~= "") then
+        questName = "Quest: "..startQuestID;
+    end
     self:SetUsableItem(itemID, questName);
 end
 

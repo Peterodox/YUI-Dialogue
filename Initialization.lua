@@ -1,4 +1,4 @@
-local VERSION_TEXT = "v0.2.4";
+local VERSION_TEXT = "v0.2.5";
 local VERSION_DATE = 1711280000;
 
 

@@ -1478,9 +1478,9 @@ function DUIDialogItemButtonMixin:SetItem(sourceType, index)
 
     if not isUsable then
         itemOverlayID = "alert";
-    elseif IsCosmeticItem(itemID) then
+    elseif itemID and IsCosmeticItem(itemID) then
         itemOverlayID = "cosmetic";
-    elseif IsEquippableItem(itemID) then
+    elseif itemID and IsEquippableItem(itemID) then
         itemOverlayID = quality;
     else
         itemOverlayID = quality;

@@ -242,8 +242,6 @@ do  --Unlisten events from default UI
         QuestFrame:SetParent(nil);
         QuestFrame:SetScale(UIParent:GetEffectiveScale())
     end
-
-    GetTimePreciseSec();
 end
 
 do

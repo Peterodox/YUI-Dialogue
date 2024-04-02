@@ -936,7 +936,7 @@ do  --Quest
         local TextModifier = TextModifier_None;
 
         local function GetModifiedQuestText(method)
-            return TextModifier(GetDetailText(method))
+            return TextModifier(GetQuestText(method))
         end
         API.GetModifiedQuestText = GetModifiedQuestText;
 
@@ -1938,7 +1938,7 @@ end
 
 
 do  --Items
-    local IsEquippableItem = C_Item.IsEquippableItem or IsEquippableItem;
+    local IsEquippableItem = C_Item.IsEquippableItem or IsEquippableItem or AlwaysFalse;
     local IsCosmeticItem = C_Item.IsCosmeticItem or IsCosmeticItem or AlwaysFalse;
     local GetTransmogItemInfo = (C_TransmogCollection and C_TransmogCollection.GetItemInfo) or AlwaysFalse;
     local GetItemLevel = C_Item.GetDetailedItemLevelInfo or GetDetailedItemLevelInfo or AlwaysZero;
