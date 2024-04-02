@@ -71,6 +71,7 @@ L["Format Unit Level"] = "%d-й уровень";
 L["Format Replace Item"] = "Заменить %s";
 L["Format Item Level"] = "Уровень предмета %d"; --_G.ITEM_LEVEL in Classic is different
 L["Format Breadcrumb Quests Available"] = "Доступные направляющие задания: %s"; --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
+L["Format Functionality Handled By"] = "За эту функциональность отвечает %s"; --A functionality is provided by [another addon name] (Used in Settings.lua)
 
 --Settings
 L["UI"] = "Интерфейс";
@@ -81,6 +82,7 @@ L["Accessibility"] = "Спец. возможности";
 
 L["Option Enabled"] = "Включено";
 L["Option Disabled"] = "Отключено";
+L["Reset Position"] = "Вернуть позицию по умолчанию";
 
 L["Quest"] = "Задание";
 L["Gossip"] = "Разговор";
@@ -110,6 +112,9 @@ L["Simplify Currency Rewards"] = "Упрощение наград в виде в
 L["Simplify Currency Rewards Desc"] = "Использовать значки меньшего размера для обозначения наград в виде валют и убрать их названия.";
 L["Mark Highest Sell Price"] = "Метка самой высокой цены продажи";
 L["Mark Highest Sell Price Desc"] = "Покажет вам, какой товар имеет самую высокую цену продажи, когда вы выбираете награду.";
+L["Roleplaying"] = "Ролевая игра";
+L["Use RP Name In Dialogues"] = "Использовать ролевое имя в диалогах";
+L["Use RP Name In Dialogues Desc"] = "Заменить имя персонажа в диалогах на свое ролевое имя.";
 
 L["Camera Movement"] = "Движение камеры";
 L["Camera Movement Off"] = "ВЫКЛ";
@@ -146,6 +151,7 @@ L["Quest Item Display"] = "Отображение предмета для зад
 L["Quest Item Display Desc"] = "Автоматическое отображение описания предмета для задания и возможность использовать его, не открывая сумки.";
 L["Quest Item Display Hide Seen"] = "Игнорировать просмотренные предметы";
 L["Quest Item Display Hide Seen Desc"] = "Игнорировать предметы, которые были обнаружены кем-либо из ваших персонажей.";
+L["Quest Item Display Reset Position Desc"] = "Сбросить положение окна.";
 L["Auto Select"] = "Автовыбор";
 L["Auto Select Gossip"] = "Автовыбор варианта";
 L["Auto Select Gossip Desc"] = "Автоматически выбирать наилучший вариант диалога при взаимодействии с определенным NPC.";
