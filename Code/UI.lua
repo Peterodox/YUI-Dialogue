@@ -1123,6 +1123,7 @@ function DUIDialogBaseMixin:HandleGossip()
         questInfo.isOnQuest = false;
         questInfo.isAvailableQuest = true;
         questInfo.originalOrder = questIndex;
+        questInfo.index = i;
         quests[questIndex] = questInfo;
     end
 
@@ -1131,6 +1132,7 @@ function DUIDialogBaseMixin:HandleGossip()
         questInfo.isOnQuest = true;     --there is a delay between C_Gossip and C_QuestLog.IsOnQuest
         questInfo.isAvailableQuest = false;
         questInfo.originalOrder = questIndex;
+        questInfo.index = i;
         quests[questIndex] = questInfo;
     end
 
@@ -1144,9 +1146,9 @@ function DUIDialogBaseMixin:HandleGossip()
         hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
 
         if questInfo.isAvailableQuest then
-            button:SetAvailableQuest(questInfo, hotkeyIndex, hotkey);
+            button:SetAvailableQuest(questInfo, questInfo.index, hotkey);
         else
-            button:SetActiveQuest(questInfo, hotkeyIndex, hotkey);
+            button:SetActiveQuest(questInfo, questInfo.index, hotkey);
             tinsert(self.activeQuestButtons, button);
         end
 
@@ -1518,6 +1520,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         local isTrivial, frequency, isRepeatable, isLegendary, questID = GetAvailableQuestInfo(i);
 
         local questInfo = {
+            index = i,
             title = title,
             questID = questID,
             isOnQuest = false,
@@ -1569,9 +1572,9 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
 
         if questInfo.isAvailableQuest then
-            button:SetGreetingAvailableQuest(questInfo, hotkeyIndex, hotkey);
+            button:SetGreetingAvailableQuest(questInfo, questInfo.index, hotkey);
         else
-            button:SetGreetingActiveQuest(questInfo, hotkeyIndex, hotkey);
+            button:SetGreetingActiveQuest(questInfo, questInfo.index, hotkey);
             tinsert(self.activeQuestButtons, button);
         end
 
