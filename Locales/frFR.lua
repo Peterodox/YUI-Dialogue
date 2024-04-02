@@ -71,6 +71,7 @@ L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Niveau %d";
 L["Format Replace Item"] = "Remplace %s";
 L["Format Item Level"] = "Niveau d'objet %d";   --_G.ITEM_LEVEL in Classic is different																				   
 L["Format Breadcrumb Quests Available"] = "Quêtes de changement de zone disponibles: %s"; --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
+L["Format Functionality Handled By"] = "Cette fonctionnalité est prise en charge par %s";      --A functionality is provided by [another addon name] (Used in Settings.lua)
 
 --Settings
 L["UI"] = "UI";
@@ -81,6 +82,7 @@ L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accessibilité";
 
 L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Activé";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Désactivé";
+L["Reset Position"] = RESET_POSITION or "Réinitialiser la position";
 
 L["Quest"] = "Quête";
 L["Gossip"] = "Discussion";
@@ -110,6 +112,9 @@ L["Simplify Currency Rewards"] = "Simplifier les récompenses en monnaie";
 L["Simplify Currency Rewards Desc"] = "Utilise des icônes plus petites pour les récompenses en monnaie et cache leurs noms.";
 L["Mark Highest Sell Price"] = "Marquer l'objet le plus rentable";
 L["Mark Highest Sell Price Desc"] = "Marque l'objet en récompense ayant la plus grande valeur de revente.";
+L["Roleplaying"] = GDAPI_REALMTYPE_RP or "JDR";
+L["Use RP Name In Dialogues"] = "Utiliser votre nom JDR dans les dialogues";
+L["Use RP Name In Dialogues Desc"] = "Remplace le nom de votre personnage dans les dialogues par votre nom JDR.";
 
 L["Camera Movement"] = "Mouvement de la caméra";
 L["Camera Movement Off"] = "DÉSACTIVÉ";
@@ -146,6 +151,7 @@ L["Quest Item Display"] = "Afficher l'objet de quête"
 L["Quest Item Display Desc"] = "Affiche automatiquement la description de l'objet de quête et vous permet de l'utiliser sans ouvrir les sacs.";
 L["Quest Item Display Hide Seen"] = "Ignorer les objets déjà vus";
 L["Quest Item Display Hide Seen Desc"] = "Ignore les objets qui ont déjà été découverts par l'un de vos personnages.";
+L["Quest Item Display Reset Position Desc"] = "Réinitialiser la position de la fenêtre.";
 L["Auto Select"] = "Selection Auto";
 L["Auto Select Gossip"] = "Sélection automatique";
 L["Auto Select Gossip Desc"] = "Sélectionne automatiquement la meilleure option de dialogue lors de l’interaction avec certains PNJ.";
