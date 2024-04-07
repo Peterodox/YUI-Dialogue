@@ -487,42 +487,67 @@ end
 
 do
     if C_TooltipComparison and C_TooltipComparison.GetItemComparisonInfo and TooltipComparisonManager then
+        function SharedTooltip:AddComparisonItems(shouldShowComparison, comparisonItem, rewardItem, equippedItem)
+            --Item = { guid = "" }
+            if equippedItem and equippedItem.guid then
+                local delta = C_TooltipComparison.GetItemComparisonDelta(comparisonItem, equippedItem);
+                local itemGUID = equippedItem.guid;
+                if delta and #delta > 0 then
+                    if not shouldShowComparison then
+                        return true
+                    end
+                    self:AddBlankLine();
+
+                    local equippedItemLink =  C_Item.GetItemLinkByGUID(itemGUID); --API.GetEquippedItemLink(rewardItem);
+                    if equippedItemLink then
+                        self:AddLeftLine(L["Format Replace Item"]:format(equippedItemLink), 1, 0.82, 0, true);
+                    else
+                        self:AddLeftLine(ITEM_DELTA_DESCRIPTION, 1, 0.82, 0, true);
+                    end
+
+                    local itemLevelDelta = API.GetItemLevelDelta(rewardItem, equippedItemLink, true);
+                    if itemLevelDelta then
+                        self:AddLeftLine(itemLevelDelta, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                    end
+
+                    for i, deltaLine in ipairs(delta) do
+                        self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                    end
+
+                    local effectText, cached = API.GetItemEffect(equippedItemLink);
+                    if not cached then
+                        C_Timer.After(0.25, function()
+                            self:ReTriggerOnEnter();
+                        end);
+                    end
+                    if effectText then
+                        local offset = nil; --TOOLTIP_PADDING
+                        self:AddLeftLine(effectText, 0, 1, 0, false, nil, 2, offset);
+                    end
+
+                    return true
+                end
+            end
+
+            return false
+        end
+
         function SharedTooltip:ShowItemComparison()
-            local itemID = self:GetItemID();
-            if not IsItemValidForComparison(itemID) then return end;
+            local rewardItem = self:GetHyperlink();
+            if not IsItemValidForComparison(rewardItem) then return end;
 
             local shouldShowComparison = DialogueUI_DB.TooltipShowItemComparison == true;
             local canCompare = false;
 
-            local comparisonItem = TooltipComparisonManager:CreateComparisonItem(self.tooltipData);
+            local comparisonItem = TooltipComparisonManager:CreateComparisonItem(self.tooltipData);                 --Mouse-over item: Quest Reward
             local compairsonInfo = comparisonItem and C_TooltipComparison.GetItemComparisonInfo(comparisonItem);
 
-            if compairsonInfo and compairsonInfo.item and compairsonInfo.item.guid then
-                local displayedItem = compairsonInfo.item;
-                local delta = C_TooltipComparison.GetItemComparisonDelta(comparisonItem, displayedItem);
-                --self:SetItemByGUID(compairsonInfo.item.guid);
-
-                if delta and #delta > 0 then
-                    canCompare = true;
-                    if shouldShowComparison then
-                        self:AddBlankLine();
-
-                        local equippedItemLink = API.GetEquippedItemLink(itemID);
-                        if equippedItemLink then
-                            self:AddLeftLine(L["Format Replace Item"]:format(equippedItemLink), 1, 0.82, 0, true);
-                        else
-                            self:AddLeftLine(ITEM_DELTA_DESCRIPTION, 1, 0.82, 0, true);
-                        end
-
-                        local itemLevelDelta = API.GetItemLevelDelta(itemID, true);
-                        if itemLevelDelta then
-                            self:AddLeftLine(itemLevelDelta, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
-                        end
-
-                        for i, deltaLine in ipairs(delta) do
-                            self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
-                        end
-                    end
+            local method = compairsonInfo.method;
+            local isPairedItem = method == 2 or method == 3; --.WithBagMainHandItem or comparisonMethod == Enum.TooltipComparisonMethod.WithBagOffHandItem;
+            if compairsonInfo then
+                canCompare = self:AddComparisonItems(shouldShowComparison, comparisonItem, rewardItem, compairsonInfo.item);
+                if (not isPairedItem) and compairsonInfo.additionalItems and #compairsonInfo.additionalItems >= 1 then
+                    self:AddComparisonItems(shouldShowComparison, comparisonItem, rewardItem, compairsonInfo.additionalItems[1]);
                 end
             end
 
@@ -534,26 +559,43 @@ do
         end
     else
         function SharedTooltip:ShowItemComparison()
-            local itemID = self:GetItemID();
+            local itemID = self:GetHyperlink();
             if not IsItemValidForComparison(itemID) then return end;
 
             local shouldShowComparison = DialogueUI_DB.TooltipShowItemComparison == true;
             local canCompare = false;
 
-            local compairsonInfo, equippedItemLink, areItemsSameType = API.GetItemComparisonInfo(itemID);
+            local compairsonInfo, areItemsSameType = API.GetItemComparisonInfo(itemID);
 
             if compairsonInfo then
                 canCompare = true;
                 if shouldShowComparison then
-                    self:AddBlankLine();
-                    self:AddLeftLine(L["Format Replace Item"]:format(equippedItemLink), 1, 0.82, 0, true);
+                    local requery = false;
+                    for _, info in ipairs(compairsonInfo) do
+                        self:AddBlankLine();
+                        self:AddLeftLine(L["Format Replace Item"]:format(info.equippedItemLink), 1, 0.82, 0, true);
 
-                    if not areItemsSameType then
-                        self:AddLeftLine(L["Different Item Types Alert"], 1.000, 0.125, 0.125, true);   --TODO: this red on the Dark theme doesn't look comforting.
-                    end
+                        if not areItemsSameType then
+                            self:AddLeftLine(L["Different Item Types Alert"], 1.000, 0.125, 0.125, true);   --TODO: this red on the Dark theme doesn't look comforting.
+                        end
 
-                    for i, deltaLine in ipairs(compairsonInfo) do
-                        self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                        for i, deltaLine in ipairs(info.deltaStats) do
+                            self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                        end
+
+                        local effectText, cached = API.GetItemEffect(info.equippedItemLink);
+                        if not cached then
+                            if not requery then
+                                requery = true;
+                                C_Timer.After(0.25, function()
+                                    self:ReTriggerOnEnter();
+                                end);
+                            end
+                        end
+                        if effectText then
+                            local offset = nil; --TOOLTIP_PADDING
+                            self:AddLeftLine(effectText, 0, 1, 0, false, nil, 2, offset);
+                        end
                     end
                 end
             end
@@ -584,6 +626,12 @@ function SharedTooltip:SetOwner(owner, anchor, offsetX, offsetY)
         return
     else
         self:SetPoint("BOTTOMLEFT", owner, "TOPRIGHT", offsetX, offsetY);
+    end
+end
+
+function SharedTooltip:ReTriggerOnEnter()
+    if self:IsVisible() and self.owner and self.owner.OnEnter and self.owner:IsShown() and self.owner:IsMouseOver() then
+        self.owner:OnEnter();
     end
 end
 

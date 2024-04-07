@@ -5,6 +5,7 @@ local L = addon.L;
 local floor = math.floor;
 local sqrt = math.sqrt;
 local tostring = tostring;
+local find = string.find;
 
 local function AlwaysFalse(arg)
     --used to replace non-existent API in Classic
@@ -1596,43 +1597,20 @@ do  --Tooltip
     API.GetEquippedItemLink = GetEquippedItemLink;
 
 
-    local function GetItemLevelDelta(newItem, formatedToText)
-        local _, _, _, itemEquipLoc = GetItemInfoInstant(newItem);
-        local slotID = itemEquipLoc and EQUIPLOC_SLOTID[itemEquipLoc];
-        local diff = 0;
-
-        if slotID then
-            local newItemLevel = API.GetItemLevel(newItem) or 0;
-            local equippedItemLink = GetInventoryItemLink("player", slotID);
-
-            if equippedItemLink then
-                local oldItemLevel = API.GetItemLevel(equippedItemLink) or 0;
-                diff = newItemLevel - oldItemLevel;
-            else
-                diff = newItemLevel;
-            end
-        end
+    local function GetItemLevelDelta(newItem, oldItem, formatedToText)
+        local newItemLevel = API.GetItemLevel(newItem) or 0;
+        local oldItemLevel = API.GetItemLevel(oldItem) or 0;
+        local diff = newItemLevel - oldItemLevel;
 
         if formatedToText then
             if diff ~= 0 then
-                return FormatValueDiff(diff, L["Item Level"])
-            end
-        else
-            return diff
-        end
-
-        if formatedToText then
-            if diff ~= 0 then
-                return diff
-            else
-                return
+                return FormatValueDiff(diff, L["Item Level"]);
             end
         end
 
         return diff
     end
     API.GetItemLevelDelta = GetItemLevelDelta;
-
 
     if C_TooltipInfo then
         addon.TooltipAPI = C_TooltipInfo;
@@ -1880,60 +1858,142 @@ do  --Tooltip
             return classID1 == classID2 and subclassID1 == subclassID2;
         end
 
+        local function BuildItemComparison(newItemStats, newItem, slotID)
+            local equippedItemLink = GetInventoryItemLink("player", slotID);
+            if equippedItemLink then
+                TP:ClearLines();
+                TP:SetOwner(UIParent, "ANCHOR_PRESERVE");
+                TP:SetHyperlink(equippedItemLink);
+                local equippedItemStats = GetItemStatsFromTooltip();
+
+                if newItemStats and equippedItemStats then
+                    local v1;   --new item
+                    local v2;   --equipped item
+                    local deltaStats;
+
+                    --Show item level diffs
+                    v1 = API.GetItemLevel(newItem);
+                    v2 = API.GetItemLevel(equippedItemLink);
+
+                    if v1 and v2 and v1 ~= v2 then
+                        if not deltaStats then
+                            deltaStats = {};
+                        end
+                        tinsert(deltaStats, FormatValueDiff(v1 - v2, L["Item Level"]));
+                    end
+
+                    for _, k in ipairs(STATS_ORDER) do
+                        v1 = newItemStats[k] or 0;
+                        v2 = equippedItemStats[k] or 0;
+                        if v1 ~= v2 then
+                            if not deltaStats then
+                                deltaStats = {};
+                            end
+                            tinsert(deltaStats, FormatValueDiff(v1 - v2, STATS_NAME[k]));
+                        end
+                    end
+
+                    if deltaStats then
+                       local info = {
+                            deltaStats = deltaStats,
+                            equippedItemLink = equippedItemLink,
+                       };
+
+                       return info, AreItemsSameType(newItem, equippedItemLink)
+                    end
+                end
+            end
+        end
+
         local function GetItemComparisonInfo(item)
             --Classic
             local _, _, _, itemEquipLoc = GetItemInfoInstant(item);
             local slotID = itemEquipLoc and EQUIPLOC_SLOTID[itemEquipLoc];
             if slotID then
-                local equippedItemLink = GetInventoryItemLink("player", slotID);
-                if equippedItemLink then
-                    TP:ClearLines();
-                    TP:SetOwner(UIParent, "ANCHOR_PRESERVE");
-                    if type(item) == "number" then
-                        TP:SetItemByID(item);
-                    else
-                        TP:SetHyperlink(item);
-                    end
-                    local stats1 = GetItemStatsFromTooltip();
-
-                    TP:ClearLines();
-                    TP:SetOwner(UIParent, "ANCHOR_PRESERVE");
-                    TP:SetHyperlink(equippedItemLink);
-                    local stats2 = GetItemStatsFromTooltip();
-
-                    if stats1 and stats2 then
-                        local v1;   --new item
-                        local v2;   --equipped item
-                        local deltaStats;
-
-                        --Show item level diffs
-                        v1 = API.GetItemLevel(item);
-                        v2 = API.GetItemLevel(equippedItemLink);
-
-                        if v1 and v2 and v1 ~= v2 then
-                            if not deltaStats then
-                                deltaStats = {};
-                            end
-                            tinsert(deltaStats, FormatValueDiff(v1 - v2, L["Item Level"]));
-                        end
-
-                        for _, k in ipairs(STATS_ORDER) do
-                            v1 = stats1[k] or 0;
-                            v2 = stats2[k] or 0;
-                            if v1 ~= v2 then
-                                if not deltaStats then
-                                    deltaStats = {};
-                                end
-                                tinsert(deltaStats, FormatValueDiff(v1 - v2, STATS_NAME[k]));
-                            end
-                        end
-                        return deltaStats, equippedItemLink, AreItemsSameType(item, equippedItemLink)
-                    end
+                TP:ClearLines();
+                TP:SetOwner(UIParent, "ANCHOR_PRESERVE");
+                if type(item) == "number" then
+                    TP:SetItemByID(item);
+                else
+                    TP:SetHyperlink(item);
                 end
+                local newItemStats = GetItemStatsFromTooltip();
+                local item1Info, areItemsSameType = BuildItemComparison(newItemStats, item, slotID);
+
+                local compairsonInfo;
+                if item1Info then
+                    if not compairsonInfo then
+                        compairsonInfo = {};
+                    end
+                    tinsert(compairsonInfo, item1Info);
+                end
+
+                local item2Info;
+                if slotID == 11 then
+                    item2Info = BuildItemComparison(newItemStats, item, 12);
+                elseif slotID == 13 then
+                    item2Info = BuildItemComparison(newItemStats, item, 14);
+                end
+
+                if item2Info then
+                    if not compairsonInfo then
+                        compairsonInfo = {};
+                    end
+                    tinsert(compairsonInfo, item2Info);
+                end
+
+                return compairsonInfo, areItemsSameType
             end
         end
         API.GetItemComparisonInfo = GetItemComparisonInfo;
     end
+
+
+    local ON_USE = ITEM_SPELL_TRIGGER_ONUSE or"Use:";
+    local ON_EQUIP = ITEM_SPELL_TRIGGER_ONEQUIP or"Equip:";
+    --local ON_PROC = ITEM_SPELL_TRIGGER_ONPROC or"Chance on hit:";
+
+    local ITEMLINK_CACHED = {};
+
+    local function GetItemEffect(itemLink)
+        local cached = true;
+        local classID, subClassID = select(6, GetItemInfoInstant(itemLink));
+        if classID == 4 and subClassID == 0 then
+            local tooltipData = addon.TooltipAPI.GetHyperlink(itemLink);
+            if tooltipData and tooltipData.lines then
+                if not ITEMLINK_CACHED[itemLink] then
+                    ITEMLINK_CACHED[itemLink] = true;
+                    cached = false;
+                end
+                local effectText, processed;
+                for _, lineData in ipairs(tooltipData.lines) do
+                    processed = false;
+                    if lineData.leftText then
+                        if find(lineData.leftText, ON_USE) then
+                            processed = true;
+                            if effectText then
+                                effectText = effectText.."\n"..lineData.leftText;
+                            else
+                                effectText = lineData.leftText;
+                            end
+                        end
+
+                        if (not processed) and find(lineData.leftText, ON_EQUIP) then
+                            processed = true;
+                            if effectText then
+                                effectText = effectText.."\n"..lineData.leftText;
+                            else
+                                effectText = lineData.leftText;
+                            end
+                        end
+                    end
+                end
+                return effectText, cached
+            end
+        end
+        return nil, true
+    end
+    API.GetItemEffect = GetItemEffect;
 end
 
 
@@ -1966,7 +2026,7 @@ do  --Items
 
     local function GetQuestChoiceSellPrice(index)
         local hyperlink = GetQuestItemLink("choice", index);
-        if hyperlink and string.find(hyperlink, "[Ii]tem:") then
+        if hyperlink and find(hyperlink, "[Ii]tem:") then
             return GetItemSellPrice(hyperlink) or 0
         else
             return 0
@@ -1987,13 +2047,13 @@ do  --Keybindings
 
         if key1 or key2 then
             if key1 then
-                if not string.find(key1, "-") then
+                if not find(key1, "-") then
                     key = key1;
                 end
             end
 
             if (not key) and key2 then
-                if not string.find(key2, "-") then
+                if not find(key2, "-") then
                     key = key2;
                 end
             end

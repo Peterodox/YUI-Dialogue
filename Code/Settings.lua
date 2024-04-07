@@ -365,13 +365,17 @@ local function TTSHotkey_Tooltip()
     return L["TTS Use Hotkey Tooltip "..device]
 end
 
-local function QuestItemDisplayPosition_OnClick()
+local function QuestItemDisplay_Move_OnClick()
+    addon.QuestItemDisplay:EnterEditMode();
+end
+
+local function QuestItemDisplay_Reset_OnClick()
     addon.QuestItemDisplay:ResetPosition();
 end
 
 local function QuestItemDisplayPosition_Validation()
     local f = addon.QuestItemDisplay;
-    return f and f:IsUsingCustomPosition();
+    return f and f:IsUsingCustomPosition()
 end
 
 local function RPAddOn_Validation()
@@ -472,7 +476,8 @@ local Schematic = {
         options = {
             {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay", ratio = 2},
             {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", parentKey = "QuestItemDisplay", requiredParentValue = true},
-            {type = "Custom", name = L["Reset Position"], description = L["Quest Item Display Reset Position Desc"], parentKey = "QuestItemDisplay", requiredParentValue = true, validationFunc = QuestItemDisplayPosition_Validation, onClickFunc = QuestItemDisplayPosition_OnClick},
+            {type = "Custom", name = L["Move Position"], icon = "Settings-Move.png", parentKey = "QuestItemDisplay", requiredParentValue = true, onClickFunc = QuestItemDisplay_Move_OnClick},
+            {type = "Custom", name = L["Reset Position"], icon = "Settings-Reset.png", description = L["Quest Item Display Reset Position Desc"], parentKey = "QuestItemDisplay", requiredParentValue = true, validationFunc = QuestItemDisplayPosition_Validation, onClickFunc = QuestItemDisplay_Reset_OnClick},
 
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
@@ -1098,17 +1103,34 @@ function DUIDialogSettingsOptionMixin:SetData(optionData)
     end
     self.isSubheader = isSubheader;
 
+    local nameOffset;
+
     if optionData.parentKey then
-        self.Label:SetPoint("LEFT", self, "LEFT", OPTIONBUTTON_LABEL_OFFSET + 24, 0);
-        local icon = MainFrame.texturePool:Acquire();
-        icon:SetSize(OPTIONBUTTON_HEIGHT*0.5, OPTIONBUTTON_HEIGHT*0.5);
-        icon:SetTexture(ThemeUtil:GetTextureFile("Settings-SubOptionIcon.png"));
-        icon:SetVertexColor(1, 1, 1, 0.5);
-        icon:SetPoint("BOTTOM", self, "LEFT", OPTIONBUTTON_LABEL_OFFSET + 2, 0);
-        icon:SetParent(self);
+        nameOffset = OPTIONBUTTON_LABEL_OFFSET + 24;
+        local branch = MainFrame.texturePool:Acquire();
+        branch:SetSize(OPTIONBUTTON_HEIGHT*0.5, OPTIONBUTTON_HEIGHT*0.5);
+        branch:SetTexture(ThemeUtil:GetTextureFile("Settings-SubOptionIcon.png"));
+        branch:SetVertexColor(1, 1, 1, 0.5);
+        branch:SetPoint("BOTTOM", self, "LEFT", OPTIONBUTTON_LABEL_OFFSET + 2, 0);
+        branch:SetParent(self);
     else
-        self.Label:SetPoint("LEFT", self, "LEFT", OPTIONBUTTON_LABEL_OFFSET, 0);
+        nameOffset = OPTIONBUTTON_LABEL_OFFSET;
     end
+
+    if optionData.icon then
+        local icon = MainFrame.texturePool:Acquire();
+        local iconSize = OPTION_WIDGET_SIZE;
+        local iconOffset = -0.125*iconSize;
+        icon:SetSize(iconSize, iconSize);
+        icon:SetTexture(ThemeUtil:GetTextureFile(optionData.icon));
+        icon:SetVertexColor(1, 1, 1, 1);
+        icon:SetPoint("LEFT", self, "LEFT", nameOffset + iconOffset, 0);
+        icon:SetParent(self);
+        nameOffset = nameOffset + iconSize;
+    end
+
+    self.Label:ClearAllPoints();
+    self.Label:SetPoint("LEFT", self, "LEFT", nameOffset, 0);
 end
 
 

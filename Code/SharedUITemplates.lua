@@ -1531,6 +1531,10 @@ function DUIDialogItemButtonMixin:SetCurrency(sourceType, index)
         self:RequestInfo();
     end
 
+    if not amount then
+        amount = 1;
+    end
+
     self:SetItemName(name, quality);
     self.Icon:SetTexture(texture);
     self.Count:SetText(AbbreviateNumbers(amount));
@@ -1740,6 +1744,10 @@ function DUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
     local name, texture, amount, quality = GetQuestCurrencyInfo(sourceType, index);
     local currencyID = GetQuestCurrencyID(sourceType, index);
     self.currencyID = currencyID;
+
+    if not amount then
+        amount = 1;
+    end
 
     self:SetIcon(texture);
     self:SetItemName(amount);

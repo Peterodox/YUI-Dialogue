@@ -211,6 +211,9 @@ function QuestItemDisplay:Init()
         self:SavePosition();
         self.isMoving = nil;
     end);
+
+    self:SetFrameStrata("FULLSCREEN_DIALOG");
+    self:SetFixedFrameStrata(true);
 end
 
 function QuestItemDisplay:UpdatePixel(scale)
@@ -268,6 +271,8 @@ function QuestItemDisplay:SavePosition()
             Round(y);
         };
     end
+
+    addon.SettingsUI:RequestUpdate();
 end
 
 local function Countdown_OnUpdate(self, elapsed)
@@ -355,6 +360,9 @@ function QuestItemDisplay:LoadTheme()
 end
 
 function QuestItemDisplay:Layout(hasDescription)
+    self.ItemName:ClearAllPoints();
+    self.ItemName:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
+
     local titleWidth = self.ItemName:GetWrappedWidth() + CLOSE_BUTTON_SIZE;
     local descWidth;
 
@@ -512,8 +520,7 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     end
 
     local icon = C_Item.GetItemIconByID(itemID);
-    self.ItemName:ClearAllPoints();
-    self.ItemName:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
+
     self.ItemIcon:SetTexture(icon);
     self.ItemName:SetText(name);
     self.Description:SetText(description);
@@ -796,6 +803,24 @@ function QuestItemDisplay:LoadSaves()
     end
 
     SEEN_ITEMS_ALL = DialogueUI_Saves.QuestItems;
+end
+
+function QuestItemDisplay:EnterEditMode()
+    if self.Init then
+        self:Init();
+    end
+
+    self:Clear();
+    self.ItemName:SetText(L["Quest Item Display"]);
+    self.Description:SetText(L["Drag To Move"]);
+    self.ItemIcon:SetTexture(134400);   --QuestionMark
+    self.Swipe1:Hide();
+    self.Swipe2:Hide();
+    self:ShowTextButton(false);
+    self:Layout(true);
+    self.AnimIn:Stop();
+    self.AnimIn:Play();
+    self:Show();
 end
 
 function QuestItemDisplay:EnableModule(state)
