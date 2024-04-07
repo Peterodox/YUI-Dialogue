@@ -83,7 +83,7 @@ L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accessibilité";
 L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Activé";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Désactivé";
 L["Move Position"] = "Déplacer";
-L["Reset Position"] = RESET_POSITION or "Réinitialiser la position";
+L["Reset Position"] = RESET_POSITION or "Réinitialise la position";
 L["Drag To Move"] = "Cliquez avec le bouton gauche de la souris et faites glisser pour déplacer la fenêtre.";
 
 L["Quest"] = "Quête";
