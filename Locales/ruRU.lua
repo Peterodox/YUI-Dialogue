@@ -82,7 +82,9 @@ L["Accessibility"] = "Спец. возможности";
 
 L["Option Enabled"] = "Включено";
 L["Option Disabled"] = "Отключено";
+L["Move Position"] = "Перетащить";
 L["Reset Position"] = "Вернуть позицию по умолчанию";
+L["Drag To Move"] = "Зажмите ЛКМ и тащите курсор, чтобы переместить окно.";
 
 L["Quest"] = "Задание";
 L["Gossip"] = "Разговор";
