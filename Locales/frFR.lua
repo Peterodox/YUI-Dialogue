@@ -82,7 +82,9 @@ L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accessibilité";
 
 L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Activé";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Désactivé";
-L["Reset Position"] = RESET_POSITION or "Réinitialiser la position";
+L["Move Position"] = "Déplacer";
+L["Reset Position"] = RESET_POSITION or "Réinitialise la position";
+L["Drag To Move"] = "Cliquez avec le bouton gauche de la souris et faites glisser pour déplacer la fenêtre.";
 
 L["Quest"] = "Quête";
 L["Gossip"] = "Discussion";
@@ -151,7 +153,7 @@ L["Quest Item Display"] = "Afficher l'objet de quête"
 L["Quest Item Display Desc"] = "Affiche automatiquement la description de l'objet de quête et vous permet de l'utiliser sans ouvrir les sacs.";
 L["Quest Item Display Hide Seen"] = "Ignorer les objets déjà vus";
 L["Quest Item Display Hide Seen Desc"] = "Ignore les objets qui ont déjà été découverts par l'un de vos personnages.";
-L["Quest Item Display Reset Position Desc"] = "Réinitialiser la position de la fenêtre.";
+L["Quest Item Display Reset Position Desc"] = "Réinitialise la position de la fenêtre.";
 L["Auto Select"] = "Selection Auto";
 L["Auto Select Gossip"] = "Sélection automatique";
 L["Auto Select Gossip Desc"] = "Sélectionne automatiquement la meilleure option de dialogue lors de l’interaction avec certains PNJ.";
