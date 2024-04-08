@@ -144,6 +144,7 @@ function TTSUtil:EnableModule(state)
         self:UnregisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
         self:UnregisterEvent("VOICE_CHAT_TTS_PLAYBACK_FINISHED");
         self:SetScript("OnEvent", nil);
+        self:StopLastTTS()
     end
 end
 

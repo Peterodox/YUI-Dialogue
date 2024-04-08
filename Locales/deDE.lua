@@ -100,7 +100,7 @@ L["Camera Movement Off"] = "AUS";
 L["Camera Movement Zoom In"] = "Reinzoomen";
 L["Camera Movement Horizontal"] = "Horizontal";
 L["Maintain Camera Position"] = "Kameraposition beibehalten";
-L["Maintain Camera Position Desc"] = "Behalte die Kameraposition kurzfristig bei, wenn du mit einem NPC interagiert hast. Diese Option reduziert die plötzliche Bewegung der Kamera, die durch die Latenz zwischen den Dialogen verursacht wird.";
+L["Maintain Camera Position Desc"] = "Behalte die Kameraposition kurzfristig bei, wenn du mit einem NPC interagiert hast.\n\nDiese Option reduziert die plötzliche Bewegung der Kamera, die durch die Latenz zwischen den Dialogen verursacht wird.";
 L["Change FOV"] = "Change FOV";
 L["Change FOV Desc"] = "Reduce the camera\'s field of view to zoom in closer to the NPC.";
 

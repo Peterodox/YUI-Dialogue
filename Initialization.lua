@@ -1,4 +1,4 @@
-local VERSION_TEXT = "v0.2.7";
+local VERSION_TEXT = "v0.2.8";
 local VERSION_DATE = 1712505000;
 
 
@@ -29,6 +29,7 @@ local DefaultValues = {
     CameraChangeFov = true,
     CameraMovement1MaintainPosition = false,
     CameraMovement2MaintainPosition = true,
+    CameraMovementMountedCamera = true,
     CameraMovementDisableInstance = false,
 
     InputDevice = 1,                            --1:K&M  2:XBOX  3.PS  4.Mobile

@@ -440,11 +440,11 @@ local Schematic = {
                     {dbValue = 2, valueText = L["Camera Movement Horizontal"]},
                 },
             },
-            {type = "Checkbox", name = L["Change FOV"], description = L["Change FOV Desc"], dbKey = "CameraChangeFov", parentKey = "CameraMovement", requiredParentValue = 1, preview = "CameraChangeFov", ratio = 2,},
-            {type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement1MaintainPosition", parentKey = "CameraMovement", requiredParentValue = 1, },
+            {type = "Checkbox", name = L["Change FOV"], description = L["Change FOV Desc"], dbKey = "CameraChangeFov", parentKey = "CameraMovement", requiredParentValue = 1, preview = "CameraChangeFov", ratio = 2},
+            {type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement1MaintainPosition", parentKey = "CameraMovement", requiredParentValue = 1},
             --{type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement2MaintainPosition", parentKey = "CameraMovement", requiredParentValue = 2, },
-            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", parentKey = "CameraMovement", requiredParentValue = 1, },
-            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", parentKey = "CameraMovement", requiredParentValue = 2, },
+            {type = "Checkbox", name = L["Maintain Offset While Mounted"], description = L["Maintain Offset While Mounted Desc"], dbKey = "CameraMovementMountedCamera", parentKey = "CameraMovement", requiredParentValue = {1, 2}},
+            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", parentKey = "CameraMovement", requiredParentValue = {1, 2}},
         },
     },
 
@@ -877,11 +877,23 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
 
     for i, optionData in ipairs(tabData.options) do
         if optionData.parentKey then
-            if GetDBValue(optionData.parentKey) == optionData.requiredParentValue then
-                isOptionValid = true;
+            isOptionValid = false;
+            local requirement = optionData.requiredParentValue;
+            local dbValue = GetDBValue(optionData.parentKey);
+
+            if type(requirement) == "table" then
+                for _, requiredParentValue in ipairs(requirement) do
+                    if dbValue == requiredParentValue then
+                        isOptionValid = true;
+                        break
+                    end
+                end
             else
-                isOptionValid = false;
+                if dbValue == optionData.requiredParentValue then
+                    isOptionValid = true;
+                end
             end
+
 
             if dbKeyToWidget[optionData.parentKey] then
                 dbKeyToWidget[optionData.parentKey].isParentOption = true;

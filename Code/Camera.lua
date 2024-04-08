@@ -14,7 +14,8 @@ local FOV_DEFAULT = 90;
 local FOV_ZOOMED_IN = 75;
 local FOCUS_STRENGTH_PITCH = 1.0;
 local FOCUS_SHOULDER_OFFSET = 1.5;
-local MOUNTED_CAMERA_MULTIPLIER = 6;    --6 when on the left, 0.4 right
+local MOUNTED_CAMERA_ENABLED = true;
+local MOUNTED_CAMERA_MULTIPLIER = 5.725;  --1.85 (Netherwing)     1.25(Renewed Proto)
 ------------------
 
 local DeltaLerp = API.DeltaLerp;
@@ -143,7 +144,11 @@ end
 function CameraUtil:UpdateMounted()
     self.isMounted = IsMounted();
     if self.isMounted then
-        self.offsetMultiplier = MOUNTED_CAMERA_MULTIPLIER;
+        if MOUNTED_CAMERA_ENABLED then
+            self.offsetMultiplier = MOUNTED_CAMERA_MULTIPLIER;
+        else
+            self.offsetMultiplier = 1.5;
+        end
     else
         self.offsetMultiplier = 1;
     end
@@ -151,6 +156,40 @@ end
 
 local function SetCameraOverShoulder(value)
     SetCVar("test_cameraOverShoulder", value);
+end
+
+local function GetMountID()
+    local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex;
+    local GetMountFromSpell = C_MountJournal.GetMountFromSpell;
+    local i = 1;
+    local mountID, count, duration;
+    local spellID = 0;
+    local aura;
+
+    while spellID do
+        aura = GetAuraDataByIndex("player", i, "HELPFUL");
+        spellID = aura and aura.spellId;
+        if spellID then
+            count = aura.applications;
+            duration = aura.duration;
+            if count == 0 and duration == 0 then
+                mountID = GetMountFromSpell(spellID);
+                if mountID then
+                    break
+                else
+                    i = i + 1;
+                end
+            else
+                i = i + 1;
+            end
+        else
+            break
+        end
+    end
+
+    if mountID then
+        API.EvaluateMountScale(mountID);
+    end
 end
 
 function CameraUtil:OnMountChanged()
@@ -162,6 +201,8 @@ function CameraUtil:OnMountChanged()
         if not self.isMounted then
             self:UpdateMounted();
             changed = true;
+
+            --GetMountID();
         end
     else
         if self.isMounted then
@@ -563,6 +604,11 @@ do
         CameraUtil:OnFovSettingsChanged()
     end
     addon.CallbackRegistry:Register("SettingChanged.CameraChangeFov", Settings_CameraChangeFov);
+
+    local function Settings_CameraMovementMountedCamera(dbValue)
+        MOUNTED_CAMERA_ENABLED = dbValue == true;
+    end
+    addon.CallbackRegistry:Register("SettingChanged.CameraMovementMountedCamera", Settings_CameraMovementMountedCamera);
 
     local function Settings_HideUI(dbValue)
         HIDE_UI = dbValue == true;

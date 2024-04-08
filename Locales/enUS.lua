@@ -123,11 +123,13 @@ L["Camera Movement Off"] = "OFF";
 L["Camera Movement Zoom In"] = "Zoom In";
 L["Camera Movement Horizontal"] = "Horizontal";
 L["Maintain Camera Position"] = "Maintain Camera Position";
-L["Maintain Camera Position Desc"] = "Maintain camera position briefly after NPC interaction ends. Enabling this option will reduce the camera's sudden movement caused by the latency between dialogs.";
+L["Maintain Camera Position Desc"] = "Maintain camera position briefly after NPC interaction ends.\n\nEnabling this option will reduce the camera's sudden movement caused by the latency between dialogs.";
 L["Change FOV"] = "Change FOV";
 L["Change FOV Desc"] = "Reduce the camera\'s field of view to zoom in closer to the NPC.";
 L["Disable Camera Movement Instance"] = "Disable In Instance";
 L["Disable Camera Movement Instance Desc"] = "Disable camera movement while in dungeon or raid.";
+L["Maintain Offset While Mounted"] = "Maintain Offset While Mounted";
+L["Maintain Offset While Mounted Desc"] = "Attempt to maintain your character's position on the screen while mounted.\n\nEnabling this option may overcompensate the horizontal offset for large-sized mounts.";
 
 L["Input Device"] = "Input Device";
 L["Input Device Desc"] = "Affects hotkey icons and UI layout.";

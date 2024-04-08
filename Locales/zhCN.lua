@@ -123,11 +123,13 @@ L["Camera Movement Off"] = "关";
 L["Camera Movement Zoom In"] = "拉近";
 L["Camera Movement Horizontal"] = "平移";
 L["Maintain Camera Position"] = "保持镜头位置";
-L["Maintain Camera Position Desc"] = "在NPC交互结束后短暂地保持镜头位置。勾选此选项可以减少由任务对话延迟等原因导致的镜头快速变化的情况。";
+L["Maintain Camera Position Desc"] = "在NPC交互结束后短暂地保持镜头位置。\n\n勾选此选项可以减少由任务对话延迟等原因导致的镜头快速变化的情况。";
 L["Change FOV"] = "改变视角";
 L["Change FOV Desc"] = "降低镜头视角来让NPC在画面中占的比例更大。";
 L["Disable Camera Movement Instance"] = "副本中关闭";
 L["Disable Camera Movement Instance Desc"] = "在副本中关闭镜头运动。";
+L["Maintain Offset While Mounted"] = "在骑乘时保持水平位移";
+L["Maintain Offset While Mounted Desc"] = "在你上坐骑后尝试保持你的角色在屏幕上的位置不变。\n\n勾选此选项可能会导致在你使用体形比较大的坐骑时镜头出现过度补偿。";
 
 L["Input Device"] = "输入设备";
 L["Input Device Desc"] = "此选项影响快捷键图标和界面布局。";

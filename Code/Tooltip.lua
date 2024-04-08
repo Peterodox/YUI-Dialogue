@@ -542,9 +542,9 @@ do
             local comparisonItem = TooltipComparisonManager:CreateComparisonItem(self.tooltipData);                 --Mouse-over item: Quest Reward
             local compairsonInfo = comparisonItem and C_TooltipComparison.GetItemComparisonInfo(comparisonItem);
 
-            local method = compairsonInfo.method;
-            local isPairedItem = method == 2 or method == 3; --.WithBagMainHandItem or comparisonMethod == Enum.TooltipComparisonMethod.WithBagOffHandItem;
             if compairsonInfo then
+                local method = compairsonInfo.method;
+                local isPairedItem = method == 2 or method == 3; --.WithBagMainHandItem or comparisonMethod == Enum.TooltipComparisonMethod.WithBagOffHandItem;
                 canCompare = self:AddComparisonItems(shouldShowComparison, comparisonItem, rewardItem, compairsonInfo.item);
                 if (not isPairedItem) and compairsonInfo.additionalItems and #compairsonInfo.additionalItems >= 1 then
                     self:AddComparisonItems(shouldShowComparison, comparisonItem, rewardItem, compairsonInfo.additionalItems[1]);

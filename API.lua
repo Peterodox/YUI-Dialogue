@@ -427,6 +427,8 @@ do  --NPC Interaction
         elseif event == "LOADING_SCREEN_DISABLED" then
             --Cutscene events can be stuck?
             self.isPlayingCutscene = false;
+            self.isPlayingCinematic = false;
+            self.isPlayingMovie = false;
         end
 
         if self.isPlayingCinematic or self.isPlayingMovie then
@@ -451,12 +453,13 @@ do  --NPC Interaction
 
 
     --Model Size Evaluation
-    local ModelScene, UtilityActor, CameraController;
+    local ModelScene, NPCActor, MountActor, CameraController;
     --local IsUnitModelReadyForUI = IsUnitModelReadyForUI;
+
 
     DUIUtilityActorMixin = {};
 
-    function DUIUtilityActorMixin:OnModelLoaded()
+    function DUIUtilityActorMixin:EvaluateNPCHeight()
         local bottomX, bottomY, bottomZ, topX, topY, topZ = self:GetActiveBoundingBox(); -- Could be nil for invisible models
         if bottomX and bottomY and bottomZ and topX and topY and topZ then
             local width = topX - bottomX;
@@ -475,6 +478,37 @@ do  --NPC Interaction
         self:ClearModel();
     end
 
+    function DUIUtilityActorMixin:GetMountScale()
+        --local calcMountScale = MountActor:CalculateMountScale(PlayerActor);
+        --local inverseScale = 1 / calcMountScale;
+        --the results are always 1.0 after certain patch
+        --print(self.mountName, calcMountScale, inverseScale);
+        local bottomX, bottomY, bottomZ, topX, topY, topZ = self:GetActiveBoundingBox(); -- Could be nil for invisible models
+        if bottomX and bottomY and bottomZ and topX and topY and topZ then
+            local width = topX - bottomX;
+            local depth = topY - bottomY;
+            local height = topZ - bottomZ;
+
+            local widthScale = width / 2.1;
+            local depthScale = depth / 1.1;
+            local heightScale = height / 1;
+            print(width, depth, height);
+
+            local scale = widthScale * depthScale * heightScale;
+            print(scale);
+
+            local volumn = width * height * depth;
+            print(volumn)
+        end
+        self:ClearModel();
+    end
+
+    function DUIUtilityActorMixin:OnModelLoaded()
+        if self.onModelLoadedCallback then
+            self.onModelLoadedCallback(self);
+        end
+    end
+
     --0.8, 1.0, 1.6: Goblin
     --0.9, 1.1, 2.1: Human
     --1.1, 1.3, 1.7: Dwarf
@@ -486,14 +520,22 @@ do  --NPC Interaction
     --2.9, 5.1, 7.7: Watcher Koranos
     --30, 20, 14:    Dragon Aspect
 
-    local function EvaluateUnitSize(unit)
+    local function CreateModelScene()
         if not ModelScene then
             ModelScene = CreateFrame("ModelScene");
             ModelScene:SetSize(1, 1);
-            UtilityActor = ModelScene:CreateActor(nil, "DUIUtilityActorTemplate");
+        end
+    end
+
+    local function EvaluateUnitSize(unit)
+        CreateModelScene();
+
+        if not NPCActor then
+            NPCActor = ModelScene:CreateActor(nil, "DUIUtilityActorTemplate");
+            NPCActor.onModelLoadedCallback = NPCActor.EvaluateNPCHeight;
         end
 
-        local success = UtilityActor:SetModelByUnit(unit);
+        local success = NPCActor:SetModelByUnit(unit);
         return success
     end
 
@@ -501,6 +543,38 @@ do  --NPC Interaction
         return EvaluateUnitSize("npc");
     end
     API.EvaluateNPCSize = EvaluateNPCSize;
+
+
+    local function EvaluateMountScale(mountID)
+        CreateModelScene();
+
+        if not MountActor then
+            MountActor = ModelScene:CreateActor(nil, "DUIUtilityActorTemplate");
+            MountActor.onModelLoadedCallback = MountActor.GetMountScale;
+        end
+
+        if not PlayerActor then
+            PlayerActor = ModelScene:CreateActor(nil, "DUIUtilityActorTemplate");
+            PlayerActor.onModelLoadedCallback = function() print("LOADED") end;
+        end
+
+        local hasAlternateForm, inAlternateForm = C_PlayerInfo.GetAlternateFormInfo();
+        local sheatheWeapon = true;
+        local autodress = false;
+		local hideWeapon = true;
+        local useNativeForm = not inAlternateForm;
+        PlayerActor:SetScale(1);
+        
+        local result = PlayerActor:SetModelByUnit("player", sheatheWeapon, autodress, hideWeapon, useNativeForm);
+        if result then
+            local creatureDisplayID, _, _, isSelfMount, _, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = C_MountJournal.GetMountInfoExtraByID(mountID);
+            MountActor.mountName = C_MountJournal.GetMountInfoByID(mountID);
+            local showCustomization = true;
+            MountActor:ClearModel();
+            MountActor:SetModelByCreatureDisplayID(creatureDisplayID, showCustomization);
+        end
+    end
+    API.EvaluateMountScale = EvaluateMountScale;
 
     local function SetCameraController(controller)
         CameraController = controller;
