@@ -128,6 +128,8 @@ L["Change FOV"] = "Changer le FOV";
 L["Change FOV Desc"] = "Réduit le champ de vision de la caméra pour zoomer plus près du PNJ.";
 L["Disable Camera Movement Instance"] = "Désactiver lors d'une instance";
 L["Disable Camera Movement Instance Desc"] = "Désactive les mouvements de la caméra en donjon ou en raid.";
+L["Maintain Offset While Mounted"] = "Maintenir le décalage sur une monture";
+L["Maintain Offset While Mounted Desc"] = "Tente de maintenir la position de votre personnage à l’écran lorsqu’il est sur une monture.\n\nL’activation de cette option peut surcompenser le décalage horizontal pour les montures de grande taille.";
 
 L["Input Device"] = "Périphérique d'entrée";
 L["Input Device Desc"] = "Affecte les icônes de raccourci clavier et la disposition de l'UI.";
