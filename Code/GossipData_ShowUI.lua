@@ -2,6 +2,8 @@
 -- These options usually open other Blizzard Interface, which may not work correctly if the UIParent is hidden  
 
 local _, addon = ...
+local GossipDataProvider = addon.GossipDataProvider;
+local IsTargetAdventureMap = addon.API.IsTargetAdventureMap;
 
 local ShowUIGossip = {
     [64058] = true,     --Iskaaran Fishing Gear
@@ -11,7 +13,10 @@ local ShowUIGossip = {
     [54632] = true,     --Dragonscale Renown   
 };
 
-local function DoesOptionOpenUI(gossipOptionID)
+function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)
+    --if IsTargetAdventureMap() then
+    --    return true
+    --end
+
     return gossipOptionID and ShowUIGossip[gossipOptionID] == true
 end
-addon.DoesOptionOpenUI = DoesOptionOpenUI;

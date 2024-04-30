@@ -223,6 +223,10 @@ function DUIDialogSettingsMixin:UpdatePixel(scale)
     self.BackgroundShadow:ClearAllPoints();
     self.BackgroundShadow:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset);
     self.BackgroundShadow:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
+
+
+    --API.UpdateTextureSliceScale(self.Background);
+    --API.UpdateTextureSliceScale(self.BackgroundShadow);
 end
 
 function DUIDialogSettingsMixin:HighlightButton(button)

@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.2.8";
-local VERSION_DATE = 1712505000;
+local VERSION_TEXT = "v0.2.9";
+local VERSION_DATE = 1714486688;
 
 
 local addonName, addon = ...
@@ -49,7 +49,7 @@ local DefaultValues = {
 
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
-    
+
     --QuestItemDisplayPosition = {x, y};
 };
 

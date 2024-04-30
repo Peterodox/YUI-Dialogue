@@ -14,6 +14,11 @@ local THEME_ID;
 local function AdjustRedText(text)
     local count;
     text, count = gsub(text, "|[cC][fF][fF][fF][fF]0000", "|cff9B2020");
+
+    if count == 0 then
+        text, count = gsub(text, "|cnRED_FONT_COLOR:", "|cff9B2020");
+    end
+
     return text, (count and count > 0)  --2nd payload used for replacing the gossip icon
 end
 

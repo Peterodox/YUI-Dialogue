@@ -188,7 +188,8 @@ local function GetMountID()
     end
 
     if mountID then
-        API.EvaluateMountScale(mountID);
+        --API.EvaluateMountScale(mountID);
+        print(mountID)
     end
 end
 

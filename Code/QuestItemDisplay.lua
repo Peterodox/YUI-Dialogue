@@ -13,6 +13,7 @@ local After = C_Timer.After;
 
 -- User Settings
 local IGNORE_SEEN_ITEM = false;
+local DBKEY_POSITION = "QuestItemDisplayPosition";
 ------------------
 
 local MAX_TEXT_WIDTH = 224; --256 when font size >12
@@ -231,10 +232,8 @@ function QuestItemDisplay:UpdatePixel(scale)
 end
 
 function QuestItemDisplay:ResetPosition()
-    local db = DialogueUI_DB;
-
-    if db and db.QuestItemDisplayPosition then
-        db.QuestItemDisplayPosition = nil;
+    if self:IsUsingCustomPosition() then
+        addon.SetDBValue(DBKEY_POSITION, nil);
     end
 
     self:LoadPosition();
@@ -243,34 +242,33 @@ function QuestItemDisplay:ResetPosition()
 end
 
 function QuestItemDisplay:IsUsingCustomPosition()
-    local db = DialogueUI_DB;
-    return db and db.QuestItemDisplayPosition ~= nil
+    return addon.GetDBValue(DBKEY_POSITION) ~= nil
 end
 
 function QuestItemDisplay:LoadPosition()
-    local db = DialogueUI_DB;
+    local position = addon.GetDBValue(DBKEY_POSITION);
 
     self:ClearAllPoints();
 
-    if db and db.QuestItemDisplayPosition then
-        self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", db.QuestItemDisplayPosition[1], db.QuestItemDisplayPosition[2]);
+    if position then
+        self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", position[1], position[2]);
     else
         self:SetPoint("LEFT", nil, "LEFT", 32, 32);
     end
 end
 
 function QuestItemDisplay:SavePosition()
-    local db = DialogueUI_DB;
-
     local x = self:GetLeft();
     local _, y = self:GetCenter();
 
-    if db then
-        db.QuestItemDisplayPosition = {
-            Round(x),
-            Round(y);
-        };
-    end
+    if not x and y then return end;
+
+    local position = {
+        Round(x),
+        Round(y);
+    };
+
+    addon.SetDBValue(DBKEY_POSITION, position);
 
     addon.SettingsUI:RequestUpdate();
 end
@@ -653,12 +651,21 @@ end
 
 function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
     self.itemType = "questOffer";
+    self.startQuestID = startQuestID;
+
     local icon = "Interface/AddOns/DialogueUI/Art/Icons/QuestItem-NotOnQuest.png";
     self.ButtonIcon:SetTexture(icon);
     self.ButtonIcon:Show();
     local questName = API.GetQuestName(startQuestID);
     if not (questName and questName ~= "") then
         questName = "Quest: "..startQuestID;
+    else
+        After(0.2, function()
+            if self:IsVisible() and self.itemID == itemID then
+                questName = API.GetQuestName(startQuestID);
+                self.ButtonText:SetText(questName);
+            end
+        end);
     end
     self:SetUsableItem(itemID, questName);
 end
@@ -710,6 +717,7 @@ function QuestItemDisplay:Clear()
     self.isCountingDown = nil;
     self.itemID = nil;
     self.itemType = nil;
+    self.startQuestID = nil;
     self.anyDeferred = nil;
     self.queue = {};
     self:Hide();

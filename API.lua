@@ -97,6 +97,17 @@ do  --Pixel
     local GetPhysicalScreenSize = GetPhysicalScreenSize;
     local SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();
 
+    local function GetPixelPertectScale()
+        return (768/SCREEN_HEIGHT)
+    end
+    API.GetPixelPertectScale = GetPixelPertectScale;
+
+    local function UpdateTextureSliceScale(textureSlice)
+        --Fix for 10.1.7 change
+        textureSlice:SetScale(GetPixelPertectScale());
+    end
+    API.UpdateTextureSliceScale = UpdateTextureSliceScale;
+
     local function GetPixelForScale(scale, pixelSize)
         if pixelSize then
             return pixelSize * (768/SCREEN_HEIGHT)/scale
@@ -600,6 +611,16 @@ do  --NPC Interaction
         end
     end
     API.GetCurrentNPCInfo = GetCurrentNPCInfo;
+
+
+    local SCOUTING_MAP = ADVENTURE_MAP_TITLE or "Scouting Map";
+    local UnitClass = UnitClass;
+
+    local function IsTargetAdventureMap()
+        local className = UnitClass("npc");
+        return className == SCOUTING_MAP
+    end
+    API.IsTargetAdventureMap = IsTargetAdventureMap;
 end
 
 do  --Easing
@@ -888,7 +909,8 @@ do  --Quest
     local function IsQuestItem(item)
         if not item then return end;
         local classID, subclassID = select(6, GetItemInfoInstant(item));
-        return classID == 12
+        --print(item, classID, subclassID)
+        return (classID == 12) or (classID == 0 and subclassID == 8)        --Pandaria Quest Item
     end
     API.IsQuestItem = IsQuestItem;
 
@@ -1516,7 +1538,7 @@ end
 
 do  --Faction --Reputation
     local GetFactionInfoByID = GetFactionInfoByID;
-    local GetFactionGrantedByCurrency = C_CurrencyInfo.GetFactionGrantedByCurrency;
+    local GetFactionGrantedByCurrency = C_CurrencyInfo.GetFactionGrantedByCurrency or AlwaysFalse;
     local C_GossipInfo = C_GossipInfo;
     local C_MajorFactions = C_MajorFactions;
     local C_Reputation = C_Reputation;
@@ -1680,6 +1702,7 @@ do  --Tooltip
             if diff ~= 0 then
                 return FormatValueDiff(diff, L["Item Level"]);
             end
+            return
         end
 
         return diff
@@ -1743,7 +1766,7 @@ do  --Tooltip
 
             local addItemLevel;
             local itemLink = GetTooltipHyperlink();
-            
+
             if itemLink then
                 if itemLink ~= TP.hyperlink then
                     UpdateFrame:OnItemChanged(numLines);
@@ -1967,14 +1990,12 @@ do  --Tooltip
                         end
                     end
 
-                    if deltaStats then
-                       local info = {
-                            deltaStats = deltaStats,
-                            equippedItemLink = equippedItemLink,
-                       };
+                    local info = {
+                        deltaStats = deltaStats or {},
+                        equippedItemLink = equippedItemLink,
+                    };
 
-                       return info, AreItemsSameType(newItem, equippedItemLink)
-                    end
+                    return info, AreItemsSameType(newItem, equippedItemLink)
                 end
             end
         end
@@ -1983,6 +2004,7 @@ do  --Tooltip
             --Classic
             local _, _, _, itemEquipLoc = GetItemInfoInstant(item);
             local slotID = itemEquipLoc and EQUIPLOC_SLOTID[itemEquipLoc];
+
             if slotID then
                 TP:ClearLines();
                 TP:SetOwner(UIParent, "ANCHOR_PRESERVE");
@@ -2091,9 +2113,11 @@ do  --Items
     API.IsItemValidForComparison = IsItemValidForComparison;
 
     local function GetItemSellPrice(item)
-        local sellPrice = select(11, GetItemInfo(item));
-        if sellPrice and sellPrice > 0 then
-            return sellPrice
+        if item then
+            local sellPrice = select(11, GetItemInfo(item));
+            if sellPrice and sellPrice > 0 then
+                return sellPrice
+            end
         end
     end
     API.GetItemSellPrice = GetItemSellPrice;

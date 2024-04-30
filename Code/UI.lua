@@ -1038,6 +1038,12 @@ function DUIDialogBaseMixin:HandleGossip()
             C_GossipInfo.SelectOptionByIndex(options[1].orderIndex);
             return false
         end
+
+        if AUTO_SELECT_GOSSIP and IsAutoSelectOption(options[1].gossipOptionID, true) then
+            C_GossipInfo.SelectOption(options[1].gossipOptionID);
+            API.PrintMessage(L["Auto Select"], options[1].name);
+            return false
+        end
     end
 
     if AUTO_SELECT_GOSSIP then
@@ -1254,11 +1260,7 @@ function DUIDialogBaseMixin:HandleQuestDetail()
         offsetY = Round(offsetY + subheader.size);
 
         --Objective Texts
-        fs = self:AcquireLeftFontString();
-        fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
-        fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", 0, 0);
-        fs:SetText(objectiveText);
-        offsetY = Round(offsetY + fs:GetHeight());
+        offsetY = self:FormatParagraph(offsetY, objectiveText);
 
         local groupNum = GetSuggestedGroupSize();
         if groupNum and groupNum > 0 then
@@ -1936,6 +1938,7 @@ function DUIDialogBaseMixin:OnShow()
     self:RegisterEvent("QUEST_ACCEPTED");
     self:RegisterEvent("PLAYER_REGEN_DISABLED");
     self:RegisterEvent("LOADING_SCREEN_ENABLED");
+    self:RegisterEvent("ADVENTURE_MAP_OPEN");
 
     FadeFrame(self.Vignette, 0.75, 1);
 
@@ -1978,6 +1981,7 @@ function DUIDialogBaseMixin:OnHide()
     self:UnregisterEvent("QUEST_ACCEPTED");
     self:UnregisterEvent("PLAYER_REGEN_DISABLED");
     self:UnregisterEvent("LOADING_SCREEN_ENABLED");
+    self:UnregisterEvent("ADVENTURE_MAP_OPEN");
 
     self:ReleaseAllObjects();
     self:HideInputBox();
@@ -2064,6 +2068,8 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
         self:HandleGossipEnterCode(gossipID);
     elseif event == "LOADING_SCREEN_ENABLED" then
         self:HideUI();
+    elseif event == "ADVENTURE_MAP_OPEN" then
+        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
     end
 end
 

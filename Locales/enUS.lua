@@ -51,6 +51,8 @@ L["Click To Read"] = "Left Click to Read";
 L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "Item Level";
 L["Gossip Quest Option Prepend"] = "(Quest)";   --Some gossip options start with blue (Quest), we prioritize them when sorting. See GOSSIP_QUEST_OPTION_PREPEND
 L["TTS Button Tooltip"] = "Left Click: Play/Stop Reading.\nRight Click: Toggle Auto Play";
+L["Item Is An Upgrade"] = "This item is an upgrade for you";
+L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";

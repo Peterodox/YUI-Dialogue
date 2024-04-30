@@ -51,6 +51,8 @@ L["Click To Read"] = "左键点击阅读";
 L["Item Level"] = "物品等级";
 L["Gossip Quest Option Prepend"] = "（任务）";   --Some gossip options start with blue (Quest), we prioritize them when sorting. See GOSSIP_QUEST_OPTION_PREPEND
 L["TTS Button Tooltip"] = "左键点击： 播放/停止阅读\n右键点击： 勾选自动播放";
+L["Item Is An Upgrade"] = "这件装备对你有提升";
+L["Identical Stats"] = "这两件装备的属性相同";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";

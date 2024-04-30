@@ -36,11 +36,6 @@ local FONTSTRING_MIN_GAP = 24;  --Betweeb the left and the right text of the sam
 local SELL_PRICE_TEXT = (SELL_PRICE or "Sell Price").."  ";
 local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR;
 
-do
-    local _;
-    _, FONT_HEIGHT_MEDIUM = _G[FONT_MEDIUM]:GetFont();
-    FONT_HEIGHT_MEDIUM = Round(FONT_HEIGHT_MEDIUM);
-end
 
 local SPACING_NEW_LINE = 4;     --Between paragraphs
 local SPACING_INTERNAL = 2;     --Within the same paragraph
@@ -286,6 +281,23 @@ function SharedTooltip:Init()
         self.DualModel:SetPoint("TOPRIGHT", self, "TOPRIGHT", -TOOLTIP_PADDING, 0.33*MODEL_HEIGHT);
     end
 
+
+
+    if not self.iconPool then
+        local function CreateIcon()
+            local icon = self.Content:CreateTexture(nil, "OVERLAY");
+            return icon
+        end
+
+        local function RemoveIcon(icon)
+            icon:ClearAllPoints();
+            icon:Hide();
+            icon:SetTexture(nil);
+        end
+
+        self.iconPool = API.CreateObjectPool(CreateIcon, RemoveIcon);
+    end
+
     self:UpdatePixel();
     self.Init = nil;
 end
@@ -312,6 +324,7 @@ function SharedTooltip:ClearLines()
         for _, fontString in pairs(self.fontStrings) do
             fontString:Hide();
             fontString:SetText(nil);
+            fontString.icon = nil;
         end
     end
 
@@ -322,6 +335,10 @@ function SharedTooltip:ClearLines()
 
     if self.PreviewFrame then
         self.PreviewFrame:Hide();
+    end
+
+    if self.iconPool then
+        self.iconPool:Release();
     end
 
     self:HideHotkey();
@@ -479,6 +496,10 @@ function SharedTooltip:ToggleAlternateInfo()
     end
 end
 
+function SharedTooltip:ProcessItemExternal(item)
+    --for Pawn
+end
+
 local function AlternateModeCallback_ItemComparison(self)
     DialogueUI_DB.TooltipShowItemComparison = not DialogueUI_DB.TooltipShowItemComparison;
 
@@ -492,7 +513,7 @@ do
             if equippedItem and equippedItem.guid then
                 local delta = C_TooltipComparison.GetItemComparisonDelta(comparisonItem, equippedItem);
                 local itemGUID = equippedItem.guid;
-                if delta and #delta > 0 then
+                if delta and itemGUID then
                     if not shouldShowComparison then
                         return true
                     end
@@ -510,8 +531,12 @@ do
                         self:AddLeftLine(itemLevelDelta, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
                     end
 
-                    for i, deltaLine in ipairs(delta) do
-                        self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                    if #delta > 0 then
+                        for i, deltaLine in ipairs(delta) do
+                            self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                        end
+                    else
+                        self:AddLeftLine(L["Identical Stats"], 1, 0.82, 0, false, nil, 2, TOOLTIP_PADDING);
                     end
 
                     local effectText, cached = API.GetItemEffect(equippedItemLink);
@@ -551,21 +576,23 @@ do
                 end
             end
 
+            self:ProcessItemExternal(rewardItem);
+
             if canCompare then
                 local description = shouldShowComparison and L["Hide Comparison"] or L["Show Comparison"];
                 self:ShowHotkey(HOTKEY_ALTERNATE_MODE, description, AlternateModeCallback_ItemComparison);
                 self:Show();
             end
         end
-    else
+    else    --Classic
         function SharedTooltip:ShowItemComparison()
-            local itemID = self:GetHyperlink();
-            if not IsItemValidForComparison(itemID) then return end;
+            local rewardItem = self:GetHyperlink();
+            if not IsItemValidForComparison(rewardItem) then return end;
 
             local shouldShowComparison = DialogueUI_DB.TooltipShowItemComparison == true;
             local canCompare = false;
 
-            local compairsonInfo, areItemsSameType = API.GetItemComparisonInfo(itemID);
+            local compairsonInfo, areItemsSameType = API.GetItemComparisonInfo(rewardItem);
 
             if compairsonInfo then
                 canCompare = true;
@@ -579,8 +606,12 @@ do
                             self:AddLeftLine(L["Different Item Types Alert"], 1.000, 0.125, 0.125, true);   --TODO: this red on the Dark theme doesn't look comforting.
                         end
 
-                        for i, deltaLine in ipairs(info.deltaStats) do
-                            self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                        if #info.deltaStats > 0 then
+                            for i, deltaLine in ipairs(info.deltaStats) do
+                                self:AddLeftLine(deltaLine, 1, 1, 1, false, nil, 2, TOOLTIP_PADDING);
+                            end
+                        else
+                            self:AddLeftLine(L["Identical Stats"], 1, 0.82, 0, false, nil, 2, TOOLTIP_PADDING);
                         end
 
                         local effectText, cached = API.GetItemEffect(info.equippedItemLink);
@@ -599,6 +630,8 @@ do
                     end
                 end
             end
+
+            self:ProcessItemExternal(rewardItem);
 
             if canCompare then
                 local description = shouldShowComparison and L["Hide Comparison"] or L["Show Comparison"];
@@ -734,6 +767,16 @@ function SharedTooltip:SetGridLine(row, col, text, r, g, b, sizeIndex, alignInde
     end
 
     self.useGridLayout = true;
+end
+
+function SharedTooltip:AddIcon(file, width, height, layer, sublevel)
+    local f = self.iconPool:Acquire();
+    f:ClearAllPoints();
+    f:SetPoint("TOPLEFT", self.Content, "TOPLEFT", 0, 0);
+    f:SetSize(width, height or width);
+    f:SetDrawLayer(layer or "OVERLAY", sublevel or 0);
+    f:SetTexture(file);
+    return f
 end
 
 function SharedTooltip:AddLeftLine(text, r, g, b, wrapText, offsetY, sizeIndex, horizontalOffset)
@@ -957,11 +1000,18 @@ function SharedTooltip:Layout()
                     textWidth = fs:GetWrappedWidth() + fs.horizontalOffset;
                     textHeight = fs:GetHeight();
 
+                    if fs.icon then
+                        textWidth = textWidth + fs.icon:GetWidth() + (fs.icon.iconGap or 0);
+                        textHeight = max(textHeight, fs.icon:GetHeight());
+                    end
+
                     if col == 1 then
                         lineWidth = textWidth;
                     else
                         lineWidth = lineWidth + FONTSTRING_MIN_GAP + textWidth;
                     end
+
+                    fs.lineWidth = lineWidth;
 
                     if lineWidth > maxLineWidth then
                         maxLineWidth = lineWidth;
@@ -985,16 +1035,39 @@ function SharedTooltip:Layout()
             if useGridLayout then
                 rowOffsetYs[row] = -totalHeight;
             else
+                local obj;
+                local iconGap;
+
                 for col = 1, numCols do
                     fs = grid[row][col];
                     if fs then
                         fs:ClearAllPoints();
-                        if fs.alignIndex == 2 then
-                            fs:SetPoint("TOP", ref, "TOP", 0 + fs.horizontalOffset, -totalHeight);
-                        elseif fs.alignIndex == 3 then
-                            fs:SetPoint("TOPRIGHT", ref, "TOPRIGHT", 0 + fs.horizontalOffset, -totalHeight);
+
+                        if fs.icon then
+                            obj = fs.icon;
+                            obj:ClearAllPoints();
+                            iconGap = fs.icon.iconGap or 0;
+                            if fs.alignIndex == 2 then
+                                fs:SetPoint("TOPLEFT", obj, "TOPRIGHT", iconGap, 0);
+                            elseif fs.alignIndex == 3 then
+                                fs:SetPoint("TOPRIGHT", obj, "TOPLEFT", -iconGap, 0);
+                            else
+                                fs:SetPoint("TOPLEFT", obj, "TOPRIGHT", iconGap, 0);
+                            end
                         else
-                            fs:SetPoint("TOPLEFT", ref, "TOPLEFT", 0 + fs.horizontalOffset, -totalHeight);
+                            obj = fs;
+                        end
+
+                        if fs.alignIndex == 2 then
+                            if fs.icon then
+                                obj:SetPoint("TOPLEFT", ref, "TOP", -0.5*fs.lineWidth + fs.horizontalOffset, -totalHeight);
+                            else
+                                obj:SetPoint("TOP", ref, "TOP", 0 + fs.horizontalOffset, -totalHeight);
+                            end
+                        elseif fs.alignIndex == 3 then
+                            obj:SetPoint("TOPRIGHT", ref, "TOPRIGHT", 0 + fs.horizontalOffset, -totalHeight);
+                        else
+                            obj:SetPoint("TOPLEFT", ref, "TOPLEFT", 0 + fs.horizontalOffset, -totalHeight);
                         end
                     end
                 end
@@ -1224,6 +1297,22 @@ end
 
 SharedTooltip:ClearLines();
 
+function SharedTooltip:FormatIconText(icon, text)
+    return format(FORMAT_ICON_TEXT, icon, text);
+end
+
+function SharedTooltip:AddSimpleIconText(file, size, text, r, g, b)
+    size = size or FONT_HEIGHT_MEDIUM;
+
+    local icon = self:AddIcon(file, size, size, "OVERLAY", 0);
+    local fs = self:AddLeftLine(text, r, g, b, true);
+
+    fs.icon = icon;
+    icon.iconGap = SPACING_INTERNAL;
+
+    return fs
+end
+
 do
     local C_Garrison = C_Garrison;
     local NUM_ABILITIES = 4;
@@ -1247,7 +1336,7 @@ do
             local ability = C_Garrison.GetFollowerAbilityInfo(abilityID);
             local abilityName = ability.name;
             if ability.icon then
-                abilityName = format(FORMAT_ICON_TEXT, ability.icon, abilityName);
+                abilityName = self:FormatIconText(ability.icon, abilityName);
             end
 
             local sizeIndex = 1;
@@ -1333,6 +1422,10 @@ do
         if SharedTooltip.HotkeyFrame then
             SharedTooltip.HotkeyFrame:UpdateBaseHeight();
         end
+
+        local _;
+        _, FONT_HEIGHT_MEDIUM = _G[FONT_MEDIUM]:GetFont();
+        FONT_HEIGHT_MEDIUM = Round(FONT_HEIGHT_MEDIUM);
     end
     addon.CallbackRegistry:Register("PostFontSizeChanged", PostFontSizeChanged);
 
