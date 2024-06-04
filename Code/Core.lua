@@ -235,12 +235,12 @@ do  --Unlisten events from default UI
 	    GossipFrame:UnregisterEvent("QUEST_LOG_UPDATE");
     end
 
-    local hideQuestFrame = true;
+    local hideQuestFrame = true --not addon.IsToCVersionEqualOrNewerThan(110000);  --TWW
     if hideQuestFrame then
         QuestFrame:UnregisterAllEvents();
     else
         QuestFrame:SetParent(nil);
-        QuestFrame:SetScale(UIParent:GetEffectiveScale())
+        QuestFrame:SetScale(2/3);
     end
 end
 
@@ -255,6 +255,12 @@ do
 		C_AddOns.LoadAddOn("Blizzard_TorghastLevelPicker");
 		TorghastLevelPickerFrame:TryShow(textureKit)
 		return TorghastLevelPickerFrame
+	end
+
+    local function HandleDelvesDifficultyPickerGossipShow(textureKit)   --TWW
+		C_AddOns.LoadAddOn("Blizzard_DelvesDifficultyPicker");
+		DelvesDifficultyPickerFrame:TryShow(textureKit);
+		return DelvesDifficultyPickerFrame;
 	end
 
     EL.handlers = {};
@@ -277,6 +283,7 @@ do
 		self:RegisterHandler("soulforges", HandleTorghastLevelPickerGossipShow);
 		self:RegisterHandler("theupperreaches", HandleTorghastLevelPickerGossipShow);
 		self:RegisterHandler("twistingcorridors", HandleTorghastLevelPickerGossipShow);
+        self:RegisterHandler("delves-difficulty-picker", HandleDelvesDifficultyPickerGossipShow);
 	end
     EL:RegisterCustomGossipFrames();
 end

@@ -44,6 +44,7 @@ local IsCosmeticItem = API.IsCosmeticItem;
 local IsEquippableItem = API.IsEquippableItem;
 local strlen = string.len;
 local GetItemCount = C_Item.GetItemCount or GetItemCount;
+local GetSpellInfo = C_Spell.GetSpellInfo or GetSpellInfo;      --TWW
 local C_GossipInfo = C_GossipInfo;
 local CompleteQuest = CompleteQuest;
 local CloseQuest = CloseQuest;
@@ -53,7 +54,6 @@ local GetQuestCurrencyInfo = GetQuestCurrencyInfo;
 local GetQuestCurrencyID = GetQuestCurrencyID;
 local GetNumQuestChoices = GetNumQuestChoices;
 local GetQuestReward = GetQuestReward;
-local GetSpellInfo = GetSpellInfo;
 local SelectActiveQuest = SelectActiveQuest;        --QUEST_GREETING
 local SelectAvailableQuest = SelectAvailableQuest;  --QUEST_GREETING
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
@@ -1467,7 +1467,7 @@ function DUIDialogItemButtonMixin:SetItem(sourceType, index)
     self.index = index;
     self.currencyID = nil;
 
-    local name, texture, count, quality, isUsable, itemID = GetQuestItemInfo(sourceType, index);    --no itemID in Classic
+    local name, texture, count, quality, isUsable, itemID, questRewardContextFlags = GetQuestItemInfo(sourceType, index);    --no itemID in Classic; questRewardContextFlags TWW
 
     self.itemID = itemID;
     self.Icon:SetTexture(texture);

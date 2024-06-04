@@ -1537,11 +1537,11 @@ do  --Model
 end
 
 do  --Faction --Reputation
-    local GetFactionInfoByID = GetFactionInfoByID;
-    local GetFactionGrantedByCurrency = C_CurrencyInfo.GetFactionGrantedByCurrency or AlwaysFalse;
     local C_GossipInfo = C_GossipInfo;
     local C_MajorFactions = C_MajorFactions;
     local C_Reputation = C_Reputation;
+    local GetFactionInfoByID = GetFactionInfoByID or C_Reputation.GetFactionDataByID;   --TWW
+    local GetFactionGrantedByCurrency = C_CurrencyInfo.GetFactionGrantedByCurrency or AlwaysFalse;
 
     local function GetFactionStatusText(factionID)
         --Derived from Blizzard ReputationFrame_InitReputationRow in ReputationFrame.lua
@@ -2264,7 +2264,6 @@ do  --Dev Tool
     };
 
     local function QuestMapLogTitleButton_OnEnter_Callback(_, button, questID)
-        print(questID);
         local tooltip = GameTooltip;
         if not tooltip:IsShown() then return end;
 

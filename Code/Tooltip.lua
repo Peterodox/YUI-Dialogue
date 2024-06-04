@@ -9,7 +9,7 @@ local GetTransmogItemInfo = API.GetTransmogItemInfo;
 local C_TooltipInfo = addon.TooltipAPI;
 local C_TransmogCollection = C_TransmogCollection;
 local IsDressableItemByID = C_Item.IsDressableItemByID;
-local GetItemInfoInstant = GetItemInfoInstant;
+local GetItemInfoInstant = C_Item.GetItemInfoInstant;
 
 local SharedTooltip = CreateFrame("Frame");
 addon.SharedTooltip = SharedTooltip;
