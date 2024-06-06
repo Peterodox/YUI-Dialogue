@@ -42,9 +42,9 @@ local GetQuestIcon = API.GetQuestIcon;
 local IsQuestItem = API.IsQuestItem;
 local IsCosmeticItem = API.IsCosmeticItem;
 local IsEquippableItem = API.IsEquippableItem;
+local GetSpellName = API.GetSpellName;      --TWW
+local GetItemCount = C_Item.GetItemCount;
 local strlen = string.len;
-local GetItemCount = C_Item.GetItemCount or GetItemCount;
-local GetSpellInfo = C_Spell.GetSpellInfo or GetSpellInfo;      --TWW
 local C_GossipInfo = C_GossipInfo;
 local CompleteQuest = CompleteQuest;
 local CloseQuest = CloseQuest;
@@ -452,10 +452,9 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
         local frameWidth = questTypeFrame:GetContentWidth();
         self.hasQuestType = true;
         self.rightFrameWidth = Round(frameWidth);
-        return
+    else
+        self:RemoveQuestTypeText();
     end
-
-    self:RemoveQuestTypeText();
 end
 
 function DUIDialogOptionButtonMixin:SetQuestVisual(questInfo)
@@ -1603,11 +1602,7 @@ function DUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self.Icon:SetTexture(icon);
 
     if not name then
-        if C_Spell.DoesSpellExist(spellID) then
-            name = GetSpellInfo(spellID);
-        else
-            name = "Unknown Spell";
-        end
+        name = GetSpellName(spellID);
     end
 
     self:SetItemName(name);

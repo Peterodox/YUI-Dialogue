@@ -7,6 +7,9 @@ local sqrt = math.sqrt;
 local tostring = tostring;
 local find = string.find;
 
+local IS_TWW = addon.IsToCVersionEqualOrNewerThan(110000);
+
+
 local function AlwaysFalse(arg)
     --used to replace non-existent API in Classic
     return false
@@ -2092,7 +2095,6 @@ do  --Tooltip
     API.GetItemEffect = GetItemEffect;
 end
 
-
 do  --Items
     local IsEquippableItem = C_Item.IsEquippableItem or IsEquippableItem or AlwaysFalse;
     local IsCosmeticItem = C_Item.IsCosmeticItem or IsCosmeticItem or AlwaysFalse;
@@ -2218,6 +2220,45 @@ do  --Inventory Bags Container
     end
     API.GetBagQuestItemInfo = GetBagQuestItemInfo;
 end
+
+do  --Spell
+    local DoesSpellExist = C_Spell.DoesSpellExist;
+
+    if IS_TWW then
+        local GetSpellInfo_Table = C_Spell.GetSpellInfo;    --{"name", "rank", "iconID", "castTime", "minRange", "maxRange", "spellID", "originalIconID"}
+
+        local function GetSpellName(spellID)
+            local info = spellID and DoesSpellExist(spellID) and GetSpellInfo_Table(spellID);
+            if info then
+                return info.name
+            end
+
+            if spellID then
+                return "Unknown Spell: "..spellID
+            else
+                return "Unknown Spell"
+            end
+        end
+        API.GetSpellName = GetSpellName;
+    else
+        local GetSpellInfo = GetSpellInfo;
+
+        local function GetSpellName(spellID)
+            if spellID and DoesSpellExist(spellID) then
+                local name = GetSpellInfo(spellID);
+                return name
+            else
+                if spellID then
+                    return "Unknown Spell: "..spellID
+                else
+                    return "Unknown Spell"
+                end
+            end
+        end
+        API.GetSpellName = GetSpellName;
+    end
+end
+
 
 do  --Dev Tool
     local DEV_MODE = false;

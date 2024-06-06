@@ -73,6 +73,7 @@ local SetPortraitTexture = SetPortraitTexture;
 local AcceptQuest = AcceptQuest;
 local GetQuestPortraitGiver = GetQuestPortraitGiver;
 local GetNumQuestChoices = GetNumQuestChoices;
+local AcknowledgeAutoAcceptQuest = AcknowledgeAutoAcceptQuest;
 
 
 local After = C_Timer.After;
@@ -490,6 +491,9 @@ function DUIDialogBaseMixin:OnLoad()
 
     self.OnLoad = nil;
     self:SetScript("OnLoad", nil);
+
+    self.isGameLoading = true;
+    self:RegisterEvent("LOADING_SCREEN_DISABLED");
 end
 
 function DUIDialogBaseMixin:LoadTheme()
@@ -1009,6 +1013,15 @@ local function ConcatenateNPCName(text)
     return text
 end
 
+function DUIDialogBaseMixin:HandleInitialLoadingComplete()
+    if self.deferredEvent then
+        After(2, function()
+            self:ShowUI(self.deferredEvent);
+            self.deferredEvent = nil;
+        end)
+    end
+end
+
 function DUIDialogBaseMixin:HandleGossip()
     local availableQuests = GetAvailableQuests();
     local activeQuests = GetActiveQuests();
@@ -1307,6 +1320,7 @@ function DUIDialogBaseMixin:HandleQuestDetail()
     if API.IsQuestAutoAccepted() then
         AcceptButton:SetButtonAlreadyOnQuest();
         ExitButton:SetButtonCloseAutoAcceptQuest();
+        self.acknowledgeAutoAcceptQuest = true;
     else
         AcceptButton:SetButtonAcceptQuest();
         ExitButton:SetButtonDeclineQuest(self.questIsFromGossip);
@@ -1894,6 +1908,11 @@ local Handler = {
 };
 
 function DUIDialogBaseMixin:ShowUI(event)
+    if self.isGameLoading then
+        self.deferredEvent = event;
+        return
+    end
+
     local shouldShowUI;
 
     if Handler[event] then
@@ -1990,6 +2009,11 @@ function DUIDialogBaseMixin:OnHide()
     TooltipFrame:Hide();
 
     CallbackRegistry:Trigger("DialogueUI.Hide");
+
+    if self.acknowledgeAutoAcceptQuest then
+        self.acknowledgeAutoAcceptQuest = nil;
+        AcknowledgeAutoAcceptQuest();
+    end
 end
 
 function DUIDialogBaseMixin:OnMouseUp(button)
@@ -2070,6 +2094,10 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
         self:HideUI();
     elseif event == "ADVENTURE_MAP_OPEN" then
         CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+    elseif event == "LOADING_SCREEN_DISABLED" then
+        self:UnregisterEvent(event);
+        self.isGameLoading = nil;
+        self:HandleInitialLoadingComplete()
     end
 end
 
