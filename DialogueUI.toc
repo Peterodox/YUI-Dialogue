@@ -1,5 +1,5 @@
 ## Interface: 100207, 110000
-## Version: 0.3.1
+## Version: 0.3.2
 
 ## Title: Dialogue UI
 
@@ -10,6 +10,8 @@
 
 ## IconTexture: Interface\AddOns\DialogueUI\Art\Icons\Logo
 ## AddonCompartmentFunc: DialogueUI_ShowSettingsFrame
+## AddonCompartmentFuncOnEnter: DialogueUI_AddonCompartmentOnEnterLeave
+## AddonCompartmentFuncOnLeave: DialogueUI_AddonCompartmentOnEnterLeave
 
 
 Initialization.lua

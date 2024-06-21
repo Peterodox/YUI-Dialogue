@@ -238,6 +238,7 @@ function SharedTooltip:UpdatePixel(scale)
 
     local pixelOffset = 16.0;
     local offset = API.GetPixelForScale(scale, pixelOffset);
+    offset = 0;     --Temp Fix Debug
     self.Background:ClearAllPoints();
     self.Background:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset);
     self.Background:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
@@ -250,7 +251,7 @@ function SharedTooltip:Init()
         self.Background = texture;
         texture:SetTextureSliceMargins(corner, corner, corner, corner);
         texture:SetTextureSliceMode(1);
-        texture:SetTexture(addon.ThemeUtil:GetTextureFile("TooltipBackground.png"));
+        texture:SetTexture(addon.ThemeUtil:GetTextureFile("TooltipBackground-Temp.png"));
 
         PixelUtil:AddPixelPerfectObject(self);
     end
@@ -1156,7 +1157,7 @@ end
 
 function SharedTooltip:LoadTheme()
     if self.Background then
-        self.Background:SetTexture(addon.ThemeUtil:GetTextureFile("TooltipBackground.png"));
+        self.Background:SetTexture(addon.ThemeUtil:GetTextureFile("TooltipBackground-Temp.png"));
     end
 
     if self.HotkeyFrame then
@@ -1435,4 +1436,80 @@ do
         end
     end
     addon.CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
+end
+
+
+do  --DEBUG
+    --[[
+    local f = CreateFrame("Frame", "NTT", nil);
+    f:SetSize(100, 100);
+    f:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
+
+    local function Setup()
+        local pieces = {};
+        local cornerSize = 32;
+        local offset = cornerSize * 0.5;
+        local file = "Interface/AddOns/DialogueUI/Art/Tooltip_Debug";
+
+        local function CreatePiece()
+            local tex = f:CreateTexture(nil, "BACKGROUND");
+            table.insert(pieces, tex);
+            tex:SetSize(cornerSize, cornerSize);
+            
+            tex:SetTexture(file)
+            return tex
+        end
+
+        f.P1 = CreatePiece();
+        f.P1:SetPoint("TOPLEFT", f, "TOPLEFT", -offset, offset);
+        f.P1:SetTexCoord(0, 0.25, 0, 0.25);
+    
+        f.P3 = CreatePiece();
+        f.P3:SetPoint("TOPRIGHT", f, "TOPRIGHT", offset, offset);
+        f.P3:SetTexCoord(0.75, 1, 0, 0.25);
+
+        f.P7 = CreatePiece();
+        f.P7:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", -offset, -offset);
+        f.P7:SetTexCoord(0, 0.25, 0.75, 1);
+    
+        f.P9 = CreatePiece();
+        f.P9:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", offset, -offset);
+        f.P9:SetTexCoord(0.75, 1, 0.75, 1);
+        
+        f.P2 = CreatePiece();
+        f.P2:SetPoint("TOPLEFT", f.P1, "TOPRIGHT", 0, 0);
+        f.P2:SetPoint("BOTTOMRIGHT", f.P3, "BOTTOMLEFT", 0, 0);
+        f.P2:SetHorizTile(true);
+        f.P2:SetVertTile(false);
+        f.P2:SetTexture(file)
+        f.P2:SetTexCoord(0.25, 0.75, 0, 0.25);
+
+        f.P4 = CreatePiece();
+        f.P4:SetPoint("TOPLEFT", f.P1, "BOTTOMLEFT", 0, 0);
+        f.P4:SetPoint("BOTTOMRIGHT", f.P7, "TOPRIGHT", 0, 0);
+        f.P4:SetTexCoord(0, 0.25, 0.25, 0.75);
+        f.P4:SetVertTile(true);
+
+        f.P6 = CreatePiece();
+        f.P6:SetPoint("TOPLEFT", f.P3, "BOTTOMLEFT", 0, 0);
+        f.P6:SetPoint("BOTTOMRIGHT", f.P9, "TOPRIGHT", 0, 0);
+        f.P6:SetTexCoord(0.75, 1, 0.25, 0.75);
+        f.P6:SetVertTile(true);
+
+        f.P8 = CreatePiece();
+        f.P8:SetPoint("TOPLEFT", f.P7, "TOPRIGHT", 0, 0);
+        f.P8:SetPoint("BOTTOMRIGHT", f.P9, "BOTTOMLEFT", 0, 0);
+        f.P8:SetTexCoord(0.25, 0.75, 0.75, 1);
+        f.P8:SetHorizTile(true);
+
+        f.P5 = CreatePiece();
+        f.P5:SetPoint("TOPLEFT", f.P1, "BOTTOMRIGHT", 0, 0);
+        f.P5:SetPoint("BOTTOMRIGHT", f.P9, "TOPLEFT", 0, 0);
+        f.P5:SetHorizTile(true);
+        f.P5:SetVertTile(true);
+        f.P5:SetTexCoord(0.25, 0.75, 0.25, 0.75);
+    end
+    --]]
+
+    --C_Timer.After(1, Setup);
 end

@@ -289,8 +289,10 @@ do  --String
     local function SplitParagraph(text)
         local tbl = {};
 
-        for v in gmatch(text, "[%C]+") do
-            tinsert(tbl, v)
+        if text then
+            for v in gmatch(text, "[%C]+") do
+                tinsert(tbl, v)
+            end
         end
 
         return tbl
@@ -856,10 +858,17 @@ do  --Quest
 
         ["QuestBG-Alliance"] = "Alliance.png",
         ["QuestBG-Horde"] = "Horde.png",
+
+        ["QuestBG-Flame"] = "TWW-Flame.png",
+        ["QuestBG-Candle"] = "TWW-Candle.png",
+        ["QuestBG-Storm"] = "TWW-Storm.png",
+        ["QuestBG-Web"] = "TWW-Web.png",
+        ["QuestBG-1027"] = "TWW-Azeroth.png",
     };
 
     local function GetQuestBackgroundDecor(questID)
         local theme = GetQuestDetailsTheme(questID);
+        --theme = {background = "QuestBG-Web"};    --debug
         if theme and theme.background and BackgroundDecors[theme.background] then
             return DECOR_PATH..BackgroundDecors[theme.background]
         end
@@ -913,7 +922,7 @@ do  --Quest
         if not item then return end;
         local classID, subclassID = select(6, GetItemInfoInstant(item));
         --print(item, classID, subclassID)
-        return (classID == 12) or (classID == 0 and subclassID == 8)        --Pandaria Quest Item
+        return (classID == 12) or (classID == 0 and subclassID == 8) or (classID == 15 and subclassID == 4)
     end
     API.IsQuestItem = IsQuestItem;
 

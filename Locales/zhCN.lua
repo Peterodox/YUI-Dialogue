@@ -140,6 +140,8 @@ L["Input Device Xbox"] = "Xbox";
 L["Input Device Xbox Tooltip"] = "确认键： [KEY:XBOX:PAD1]\n取消键： [KEY:XBOX:PAD2]";
 L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "确认键： [KEY:PS:PAD1]\n取消键： [KEY:PS:PAD2]";
+L["Input Device Switch"] = "Switch";
+L["Input Device Switch Tooltip"] = "确认键： [KEY:SWITCH:PAD1]\n取消键： [KEY:SWITCH:PAD2]";
 L["Primary Control Key"] = "确认键";
 L["Primary Control Key Desc"] = "按下此按钮将自动选择第一个最佳选项，例如接受任务。"
 L["Press Button To Scroll Down"] = "按确认键来向下滚屏";
@@ -166,17 +168,18 @@ L["Force Gossip Desc"] = "在游戏默认状态下，系统有时会自动选择
 L["Nameplate Dialog"] = "在姓名版上显示对话";
 L["Nameplate Dialog Desc"] = "将不提供任何选项的对话显示在目标姓名版上。\n\n此选项将修改CVar \"SoftTarget Nameplate Interact\"";
 
-L["TTS"] = TEXT_TO_SPEECH or "Text To Speech";
-L["TTS Desc"] = "Read dialogue text out loud by clicking the button on the top left of the UI.\n\nVoice, volume and speed follow your game's text-to-speech settings.";
-L["TTS Use Hotkey"] = "Use Hotkey";
-L["TTS Use Hotkey Desc"] = "Start or stop reading by pressing:";
+L["TTS"] = TEXT_TO_SPEECH or "文字转语音";
+L["TTS Desc"] = "点击位于任务界面左上角的按钮来朗读文本。\n\n语音，音量大小和速度将跟随魔兽自带的文字转语音设置。";
+L["TTS Use Hotkey"] = "使用快捷键";
+L["TTS Use Hotkey Desc"] = "按下此按钮来播放或停止朗读：";
 L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
 L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
 L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
-L["TTS Auto Play"] = "Auto Play";
-L["TTS Auto Play Desc"] = "Auto play dialogue texts.";
-L["TTS Auto Stop"] = "Stop When Leaving";
-L["TTS Auto Stop Desc"] = "Stop reading when you leave the NPC.";
+L["TTS Use Hotkey Tooltip Switch"] = "[KEY:SWITCH:LT]";
+L["TTS Auto Play"] = "自动播放";
+L["TTS Auto Play Desc"] = "自动朗读对话文本。";
+L["TTS Auto Stop"] = "离开时停止";
+L["TTS Auto Stop Desc"] = "在你离开NPC时停止朗读文本。";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";

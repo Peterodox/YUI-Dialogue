@@ -35,8 +35,8 @@ end
 
 local function SetTextureNumber(texture, number)
     --Bake number into textures for visual consistency
-    number = Clamp(number, 1, 8);
-    texture:SetTexCoord((number - 1)*0.125, number*0.125, 0, 1);
+    number = Clamp(number, 1, 9);
+    texture:SetTexCoord((number - 1)*0.0625, number*0.0625, 0, 1);
 end
 
 function FriendshipBar:Init()

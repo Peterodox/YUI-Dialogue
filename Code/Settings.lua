@@ -362,6 +362,8 @@ local function TTSHotkey_Tooltip()
         device = "Xbox";
     elseif INPUT_DEVICE_ID == 3 then
         device = "PlayStation";
+    elseif INPUT_DEVICE_ID == 4 then
+        device = "Switch";
     else
         device = "PC";
     end
@@ -460,6 +462,7 @@ local Schematic = {
                     {dbValue = 1, valueText = L["Input Device KBM"]},
                     {dbValue = 2, valueText = L["Input Device Xbox"], tooltip = L["Input Device Xbox Tooltip"]},
                     {dbValue = 3, valueText = L["Input Device PlayStation"], tooltip = L["Input Device PlayStation Tooltip"]},
+                    {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"]},
                 },
             },
             {type = "ArrowOption", name = L["Primary Control Key"], description = L["Primary Control Key Desc"], dbKey = "PrimaryControlKey", valueTextFormatter = ValueTextFormatter_PrimaryControlKey, hasHotkey = true, parentKey = "InputDevice", requiredParentValue = 1,
@@ -1588,6 +1591,9 @@ function DialogueUI_ShowSettingsFrame()
     MainFrame:ToggleUI();
 end
 
+function DialogueUI_AddonCompartmentOnEnterLeave(addonName, button)
+
+end
 
 do
     local function OnFontSizeChanged(baseFontSize, fontSizeID)

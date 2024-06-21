@@ -79,11 +79,13 @@ do
 
         ["Input Device Xbox Tooltip"] = SETTINGS_DESC_SPACING,
         ["Input Device PlayStation Tooltip"] = SETTINGS_DESC_SPACING,
+        ["Input Device Switch Tooltip"] = SETTINGS_DESC_SPACING,
         ["Interact Key Not Set"] = SETTINGS_DESC_SPACING,
         ["Use Default Control Key Alert"] = SETTINGS_DESC_SPACING,
         ["TTS Use Hotkey Tooltip PC"] = SETTINGS_DESC_SPACING,
         ["TTS Use Hotkey Tooltip Xbox"] = SETTINGS_DESC_SPACING,
         ["TTS Use Hotkey Tooltip PlayStation"] = SETTINGS_DESC_SPACING,
+        ["TTS Use Hotkey Tooltip Switch"] = SETTINGS_DESC_SPACING,
 
         ["Tutorial Settings Hotkey"] = BANNER_TEXT_SPACING,
         ["Tutorial Settings Hotkey Console"] = BANNER_TEXT_SPACING,

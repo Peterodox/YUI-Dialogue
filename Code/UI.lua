@@ -13,9 +13,11 @@ local ChatFrame = addon.ChatFrame;
 local FriendshipBar = addon.FriendshipBar;
 local PlaySound = addon.PlaySound;
 local IsAutoSelectOption = addon.IsAutoSelectOption;
+local IS_MODERN_WOW = not addon.IS_CLASSIC;
 
 local FadeFrame = API.UIFrameFade;
 local CloseGossipInteraction = API.CloseGossipInteraction;
+local IsPlayingCutscene = API.IsPlayingCutscene;
 
 -- User Settings
 local ALWAYS_GOSSIP = false;
@@ -1913,6 +1915,12 @@ function DUIDialogBaseMixin:ShowUI(event)
         return
     end
 
+    if IsPlayingCutscene() then
+        --For case: triggering cutscene when accepting quest and the quest is immediately flagged as complete
+        self:CloseDialogInteraction();
+        return
+    end
+
     local shouldShowUI;
 
     if Handler[event] then
@@ -1959,6 +1967,10 @@ function DUIDialogBaseMixin:OnShow()
     self:RegisterEvent("LOADING_SCREEN_ENABLED");
     self:RegisterEvent("ADVENTURE_MAP_OPEN");
 
+    if IS_MODERN_WOW then
+        self:RegisterEvent("PLAYER_CHOICE_UPDATE");
+    end
+
     FadeFrame(self.Vignette, 0.75, 1);
 
     CallbackRegistry:Trigger("DialogueUI.Show");
@@ -2002,6 +2014,10 @@ function DUIDialogBaseMixin:OnHide()
     self:UnregisterEvent("LOADING_SCREEN_ENABLED");
     self:UnregisterEvent("ADVENTURE_MAP_OPEN");
 
+    if IS_MODERN_WOW then
+        self:UnregisterEvent("PLAYER_CHOICE_UPDATE");
+    end
+
     self:ReleaseAllObjects();
     self:HideInputBox();
 
@@ -2033,7 +2049,7 @@ function DUIDialogBaseMixin:HighlightButton(optionButton)
 
     self.ButtonHighlight:ClearAllPoints();
 
-    if optionButton then
+    if optionButton and optionButton:IsEnabled() then
         optionButton:SetParentHighlightTexture(self.ButtonHighlight);
     else
         self.ButtonHighlight:Hide();
@@ -2083,7 +2099,6 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
         local gossipID, text, cost = ...
         self:RegisterEvent("GOSSIP_CONFIRM_CANCEL");
         self:HandleGossipConfirm(gossipID, text, cost);
-        TT = text
     elseif event == "GOSSIP_CONFIRM_CANCEL" then
         self:UnregisterEvent(event);
         self:HideGossipConfirm();
@@ -2097,7 +2112,12 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
     elseif event == "LOADING_SCREEN_DISABLED" then
         self:UnregisterEvent(event);
         self.isGameLoading = nil;
-        self:HandleInitialLoadingComplete()
+        self:HandleInitialLoadingComplete();
+    elseif event == "PLAYER_CHOICE_UPDATE" then
+        --TWW: Show Weekly Quest Selection
+        self:UnregisterEvent(event);
+        self:CloseDialogInteraction();
+        self:HideUI();
     end
 end
 

@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.3.0";
-local VERSION_DATE = 1714486688;
+local VERSION_TEXT = "v0.3.2";
+local VERSION_DATE = 1718900000;
 
 
 local addonName, addon = ...
@@ -149,4 +149,7 @@ do
         return currentToCVersion >= targetVersion
     end
     addon.IsToCVersionEqualOrNewerThan = IsToCVersionEqualOrNewerThan;
+
+    local IS_CLASSIC = not IsToCVersionEqualOrNewerThan(100000);
+    addon.IS_CLASSIC = IS_CLASSIC;
 end

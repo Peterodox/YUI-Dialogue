@@ -1,5 +1,5 @@
 -- Press Key to select option
--- Planned to support controller in the future
+
 
 local _, addon = ...
 local API = addon.API;
@@ -7,6 +7,10 @@ local Clipboard = addon.Clipboard;
 
 
 local DEFAULT_CONTROL_KEY = "SPACE";
+local GAMEPAD_CONFIRM = "PAD1";
+local GAMEPAD_CANCEL = "PAD2";
+local GAMEPAD_ALT = "PAD4";
+
 
 -- Custom Settings
 local ENABLE_KEYCONTROL_IN_COMBAT = true;
@@ -122,7 +126,7 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
     local valid = false;
     local processed = false;
 
-    if key == "PAD1" then
+    if key == GAMEPAD_CONFIRM then
         valid = KeyboardControl.parent:ClickFocusedObject();
         if valid then
             processed = true;
@@ -307,9 +311,9 @@ do  --GamePad/Controller
             addon.DevTool:PrintText(button);
         end
 
-        if button == "PAD1" then
+        if button == GAMEPAD_CONFIRM then
 
-        elseif button == "PAD4" then
+        elseif button == GAMEPAD_ALT then
             local TooltipFrame = addon.SharedTooltip;
             if TooltipFrame and TooltipFrame:IsShown() then
                 TooltipFrame:ToggleAlternateInfo()
@@ -352,6 +356,27 @@ do  --GamePad/Controller
         self:SetScript("OnUpdate", nil);
         self.repeatElapsed = nil;
     end
+
+
+    local function PostInputDeviceChanged(dbValue)
+        --Switch ABXY is reversed
+        local isSwitch = dbValue == 4;
+
+        if isSwitch then
+            GAMEPAD_CONFIRM = "PAD2";
+            GAMEPAD_CANCEL = "PAD1";
+            GAMEPAD_ALT = "PAD4";
+            KeyRemap.PAD1 = "ESCAPE";
+            KeyRemap.PAD2 = nil;
+        else
+            GAMEPAD_CONFIRM = "PAD1";
+            GAMEPAD_CANCEL = "PAD2";
+            GAMEPAD_ALT = "PAD3";
+            KeyRemap.PAD1 = nil;
+            KeyRemap.PAD2 = "ESCAPE";
+        end
+    end
+    addon.CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
 end
 
 

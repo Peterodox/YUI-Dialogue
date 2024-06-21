@@ -905,14 +905,25 @@ local HotkeyIcons = {
     PS_PAD1 = {file = "PS-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD2 = {file = "PS-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD4 = {file = "PS-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+
+    SWITCH_PADLSHOULDER = {file = "HotkeyBackground-LB.png", themed = true, text = "L", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "R", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PAD1 = {file = "SWITCH-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PAD2 = {file = "SWITCH-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PAD4 = {file = "SWITCH-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
 };
 
 HotkeyIcons.PADLSHOULDER = HotkeyIcons.XBOX_PADLSHOULDER;
 HotkeyIcons.PADRSHOULDER = HotkeyIcons.XBOX_PADRSHOULDER;
+
 HotkeyIcons.XBOX_Esc = HotkeyIcons.XBOX_PAD2;
-HotkeyIcons.PS_Esc = HotkeyIcons.PS_PAD2;
 HotkeyIcons.XBOX_Shift = HotkeyIcons.XBOX_PAD4;
+
+HotkeyIcons.PS_Esc = HotkeyIcons.PS_PAD2;
 HotkeyIcons.PS_Shift = HotkeyIcons.PS_PAD4;
+
+HotkeyIcons.SWITCH_Esc = HotkeyIcons.SWITCH_PAD2;
+HotkeyIcons.SWITCH_Shift = HotkeyIcons.SWITCH_PAD4;
 
 
 DUIDialogHotkeyFrameMixin = {};
@@ -2175,11 +2186,15 @@ do
 
         if INPUT_DEVICE_GAME_PAD then
             ANIM_OFFSET_H_BUTTON_HOVER = 8;
-            local prefix = "XBOX_";
+            local prefix;
             if dbValue == 2 then
-
+                prefix = "XBOX_";
             elseif dbValue == 3 then
                 prefix = "PS_";
+            elseif dbValue == 4 then
+                prefix = "SWITCH_";
+            else
+                prefix = "XBOX_";
             end
 
             local buttons = {

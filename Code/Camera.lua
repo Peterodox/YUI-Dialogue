@@ -35,6 +35,8 @@ local SetUIVisibility = SetUIVisibility;
 local InCombatLockdown = InCombatLockdown;
 local IsMounted = IsMounted;
 local IsInInstance = IsInInstance;
+local IsIndoors = IsIndoors;
+
 
 local UIParent = UIParent;
 UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EXPERIMENTAL_CVAR_WARNING
@@ -378,6 +380,13 @@ function CameraUtil:Intro_PanCamera()
     self:SetScript("OnUpdate", ZoomIn_PanCamera_OnUpdate);
 end
 
+function CameraUtil:Intro_ZoomToObject()
+    SetCVar("CameraKeepCharacterCentered", 0);
+    self.oldZoom = GetCameraZoom();
+    self.t = 0;
+    self:ZoomTo(3);
+end
+
 function CameraUtil:OnInteractionStart()
 
 end
@@ -399,6 +408,9 @@ function CameraUtil:InitiateInteraction()
             self:Intro_FocusNPC();
         else
             self:Intro_PanCamera();
+            if self.defaultCameraMode == 1 then
+                self:Intro_ZoomToObject();
+            end
         end
     end
 
