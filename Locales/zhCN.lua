@@ -114,8 +114,8 @@ L["Show NPC Name On Page"] = "显示NPC名字";
 L["Show NPC Name On Page Desc"] = "在页面上显示交互对象的名字。";
 L["Simplify Currency Rewards"] = "简化货币显示";
 L["Simplify Currency Rewards Desc"] = "用更小的图标来显示货币奖励，货币名称也会被省略。";
-L["Mark Highest Sell Price"] = "Mark Highest Sell Price";
-L["Mark Highest Sell Price Desc"] = "Show you which item has the highest sell price when you are choosing a reward.";
+L["Mark Highest Sell Price"] = "标记出最值钱的物品";
+L["Mark Highest Sell Price Desc"] = "在你选择任务奖励时标记出卖店价格最高的物品。";
 L["Roleplaying"] = "角色扮演";
 L["Use RP Name In Dialogues"] = "对话中使用RP名字";
 L["Use RP Name In Dialogues Desc"] = "将对话文本中出现的本名替换为你RP角色的名字。";
@@ -184,3 +184,13 @@ L["TTS Auto Stop Desc"] = "在你离开NPC时停止朗读文本。";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开或关闭设置";   --Use this if gamepad enabled
+
+
+--DO NOT TRANSLATE
+L["Match Stat Armor"] = "([,%d%.]+)点护甲";
+L["Match Stat Stamina"] = "([,%d%.]+) 耐力";
+L["Match Stat Strengh"] = "([,%d%.]+) 力量";
+L["Match Stat Agility"] = "([,%d%.]+) 敏捷";
+L["Match Stat Intellect"] = "([,%d%.]+) 智力";
+L["Match Stat Spirit"] = "([,%d%.]+) 精神";
+L["Match Stat DPS"] = "每秒伤害([,%d%.]+)";

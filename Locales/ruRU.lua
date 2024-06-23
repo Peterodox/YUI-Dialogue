@@ -179,3 +179,13 @@ L["TTS Auto Stop Desc"] = "Прекратить озвучивание, когд
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Нажмите [KEY:PC:F1] для открытия настроек";
 L["Tutorial Settings Hotkey Console"] = "Нажмите [KEY:PC:F1] или [KEY:CONSOLE:MENU] для открытия настроек";   --Use this if gamepad enabled
+
+
+--DO NOT TRANSLATE
+L["Match Stat Armor"] = "Броня: ([,%d%.]+)";
+L["Match Stat Stamina"] = "([,%d%.]+) к выносливости";
+L["Match Stat Strengh"] = "([,%d%.]+) к силе";
+L["Match Stat Agility"] = "([,%d%.]+) к ловкости";
+L["Match Stat Intellect"] = "([,%d%.]+) к интеллекту";
+L["Match Stat Spirit"] = "([,%d%.]+) к духу";
+L["Match Stat DPS"] = "([,%d%.]+) ед. урона в секунду";

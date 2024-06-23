@@ -179,3 +179,13 @@ L["TTS Auto Stop Desc"] = "Detiene la lectura cuando te alejas del PNJ.";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para alternar Configuraciones";
 L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para alternar Configuraciones";   --Usa esto si el gamepad está habilitado
+
+
+--DO NOT TRANSLATE
+L["Match Stat Armor"] = "([,%d%.]+) p. de armadura";
+L["Match Stat Stamina"] = "([,%d%.]+) Aguante";
+L["Match Stat Strengh"] = "([,%d%.]+) Fuerza";
+L["Match Stat Agility"] = "([,%d%.]+) Agilidad";
+L["Match Stat Intellect"] = "([,%d%.]+) Intelecto";
+L["Match Stat Spirit"] = "([,%d%.]+) Espíritu";
+L["Match Stat DPS"] = "([,%d%.]+) p. de daño por segundo";

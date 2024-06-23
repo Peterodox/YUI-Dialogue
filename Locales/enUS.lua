@@ -184,3 +184,13 @@ L["TTS Auto Stop Desc"] = "Stop reading when you leave the NPC.";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";
 L["Tutorial Settings Hotkey Console"] = "Press [KEY:PC:F1] or [KEY:CONSOLE:MENU] to toggle Settings";   --Use this if gamepad enabled
+
+
+--DO NOT TRANSLATE
+L["Match Stat Armor"] = "([,%d%.]+) Armor";
+L["Match Stat Stamina"] = "([,%d%.]+) Stamina";
+L["Match Stat Strengh"] = "([,%d%.]+) Strengh";
+L["Match Stat Agility"] = "([,%d%.]+) Agility";
+L["Match Stat Intellect"] = "([,%d%.]+) Intellect";
+L["Match Stat Spirit"] = "([,%d%.]+) Spirit";
+L["Match Stat DPS"] = "([,%d%.]+) damage per second";

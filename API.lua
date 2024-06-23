@@ -1876,17 +1876,25 @@ do  --Tooltip
 
         local tinsert = table.insert;
         local match = string.match;
+        local gsub = string.gsub;
 
         local function RemoveBrackets(text)
-            return string.gsub(text, "[()（）]", "")
+            return gsub(text, "[()（）]", "")
         end
 
         local function Pattern_RemoveControl(text)
-            return string.gsub(text, "%%c", "");
+            return gsub(text, "%%c", "");
         end
 
         local function Pattern_WrapSpace(text)
-            return string.gsub(Pattern_RemoveControl(text), "%%s", "%(%.%+%)");
+            return gsub(Pattern_RemoveControl(text), "%%s", "%(%.%+%)");
+        end
+
+        local function RemoveThousandSeparator(numberText)
+            if numberText then
+                numberText = gsub(numberText, "[,%.%-]", "");   --Include %- as a temp fix for French locale bug
+                return numberText
+            end
         end
 
         local STATS_PATTERN;
@@ -1905,13 +1913,13 @@ do  --Tooltip
         };
 
         local function BuildStatsPattern()
-            local PATTERN_DPS = Pattern_WrapSpace(RemoveBrackets(DPS_TEMPLATE or "(%s damage per second)"));
-            local PATTERN_ARMOR = Pattern_WrapSpace(ARMOR_TEMPLATE or "%s Armor");
-            local PATTERN_STAMINA = Pattern_WrapSpace(ITEM_MOD_STAMINA or "%c%s Stamina");
-            local PATTERN_STRENGTH = Pattern_WrapSpace(ITEM_MOD_STRENGTH or "%c%s Strength");
-            local PATTERN_AGILITY = Pattern_WrapSpace(ITEM_MOD_AGILITY or "%c%s Agility");
-            local PATTERN_INTELLECT = Pattern_WrapSpace(ITEM_MOD_INTELLECT or "%c%s Intellect");
-            local PATTERN_SPIRIT = Pattern_WrapSpace(ITEM_MOD_SPIRIT or "%c%s Spirit");
+            local PATTERN_DPS = L["Match Stat DPS"]             --Pattern_WrapSpace(RemoveBrackets(DPS_TEMPLATE or "(%s damage per second)"));
+            local PATTERN_ARMOR = L["Match Stat Armor"]         --Pattern_WrapSpace(ARMOR_TEMPLATE or "%s Armor");
+            local PATTERN_STAMINA = L["Match Stat Stamina"]     --Pattern_WrapSpace(ITEM_MOD_STAMINA or "%c%s Stamina");
+            local PATTERN_STRENGTH = L["Match Stat Strength"]   --Pattern_WrapSpace(ITEM_MOD_STRENGTH or "%c%s Strength");
+            local PATTERN_AGILITY = L["Match Stat Agility"]     --Pattern_WrapSpace(ITEM_MOD_AGILITY or "%c%s Agility");
+            local PATTERN_INTELLECT = L["Match Stat Intellect"] --Pattern_WrapSpace(ITEM_MOD_INTELLECT or "%c%s Intellect");
+            local PATTERN_SPIRIT = L["Match Stat Spirit"]       --Pattern_WrapSpace(ITEM_MOD_SPIRIT or "%c%s Spirit");
 
             STATS_PATTERN = {
                 dps = PATTERN_DPS,
@@ -1944,12 +1952,13 @@ do  --Tooltip
                     if text and text ~= " " then
                         for key, pattern in pairs(STATS_PATTERN) do
                             if not stats[key] then
-                                if key == "dps" then
-                                    text = RemoveBrackets(text);
-                                end
                                 value = match(text, pattern);
                                 if value then
-                                    value = tonumber(value);
+                                    value = RemoveThousandSeparator(value);
+                                    value = tonumber(value) or 0;
+                                    if key == "dps" then
+                                        value = value * 0.1;
+                                    end
                                     stats[key] = value;
                                 end
                             end

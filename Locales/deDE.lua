@@ -133,3 +133,13 @@ L["Nameplate Dialog Desc"] = "Den Dialog auf der Namensplakette des NPCs anzeige
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Benutze [KEY:PC:F1] um die Einstellungen zu öffnen/schließen";
 L["Tutorial Settings Hotkey Console"] = "Benutze [KEY:PC:F1] oder [KEY:CONSOLE:MENU] um die Einstellungen zu öffnen/schließen";   --Use this if gamepad enabled
+
+
+--DO NOT TRANSLATE
+L["Match Stat Armor"] = "([,%d%.]+) Rüstung";
+L["Match Stat Stamina"] = "([,%d%.]+) Ausdauer";
+L["Match Stat Strengh"] = "([,%d%.]+) Stärke";
+L["Match Stat Agility"] = "([,%d%.]+) Beweglichkeit";
+L["Match Stat Intellect"] = "([,%d%.]+) Intelligenz";
+L["Match Stat Spirit"] = "([,%d%.]+) Willenskraft";
+L["Match Stat DPS"] = "([,%d%.]+) Schaden pro Sekunde";
