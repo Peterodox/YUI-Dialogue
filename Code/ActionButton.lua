@@ -73,7 +73,7 @@ function SecureButtonMixin:SetMacroText(macroText)
     self.macroText = macroText;
 end
 
-function SecureButtonMixin:SetTriggerMouseButton(mouseButton)
+function SecureButtonMixin:SetTriggerMouseButton(mouseButton, attribute)
     local usedOn;
     if mouseButton == "LeftButton" then
         usedOn = "type1";
@@ -82,7 +82,10 @@ function SecureButtonMixin:SetTriggerMouseButton(mouseButton)
     else
         usedOn = "type";
     end
-    self:SetAttribute(usedOn, "macro");
+
+    attribute = attribute or "macro";
+
+    self:SetAttribute(usedOn, attribute);
 end
 
 function SecureButtonMixin:SetUseItemByName(itemName, mouseButton)
@@ -182,3 +185,24 @@ local function AcquireSecureActionButton(privateKey)
     return button
 end
 addon.AcquireSecureActionButton = AcquireSecureActionButton;
+
+
+
+
+if addon.IsToCVersionEqualOrNewerThan(110000) then
+    --TWW: MacroText is banned
+
+    function SecureButtonMixin:SetUseItemByName(itemName, mouseButton)
+        if itemName then
+            self:SetTriggerMouseButton(mouseButton, "item");
+            self:SetAttribute("item", itemName);
+        end
+    end
+
+    function SecureButtonMixin:SetUseItemByID(itemID, mouseButton)
+        if itemID then
+            local name = C_Item.GetItemNameByID(itemID);
+            self:SetUseItemByName(name, mouseButton);
+        end
+    end
+end

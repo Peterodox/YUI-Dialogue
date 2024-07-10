@@ -659,7 +659,6 @@ function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
     local questName = API.GetQuestName(startQuestID);
     if not (questName and questName ~= "") then
         questName = "Quest: "..startQuestID;
-    else
         After(0.2, function()
             if self:IsVisible() and self.itemID == itemID then
                 questName = API.GetQuestName(startQuestID);

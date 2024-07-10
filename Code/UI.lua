@@ -1017,10 +1017,8 @@ end
 
 function DUIDialogBaseMixin:HandleInitialLoadingComplete()
     if self.deferredEvent then
-        After(2, function()
-            self:ShowUI(self.deferredEvent);
-            self.deferredEvent = nil;
-        end)
+        self:ShowUI(self.deferredEvent);
+        self.deferredEvent = nil;
     end
 end
 
@@ -1968,7 +1966,7 @@ function DUIDialogBaseMixin:OnShow()
     self:RegisterEvent("ADVENTURE_MAP_OPEN");
 
     if IS_MODERN_WOW then
-        self:RegisterEvent("PLAYER_CHOICE_UPDATE");
+        self:RegisterEvent("PLAYER_CHOICE_UPDATE");   --Watch TRAIT_SYSTEM_INTERACTION_STARTED
     end
 
     FadeFrame(self.Vignette, 0.75, 1);
@@ -2029,6 +2027,7 @@ function DUIDialogBaseMixin:OnHide()
     if self.acknowledgeAutoAcceptQuest then
         self.acknowledgeAutoAcceptQuest = nil;
         AcknowledgeAutoAcceptQuest();
+        print("AcknowledgeAutoAcceptQuest")
     end
 end
 
@@ -2049,7 +2048,7 @@ function DUIDialogBaseMixin:HighlightButton(optionButton)
 
     self.ButtonHighlight:ClearAllPoints();
 
-    if optionButton and optionButton:IsEnabled() then
+    if optionButton and optionButton:IsEnabled() and (optionButton.artID ~= 3) then -- artID = 3 (Hollow, auto accepted quest)
         optionButton:SetParentHighlightTexture(self.ButtonHighlight);
     else
         self.ButtonHighlight:Hide();
@@ -2109,10 +2108,12 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
         self:HideUI();
     elseif event == "ADVENTURE_MAP_OPEN" then
         CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
-    elseif event == "LOADING_SCREEN_DISABLED" then
+    elseif event == "LOADING_SCREEN_DISABLED" then  --not reliable on the intial login
         self:UnregisterEvent(event);
-        self.isGameLoading = nil;
-        self:HandleInitialLoadingComplete();
+        C_Timer.After(4, function()
+            self.isGameLoading = nil;
+            self:HandleInitialLoadingComplete();
+        end);
     elseif event == "PLAYER_CHOICE_UPDATE" then
         --TWW: Show Weekly Quest Selection
         self:UnregisterEvent(event);
@@ -2162,7 +2163,13 @@ function DUIDialogBaseMixin:ScrollDownOrAcceptQuest(fromMouseClick)
     end
 
     self:SetAcceptCurrentQuest();    --For showing "Quest Accepted" banner
-    AcceptQuest();
+
+    if self.acknowledgeAutoAcceptQuest then
+        self.acknowledgeAutoAcceptQuest = nil;
+        AcknowledgeAutoAcceptQuest();
+    else
+        AcceptQuest();
+    end
 end
 
 

@@ -11,7 +11,7 @@ local GetQuestRewardSpells = C_QuestInfoSystem.GetQuestRewardSpells;
 local GetQuestRewardSpellInfo = C_QuestInfoSystem.GetQuestRewardSpellInfo;
 local GetNumQuestRewards = GetNumQuestRewards;
 local GetNumQuestChoices = GetNumQuestChoices;
-local GetNumRewardCurrencies = GetNumRewardCurrencies;
+local GetNumRewardCurrencies = API.GetNumRewardCurrencies;
 local GetRewardMoney = GetRewardMoney;
 local GetRewardSkillPoints = API.GetRewardSkillPoints;
 local GetRewardSkillLineID = GetRewardSkillLineID;
@@ -44,6 +44,7 @@ local QUEST_INFO_SPELL_REWARD_ORDERING = {
 	QuestCompleteSpellType.Unlock,
 };
 
+--[[
 local QUEST_INFO_SPELL_REWARD_TO_HEADER = {
 	[QuestCompleteSpellType.Follower] = REWARD_FOLLOWER,
 	[QuestCompleteSpellType.Companion] = REWARD_COMPANION,
@@ -53,6 +54,7 @@ local QUEST_INFO_SPELL_REWARD_TO_HEADER = {
 	[QuestCompleteSpellType.Spell] = REWARD_SPELL,
 	[QuestCompleteSpellType.Unlock] = REWARD_UNLOCK,
 };
+--]]
 
 local function GetRewardSpellBucketType(spellInfo)
 	if spellInfo.type and spellInfo.type ~= QuestCompleteSpellType.LegacyBehavior then
@@ -148,7 +150,7 @@ local function BuildRewardList(questComplete)
 
     numQuestRewards = GetNumQuestRewards();
     numQuestChoices = GetNumQuestChoices();
-    numQuestCurrencies = GetNumRewardCurrencies();
+    numQuestCurrencies = GetNumRewardCurrencies(questID);
     money = GetRewardMoney();
     skillName, skillIcon, skillPoints = GetRewardSkillPoints();
     xp = GetRewardXP();

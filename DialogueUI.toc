@@ -1,5 +1,5 @@
-## Interface: 100207, 110000
-## Version: 0.3.2
+## Interface: 100207, 110000, 110002
+## Version: 0.3.3
 
 ## Title: Dialogue UI
 

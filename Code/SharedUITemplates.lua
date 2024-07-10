@@ -50,8 +50,7 @@ local CompleteQuest = CompleteQuest;
 local CloseQuest = CloseQuest;
 local DeclineQuest = DeclineQuest;
 local GetQuestItemInfo = GetQuestItemInfo;
-local GetQuestCurrencyInfo = GetQuestCurrencyInfo;
-local GetQuestCurrencyID = GetQuestCurrencyID;
+local GetQuestCurrency = API.GetQuestCurrency;
 local GetNumQuestChoices = GetNumQuestChoices;
 local GetQuestReward = GetQuestReward;
 local SelectActiveQuest = SelectActiveQuest;        --QUEST_GREETING
@@ -427,7 +426,7 @@ function DUIDialogOptionButtonMixin:RemoveQuestTypeText()
     end
 end
 
-function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
+function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo, requery)
     local typeText;
 
     if questInfo.isTrivial then
@@ -440,6 +439,15 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
                 typeText = L["Quest Frequency Daily"];
             elseif questInfo.frequency == 2 then
                 typeText = L["Quest Frequency Weekly"];
+            elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
+                typeText = API.GetQuestTimeLeft(questInfo.questID, true);
+                if (not requery) and (not typeText) then
+                    C_Timer.After(0.5, function()
+                        if self:IsVisible() and self.questID and self.questID == questInfo.questID then
+                            self:SetQuestTypeText(questInfo, true)
+                        end
+                    end);
+                end
             end
         end
     end
@@ -1471,13 +1479,13 @@ function DUIDialogItemButtonMixin:SetItemOverlay(id)
     end
 end
 
-function DUIDialogItemButtonMixin:SetItem(sourceType, index)
+function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
     self.objectType = "item";
-    self.type = sourceType;
+    self.type = questInfoType;
     self.index = index;
     self.currencyID = nil;
 
-    local name, texture, count, quality, isUsable, itemID, questRewardContextFlags = GetQuestItemInfo(sourceType, index);    --no itemID in Classic; questRewardContextFlags TWW
+    local name, texture, count, quality, isUsable, itemID, questRewardContextFlags = GetQuestItemInfo(questInfoType, index);    --no itemID in Classic; questRewardContextFlags TWW
 
     self.itemID = itemID;
     self.Icon:SetTexture(texture);
@@ -1519,14 +1527,16 @@ function DUIDialogItemButtonMixin:SetRequiredItem(index)
     self:SetItem("required", index);
 end
 
-function DUIDialogItemButtonMixin:SetCurrency(sourceType, index)
+function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
     self.objectType = "currency";
-    self.type = sourceType;
+    self.type = questInfoType;
     self.index = index;
 
-    local name, texture, amount, quality = GetQuestCurrencyInfo(sourceType, index);
-    local currencyID = GetQuestCurrencyID(sourceType, index);
+    local info = GetQuestCurrency(questInfoType, index);
+    local name, texture, amount, quality = info.name, info.texture, info.totalRewardAmount, info.quality;
+    local currencyID = info.currencyID;
     self.currencyID = currencyID;
+    IFF = info
 
     --For Reputation, it's the faction's name, but the game prefer to find a GetCurrencyContainerInfo (CurrencyContainer.lua)
 
@@ -1549,7 +1559,7 @@ function DUIDialogItemButtonMixin:SetCurrency(sourceType, index)
     self.Icon:SetTexture(texture);
     self.Count:SetText(AbbreviateNumbers(amount));
 
-    if (sourceType ~= "required") and API.WillCurrencyRewardOverflow(currencyID, amount) then
+    if (questInfoType ~= "required") and API.WillCurrencyRewardOverflow(currencyID, amount) then
         self.Count:SetTextColor(1.000, 0.125, 0.125);   --RED_FONT_COLOR
         self:ShowOverflowIcon();
     else
@@ -1742,13 +1752,14 @@ function DUIDialogSmallItemButtonMixin:SetItemName(name)
     self:FitToName();
 end
 
-function DUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
+function DUIDialogSmallItemButtonMixin:SetCurrency(questInfoType, index)
     self.objectType = "currency";
-    self.type = sourceType;
+    self.type = questInfoType;
     self.index = index;
 
-    local name, texture, amount, quality = GetQuestCurrencyInfo(sourceType, index);
-    local currencyID = GetQuestCurrencyID(sourceType, index);
+    local info = GetQuestCurrency(questInfoType, index);
+    local texture, amount = info.texture, info.totalRewardAmount;
+    local currencyID = info.currencyID;
     self.currencyID = currencyID;
 
     if not amount then
@@ -1762,6 +1773,8 @@ function DUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
     if overflow then
         self:ShowOverflowIcon();
     end
+
+    --TODO: questRewardContextFlags (See QuestInfoRewardItemMixin:GetBestQuestRewardContextDescription)
 end
 
 function DUIDialogSmallItemButtonMixin:SetRewardCurrency(index)
