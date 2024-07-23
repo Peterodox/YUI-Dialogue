@@ -1,6 +1,6 @@
 local _, addon = ...
 
-local FadeFrame = addon.API.UIFrameFade;
+local UpdateTextureSliceScale = addon.API.UpdateTextureSliceScale;
 
 local tinsert = table.insert;
 local format = string.format;
@@ -137,6 +137,7 @@ do  --Frame Background
     bg:SetTextureSliceMargins(corner, corner, corner, corner);
     bg:SetTextureSliceMode(1);
     bg:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Shared/ChatFrameBackground.png");
+    ChatFrame.Background = bg;
 end
 
 do  --ScrollBar
@@ -558,6 +559,8 @@ function ChatFrame:OnShow()
             ScrollView:ScrollToBottom();
         end
     end
+
+    UpdateTextureSliceScale(self.Background);
 end
 
 function ChatFrame:OnHide()

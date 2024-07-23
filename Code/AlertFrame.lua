@@ -10,6 +10,9 @@ local GetLFGProposal = GetLFGProposal;
 
 local UIErrorsFrame = UIErrorsFrame;
 
+-- User Settings
+local ALERT_FRAME_ENABLED = true;   --Disable when HideUI is disabled
+------------------
 
 local AlertFrame = CreateFrame("Frame");
 addon.AlertFrame = AlertFrame;
@@ -92,6 +95,8 @@ function AlertFrame:OnHide()
 end
 
 function AlertFrame:OnEvent(event, ...)
+    if not ALERT_FRAME_ENABLED then return end;
+
     if event == "UI_INFO_MESSAGE" then
         self:TryDisplayMessage(...);
     elseif event == "UI_ERROR_MESSAGE" then
@@ -336,4 +341,12 @@ function AlertFrame:OnLFGProposal()
     end
 
     self:ShowLFGDialog();
+end
+
+
+do
+    local function Settings_HideUI(dbValue)
+        ALERT_FRAME_ENABLED = (dbValue == true);
+    end
+    addon.CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
 end

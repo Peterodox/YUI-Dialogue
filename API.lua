@@ -109,10 +109,14 @@ do  -- Pixel
     API.GetPixelPertectScale = GetPixelPertectScale;
 
     local function UpdateTextureSliceScale(textureSlice)
-        --Fix for 10.1.7 change
+        --Temp Fix for 10.1.7 change
         textureSlice:SetScale(GetPixelPertectScale());
     end
     API.UpdateTextureSliceScale = UpdateTextureSliceScale;
+
+    if addon.IS_CLASSIC then
+        API.UpdateTextureSliceScale = AlwaysNil;
+    end
 
     local function GetPixelForScale(scale, pixelSize)
         if pixelSize then

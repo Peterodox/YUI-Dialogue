@@ -522,6 +522,8 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     self.ItemIcon:SetTexture(icon);
     self.ItemName:SetText(name);
     self.Description:SetText(description);
+    self.itemID = itemID;
+    self.usable = false;
 
     local buttonText;
     if isReadable then
@@ -529,9 +531,6 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     elseif startQuestID then
         self:SetStartQuestItem(itemID, startQuestID, isOnQuest);
     end
-
-    self.itemID = itemID;
-    self.usable = false;
 
     self:Layout(description ~= nil);
 
@@ -659,10 +658,11 @@ function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
     local questName = API.GetQuestName(startQuestID);
     if not (questName and questName ~= "") then
         questName = "Quest: "..startQuestID;
-        After(0.2, function()
+        After(0.25, function()
             if self:IsVisible() and self.itemID == itemID then
                 questName = API.GetQuestName(startQuestID);
                 self.ButtonText:SetText(questName);
+                self.ButtonText:Show();
             end
         end);
     end

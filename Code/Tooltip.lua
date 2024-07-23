@@ -228,6 +228,21 @@ function DualModelMixin:SetModelAlpha(alpha)
     self.Model2:SetModelAlpha(0.8 * alpha);
 end
 
+function DualModelMixin:SetUseParentLevel(parent, containerFrame)
+    local level = parent:GetFrameLevel();
+    local strata = parent:GetFrameStrata();
+
+    if containerFrame then
+        containerFrame:SetFrameStrata(strata);
+        containerFrame:SetFrameLevel(level);
+    end
+
+    self.Model1:SetFrameStrata(strata);
+    self.Model1:SetFrameLevel(level);
+    self.Model2:SetFrameStrata(strata);
+    self.Model2:SetFrameLevel(level);
+end
+
 
 function SharedTooltip:UpdatePixel(scale)
     if not self.Background then return end;
@@ -242,6 +257,8 @@ function SharedTooltip:UpdatePixel(scale)
     self.Background:ClearAllPoints();
     self.Background:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset);
     self.Background:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
+
+    API.UpdateTextureSliceScale(self.Background);
 end
 
 function SharedTooltip:Init()
@@ -280,8 +297,9 @@ function SharedTooltip:Init()
         self.DualModel:Init(self.PreviewFrame);
         self.DualModel:SetModelSize(MODEL_WIDTH, MODEL_HEIGHT);
         self.DualModel:SetPoint("TOPRIGHT", self, "TOPRIGHT", -TOOLTIP_PADDING, 0.33*MODEL_HEIGHT);
-    end
 
+        self.DualModel:SetUseParentLevel(self, self.PreviewFrame);
+    end
 
 
     if not self.iconPool then
@@ -851,6 +869,16 @@ function SharedTooltip:AddBlankLine()
     self.grid[n] = {
         gap = SPACING_NEW_LINE,
     };
+end
+
+function SharedTooltip:AddColoredLine(text, colorGlobal)
+    local r, g, b;
+    if colorGlobal and colorGlobal.GetRGB then
+        r, g, b = colorGlobal:GetRGB();
+    else
+        r, g, b = 1, 1, 1;
+    end
+    self:AddLeftLine(text, r, g, b, true);
 end
 
 function SharedTooltip:ProcessInfo(info)

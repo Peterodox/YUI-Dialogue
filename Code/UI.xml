@@ -13,8 +13,16 @@
     <Script file="QuestItemDisplay.lua"/>
     <Script file="Tutorial.lua"/>
 
-    <Frame name="DUIDialogHotkeyTemplate" mixin="DUIDialogHotkeyFrameMixin" hidden="true" virtual="true">
+    <Frame name="DUIDialogHotkeyTemplate" mixin="DUIDialogHotkeyFrameMixin" hidden="false" virtual="true">
         <Size x="34" y="34"/>
+        <!--Frames>
+            <Frame parentKey="Background" setAllPoints="true" hidden="true" inherits="DUIPseudoSliceTextureTemplate">
+                <KeyValues>
+                    <KeyValue key="drawLayer" value="OVERLAY" type="string"/>
+                    <KeyValue key="textureSubLevel" value="4" type="number"/>
+                </KeyValues>
+            </Frame>
+        </Frames-->
         <Layers>
             <Layer level="OVERLAY" textureSubLevel="4">
                 <Texture parentKey="Background" setAllPoints="true" hidden="true">

@@ -170,6 +170,7 @@ function Clipboard:Init()
     bg:SetTextureSliceMargins(corner, corner, corner, corner);
     bg:SetTextureSliceMode(1);
     bg:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Shared/ClipboardBackground.png");
+    API.UpdateTextureSliceScale(bg);
 
     local ScrollBar = addon.CreateScrollBar(self);
     self.ScrollBar = ScrollBar;

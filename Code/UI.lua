@@ -2027,7 +2027,6 @@ function DUIDialogBaseMixin:OnHide()
     if self.acknowledgeAutoAcceptQuest then
         self.acknowledgeAutoAcceptQuest = nil;
         AcknowledgeAutoAcceptQuest();
-        print("AcknowledgeAutoAcceptQuest")
     end
 end
 

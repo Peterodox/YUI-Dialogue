@@ -260,7 +260,7 @@ do
     local function HandleDelvesDifficultyPickerGossipShow(textureKit)   --TWW
 		C_AddOns.LoadAddOn("Blizzard_DelvesDifficultyPicker");
 		DelvesDifficultyPickerFrame:TryShow(textureKit);
-		return DelvesDifficultyPickerFrame;
+		return DelvesDifficultyPickerFrame
 	end
 
     EL.handlers = {};
@@ -270,7 +270,7 @@ do
     end
 
     function EL:GetHandler(textureKit)
-        --print(textureKit)
+        --print("textureKit", textureKit)
         return textureKit and self.handlers[textureKit]
     end
 
@@ -283,7 +283,7 @@ do
 		self:RegisterHandler("soulforges", HandleTorghastLevelPickerGossipShow);
 		self:RegisterHandler("theupperreaches", HandleTorghastLevelPickerGossipShow);
 		self:RegisterHandler("twistingcorridors", HandleTorghastLevelPickerGossipShow);
-        self:RegisterHandler("delves-difficulty-picker", HandleDelvesDifficultyPickerGossipShow);
+        self:RegisterHandler("delves-difficulty-picker", HandleDelvesDifficultyPickerGossipShow);   --For some reason this textureKit is sometimes nil, causing issue
 	end
     EL:RegisterCustomGossipFrames();
 end

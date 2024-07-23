@@ -945,6 +945,8 @@ function DUIDialogHotkeyFrameMixin:OnLoad()
     self.Background:SetSnapToPixelGrid(true);
 
     self:UpdateBaseHeight();
+
+    API.UpdateTextureSliceScale(self.Background);
 end
 
 function DUIDialogHotkeyFrameMixin:ReloadKey()
@@ -1075,6 +1077,52 @@ function ItemButtonSharedMixin:PlaySheen()
     self.AnimSheen:Play();
 end
 
+function ItemButtonSharedMixin:AppendQuestRewardContextDescription(tooltip)
+    if not self.questRewardContextFlags then return end;
+
+    local IsSet = FlagsUtil and FlagsUtil.IsSet;
+    local enumFlags = Enum.QuestRewardContextFlags;
+    if not (IsSet and enumFlags) then return end;
+
+    local flag = self.questRewardContextFlags;
+    local rewardContextLine;
+
+	if self.objectType == "item" then
+        if IsSet(flag, enumFlags.FirstCompletionBonus) then
+            rewardContextLine = ACCOUNT_FIRST_TIME_QUEST_BONUS_TOOLTIP;
+        elseif IsSet(flag, enumFlags.RepeatCompletionBonus) then
+            rewardContextLine =  ACCOUNT_PREVIOUSLY_COMPLETED_QUEST_BONUS_TOOLTIP;
+        end
+	elseif self.objectType == "currency" and self.currencyInfo then
+        local currencyInfo = self.currencyInfo;
+        local entireAmountIsBonus = currencyInfo.bonusRewardAmount == currencyInfo.totalRewardAmount;
+        local isReputationReward = C_CurrencyInfo.GetFactionGrantedByCurrency(currencyInfo.currencyID) ~= nil;
+        if IsSet(flag, enumFlags.FirstCompletionBonus) then
+            if entireAmountIsBonus then
+                rewardContextLine = ACCOUNT_FIRST_TIME_QUEST_BONUS_TOOLTIP;
+            else
+                local bonusString = isReputationReward and ACCOUNT_FIRST_TIME_QUEST_BONUS_REP_TOOLTIP or ACCOUNT_FIRST_TIME_QUEST_BONUS_CURRENCY_TOOLTIP;
+                rewardContextLine = bonusString:format(currencyInfo.baseRewardAmount, currencyInfo.bonusRewardAmount);
+            end
+        end
+
+        if IsSet(flag, enumFlags.RepeatCompletionBonus) then
+            if entireAmountIsBonus then
+                rewardContextLine = ACCOUNT_PREVIOUSLY_COMPLETED_QUEST_BONUS_TOOLTIP;
+            else
+                local bonusString = isReputationReward and ACCOUNT_PREVIOUSLY_COMPLETED_QUEST_REP_BONUS_TOOLTIP or ACCOUNT_PREVIOUSLY_COMPLETED_QUEST_CURRENCY_BONUS_TOOLTIP;
+                rewardContextLine = bonusString:format(currencyInfo.baseRewardAmount, currencyInfo.bonusRewardAmount);
+            end
+        end
+	end
+
+    if rewardContextLine then
+		tooltip:AddBlankLine();
+		tooltip:AddColoredLine(rewardContextLine, QUEST_REWARD_CONTEXT_FONT_COLOR);
+        tooltip:Show();
+	end
+end
+
 function ItemButtonSharedMixin:OnEnter()
     if self.type == "choice" then
         addon.DialogueUI:HighlightRewardChoice(self);
@@ -1103,15 +1151,20 @@ function ItemButtonSharedMixin:OnEnter()
             end
         end
 
+        self:AppendQuestRewardContextDescription(tooltip);
+
     elseif self.objectType == "currency" then
         tooltip:SetQuestCurrency(self.type, self.index);
         if self.currencyID then
+            self:AppendQuestRewardContextDescription(tooltip);
+
             local factionStatus = API.GetFactionStatusTextByCurrencyID(self.currencyID);
             if factionStatus then
                 tooltip:AddLeftLine(factionStatus, 1, 0.82, 0);
                 tooltip:Show();
             end
         end
+
     elseif self.objectType == "spell" then
         tooltip:SetSpellByID(self.spellID);
     elseif self.objectType == "reputation" then
@@ -1281,6 +1334,10 @@ function ItemButtonSharedMixin:GetClipboardOutput()
     end
 
     return name
+end
+
+function ItemButtonSharedMixin:SetQuestRewardContextFlags(questRewardContextFlags)
+    self.questRewardContextFlags = questRewardContextFlags;
 end
 
 
@@ -1484,6 +1541,7 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
     self.type = questInfoType;
     self.index = index;
     self.currencyID = nil;
+    self.currencyInfo = nil;
 
     local name, texture, count, quality, isUsable, itemID, questRewardContextFlags = GetQuestItemInfo(questInfoType, index);    --no itemID in Classic; questRewardContextFlags TWW
 
@@ -1505,6 +1563,7 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
     end
 
     self:SetItemOverlay(itemOverlayID);
+    self:SetQuestRewardContextFlags(questRewardContextFlags);
 end
 
 function DUIDialogItemButtonMixin:SetRewardItem(index)
@@ -1536,7 +1595,7 @@ function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
     local name, texture, amount, quality = info.name, info.texture, info.totalRewardAmount, info.quality;
     local currencyID = info.currencyID;
     self.currencyID = currencyID;
-    IFF = info
+    self.currencyInfo = info;
 
     --For Reputation, it's the faction's name, but the game prefer to find a GetCurrencyContainerInfo (CurrencyContainer.lua)
 
@@ -1567,6 +1626,7 @@ function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
     end
 
     self:SetItemOverlay(nil);
+    self:SetQuestRewardContextFlags(info.questRewardContextFlags);
 end
 
 function DUIDialogItemButtonMixin:SetRewardCurrency(index)
@@ -1618,6 +1678,7 @@ function DUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self.spellID = spellID;
     self.itemID = nil;
     self.currencyID = nil;
+    self.currencyInfo = nil;
 
     self.icon = icon;
     self.Icon:SetTexture(icon);
@@ -1761,6 +1822,7 @@ function DUIDialogSmallItemButtonMixin:SetCurrency(questInfoType, index)
     local texture, amount = info.texture, info.totalRewardAmount;
     local currencyID = info.currencyID;
     self.currencyID = currencyID;
+    self.currencyInfo = info;
 
     if not amount then
         amount = 1;
@@ -1774,7 +1836,7 @@ function DUIDialogSmallItemButtonMixin:SetCurrency(questInfoType, index)
         self:ShowOverflowIcon();
     end
 
-    --TODO: questRewardContextFlags (See QuestInfoRewardItemMixin:GetBestQuestRewardContextDescription)
+    self:SetQuestRewardContextFlags(info.questRewardContextFlags);
 end
 
 function DUIDialogSmallItemButtonMixin:SetRewardCurrency(index)
