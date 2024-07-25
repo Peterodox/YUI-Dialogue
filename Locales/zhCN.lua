@@ -53,6 +53,7 @@ L["Gossip Quest Option Prepend"] = "（任务）";   --Some gossip options start
 L["TTS Button Tooltip"] = "左键点击： 播放/停止阅读\n右键点击： 勾选自动播放";
 L["Item Is An Upgrade"] = "这件装备对你有提升";
 L["Identical Stats"] = "这两件装备的属性相同";
+L["Quest Completed On Account"] = "- 你的战团此前已经完成了这个任务。";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";
@@ -112,6 +113,8 @@ L["Show Quest Type Text"] = "显示任务类型";
 L["Show Quest Type Text Desc"] = "在任务按钮的右侧以文字形式显示任务类型，如果它较为特殊的话。\n\n低等级任务总是会被提示。";
 L["Show NPC Name On Page"] = "显示NPC名字";
 L["Show NPC Name On Page Desc"] = "在页面上显示交互对象的名字。";
+L["Show Warband Completed Quest"] = "标注战团已完成的任务";
+L["Show Warband Completed Quest Desc"] = "如果你已在其他角色上完成当前任务，在任务详情界面的底部添加注释。";
 L["Simplify Currency Rewards"] = "简化货币显示";
 L["Simplify Currency Rewards Desc"] = "用更小的图标来显示货币奖励，货币名称也会被省略。";
 L["Mark Highest Sell Price"] = "标记出最值钱的物品";

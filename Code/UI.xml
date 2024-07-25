@@ -129,6 +129,9 @@
                 </Texture>
             </Layer>
         </Layers>
+        <Frames>
+            <Frame parentKey="ActionBlocker" setAllPoints="true" enableMouse="true" enableMouseClicks="true" enableMouseMotion="true"/>
+        </Frames>
         <Scripts>
             <OnLoad method="OnLoad"/>
             <OnHide method="OnHide"/>
@@ -183,6 +186,14 @@
 
     <Frame name="DUIDialogItemButtonTemplate" mixin="DUIDialogItemButtonMixin" flattenRenderLayers="true" hidden="true" virtual="true"> <!--Display Items-->
         <Size x="174" y="36"/>
+        <Frames>
+            <Frame parentKey="AreaDefinitionItemBorder">
+                <Size x="36" y="36"/>
+                <Anchors>
+                    <Anchor point="LEFT"/>
+                </Anchors>
+            </Frame>
+        </Frames>
         <Layers>
             <Layer level="BACKGROUND" textureSubLevel="1">
                 <Texture parentKey="Background" setAllPoints="true">
@@ -194,9 +205,9 @@
                 <Texture parentKey="ItemBorder">
                     <TextureSliceMode mode="Stretched"/>
                     <TextureSliceMargins left="8" right="8" top="8" bottom="8"/>
-                    <Size x="36" y="36"/>
                     <Anchors>
-                        <Anchor point="LEFT"/>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.AreaDefinitionItemBorder" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.AreaDefinitionItemBorder" relativePoint="BOTTOMRIGHT"/>
                     </Anchors>
                 </Texture>
             </Layer>
@@ -204,7 +215,7 @@
                 <Texture parentKey="Icon">
                     <Size x="32" y="32"/>
                     <Anchors>
-                        <Anchor point="CENTER" relativeKey="$parent.ItemBorder"/>
+                        <Anchor point="CENTER" relativeKey="$parent.AreaDefinitionItemBorder"/>
                     </Anchors>
                 </Texture>
             </Layer>
@@ -223,7 +234,7 @@
                 <Texture parentKey="ItemOverlay" hidden="true">
                     <Size x="36" y="36"/>
                     <Anchors>
-                        <Anchor point="CENTER" relativeKey="$parent.ItemBorder"/>
+                        <Anchor point="CENTER" relativeKey="$parent.AreaDefinitionItemBorder"/>
                     </Anchors>
                 </Texture>
             </Layer>
@@ -379,6 +390,45 @@
                                 </Anchors>
                             </Frame>
                         </Frames>
+                    </Frame>
+
+                    <Frame parentKey="QuestPortrait" mixin="DUIDialogQuestPortraitMixin" hidden="true" alpha="0" ignoreParentAlpha="true">
+                        <Size x="170" y="170"/>
+                        <Anchors>
+                            <Anchor point="TOP"  relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/> 
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="FrontTexture" setAllPoints="true"/>
+                            </Layer>
+                            <Layer level="OVERLAY" textureSubLevel="5">
+                                <FontString parentKey="Name" inherits="DUIFont_Constant_10" justifyH="CENTER" justifyV="MIDDLE" maxLines="2" spacing="2" text="Anduin Wrynn">
+                                    <Size x="70"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="BOTTOM" y="42"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <PlayerModel parentKey="Model" useParentLevel="true" drawLayer="ARTWORK">
+                                <Size x="78" y="78"/>
+                                <Anchors>
+                                    <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOP" y="-71"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BACKGROUND">
+                                        <Texture parentKey="Background" setAllPoints="true">
+                                            <Color r="0" g="0" b="0"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </PlayerModel>
+                        </Frames>
+                        <Scripts>
+                            <OnLoad method="OnLoad"/>
+                            <OnHide method="OnHide"/>
+                        </Scripts>
                     </Frame>
                 </Frames>
             </Frame>

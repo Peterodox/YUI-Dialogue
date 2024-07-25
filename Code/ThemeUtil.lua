@@ -62,6 +62,9 @@ local FONT_OBJECT_COLOR = {
 
     DUIFont_QuestType_Left = {"DarkBrown", "DarkModeGrey90"},
     DUIFont_QuestType_Right = {"DarkModeGrey70", "DarkModeGrey70"},
+
+    DUIFont_Constant_10 = {"DarkBrown", "DarkModeGrey70"},
+    DUIFont_Constant_8 = {"DarkBrown", "DarkModeGrey70"},
 };
 
 

@@ -707,6 +707,9 @@ do  -- Quest
     local GetTitleForQuestID = C_QuestLog.GetTitleForQuestID or C_QuestLog.GetQuestInfo or AlwaysFalse;
     local GetQuestObjectives = C_QuestLog.GetQuestObjectives;
     local GetQuestTimeLeftSeconds = C_TaskQuest and C_TaskQuest.GetQuestTimeLeftSeconds or AlwaysNil;
+    local IsQuestFlaggedCompletedOnAccount = C_QuestLog.IsQuestFlaggedCompletedOnAccount or AlwaysFalse;
+
+    API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
 
     --TWW
     local GetQuestCurrency;
@@ -716,11 +719,20 @@ do  -- Quest
         local GetQuestRewardCurrencyInfo = C_QuestOffer.GetQuestRewardCurrencyInfo;
 
         function GetQuestCurrency(questInfoType, index)
+            --Unifiy two APIs and their payload structures:
+            --"duiDisplayedAmount" for displaying the ItemCount
+
+            local tbl;
+
             if questInfoType == "reward" or questInfoType == "choice" then
-                return GetQuestRewardCurrencyInfo(questInfoType, index)
+                tbl = GetQuestRewardCurrencyInfo(questInfoType, index);
+                tbl.duiDisplayedAmount = tbl.totalRewardAmount;
             elseif questInfoType == "required" then
-                return GetQuestRequiredCurrencyInfo(index)
+                tbl = GetQuestRequiredCurrencyInfo(index);
+                tbl.duiDisplayedAmount = tbl.requiredAmount;
             end
+
+            return tbl
         end
     else
         local GetQuestCurrencyInfo = GetQuestCurrencyInfo;
@@ -739,6 +751,8 @@ do  -- Quest
                 bonusRewardAmount = 0,
                 totalRewardAmount = amount,
                 questRewardContextFlags = nil,
+                requiredAmount = 0,
+                duiDisplayedAmount = amount;
             };
 
             return tbl

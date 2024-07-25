@@ -4,7 +4,8 @@ local _, addon = ...
 
 local AutoSelectGossip = {
     --[gossipOptionID] = true(always), 1(select when it's the only option)
-    [48598] = true,         -- I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
+    [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
+    [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra
     [109275] = true,        --Reporting to duty (Time Rift)
 
     [107824] = 1,           --Trading Post

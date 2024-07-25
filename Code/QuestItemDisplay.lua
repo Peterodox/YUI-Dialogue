@@ -62,11 +62,6 @@ function QuestItemDisplay:Init()
     bgShadow:SetTextureSliceMargins(margin, margin, margin, margin);
     bgShadow:SetTextureSliceMode(0);
     bgShadow:SetTexCoord(0.515625, 0.765625, 0.25, 0.5);
-    local pixelOffset = 16.0;
-    local offset = API.GetPixelForScale(self:GetEffectiveScale(), pixelOffset);
-    bgShadow:ClearAllPoints();
-    bgShadow:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset);
-    bgShadow:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
 
     local icon = self:CreateTexture(nil, "ARTWORK");
     self.ItemIcon = icon;
@@ -229,6 +224,15 @@ function QuestItemDisplay:UpdatePixel(scale)
     self.IconBorder:ClearAllPoints();
     self.IconBorder:SetPoint("TOPLEFT", self.ItemIcon, "TOPLEFT", -offset, offset);
     self.IconBorder:SetPoint("BOTTOMRIGHT", self.ItemIcon, "BOTTOMRIGHT", offset, -offset);
+
+    local shadowOffsetPixel = 16.0;
+    offset = API.GetPixelForScale(scale, shadowOffsetPixel);
+    self.BackgroundShadow:ClearAllPoints();
+    self.BackgroundShadow:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset);
+    self.BackgroundShadow:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
+
+    --API.UpdateTextureSliceScale(self.Background);
+    --API.UpdateTextureSliceScale(self.BackgroundShadow);
 end
 
 function QuestItemDisplay:ResetPosition()

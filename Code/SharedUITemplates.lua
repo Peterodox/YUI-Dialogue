@@ -1402,8 +1402,10 @@ function DUIDialogItemButtonMixin:UpdatePixel(scale)
     local iconShrink = 6.0;
     local offset = API.GetPixelForScale(scale, iconShrink);
     self.Icon:ClearAllPoints();
-    self.Icon:SetPoint("TOPLEFT", self.ItemBorder, "TOPLEFT", offset, -offset);
-    self.Icon:SetPoint("BOTTOMRIGHT", self.ItemBorder, "BOTTOMRIGHT", -offset, offset);
+    self.Icon:SetPoint("TOPLEFT", self.AreaDefinitionItemBorder, "TOPLEFT", offset, -offset);
+    self.Icon:SetPoint("BOTTOMRIGHT", self.AreaDefinitionItemBorder, "BOTTOMRIGHT", -offset, offset);
+
+    API.UpdateTextureSliceScale(self.ItemBorder);
 end
 
 function DUIDialogItemButtonMixin:OnClick(button)
@@ -1592,7 +1594,7 @@ function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
     self.index = index;
 
     local info = GetQuestCurrency(questInfoType, index);
-    local name, texture, amount, quality = info.name, info.texture, info.totalRewardAmount, info.quality;
+    local name, texture, amount, quality = info.name, info.texture, info.duiDisplayedAmount, info.quality;
     local currencyID = info.currencyID;
     self.currencyID = currencyID;
     self.currencyInfo = info;
@@ -1819,7 +1821,7 @@ function DUIDialogSmallItemButtonMixin:SetCurrency(questInfoType, index)
     self.index = index;
 
     local info = GetQuestCurrency(questInfoType, index);
-    local texture, amount = info.texture, info.totalRewardAmount;
+    local texture, amount = info.texture, info.duiDisplayedAmount;
     local currencyID = info.currencyID;
     self.currencyID = currencyID;
     self.currencyInfo = info;
@@ -2246,6 +2248,100 @@ do
     end
 end
 
+do
+    DUIDialogQuestPortraitMixin = {};
+
+    function DUIDialogQuestPortraitMixin:OnLoad()
+        self:SetFrameAlpha(0);
+
+        local function OnModelLoaded(f)
+            f:SetCamera(0);
+            f:SetPortraitZoom(1);
+            f:SetPortraitZoom(0.975);
+            f:FreezeAnimation(0, 0, 0);
+            f:SetModelAlpha(0);
+            self:FadeInAfterModelLoaded();
+        end
+
+        self.Model:SetScript("OnModelLoaded", OnModelLoaded);
+
+        self:SetTheme(1);
+    end
+
+    function DUIDialogQuestPortraitMixin:SetTheme(index)
+        local lightValues = { omnidirectional = false, point = CreateVector3D(-0.707, -0.309, -0.636), ambientIntensity = 1, ambientColor = CreateColor(0.8, 0.72, 0.56), diffuseIntensity = 1, diffuseColor = CreateColor(0.66, 0.66, 0.66) };
+        local enabled = true;
+
+        if index == 1 then
+            lightValues.ambientColor = CreateColor(0.8, 0.72, 0.56);
+            lightValues.diffuseColor = CreateColor(0.66, 0.66, 0.66);
+        else
+            lightValues.ambientColor = CreateColor(0.72, 0.72, 0.72);
+            lightValues.diffuseColor = CreateColor(0.66, 0.66, 0.66);
+        end
+
+        self.Model:SetLight(enabled, lightValues);
+    end
+
+    function DUIDialogQuestPortraitMixin:SetPortrait(creatureDisplayID, creatureName)
+        self:Hide();
+        self:Show();
+        self.Model:SetDisplayInfo(creatureDisplayID);
+        self:SetName(creatureName);
+    end
+
+    function DUIDialogQuestPortraitMixin:SetName(creatureName)
+        self.Name:SetFontObject("DUIFont_Constant_10");
+        self.Name:SetText(creatureName);
+        if self.Name:IsTruncated() then
+            self.Name:SetFontObject("DUIFont_Constant_8");
+        end
+    end
+
+    function DUIDialogQuestPortraitMixin:OnHide()
+        self:SetScript("OnUpdate", nil);
+        self:Hide();
+        self:SetFrameAlpha(0);
+        self.alpha = 0;
+        self.Model:ClearModel();
+    end
+
+    function DUIDialogQuestPortraitMixin:SetFrameAlpha(alpha)
+        self.alpha = alpha;
+        self:SetAlpha(alpha);
+        self.Model:SetModelAlpha(alpha);
+    end
+
+    local function Portrait_FadeIn(self, elapsed)
+        self.alpha = self.alpha + 4*elapsed;
+        if self.alpha >= 1 then
+            self.alpha = 1;
+            self:SetScript("OnUpdate", nil);
+        end
+        self:SetFrameAlpha(self.alpha);
+    end
+
+    local function Portrait_FadeOut(self, elapsed)
+        self.alpha = self.alpha - 8*elapsed;
+        if self.alpha <= 0 then
+            self:Hide();
+            return
+        end
+        self:SetFrameAlpha(self.alpha);
+    end
+
+    function DUIDialogQuestPortraitMixin:FadeOut()
+        if self:IsVisible() then
+            self:SetScript("OnUpdate", Portrait_FadeOut);
+        end
+    end
+
+    function DUIDialogQuestPortraitMixin:FadeInAfterModelLoaded()
+        if self:IsVisible() then
+            self:SetScript("OnUpdate", Portrait_FadeIn);
+        end
+    end
+end
 
 do
     local function Settings_QuestTypeText(dbValue)

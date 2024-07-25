@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.3.4";
-local VERSION_DATE = 1721740000;
+local VERSION_TEXT = "v0.3.5";
+local VERSION_DATE = 1721900000;
 
 
 local addonName, addon = ...
@@ -20,9 +20,10 @@ local DefaultValues = {
     HideUnitNames = false,
     ShowCopyTextButton = false,
     ShowNPCNameOnPage = false,
+    MarkHighestSellPrice = false,
     QuestTypeText = false,
     SimplifyCurrencyReward = false,
-    MarkHighestSellPrice = false,
+    WarbandCompletedQuest = false,
     UseRoleplayName = false,
 
     CameraMovement = 1,                         --0:OFF  1:Zoom-In  2:Horizontal
@@ -153,3 +154,9 @@ do
     local IS_CLASSIC = not IsToCVersionEqualOrNewerThan(100000);
     addon.IS_CLASSIC = IS_CLASSIC;
 end
+
+
+local function GetDBBool(dbKey)
+    return DB[dbKey] == true
+end
+addon.GetDBBool = GetDBBool;

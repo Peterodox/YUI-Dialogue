@@ -137,6 +137,29 @@
         </Member>
     </FontFamily>
 
+    <FontFamily name="DUIFontFamily_Serif_8" virtual="true">
+        <Member alphabet="roman">
+            <Font font="Interface\AddOns\DialogueUI\Fonts\frizqt__.ttf" height="8">
+            </Font>
+        </Member>
+        <Member alphabet="korean">
+            <Font font="Fonts\2002.TTF" height="8">
+            </Font>
+        </Member>
+        <Member alphabet="simplifiedchinese">
+            <Font font="Fonts\ARKai_T.ttf" height="8">
+            </Font>
+        </Member>
+        <Member alphabet="traditionalchinese">
+            <Font font="Fonts\blei00d.TTF" height="8">
+            </Font>
+        </Member>
+        <Member alphabet="russian">
+            <Font font="Interface\AddOns\DialogueUI\Fonts\frizqt___cyr.ttf" height="8">
+            </Font>
+        </Member>
+    </FontFamily>
+
 
     <Font name="DUIFont_Quest_Title_18" inherits="DUIFontFamily_Serif_18" virtual="true" justifyV="TOP" justifyH="LEFT">
         <Color r="0.19" g="0.17" b="0.13"/>
@@ -231,5 +254,15 @@
 
     <Font name="DUIFont_NameplateGossip" inherits="DUIFontFamily_Serif_12" virtual="true" justifyV="TOP" justifyH="CENTER">
         <Color r="0.87" g="0.86" b="0.75"/>
+    </Font>
+
+
+    <!--AutoFit FontString-->
+    <Font name="DUIFont_Constant_10" inherits="DUIFontFamily_Serif_10" virtual="true" justifyV="MIDDLE" justifyH="CENTER">
+        <Color r="0.19" g="0.17" b="0.13"/>
+    </Font>
+
+    <Font name="DUIFont_Constant_8" inherits="DUIFontFamily_Serif_8" virtual="true" justifyV="MIDDLE" justifyH="CENTER">
+        <Color r="0.19" g="0.17" b="0.13"/>
     </Font>
 </Ui>

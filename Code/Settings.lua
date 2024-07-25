@@ -396,6 +396,12 @@ local function RPAddOn_ReplaceName_Tooltip()
     end
 end
 
+local function WarbandCompletedQuest_Validation()
+    if C_QuestLog then
+        return C_QuestLog.IsQuestFlaggedCompletedOnAccount ~= nil
+    end
+end
+
 local Schematic = {
     {
         tabName = L["UI"],
@@ -431,6 +437,7 @@ local Schematic = {
             {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
             {type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},
+            {type = "Checkbox", name = L["Show Warband Completed Quest"], description = L["Show Warband Completed Quest Desc"], dbKey = "WarbandCompletedQuest", validationFunc = WarbandCompletedQuest_Validation},
 
             {type = "Subheader", name = L["Roleplaying"], validationFunc = RPAddOn_Validation},
             {type = "Checkbox", name = L["Use RP Name In Dialogues"], description = L["Use RP Name In Dialogues Desc"], tooltip = RPAddOn_ReplaceName_Tooltip, dbKey = "UseRoleplayName", validationFunc = RPAddOn_Validation},

@@ -53,6 +53,7 @@ L["Gossip Quest Option Prepend"] = "(Quest)";   --Some gossip options start with
 L["TTS Button Tooltip"] = "Left Click: Play/Stop Reading.\nRight Click: Toggle Auto Play";
 L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
+L["Quest Completed On Account"] = "- ".. (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -112,6 +113,8 @@ L["Show Quest Type Text"] = "Show Quest Type Text";
 L["Show Quest Type Text Desc"] = "Show quest type on the right of the option if it's special.\n\nLow level quests are always labeled.";
 L["Show NPC Name On Page"] = "Show NPC Name";
 L["Show NPC Name On Page Desc"] = "Show the NPC name on the page.";
+L["Show Warband Completed Quest"] = MINIMAP_TRACKING_ACCOUNT_COMPLETED_QUESTS or "Warband Completed Quests";
+L["Show Warband Completed Quest Desc"] = "Show a note on the bottom of quest detail if you have previously completed the current quest on another character.";
 L["Simplify Currency Rewards"] = "Simplify Currency Rewards";
 L["Simplify Currency Rewards Desc"] = "Use smaller icons for currency rewards and omit their names.";
 L["Mark Highest Sell Price"] = "Mark Highest Sell Price";

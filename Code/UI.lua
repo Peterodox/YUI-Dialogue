@@ -13,6 +13,7 @@ local ChatFrame = addon.ChatFrame;
 local FriendshipBar = addon.FriendshipBar;
 local PlaySound = addon.PlaySound;
 local IsAutoSelectOption = addon.IsAutoSelectOption;
+local GetDBBool = addon.GetDBBool;
 local IS_MODERN_WOW = not addon.IS_CLASSIC;
 
 local FadeFrame = API.UIFrameFade;
@@ -20,13 +21,13 @@ local CloseGossipInteraction = API.CloseGossipInteraction;
 local IsPlayingCutscene = API.IsPlayingCutscene;
 
 -- User Settings
-local ALWAYS_GOSSIP = false;
 local FRAME_SIZE_MULTIPLIER = 1.1;  --Default: 1.1
 local SCROLLDOWN_THEN_ACCEPT_QUEST = false;
 local AUTO_SELECT_GOSSIP = false;
 local INPUT_DEVICE_GAME_PAD = false;
-local SHOW_NPC_NAME = false;
-local MARK_HIGHEST_SELL_PRICE = false;
+--local ALWAYS_GOSSIP = false;
+--local SHOW_NPC_NAME = false;
+--local MARK_HIGHEST_SELL_PRICE = false;
 ------------------
 
 local PADDING_H = 26.0;
@@ -152,11 +153,16 @@ local Schematic = {
     ["BackgroundFrame.ClipFrame.BackgroundDecor"] = {width = 360, height = 360},
     ["FrontFrame.FooterDivider"] = {width = 392, height = 34},
     ["FrontFrame.HeaderDivider"] = {width = 392, height = 34},
+
     ["FrontFrame.Header"] = {width = 358, height = 51, point = "TOP", relativePoint = "TOP", x = 0, y = -28},
     ["FrontFrame.Header.Portrait"] = {width = 34, height = 34, point = "CENTER", relativePoint = "TOPLEFT", x = 23, y = -23},
     ["FrontFrame.Header.Divider"] = {width = 358, height = 51},
     ["FrontFrame.Header.Title"] = {point = "LEFT", relativePoint = "LEFT", x = 53, y = 2},
     ["FrontFrame.Header.TopLight"] = {width = 358, height = 34},
+
+    ["FrontFrame.QuestPortrait"] = {maxSizeMultiplier = 1.1, width = 170, height = 170, point = "TOP", relativePoint = "TOPRIGHT", x = 66, y = -64},
+    ["FrontFrame.QuestPortrait.Model"] = {maxSizeMultiplier = 1.1, width = 78, height = 78, point = "CENTER", relativePoint = "TOP", x = 0, y = -71},
+    ["FrontFrame.QuestPortrait.Name"] = {maxSizeMultiplier = 1.1, width = 70, height = 48, point = "CENTER", relativePoint = "BOTTOM", x = 0, y = 42},
 };
 
 local function SetupObjectSize(root, key, data)
@@ -166,12 +172,17 @@ local function SetupObjectSize(root, key, data)
         obj = obj[k];
     end
 
+    local a = FRAME_SIZE_MULTIPLIER;
+    if data.maxSizeMultiplier and a > data.maxSizeMultiplier then
+        a = data.maxSizeMultiplier;
+    end
+
     if data.width then
-        obj:SetSize(data.width * FRAME_SIZE_MULTIPLIER, data.height * FRAME_SIZE_MULTIPLIER);
+        obj:SetSize(data.width * a, data.height * a);
     end
 
     if data.point then
-        obj:SetPoint(data.point, obj:GetParent(), data.relativePoint, data.x * FRAME_SIZE_MULTIPLIER, data.y * FRAME_SIZE_MULTIPLIER);
+        obj:SetPoint(data.point, obj:GetParent(), data.relativePoint, data.x * a, data.y * a);
     end
 end
 
@@ -507,17 +518,23 @@ function DUIDialogBaseMixin:LoadTheme()
         piece:SetTexture(parchmentFile);
     end
 
-    self.FrontFrame.Header.Divider:SetTexture(parchmentFile);
-    self.FrontFrame.Header.Divider:SetTexCoord(0, 0.65625, 0.56640625, 0.61328125);
+    local ff = self.FrontFrame;
 
-    self.FrontFrame.Header.TopLight:SetTexture(parchmentFile);
-    self.FrontFrame.Header.TopLight:SetTexCoord(0, 0.65625, 0.65234375, 0.68359375);
+    ff.Header.Divider:SetTexture(parchmentFile);
+    ff.Header.Divider:SetTexCoord(0, 0.65625, 0.56640625, 0.61328125);
 
-    self.FrontFrame.FooterDivider:SetTexture(parchmentFile);
-    self.FrontFrame.FooterDivider:SetTexCoord(0, 0.71875, 0.6875, 0.71875);    --0, 0.65625, 0.6171875, 0.6484375
+    ff.Header.TopLight:SetTexture(parchmentFile);
+    ff.Header.TopLight:SetTexCoord(0, 0.65625, 0.65234375, 0.68359375);
 
-    self.FrontFrame.HeaderDivider:SetTexture(parchmentFile);
-    self.FrontFrame.HeaderDivider:SetTexCoord(0, 0.71875, 0.72265625, 0.75390625);    --0, 0.65625, 0.6484375, 0.6171875
+    ff.FooterDivider:SetTexture(parchmentFile);
+    ff.FooterDivider:SetTexCoord(0, 0.71875, 0.6875, 0.71875);    --0, 0.65625, 0.6171875, 0.6484375
+
+    ff.HeaderDivider:SetTexture(parchmentFile);
+    ff.HeaderDivider:SetTexCoord(0, 0.71875, 0.72265625, 0.75390625);    --0, 0.65625, 0.6484375, 0.6171875
+
+    ff.QuestPortrait.FrontTexture:SetTexture(parchmentFile);
+    ff.QuestPortrait.FrontTexture:SetTexCoord(0, 0.3125, 0.84375, 1);
+    ff.QuestPortrait:SetTheme(themeID);
 
     self.RewardSelection.FrontTexture:SetTexture(prefix.."RewardChoice-Highlight.png");
     self.RewardSelection.BackTexture:SetTexture(prefix.."RewardChoice-Highlight-Back.png");
@@ -720,17 +737,19 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         else
             self.FrontFrame.Header.Portrait:SetVertexColor(1, 0.9, 0.78);
         end
-        
+
         self.keepGossipHistory = false;
         self.hasActiveGossipQuests = false;
         self.activeQuestButtons = {};
     elseif self.questLayout or forceUpdate then
         self.questLayout = nil;
+        self.questID = nil;
         self.scrollViewHeight = self.scrollFrameBaseHeight;
         --self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", PADDING_H, -PADDING_TOP);
         self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -42);
         self.FrontFrame.Header:Hide();
         self.BackgroundDecor:Hide();
+        self.FrontFrame.QuestPortrait:FadeOut();
     end
 end
 
@@ -763,6 +782,7 @@ function DUIDialogBaseMixin:UpdateQuestTitle()
     end
 
     local questID = GetQuestID();
+    self.questID = questID;
     local campaignID = C_CampaignInfo and C_CampaignInfo.GetCampaignID(questID);
 
     if campaignID and campaignID ~= 0 then
@@ -1005,7 +1025,7 @@ function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
 end
 
 local function ConcatenateNPCName(text)
-    if SHOW_NPC_NAME and UnitExists("npc") then
+    if GetDBBool("ShowNPCNameOnPage") and UnitExists("npc") then
         local name = UnitName("npc");
         if text and name and name ~= "" then
             return name..": "..text
@@ -1046,20 +1066,22 @@ function DUIDialogBaseMixin:HandleGossip()
         end
     end
 
-    if (not ALWAYS_GOSSIP) and (not anyQuest) and (#options == 1) and (not ForceGossip()) then
+    local autoSelectGossip = GetDBBool("AutoSelectGossip");
+
+    if (not GetDBBool("ForceGossip")) and (not anyQuest) and (#options == 1) and (not ForceGossip()) then
         if options[1].selectOptionWhenOnlyOption then
             C_GossipInfo.SelectOptionByIndex(options[1].orderIndex);
             return false
         end
 
-        if AUTO_SELECT_GOSSIP and IsAutoSelectOption(options[1].gossipOptionID, true) then
+        if autoSelectGossip and IsAutoSelectOption(options[1].gossipOptionID, true) then
             C_GossipInfo.SelectOption(options[1].gossipOptionID);
             API.PrintMessage(L["Auto Select"], options[1].name);
             return false
         end
     end
 
-    if AUTO_SELECT_GOSSIP then
+    if autoSelectGossip then
         for i, data in ipairs(options) do
             if IsAutoSelectOption(data.gossipOptionID) then
                 C_GossipInfo.SelectOption(data.gossipOptionID);
@@ -1284,18 +1306,25 @@ function DUIDialogBaseMixin:HandleQuestDetail()
 
     --Model
     local portraitDisplayID, questPortraitText, questPortraitName, mountPortraitDisplayID, portraitModelSceneID = GetQuestPortraitGiver();
+    --debug portrait
+    --portraitDisplayID = 115995;
+    --questPortraitName = "King Anduin Wrynn Pam Testing Long";
+
     if portraitDisplayID then
         if portraitDisplayID == -1 then
             --player
 
         elseif portraitDisplayID > 0 then
-
+            self.FrontFrame.QuestPortrait:SetPortrait(portraitDisplayID, questPortraitName);
         end
 
         if questPortraitText and questPortraitText ~= "" and questPortraitText ~= objectiveText then
             offsetY = self:InsertParagraph(offsetY, questPortraitText);
         end
+    else
+        self.FrontFrame.QuestPortrait:FadeOut();
     end
+
 
     --Rewards
     local rewardList;
@@ -1310,6 +1339,10 @@ function DUIDialogBaseMixin:HandleQuestDetail()
         offsetY = Round(offsetY + subheader.size);
 
         offsetY = self:FormatRewards(offsetY, rewardList);
+    end
+
+    if self.questID and GetDBBool("WarbandCompletedQuest") and API.IsQuestFlaggedCompletedOnAccount(self.questID) then
+        offsetY = self:InsertParagraph(offsetY, L["Quest Completed On Account"]);
     end
 
     self:SetScrollRange(offsetY);
@@ -1786,7 +1819,7 @@ function DUIDialogBaseMixin:FlashRewardChoices()
 end
 
 function DUIDialogBaseMixin:RequestSellPrice(isRequery)
-    if not MARK_HIGHEST_SELL_PRICE then return end;
+    if not GetDBBool("MarkHighestSellPrice") then return end;
 
     local numRewardChoices = GetNumQuestChoices() or 0;
     if numRewardChoices <= 1 then return end;
@@ -2250,14 +2283,13 @@ do  --Clipboard
     end
 
     local function ConcatenateCurrencies(sourceType, numCurrencies)
-        local GetQuestCurrencyInfo = GetQuestCurrencyInfo;
-        local GetQuestCurrencyID = GetQuestCurrencyID;
+        local GetQuestCurrency = API.GetQuestCurrency;
         local str = "";
         local idFormat = "[CurrencyID: %d] %s";
 
         for index = 1, numCurrencies do
-            local name, texture, amount, quality = GetQuestCurrencyInfo(sourceType, index);
-            local currencyID = GetQuestCurrencyID(sourceType, index);
+            local currencyInfo = GetQuestCurrency(sourceType, index);
+            local name, amount, currencyID = currencyInfo.name, currencyInfo.duiDisplayedAmount, currencyInfo.currencyID;
             local text = idFormat:format(currencyID, name);
             if amount and amount > 1 then
                 text = text.." x"..amount;
@@ -2759,8 +2791,16 @@ end
 do
     function DUIDialogBaseMixin:OnSettingsChanged()
         if self:IsVisible() and self.handler then
-            self.keepGossipHistory = false;
-            self[self.handler](self);
+            if not self.settingsDirty then
+                self.settingsDirty = true;
+                After(0, function()
+                    self.settingsDirty = nil;
+                    if self.handler then
+                        self.keepGossipHistory = false;
+                        self[self.handler](self);
+                    end
+                end);
+            end
         end
     end
 
@@ -2830,29 +2870,6 @@ do
     end
     CallbackRegistry:Register("SettingChanged.FrameSize", Settings_FrameSize);
 
-
-    local function Settings_ForceGossip(dbValue)
-        ALWAYS_GOSSIP = dbValue == true;
-    end
-    CallbackRegistry:Register("SettingChanged.ForceGossip", Settings_ForceGossip);
-
-    local function Settings_ShowNPCNameOnPage(dbValue)
-        SHOW_NPC_NAME = dbValue == true;
-        MainFrame:OnSettingsChanged();
-    end
-    CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", Settings_ShowNPCNameOnPage);
-
-    local function Settings_MarkHighestSellPrice(dbValue)
-        MARK_HIGHEST_SELL_PRICE = dbValue == true;
-        MainFrame:OnSettingsChanged();
-    end
-    CallbackRegistry:Register("SettingChanged.MarkHighestSellPrice", Settings_MarkHighestSellPrice);
-
-    local function Settings_AutoSelectGossip(dbValue)
-        AUTO_SELECT_GOSSIP = dbValue == true;
-    end
-    CallbackRegistry:Register("SettingChanged.AutoSelectGossip", Settings_AutoSelectGossip);
-
     local function Settings_HideUI(dbValue)
         ExperienceBar:SetShown(dbValue == true);
     end
@@ -2870,6 +2887,14 @@ do
     end
     CallbackRegistry:Register("SettingChanged.UseRoleplayName", Settings_UseRoleplayName);
 
+    local function GenericOnSettingsChanged(dbValue)
+        MainFrame:OnSettingsChanged();
+    end
+    CallbackRegistry:Register("SettingChanged.WarbandCompletedQuest", GenericOnSettingsChanged);
+    CallbackRegistry:Register("SettingChanged.MarkHighestSellPrice", GenericOnSettingsChanged);
+    CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", GenericOnSettingsChanged);
+    CallbackRegistry:Register("SettingChanged.ForceGossip", GenericOnSettingsChanged);
+    CallbackRegistry:Register("SettingChanged.AutoSelectGossip", GenericOnSettingsChanged);
 
     local function SettingsUI_Show()
         SETTINGS_UI_VISIBLE = true;
