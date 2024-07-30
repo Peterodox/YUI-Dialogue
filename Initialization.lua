@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.3.5";
-local VERSION_DATE = 1721900000;
+local VERSION_TEXT = "v0.3.6";
+local VERSION_DATE = 1722350000;
 
 
 local addonName, addon = ...
@@ -16,6 +16,7 @@ local DefaultValues = {
     Theme = 1,
     FrameSize = 2,
     FontSizeBase = 1,
+    FrameOrientation = 2,                       --1:Left  2:Right(Default)
     HideUI = true,
     HideUnitNames = false,
     ShowCopyTextButton = false,
@@ -72,7 +73,7 @@ end
 addon.SetDBValue = SetDBValue;
 
 local function LoadTutorials()
-    --Tutorial Flags (false means haven't shown)
+    --Tutorial Flags (nil means haven't shown)
 
     for _, flag in pairs(TutorialFlags) do
         local dbKey = "Tutorial_"..flag;
@@ -157,6 +158,32 @@ end
 
 
 local function GetDBBool(dbKey)
-    return DB[dbKey] == true
+    if DB then
+        return DB[dbKey] == true
+    end
 end
 addon.GetDBBool = GetDBBool;
+
+
+local function IsDBValue(dbKey, value)
+    if DB then
+        return DB[dbKey] == value
+    end
+end
+addon.IsDBValue = IsDBValue;
+
+
+local function ResetTutorials()
+    for _, flag in pairs(TutorialFlags) do
+        local dbKey = "Tutorial_"..flag;
+        DB[dbKey] = nil;
+    end
+end
+addon.ResetTutorials = ResetTutorials;
+
+
+
+
+do
+    DialogueUIAPI = {};
+end

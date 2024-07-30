@@ -1197,6 +1197,17 @@ do  -- Color
         return TextPalette[colorIndex]
     end
     API.GetTextColorByIndex = GetTextColorByIndex;
+
+    local function SetTextColorByGlobal(fontString, colorMixin)
+        local r, g, b;
+        if colorMixin then
+            r, g, b = colorMixin:GetRGB();
+        else
+            r, g, b = 1, 1, 1;
+        end
+        fontString:SetTextColor(r, g, b);
+    end
+    API.SetTextColorByGlobal = SetTextColorByGlobal;
 end
 
 do  -- Currency
@@ -1300,6 +1311,11 @@ do  -- Currency
     end
     API.GetColorizedAmountForCurrency = GetColorizedAmountForCurrency;
 
+    local function GetOwnedCurrencyQuantity(currencyID)
+        local currencyInfo = GetCurrencyInfo(currencyID);
+        return currencyInfo and currencyID.quantity or 0
+    end
+    API.GetOwnedCurrencyQuantity = GetOwnedCurrencyQuantity;
 
     local UnitXP = UnitXP;
     local UnitXPMax = UnitXPMax;
@@ -1419,6 +1435,9 @@ do  -- Grid Layout
 
                         if topleftGridY > self.maxOccupiedY then
                             self.maxOccupiedY = topleftGridY;
+                            if objectSizeY > 1 then
+                                self.maxOccupiedY = self.maxOccupiedY + objectSizeY - 1;
+                            end
                         end
 
                         break
@@ -1458,6 +1477,7 @@ do  -- Grid Layout
     function GridMixin:GetWrappedSize()
         local width = (self.maxOccupiedX > 0 and self.maxOccupiedX * (self.gridWidth + self.spacing) - self.spacing) or 0;
         local height = (self.maxOccupiedY > 0 and self.maxOccupiedY * (self.gridHeight + self.spacing) - self.spacing) or 0;
+
         return width, height
     end
 

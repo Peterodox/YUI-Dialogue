@@ -60,6 +60,7 @@ local BreakUpLargeNumbers = BreakUpLargeNumbers;
 
 local MAJOR_FACTION_REPUTATION_REWARD_ICON_FORMAT = [[Interface\Icons\UI_MajorFaction_%s]];
 local ICON_PATH = "Interface/AddOns/DialogueUI/Art/Icons/";
+local FORMAT_COUNT_OWNED_REQUIRED = "|cffaaaaaa%s/|r%s";
 
 local GOSSIP_ICONS = {
     [132053] = ICON_PATH.."Gossip.png",
@@ -1486,7 +1487,7 @@ function DUIDialogItemButtonMixin:SetItemCount(amount, alignToCenter)
             if numInBags > 999 then
                 numInBags = "*";
             end
-            self.Count:SetText("|cffaaaaaa"..numInBags.."/|r"..amount);
+            self.Count:SetText(FORMAT_COUNT_OWNED_REQUIRED:format(numInBags, amount));
         elseif amount > 1 then
             self.Count:SetText(amount);
         else
@@ -1618,7 +1619,6 @@ function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
 
     self:SetItemName(name, quality);
     self.Icon:SetTexture(texture);
-    self.Count:SetText(AbbreviateNumbers(amount));
 
     if (questInfoType ~= "required") and API.WillCurrencyRewardOverflow(currencyID, amount) then
         self.Count:SetTextColor(1.000, 0.125, 0.125);   --RED_FONT_COLOR
@@ -1626,6 +1626,15 @@ function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
     else
         self.Count:SetTextColor(1, 1, 1);
     end
+
+    local amountText = AbbreviateNumbers(amount);
+    if questInfoType == "required" then
+        local ownedAmount = API.GetOwnedCurrencyQuantity(currencyID);
+        if amount >= 0.1 * ownedAmount then
+            amountText = FORMAT_COUNT_OWNED_REQUIRED:format(AbbreviateNumbers(ownedAmount), amountText);
+        end
+    end
+    self.Count:SetText(amountText);
 
     self:SetItemOverlay(nil);
     self:SetQuestRewardContextFlags(info.questRewardContextFlags);

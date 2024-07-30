@@ -17,6 +17,7 @@ local ENABLE_KEYCONTROL_IN_COMBAT = true;
 local PRIMARY_CONTROL_KEY = DEFAULT_CONTROL_KEY;
 local USE_INTERACT_KEY = false;
 local DISABLE_CONTROL_KEY = false;          --If true, pressing the key (Space) will not continue quest
+local TTS_ENABLED = false;
 local TTS_HOTKEY_ENABLED = false;
 local DEBUG_SHOW_GAMEPAD_BUTTON = false;    --[TEMP] Console user
 ------------------
@@ -182,7 +183,7 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
         processed = true;
         addon.SettingsUI:ToggleUI();
     elseif (key == "R" and not IsModifierKeyDown()) then
-        if TTS_HOTKEY_ENABLED then
+        if TTS_ENABLED and TTS_HOTKEY_ENABLED then
             valid = true;
             processed = true;
             addon.TTSUtil:ToggleSpeaking();
@@ -408,6 +409,11 @@ do  --Settings
     end
     addon.CallbackRegistry:Register("SettingChanged.PrimaryControlKey", Settings_PrimaryControlKey);
 
+
+    local function Settings_TTSEnabled(dbValue)
+        TTS_ENABLED = dbValue == true
+    end
+    addon.CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
 
     local function Settings_TTSUseHotkey(dbValue)
         TTS_HOTKEY_ENABLED = dbValue == true

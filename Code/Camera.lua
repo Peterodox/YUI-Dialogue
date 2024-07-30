@@ -143,7 +143,8 @@ function CameraUtil:OnEvent(event, ...)
     end
 end
 
-function CameraUtil:UpdateMounted()
+function CameraUtil:UpdateMounted_Right()
+    --UI on the right
     self.isMounted = IsMounted();
     if self.isMounted then
         if MOUNTED_CAMERA_ENABLED then
@@ -155,6 +156,23 @@ function CameraUtil:UpdateMounted()
         self.offsetMultiplier = 1;
     end
 end
+
+function CameraUtil:UpdateMounted_Left()
+    --UI on the left
+    self.isMounted = IsMounted();
+    if self.isMounted then
+        if MOUNTED_CAMERA_ENABLED then
+            self.offsetMultiplier = -0.3;
+        else
+            self.offsetMultiplier = -0.25;
+        end
+    else
+        self.offsetMultiplier = -1;
+    end
+end
+
+CameraUtil.UpdateMounted = CameraUtil.UpdateMounted_Right;
+
 
 local function SetCameraOverShoulder(value)
     SetCVar("test_cameraOverShoulder", value);
@@ -195,6 +213,13 @@ local function GetMountID()
     end
 end
 
+function CameraUtil:MoveCameraToFinalPosition()
+    local baseOffset = (self.cameraMode == 1 and FOCUS_SHOULDER_OFFSET) or (self:GetShoulderOffsetForCurrentZoom());
+    local offset = self.offsetMultiplier * baseOffset;
+    self.shoulderOffset = offset;
+    SetCameraOverShoulder(offset);
+end
+
 function CameraUtil:OnMountChanged()
     if (not self.isActive) or (self.cameraMode == 0) then return end;
 
@@ -215,10 +240,15 @@ function CameraUtil:OnMountChanged()
     end
 
     if changed then
-        local baseOffset = (self.cameraMode == 1 and FOCUS_SHOULDER_OFFSET) or (self:GetShoulderOffsetForCurrentZoom());
-        local offset = self.offsetMultiplier * baseOffset;
-        self.shoulderOffset = offset;
-        SetCameraOverShoulder(offset);
+        self:MoveCameraToFinalPosition();
+    end
+end
+
+function CameraUtil:OnUIOrientationChanged()
+    self:UpdateMounted();
+
+    if self.isActive and self.cameraMode ~= 0 then
+        self:MoveCameraToFinalPosition();
     end
 end
 
@@ -643,6 +673,16 @@ do
         end
     end
     addon.CallbackRegistry:Register("SettingChanged.CameraMovementDisableInstance", Settings_CameraMovementDisableInstance);
+
+    local function Settings_FrameOrientation(dbValue)
+        if dbValue == 1 then
+            CameraUtil.UpdateMounted = CameraUtil.UpdateMounted_Left;
+        else
+            CameraUtil.UpdateMounted = CameraUtil.UpdateMounted_Right;
+        end
+        CameraUtil:OnUIOrientationChanged();
+    end
+    CallbackRegistry:Register("SettingChanged.FrameOrientation", Settings_FrameOrientation);
 end
 
 

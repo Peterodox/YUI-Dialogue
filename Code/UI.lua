@@ -168,7 +168,7 @@ local Schematic = {
 local function SetupObjectSize(root, key, data)
     local obj = root;
 
-    for k in string.gmatch(key, "%a+") do
+    for k in string.gmatch(key, "%w+") do
         obj = obj[k];
     end
 
@@ -184,6 +184,22 @@ local function SetupObjectSize(root, key, data)
     if data.point then
         obj:SetPoint(data.point, obj:GetParent(), data.relativePoint, data.x * a, data.y * a);
     end
+end
+
+function DUIDialogBaseMixin:UpdateFrameBaseOffset(viewportWidth)
+    if not viewportWidth then
+        local width, height = WorldFrame:GetSize();
+        viewportWidth = math.min(width, height * 16/9);
+    end
+
+    local offsetRatio = FRAME_OFFSET_RATIO;
+    local frameOffsetX = Round(viewportWidth*(offsetRatio - 0.5));
+    if addon.IsDBValue("FrameOrientation", 1) then
+        frameOffsetX = -frameOffsetX;
+    end
+    self.frameOffsetX = frameOffsetX;
+    self:ClearAllPoints();
+    self:SetPoint("CENTER", nil, "CENTER", frameOffsetX, 0);
 end
 
 function DUIDialogBaseMixin:UpdateFrameSize()
@@ -220,11 +236,7 @@ function DUIDialogBaseMixin:UpdateFrameSize()
     self.halfFrameWidth = Round(0.5* (frameWidth - 2*paddingH - BUTTON_HORIZONTAL_GAP));
     self.quarterFrameWidth = Round(0.25* (frameWidth - 2*paddingH - 3*BUTTON_HORIZONTAL_GAP));
 
-    local offsetRatio = FRAME_OFFSET_RATIO;
-    local frameOffsetX = Round(viewportWidth*(offsetRatio - 0.5));
-    self.frameOffsetX = frameOffsetX;
-    self:ClearAllPoints();
-    self:SetPoint("CENTER", nil, "CENTER", frameOffsetX, 0);
+    self:UpdateFrameBaseOffset(viewportWidth);
 
     self.FrontFrame:SetPoint("TOPLEFT", self, "TOPLEFT", paddingH, 0);
     self.FrontFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -paddingH, 0);
@@ -1042,7 +1054,15 @@ function DUIDialogBaseMixin:HandleInitialLoadingComplete()
     end
 end
 
+function DUIDialogBaseMixin:IsGossipHandledExternally()
+    --Some addons handle goosip options (Override in SupportedAddons)
+    --InteractiveWormholes
+    return false
+end
+
 function DUIDialogBaseMixin:HandleGossip()
+    if self:IsGossipHandledExternally() then return false end;
+
     local availableQuests = GetAvailableQuests();
     local activeQuests = GetActiveQuests();
 
@@ -1900,7 +1920,7 @@ local function AnimIntro_Unfold_OnUpdate(self, elapsed)
     self:SetAlpha(alpha);
 end
 
-local function AnimIntro_FlyInRight_OnUpdate(self, elapsed)
+local function AnimIntro_FlyIn_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
     local offsetX = Esaing_OutSine(self.t, self.fromOffsetX, self.frameOffsetX, ANIM_DURATION_SCROLL_EXPAND);
     local alpha = 4*self.t;
@@ -1926,7 +1946,7 @@ local ActiveAnimIntro = AnimIntro_SimpleFadeIn_OnUpdate;
 
 function DUIDialogBaseMixin:PlayIntroAnimation()
     self.fromHeight = 0.5 * self.frameHeight;
-    self.fromOffsetX = self.frameOffsetX + 72;
+    self.fromOffsetX = self.frameOffsetX + ((self.frameOffsetX < 0 and -72) or 72);
     self.t = 0;
     self.ContentFrame:SetClipsChildren(true);
     self:SetScript("OnUpdate", ActiveAnimIntro);
@@ -2506,7 +2526,7 @@ do  --Quest Rewards
                 local numChoices = data.numChoices;
                 local offsetX = 0;
                 local backgroundID;
-                
+
                 sizeX = (INPUT_DEVICE_GAME_PAD and 4) or 2;
 
                 local isChoosingRewards = data.chooseItems;
@@ -2637,7 +2657,7 @@ do
         elseif dbValue == 1 then
             ActiveAnimIntro = AnimIntro_Unfold_OnUpdate;
         elseif dbValue == 2 then
-            ActiveAnimIntro = AnimIntro_FlyInRight_OnUpdate;
+            ActiveAnimIntro = AnimIntro_FlyIn_OnUpdate;
         end
     end
     CallbackRegistry:Register("SettingChanged.CameraMovement", Settings_CameraMovement);
@@ -2851,11 +2871,18 @@ do
         [3] = 1.25,
     };
 
+    local function Settings_FrameOrientation()
+        MainFrame:UpdateFrameBaseOffset();
+        if addon.SettingsUI:IsShown() then
+            addon.SettingsUI:MoveToBestPosition();
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.FrameOrientation", Settings_FrameOrientation);
+
     local function Settings_FrameSize(dbValue)
         --1: 1.0, 2: 1.1, 3:1.25
         local newScale = dbValue and FrameSizeIndexScale[dbValue]
         if newScale and newScale ~= FRAME_SIZE_MULTIPLIER then
-            local f = MainFrame;
             FRAME_SIZE_MULTIPLIER = newScale;
 
             if dbValue == 0 then
@@ -2864,8 +2891,8 @@ do
                 FRAME_OFFSET_RATIO = 3/4;
             end
 
-            f:UpdateFrameSize();
-            f:OnSettingsChanged();
+            MainFrame:UpdateFrameSize();
+            MainFrame:OnSettingsChanged();
         end
     end
     CallbackRegistry:Register("SettingChanged.FrameSize", Settings_FrameSize);
@@ -2895,6 +2922,7 @@ do
     CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.ForceGossip", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.AutoSelectGossip", GenericOnSettingsChanged);
+
 
     local function SettingsUI_Show()
         SETTINGS_UI_VISIBLE = true;

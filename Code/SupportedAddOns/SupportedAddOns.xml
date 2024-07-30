@@ -4,4 +4,5 @@
     <Script file="Wholly.lua"/>
     <Script file="Roleplay.lua"/>
     <Script file="Pawn.lua"/>
+    <Script file="InteractiveWormholes.lua"/>
 </Ui>

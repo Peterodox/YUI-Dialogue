@@ -92,8 +92,12 @@ function DUIDialogSettingsMixin:MoveToBestPosition()
         local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
         viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
         local frameWidth = self:GetWidth();
+        local offset = 0.5*frameWidth -0.5 * viewportWidth +16;
+        if addon.IsDBValue("FrameOrientation", 1) then
+            offset = -offset;
+        end
         self:ClearAllPoints();
-        self:SetPoint("CENTER", nil, "CENTER", 0.5*frameWidth -0.5 * viewportWidth + 16, 0);
+        self:SetPoint("CENTER", nil, "CENTER", offset, 0);
     else
         self:ClearAllPoints();
         self:SetPoint("CENTER", nil, "CENTER", 0, 0);
@@ -426,6 +430,12 @@ local Schematic = {
                     {dbValue = 1, valueText = "12"},
                     {dbValue = 2, valueText = "14"},
                     {dbValue = 3, valueText = "16"},
+                },
+            },
+            {type = "ArrowOption", name = L["Frame Orientation"], description = L["Frame Orientation Desc"], dbKey = "FrameOrientation",
+                choices = {
+                    {dbValue = 1, valueText = L["Orientation Left"]},
+                    {dbValue = 2, valueText = L["Orientation Right"]},
                 },
             },
             {type = "Checkbox", name = L["Hide UI"], description = L["Hide UI Desc"], dbKey = "HideUI"},

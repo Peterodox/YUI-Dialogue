@@ -9,7 +9,6 @@ do  --Teach players how to open Settings
     local function SetupTutorial_OpenSettings()
         local function onShowFunc()
             TUTORIAL_SHOWN = true;
-            addon.SetTutorialRead(TUTORIAL_FLAG);
         end
         Banner.onShowFunc = onShowFunc;
 
@@ -29,6 +28,9 @@ do  --Teach players how to open Settings
 
         local function SettingsUI_OnShow()
             Banner:Hide();
+            if TUTORIAL_SHOWN then
+                addon.SetTutorialRead(TUTORIAL_FLAG);
+            end
         end
 
         addon.CallbackRegistry:Register("SettingsUI.Show", SettingsUI_OnShow);
