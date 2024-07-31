@@ -1313,7 +1313,7 @@ do  -- Currency
 
     local function GetOwnedCurrencyQuantity(currencyID)
         local currencyInfo = GetCurrencyInfo(currencyID);
-        return currencyInfo and currencyID.quantity or 0
+        return currencyInfo and currencyInfo.quantity or 0
     end
     API.GetOwnedCurrencyQuantity = GetOwnedCurrencyQuantity;
 
