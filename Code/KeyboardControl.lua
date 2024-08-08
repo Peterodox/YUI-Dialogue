@@ -392,7 +392,7 @@ do  --Settings
             KeyboardControl:UnregisterEvent("UPDATE_BINDINGS");
             USE_INTERACT_KEY = false;
         elseif dbValue == 2 then
-            newKey = API.GetBestInteractKey();
+            newKey = API.GetBestInteractKey() or DEFAULT_CONTROL_KEY;
             KeyboardControl:RegisterEvent("UPDATE_BINDINGS");
             USE_INTERACT_KEY = true;
         elseif dbValue == 0 then

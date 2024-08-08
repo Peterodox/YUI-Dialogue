@@ -89,6 +89,9 @@ do
 
         ["Tutorial Settings Hotkey"] = BANNER_TEXT_SPACING,
         ["Tutorial Settings Hotkey Console"] = BANNER_TEXT_SPACING,
+
+        ["Instuction Open Settings"] = SETTINGS_DESC_SPACING,
+        ["Instuction Open Settings Console"] = SETTINGS_DESC_SPACING,
     };
 
     for lkey, iconOffsetY in pairs(LOCALE_KEYS) do

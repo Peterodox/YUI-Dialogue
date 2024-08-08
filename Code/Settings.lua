@@ -400,12 +400,6 @@ local function RPAddOn_ReplaceName_Tooltip()
     end
 end
 
-local function WarbandCompletedQuest_Validation()
-    if C_QuestLog then
-        return C_QuestLog.IsQuestFlaggedCompletedOnAccount ~= nil
-    end
-end
-
 local Schematic = {
     {
         tabName = L["UI"],
@@ -443,12 +437,11 @@ local Schematic = {
             {type = "Checkbox", name = L["Show Copy Text Button"], description = L["Show Copy Text Button Desc"], preview = "CopyTextButton", ratio = 1, dbKey = "ShowCopyTextButton"},
             {type = "Checkbox", name = L["Show NPC Name On Page"], description = L["Show NPC Name On Page Desc"], dbKey = "ShowNPCNameOnPage"},
 
-            {type = "Subheader", name = L["Quest"]},
+            {type = "Subheader", name = L["Quest"]},    --Quest
             {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
             {type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},
-            {type = "Checkbox", name = L["Show Warband Completed Quest"], description = L["Show Warband Completed Quest Desc"], dbKey = "WarbandCompletedQuest", validationFunc = WarbandCompletedQuest_Validation},
-
+            {type = "Checkbox", name = L["Use Blizzard Tooltip"], description = L["Use Blizzard Tooltip Desc"], dbKey = "UseBlizzardTooltip"},
             {type = "Subheader", name = L["Roleplaying"], validationFunc = RPAddOn_Validation},
             {type = "Checkbox", name = L["Use RP Name In Dialogues"], description = L["Use RP Name In Dialogues Desc"], tooltip = RPAddOn_ReplaceName_Tooltip, dbKey = "UseRoleplayName", validationFunc = RPAddOn_Validation},
         },
@@ -1685,4 +1678,67 @@ do
         f:UpdateCurrentTab();
     end
     addon.CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
+end
+
+do  --Create an entrance to settings in Blizzard addon settings window
+    if Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory then
+        local f = CreateFrame("Frame");
+        f:SetSize(8, 8);    --will be changed by API
+
+        local paddingV = 96;
+
+        local bg = f:CreateTexture(nil, "BACKGROUND");
+        bg:SetPoint("BOTTOM", f, "BOTTOM", 0, paddingV);
+        bg:SetTexture(PREVIEW_PATH.."GameMenuImage.jpg");
+        local mask = f:CreateMaskTexture(nil, "BACKGROUND");
+        mask:SetPoint("TOPLEFT", bg, "TOPLEFT", 0, 0);
+        mask:SetPoint("BOTTOMRIGHT", bg, "BOTTOMRIGHT", 0, 0);
+        mask:SetTexture(PREVIEW_PATH.."GameMenuImage-Mask.tga");
+        bg:AddMaskTexture(mask);
+
+        local Text = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
+        Text:SetJustifyH("CENTER");
+        Text:SetJustifyV("MIDDLE");
+        Text:SetSpacing(4);
+        Text:SetPoint("CENTER", f, "TOP", 0, 0);
+
+        local function OnFrameSizeChanged()
+            local width = f:GetWidth();
+            local height = f:GetHeight();
+            local imageHeight = width * 0.5;
+            local imageVisualHeight = imageHeight * 0.9;
+
+            paddingV = (height - imageVisualHeight) / 3;
+
+            Text:SetWidth(width - 64);
+            Text:ClearAllPoints();
+            Text:SetPoint("CENTER", f, "TOP", 0, -paddingV);
+
+            bg:SetSize(width, imageHeight);
+            bg:ClearAllPoints();
+            bg:SetPoint("CENTER", f, "BOTTOM", 0, paddingV + imageHeight * 0.5);
+
+            ThemeUtil:SetFontColor(Text, "DarkModeGoldDim");
+        end
+
+        local function SetupInstruction()
+            if C_CVar.GetCVarBool("GamePadEnable") then
+                Text:SetText(L["Instuction Open Settings Console"]);
+            else
+                Text:SetText(L["Instuction Open Settings"]);
+            end
+        end
+
+        f:SetScript("OnShow", function()
+            SetupInstruction();
+            OnFrameSizeChanged();
+            f:SetScript("OnShow", SetupInstruction);
+        end);
+
+        f:SetScript("OnSizeChanged", OnFrameSizeChanged);
+
+
+        local category = Settings.RegisterCanvasLayoutCategory(f, "Dialogue UI");
+        Settings.RegisterAddOnCategory(category);
+    end
 end

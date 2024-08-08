@@ -7,7 +7,7 @@ local ThemeUtil = addon.ThemeUtil;
 local match = string.match;
 local GetNumLetters = strlenutf8 or string.len;
 local Round = API.Round;
-local IsQuestItem = API.IsQuestItem;
+local IsQuestLoreItem = API.IsQuestLoreItem;
 local PI = math.pi;
 local After = C_Timer.After;
 
@@ -34,6 +34,7 @@ local PLAYER_NAME;
 
 local SEEN_ITEMS_SESSION = {};  --Items seen in this game session
 local SEEN_ITEMS_ALL = {};      --Items discovered by any of the characters
+local ALWAYS_IGNORED = {};      --Some World Quest Items
 
 local READABLE_ITEM = ITEM_CAN_BE_READ or "<This item can be read>";
 local START_QUEST_ITEM = ITEM_STARTS_QUEST or "This Item Begins a Quest";
@@ -796,7 +797,7 @@ function QuestItemDisplay:ProcessLootMessage(text)
         itemID = tonumber(itemID);
         if itemID and not SEEN_ITEMS_SESSION[itemID] then
             SEEN_ITEMS_SESSION[itemID] = true;
-            if IsQuestItem(itemID) then
+            if (not ALWAYS_IGNORED[itemID]) and IsQuestLoreItem(itemID) then
                 if (not IGNORE_SEEN_ITEM) or (not SEEN_ITEMS_ALL[itemID]) then
                     SEEN_ITEMS_ALL[itemID] = true;
                     self:TryDisplayItem(itemID);
@@ -883,4 +884,22 @@ do
         end
     end
     addon.CallbackRegistry:Register("DialogueUI.Hide", DialogueUI_OnHide);
+
+    API.SetPlayCutsceneCallback(function()
+        QuestItemDisplay:Clear();
+    end);
+end
+
+do
+    local Items = {
+        191140,     --Bronze Timepiece
+        227450,     --Sky Racer's Purse
+        212493,     --Odd Glob of Wax
+    };
+
+    for _, itemID in ipairs(Items) do
+        ALWAYS_IGNORED[itemID] = true;
+    end
+
+    Items = nil;
 end

@@ -799,3 +799,18 @@ do
 
     CallbackRegistry:Register("SharedTooltip.TOOLTIP_DATA_UPDATE", TOOLTIP_DATA_UPDATE);
 end
+
+do  --Used by UI widgets
+    function SharedTooltip.ShowWidgetTooltip(widget)
+        if widget.tooltipText then
+            SharedTooltip:Hide();
+            SharedTooltip:SetOwner(widget, "TOPRIGHT");
+            SharedTooltip:AddLeftLine(widget.tooltipText, 1, 1, 1);
+            SharedTooltip:Show();
+        end
+    end
+
+    function SharedTooltip.HideTooltip()
+        SharedTooltip:Hide();
+    end
+end

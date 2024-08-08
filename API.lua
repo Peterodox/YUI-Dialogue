@@ -1,12 +1,14 @@
 local _, addon = ...
 local API = addon.API;
 local L = addon.L;
+local CallbackRegistry = addon.CallbackRegistry;
 
 local floor = math.floor;
 local sqrt = math.sqrt;
 local tostring = tostring;
 local find = string.find;
 
+local LOCALE = GetLocale and GetLocale() or "enUS";
 local IS_TWW = addon.IsToCVersionEqualOrNewerThan(110000);
 
 
@@ -67,18 +69,34 @@ do  -- Math
     API.DeltaLerp = DeltaLerp;
 
 
-    --Used for currency amount. Simplified from Blizzard's "AbbreviateNumbers" in UIParent.lua
-    local ABBREVIATION_K = FIRST_NUMBER_CAP_NO_SPACE or "K";
-    local function AbbreviateNumbers(value)
-        if value > 10000 then
-            return floor(value / 1000).. ABBREVIATION_K
-        elseif value > 1000 then
-            return floor(value / 100)/10 .. ABBREVIATION_K
+    do  --Used for currency amount. Simplified from Blizzard's "AbbreviateNumbers" in UIParent.lua
+        local ABBREVIATION_K = L["Abbrev Breakpoint 1000"];    --Asian language cut off: 10,000
+
+        if LOCALE == "zhCN" or LOCALE == "zhTW" or LOCALE == "koKR" then
+            local ABBREVIATION_W = L["Abbrev Breakpoint 10000"];
+            API.AbbreviateNumbers = function(value)
+                if value > 100000 then
+                    return floor(value / 10000) .. ABBREVIATION_W
+                elseif value >= 10000 then
+                    return floor(value / 1000)/10 .. ABBREVIATION_W
+                --elseif value >= 1000 then
+                --    return floor(value / 100)/10 .. ABBREVIATION_K
+                else
+                    return tostring(value)
+                end
+            end
         else
-            return tostring(value)
+            API.AbbreviateNumbers = function(value)
+                if value > 10000 then
+                    return floor(value / 1000) .. ABBREVIATION_K
+                elseif value > 1000 then
+                    return floor(value / 100)/10 .. ABBREVIATION_K
+                else
+                    return tostring(value)
+                end
+            end
         end
     end
-    API.AbbreviateNumbers = AbbreviateNumbers;
 end
 
 do  -- Table
@@ -114,7 +132,8 @@ do  -- Pixel
     end
     API.UpdateTextureSliceScale = UpdateTextureSliceScale;
 
-    if addon.IS_CLASSIC then
+    if addon.IS_CATA then    --IS_CLASSIC
+        --Era 1.15.3 has this issue too
         API.UpdateTextureSliceScale = AlwaysNil;
     end
 
@@ -458,9 +477,7 @@ do  -- NPC Interaction
 
         if self.isPlayingCinematic or self.isPlayingMovie then
             self.isPlayingCutscene = true;
-            if self.onPlayCutsceneCallback then
-                self.onPlayCutsceneCallback();
-            end
+            CallbackRegistry:Trigger("PlayCutscene");
         else
             self.isPlayingCutscene = false;
         end
@@ -472,7 +489,7 @@ do  -- NPC Interaction
     API.IsPlayingCutscene = IsPlayingCutscene;
 
     local function SetPlayCutsceneCallback(callback)
-        f.onPlayCutsceneCallback = callback;
+        CallbackRegistry:Register("PlayCutscene", callback);
     end
     API.SetPlayCutsceneCallback = SetPlayCutsceneCallback;
 
@@ -1007,13 +1024,22 @@ do  -- Quest
     local GetItemInfoInstant = C_Item.GetItemInfoInstant or GetItemInfoInstant;
     local select = select;
 
-    local function IsQuestItem(item)
+    local function IsQuestLoreItem(item)
+        --Display lore text (QuestItemDisplay)
         if not item then return end;
         local classID, subclassID = select(6, GetItemInfoInstant(item));
         --print(item, classID, subclassID)
         return (classID == 12) or (classID == 0 and subclassID == 8) or (classID == 15 and subclassID == 4)
     end
-    API.IsQuestItem = IsQuestItem;
+    API.IsQuestLoreItem = IsQuestLoreItem;
+
+    local function IsQuestRequiredItem(item)
+        --Don't show item count in bag if ItemType == 12
+        if not item then return end;
+        local classID, subclassID = select(6, GetItemInfoInstant(item));
+        return classID == 12
+    end
+    API.IsQuestRequiredItem = IsQuestRequiredItem;
 
     local function GetQuestName(questID)
         local questName = C_TaskQuest.GetQuestInfoByQuestID(questID);
@@ -1674,6 +1700,7 @@ do  -- Faction -- Reputation
     local C_Reputation = C_Reputation;
     local GetFactionInfoByID = GetFactionInfoByID or C_Reputation.GetFactionDataByID;   --TWW
     local GetFactionGrantedByCurrency = C_CurrencyInfo.GetFactionGrantedByCurrency or AlwaysFalse;
+    local IsAccountWideReputation = C_Reputation and C_Reputation.IsAccountWideReputation or AlwaysFalse;
 
     local function GetFactionStatusText(factionID)
         --Derived from Blizzard ReputationFrame_InitReputationRow in ReputationFrame.lua
@@ -1723,7 +1750,7 @@ do  -- Faction -- Reputation
                     end
                 end
             end
-        else
+        elseif (standingID and standingID > 0) then
             isCapped = standingID == 8;  --MAX_REPUTATION_REACTION
             local gender = UnitSex("player");
 		    factionStandingtext = GetText("FACTION_STANDING_LABEL"..standingID, gender);    --GetText: Game API that returns localized texts
@@ -1763,6 +1790,11 @@ do  -- Faction -- Reputation
         end
     end
     API.GetFactionStatusTextByCurrencyID = GetFactionStatusTextByCurrencyID;
+
+    local function IsReputationAccountWide(factionID)
+        return factionID and IsAccountWideReputation(factionID);
+    end
+    API.IsAccountWideReputation = IsAccountWideReputation;
 end
 
 do  -- Chat Message
@@ -1868,7 +1900,7 @@ do  -- Tooltip
             if self.t > 0.2 then
                 self.t = 0;
                 self:SetScript("OnUpdate", nil);
-                addon.CallbackRegistry:Trigger("SharedTooltip.TOOLTIP_DATA_UPDATE", 0);
+                CallbackRegistry:Trigger("SharedTooltip.TOOLTIP_DATA_UPDATE", 0);
             end
         end
 

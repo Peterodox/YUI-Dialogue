@@ -1,5 +1,5 @@
 ## Interface: 40400
-## Version: 0.3.6
+## Version: 0.3.7
 
 ## Title: Dialogue UI
 
@@ -12,12 +12,13 @@
 ## AddonCompartmentFunc: DialogueUI_ShowSettingsFrame
 
 
+
+
 Initialization.lua
 Locales\Localization.xml
 Fonts.xml
 API.xml
 
-Code\CallbackRegistry.lua
 Code\Utility.xml
 Code\Sound.lua
 Code\Camera.lua

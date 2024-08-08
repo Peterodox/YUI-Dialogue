@@ -53,7 +53,7 @@ L["Gossip Quest Option Prepend"] = "(Quest)";   --Some gossip options start with
 L["TTS Button Tooltip"] = "Left Click: Play/Stop Reading.\nRight Click: Toggle Auto Play";
 L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
-L["Quest Completed On Account"] = "- ".. (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
+L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -123,6 +123,8 @@ L["Simplify Currency Rewards"] = "Simplify Currency Rewards";
 L["Simplify Currency Rewards Desc"] = "Use smaller icons for currency rewards and omit their names.";
 L["Mark Highest Sell Price"] = "Mark Highest Sell Price";
 L["Mark Highest Sell Price Desc"] = "Show you which item has the highest sell price when you are choosing a reward.";
+L["Use Blizzard Tooltip"] = "Use Blizzard Tooltip";
+L["Use Blizzard Tooltip Desc"] = "Use Blizzard tooltip for the quest reward button instead of our special tooltip.";
 L["Roleplaying"] = GDAPI_REALMTYPE_RP or "Roleplaying";
 L["Use RP Name In Dialogues"] = "Use RP Name In Dialogues";
 L["Use RP Name In Dialogues Desc"] = "Replace your character's name in dialogue texts with your RP name.";
@@ -189,11 +191,14 @@ L["TTS Auto Stop"] = "Stop When Leaving";
 L["TTS Auto Stop Desc"] = "Stop reading when you leave the NPC.";
 
 --Tutorial
-L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";
+L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";     --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Press [KEY:PC:F1] or [KEY:CONSOLE:MENU] to toggle Settings";   --Use this if gamepad enabled
-
+L["Instuction Open Settings"] = "To open Settings, press [KEY:PC:F1] while you are interacting with an NPC.";    --Used in Game Menu - AddOns
+L["Instuction Open Settings Console"] = "To open Settings, press [KEY:PC:F1] or [KEY:CONSOLE:MENU] while you are interacting with an NPC.";
 
 --DO NOT TRANSLATE
+L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K
+L["Abbrev Breakpoint 10000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";    --Reserved for Asian languages that have words for 10,000
 L["Match Stat Armor"] = "([,%d%.]+) Armor";
 L["Match Stat Stamina"] = "([,%d%.]+) Stamina";
 L["Match Stat Strengh"] = "([,%d%.]+) Strengh";

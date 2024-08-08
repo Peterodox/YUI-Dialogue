@@ -159,6 +159,7 @@ local Schematic = {
     ["FrontFrame.Header.Divider"] = {width = 358, height = 51},
     ["FrontFrame.Header.Title"] = {point = "LEFT", relativePoint = "LEFT", x = 53, y = 2},
     ["FrontFrame.Header.TopLight"] = {width = 358, height = 34},
+    ["FrontFrame.Header.WarbandCompleteAlert"] = {width = 44, height = 44, point = "CENTER", relativePoint = "TOPRIGHT", x = -25, y = -20},
 
     ["FrontFrame.QuestPortrait"] = {maxSizeMultiplier = 1.1, width = 170, height = 170, point = "TOP", relativePoint = "TOPRIGHT", x = 66, y = -64},
     ["FrontFrame.QuestPortrait.Model"] = {maxSizeMultiplier = 1.1, width = 78, height = 78, point = "CENTER", relativePoint = "TOP", x = 0, y = -71},
@@ -336,6 +337,14 @@ function DUIDialogBaseMixin:OnLoad()
     self.GamePadFocusIndicator:SetIgnoreParentAlpha(true);
 
     API.DisableSharpening(self.ButtonHighlight.BackTexture);
+
+    --Warband Completed Alert
+    local wb = self.FrontFrame.Header.WarbandCompleteAlert;
+    self.WarbandCompleteAlert = wb;
+    wb.tooltipText = L["Quest Completed On Account"];
+    wb:SetScript("OnEnter", TooltipFrame.ShowWidgetTooltip);
+    wb:SetScript("OnLeave", TooltipFrame.HideTooltip);
+    API.DisableSharpening(wb.Icon);
 
     --Frame Background
     self.Parchments = {};
@@ -548,6 +557,9 @@ function DUIDialogBaseMixin:LoadTheme()
     ff.QuestPortrait.FrontTexture:SetTexCoord(0, 0.3125, 0.84375, 1);
     ff.QuestPortrait:SetTheme(themeID);
 
+    self.WarbandCompleteAlert.Icon:SetTexture(parchmentFile);
+    self.WarbandCompleteAlert.Icon:SetTexCoord(0.71875, 0.8125, 0.56640625, 0.61328125);
+
     self.RewardSelection.FrontTexture:SetTexture(prefix.."RewardChoice-Highlight.png");
     self.RewardSelection.BackTexture:SetTexture(prefix.."RewardChoice-Highlight-Back.png");
     self.RewardSelection.BackTexture:SetVertexColor(0.65, 0, 0);
@@ -730,6 +742,9 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
     local forceUpdate = SETTINGS_UI_VISIBLE == true;
 
     if state then
+        local questID = GetQuestID();
+        self.questID = questID;
+
         if (not self.questLayout) or forceUpdate then
             self.questLayout = true;
             local topOffset = (28 + 40) * FRAME_SIZE_MULTIPLIER;
@@ -753,6 +768,13 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         self.keepGossipHistory = false;
         self.hasActiveGossipQuests = false;
         self.activeQuestButtons = {};
+
+        if questID and API.IsQuestFlaggedCompletedOnAccount(questID) then
+            self.WarbandCompleteAlert:Show();
+        else
+            self.WarbandCompleteAlert:Hide();
+        end
+
     elseif self.questLayout or forceUpdate then
         self.questLayout = nil;
         self.questID = nil;
@@ -762,11 +784,9 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         self.FrontFrame.Header:Hide();
         self.BackgroundDecor:Hide();
         self.FrontFrame.QuestPortrait:FadeOut();
+        self.WarbandCompleteAlert:Hide();
     end
 end
-
-
-
 
 function DUIDialogBaseMixin:UpdateQuestTitle()
     local text = GetQuestTitle();
@@ -793,8 +813,7 @@ function DUIDialogBaseMixin:UpdateQuestTitle()
         end
     end
 
-    local questID = GetQuestID();
-    self.questID = questID;
+    local questID = self.questID;
     local campaignID = C_CampaignInfo and C_CampaignInfo.GetCampaignID(questID);
 
     if campaignID and campaignID ~= 0 then
@@ -1049,7 +1068,10 @@ end
 
 function DUIDialogBaseMixin:HandleInitialLoadingComplete()
     if self.deferredEvent then
-        self:ShowUI(self.deferredEvent);
+        local questID = GetQuestID();
+        if questID and questID ~= 0 then    --Some quests are auto accepted and closed by the game
+            self:ShowUI(self.deferredEvent);
+        end
         self.deferredEvent = nil;
     end
 end
@@ -1264,7 +1286,7 @@ function DUIDialogBaseMixin:HandleGossip()
     self:SetScrollRange(contentHeight);
 
     if hasPreviousGossip then
-        local scrollRangeDiff = objectHeight - self.scrollViewHeight;
+        local scrollRangeDiff = objectHeight - self.scrollViewHeight + PARAGRAPH_SPACING;
         local extraScroll = 0;
         if scrollRangeDiff > 0 then
             extraScroll = scrollRangeDiff + 2*PARAGRAPH_SPACING;
@@ -1359,10 +1381,6 @@ function DUIDialogBaseMixin:HandleQuestDetail()
         offsetY = Round(offsetY + subheader.size);
 
         offsetY = self:FormatRewards(offsetY, rewardList);
-    end
-
-    if self.questID and GetDBBool("WarbandCompletedQuest") and API.IsQuestFlaggedCompletedOnAccount(self.questID) then
-        offsetY = self:InsertParagraph(offsetY, L["Quest Completed On Account"]);
     end
 
     self:SetScrollRange(offsetY);
@@ -1968,6 +1986,7 @@ function DUIDialogBaseMixin:ShowUI(event)
 
     if IsPlayingCutscene() then
         --For case: triggering cutscene when accepting quest and the quest is immediately flagged as complete
+        self:Hide();
         self:CloseDialogInteraction();
         return
     end
@@ -2917,7 +2936,6 @@ do
     local function GenericOnSettingsChanged(dbValue)
         MainFrame:OnSettingsChanged();
     end
-    CallbackRegistry:Register("SettingChanged.WarbandCompletedQuest", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.MarkHighestSellPrice", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.ForceGossip", GenericOnSettingsChanged);

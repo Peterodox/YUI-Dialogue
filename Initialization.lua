@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.3.6";
-local VERSION_DATE = 1722350000;
+local VERSION_TEXT = "v0.3.7";
+local VERSION_DATE = 1723130000;
 
 
 local addonName, addon = ...
@@ -24,8 +24,8 @@ local DefaultValues = {
     MarkHighestSellPrice = false,
     QuestTypeText = false,
     SimplifyCurrencyReward = false,
-    WarbandCompletedQuest = false,
     UseRoleplayName = false,
+    UseBlizzardTooltip = false,
 
     CameraMovement = 1,                         --0:OFF  1:Zoom-In  2:Horizontal
     CameraChangeFov = true,
@@ -53,6 +53,9 @@ local DefaultValues = {
     TooltipShowItemComparison = false,          --Tooltip
 
     --QuestItemDisplayPosition = {x, y};
+
+    --Deprecated:
+    --WarbandCompletedQuest = true,         --Always ON
 };
 
 local TutorialFlags = {
@@ -152,8 +155,8 @@ do
     end
     addon.IsToCVersionEqualOrNewerThan = IsToCVersionEqualOrNewerThan;
 
-    local IS_CLASSIC = not IsToCVersionEqualOrNewerThan(100000);
-    addon.IS_CLASSIC = IS_CLASSIC;
+    addon.IS_CLASSIC = not IsToCVersionEqualOrNewerThan(100000);
+    addon.IS_CATA = currentToCVersion >= 40400 and currentToCVersion < 50000;
 end
 
 

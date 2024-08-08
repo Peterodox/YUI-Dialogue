@@ -279,15 +279,12 @@ do  --Copy Text Button
 
     function CopyTextButtonMixin:OnEnter()
         self.Icon:SetAlpha(1);
-        TooltipFrame:Hide();
-        TooltipFrame:SetOwner(self, "TOPRIGHT");
-        TooltipFrame:AddLeftLine(addon.L["Copy Text"], 1, 1, 1);
-        TooltipFrame:Show();
+        TooltipFrame.ShowWidgetTooltip(self);
     end
 
     function CopyTextButtonMixin:OnLeave()
         self.Icon:SetAlpha(ALPHA_UNFOCUSED);
-        TooltipFrame:Hide();
+        TooltipFrame.HideTooltip();
     end
 
     function CopyTextButtonMixin:SetTheme(themeID)
@@ -317,6 +314,8 @@ do  --Copy Text Button
         b:SetTheme(themeID);
 
         table.insert(CopyTextButtons, b);
+
+        b.tooltipText = addon.L["Copy Text"];
 
         return b
     end

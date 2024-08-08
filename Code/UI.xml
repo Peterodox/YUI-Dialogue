@@ -2,6 +2,7 @@
     <Script file="Clipboard.lua"/>
     <Script file="KeyboardControl.lua"/>
     <Script file="ActionButton.lua"/>
+    <Script file="RewardTooltipCode.lua"/>
     <Script file="SharedUITemplates.lua"/>
     <Script file="Banner.lua"/>
     <Script file="QuestRewards.lua"/>
@@ -389,6 +390,22 @@
                                     <Anchor point="LEFT" relativeKey="$parent.Subtitle" relativePoint="LEFT"/>
                                 </Anchors>
                             </Frame>
+                            <Frame parentKey="WarbandCompleteAlert" hidden="false" useParentLevel="true">
+                                <Size x="48" y="48"/>
+                                <HitRectInsets>
+                                    <AbsInset left="8" right="8" top="8" bottom="8"/>
+                                </HitRectInsets>
+                                <Anchors>
+                                    <Anchor point="CENTER" relativeKey="$parent" relativePoint="TOPRIGHT" x="-23" y="-23"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="ARTWORK" textureSubLevel="2">
+                                        <Texture parentKey="Icon" alpha="1" setAllPoints="true">
+                                            <Size x="96" y="96"/>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
                         </Frames>
                     </Frame>
 
@@ -446,8 +463,8 @@
                             </Layer>
                             <Layer level="OVERLAY" textureSubLevel="7">
                                 <Texture parentKey="FrontTexture">
-                                    <TextureSliceMode mode="Stretched"/>
-                                    <TextureSliceMargins left="8" right="8" top="8" bottom="8"/>
+                                    <!--TextureSliceMode mode="Stretched"/>
+                                    <TextureSliceMargins left="8" right="8" top="8" bottom="8"/-->
                                     <Anchors>
                                         <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="0"/>
                                         <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="8" y="0"/>

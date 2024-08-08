@@ -15,7 +15,13 @@ local DEFAULT_FONT_FILE = {
     russian = "Interface/AddOns/DialogueUI/Fonts/frizqt___cyr.ttf",
 };
 
-local NUMBER_FONT_FILE = "Interface/AddOns/DialogueUI/Fonts/ARIALN.ttf";
+local NUMBER_FONT_FILE = {
+    roman = "Interface/AddOns/DialogueUI/Fonts/ARIALN.ttf",
+    korean = "Fonts/2002.TTF",
+    simplifiedchinese = "Fonts/ARHei.ttf",
+    traditionalchinese = "Fonts/arheiuhk_bd.TTF",
+    russian = "Interface/AddOns/DialogueUI/Fonts/ARIALN.ttf",
+};
 
 local FONT_OBJECT_HEIGHT = {
     --FontObjectName = {10, 12, 14, 16}     --Paragraph Font Size as Base
@@ -96,6 +102,11 @@ function FontUtil:GetUserFont()
     end
 end
 
+function FontUtil:GetUserNumberFont()
+    local alphabet = self:GetAlphabetForCurrentClient();
+    return NUMBER_FONT_FILE[alphabet];
+end
+
 function FontUtil:GetInstalledFont()
     if self.installedFontGetter then
         local fontData = self.installedFontGetter();
@@ -104,7 +115,7 @@ function FontUtil:GetInstalledFont()
 end
 
 do
-    local DEFAULT_FONT_SIZE = 12;
+    local DEFAULT_FONT_SIZE = 0;
     local FONT_SIZE_ID = 1;
     local FONT_DATA_ID = FONT_SIZE_ID + 1;
 
@@ -136,7 +147,7 @@ do
             local fontFile;
 
             if IS_NUMBER_FONT[fontName] then
-                fontFile = NUMBER_FONT_FILE;
+                fontFile = FontUtil:GetUserNumberFont();
             else
                 fontFile = textFontFile;
             end
@@ -156,7 +167,7 @@ do
             local fontFile;
 
             if IS_NUMBER_FONT[fontName] then
-                fontFile = NUMBER_FONT_FILE;
+                fontFile = FontUtil:GetUserNumberFont();
             else
                 fontFile = textFontFile;
             end

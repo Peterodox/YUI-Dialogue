@@ -49,3 +49,24 @@ local function PlaySound(name)
 end
 
 addon.PlaySound = PlaySound;
+
+
+do  --Mute Target Lost Sound while interacting with NPC
+    --https://wago.tools/db2/SoundKitEntry?filter[SoundKitID]=684&page=1&sort[SoundKitID]=asc
+    --local soundKitID = (SOUNDKIT and SOUNDKIT.INTERFACE_SOUND_LOST_TARGET_UNIT) or 684;
+
+    local SOUND_FILE_ID = 567520;
+    local MuteSoundFile = MuteSoundFile;
+    local UnmuteSoundFile = UnmuteSoundFile;
+
+    local function MuteTargetLostSound()
+        MuteSoundFile(SOUND_FILE_ID);
+    end
+
+    local function UnmuteTargetLostSound()
+        UnmuteSoundFile(SOUND_FILE_ID);
+    end
+
+    addon.CallbackRegistry:Register("DialogueUI.Show", MuteTargetLostSound);
+    addon.CallbackRegistry:Register("DialogueUI.Hide", UnmuteTargetLostSound);
+end
