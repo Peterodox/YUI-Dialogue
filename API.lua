@@ -363,6 +363,26 @@ do  -- String
         end
     end
     API.GetItemIDFromHyperlink = GetItemIDFromHyperlink;
+
+    local function GetGlobalObject(objNameKey)
+        --Get object via string "FrameName.Key1.Key2"
+        local obj = _G;
+
+        for k in string.gmatch(objNameKey, "%w+") do
+            obj = obj[k];
+            if not obj then
+                return
+            end
+        end
+
+        return obj
+    end
+    API.GetGlobalObject = GetGlobalObject;
+
+    local function DoesGlobalObjectExist(objNameKey)
+        return GetGlobalObject(objNameKey) ~= nil
+    end
+    API.GetGlobalObject = DoesGlobalObjectExist;
 end
 
 do  -- NPC Interaction
@@ -2538,6 +2558,21 @@ do  -- Time -- Date
         return format("%s:%02d", floor(seconds / 60), floor(seconds % 60))
     end
     API.SecondsToClock = SecondsToClock;
+end
+
+do  -- System
+    if GetMouseFoci then
+        local GetMouseFoci = GetMouseFoci;
+        local function GetMouseFocus()
+            local objects = GetMouseFoci();
+            return objects and objects[1]
+        end
+        API.GetMouseFocus = GetMouseFocus;
+    elseif GetMouseFocus then
+        API.GetMouseFocus = GetMouseFocus;
+    else
+        API.GetMouseFocus = AlwaysNil;
+    end
 end
 
 do  -- Dev Tool

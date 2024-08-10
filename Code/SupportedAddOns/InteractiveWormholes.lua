@@ -5,10 +5,11 @@ local _, addon = ...
 do
     local ADDON_NAME = "InteractiveWormholes";
 
+    local requiredMethods = {
+        "InteractiveWormholes.IsActive",
+    };
 
     local function OnAddOnLoaded()
-        if not (InteractiveWormholes and InteractiveWormholes.IsActive) then return end;
-
         local MainFrame = addon.DialogueUI;
         local API = InteractiveWormholes;
 
@@ -17,5 +18,5 @@ do
         end
     end
 
-    addon.AddSupportedAddOn(ADDON_NAME, OnAddOnLoaded);
+    addon.AddSupportedAddOn(ADDON_NAME, OnAddOnLoaded, requiredMethods);
 end

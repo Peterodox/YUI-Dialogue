@@ -10,14 +10,6 @@ do
     };
 
     local function OnAddOnLoaded()
-        local _G = _G;
-
-        for _, method in ipairs(requiredMethods) do
-            if not _G[method] then
-                return
-            end
-        end
-
         local shouldShowUpgrade = PawnShouldItemLinkHaveUpgradeArrow;
 
         local tooltip = addon.SharedTooltip;
@@ -33,5 +25,5 @@ do
         end
     end
 
-    addon.AddSupportedAddOn(ADDON_NAME, OnAddOnLoaded);
+    addon.AddSupportedAddOn(ADDON_NAME, OnAddOnLoaded, requiredMethods);
 end

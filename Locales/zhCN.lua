@@ -155,6 +155,8 @@ L["Primary Control Key"] = "确认键";
 L["Primary Control Key Desc"] = "按下此按钮将自动选择第一个最佳选项，例如接受任务。"
 L["Press Button To Scroll Down"] = "按确认键来向下滚屏";
 L["Press Button To Scroll Down Desc"] = "如果当前页面盛不下所有任务文本，按下确认键会向下滚屏而不是接受任务。";
+L["Right Click To Close UI"] = "右键关闭界面";
+L["Right Click To Close UI Desc"] = "在对话界面上按右键即可关闭窗口。";
 
 L["Key Space"] = "空格";
 L["Key Interact"] = "交互键";

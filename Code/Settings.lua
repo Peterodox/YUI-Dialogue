@@ -483,6 +483,7 @@ local Schematic = {
                     {dbValue = 0, valueText = L["Key Disabled"], tooltip = L["Key Disabled Tooltip"]},
                 },
             },
+            {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI"},
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
@@ -1702,6 +1703,14 @@ do  --Create an entrance to settings in Blizzard addon settings window
         Text:SetSpacing(4);
         Text:SetPoint("CENTER", f, "TOP", 0, 0);
 
+        local function SetupInstruction()
+            if C_CVar.GetCVarBool("GamePadEnable") then
+                Text:SetText(L["Instuction Open Settings Console"]);
+            else
+                Text:SetText(L["Instuction Open Settings"]);
+            end
+        end
+
         local function OnFrameSizeChanged()
             local width = f:GetWidth();
             local height = f:GetHeight();
@@ -1719,18 +1728,11 @@ do  --Create an entrance to settings in Blizzard addon settings window
             bg:SetPoint("CENTER", f, "BOTTOM", 0, paddingV + imageHeight * 0.5);
 
             ThemeUtil:SetFontColor(Text, "DarkModeGoldDim");
-        end
 
-        local function SetupInstruction()
-            if C_CVar.GetCVarBool("GamePadEnable") then
-                Text:SetText(L["Instuction Open Settings Console"]);
-            else
-                Text:SetText(L["Instuction Open Settings"]);
-            end
+            SetupInstruction();
         end
 
         f:SetScript("OnShow", function()
-            SetupInstruction();
             OnFrameSizeChanged();
             f:SetScript("OnShow", SetupInstruction);
         end);

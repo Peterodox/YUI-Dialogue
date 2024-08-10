@@ -155,6 +155,8 @@ L["Primary Control Key"] = "Confirm Button";
 L["Primary Control Key Desc"] = "Press this key to select the first available option like Accept Quest."
 L["Press Button To Scroll Down"] = "Press Button To Scroll Down";
 L["Press Button To Scroll Down Desc"] = "If the content is taller than the viewport, pressing the Confirm Button will scroll the page down instead of accepting quest.";
+L["Right Click To Close UI"] = "Right Click To Close UI";
+L["Right Click To Close UI Desc"] = "Right click on the dialogue UI to close it.";
 
 L["Key Space"] = "Space";
 L["Key Interact"] = "Interact";

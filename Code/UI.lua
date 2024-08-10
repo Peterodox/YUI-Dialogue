@@ -195,9 +195,15 @@ function DUIDialogBaseMixin:UpdateFrameBaseOffset(viewportWidth)
 
     local offsetRatio = FRAME_OFFSET_RATIO;
     local frameOffsetX = Round(viewportWidth*(offsetRatio - 0.5));
+    ChatFrame:ClearAllPoints();
+
     if addon.IsDBValue("FrameOrientation", 1) then
         frameOffsetX = -frameOffsetX;
+        ChatFrame:SetPoint("BOTTOMRIGHT", ExperienceBar, "TOPRIGHT", -8, 8);
+    else
+        ChatFrame:SetPoint("BOTTOMLEFT", ExperienceBar, "TOPLEFT", 8, 8);
     end
+
     self.frameOffsetX = frameOffsetX;
     self:ClearAllPoints();
     self:SetPoint("CENTER", nil, "CENTER", frameOffsetX, 0);
@@ -215,9 +221,6 @@ function DUIDialogBaseMixin:UpdateFrameSize()
     ExperienceBar:SetBarWidth(viewportWidth);
     ExperienceBar:SetHeight(8);
     ExperienceBar:SetNumCompartment(20);
-
-    ChatFrame:ClearAllPoints();
-    ChatFrame:SetPoint("BOTTOMLEFT", ExperienceBar, "TOPLEFT", 8, 8);
 
     FriendshipBar:ClearAllPoints();
     FriendshipBar:SetPoint("CENTER", self, "TOP", 0, 0);
@@ -1068,6 +1071,8 @@ end
 
 function DUIDialogBaseMixin:HandleInitialLoadingComplete()
     if self.deferredEvent then
+        --We handle quests that are auto accepted upon logging in
+        --If the player talks to an NPC immediately after the initial loading screen, our UI won't turn visible
         local questID = GetQuestID();
         if questID and questID ~= 0 then    --Some quests are auto accepted and closed by the game
             self:ShowUI(self.deferredEvent);
@@ -2103,7 +2108,7 @@ function DUIDialogBaseMixin:OnHide()
 end
 
 function DUIDialogBaseMixin:OnMouseUp(button)
-    if button == "RightButton" then
+    if button == "RightButton" and GetDBBool("RightClickToCloseUI") then
         self:CloseDialogInteraction();
     end
 end

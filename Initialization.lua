@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.3.7";
-local VERSION_DATE = 1723130000;
+local VERSION_TEXT = "v0.3.8";
+local VERSION_DATE = 1723280000;
 
 
 local addonName, addon = ...
@@ -37,6 +37,7 @@ local DefaultValues = {
     InputDevice = 1,                            --1:K&M  2:XBOX  3.PS  4.Mobile
     PrimaryControlKey = 1,                      --1: Space  2:Interact Key
     ScrollDownThenAcceptQuest = false,
+    RightClickToCloseUI = true,
 
     QuestItemDisplay = false,
     QuestItemDisplayHideSeen = false,

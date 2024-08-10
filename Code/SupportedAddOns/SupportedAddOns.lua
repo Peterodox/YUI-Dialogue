@@ -1,4 +1,5 @@
 local _, addon = ...
+local DoesGlobalObjectExist = addon.API.DoesGlobalObjectExist;
 
 local f = CreateFrame("Frame");
 
@@ -9,10 +10,24 @@ f:SetScript("OnEvent", function(self, event)
     self:UnregisterEvent(event);
 
     local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
+    local addonName, addonLoaded, requiredMethods;
 
     for _, data in ipairs(f.list) do
-        if IsAddOnLoaded(data[1]) then
-            data[2]();
+        addonName, addonLoaded, requiredMethods = data[1], data[2], data[3];
+        if IsAddOnLoaded(addonName) then
+            local requirementMet = true;
+            if requiredMethods then
+                for _, method in ipairs(requiredMethods) do
+                    if not DoesGlobalObjectExist(method) then
+                        requirementMet = false;
+                        break
+                    end
+                end
+            end
+
+            if requirementMet then
+                addonLoaded();
+            end
         end
     end
 

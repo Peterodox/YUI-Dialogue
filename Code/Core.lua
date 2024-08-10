@@ -224,24 +224,30 @@ do  --Unlisten events from default UI
     --CustomGossipFrameManager:
     --We need to mute this so HideUI doesn't trigger CloseGossip
     --It handle NPE (Be A Guide) and Torghast Floor Selection
-    if CustomGossipFrameManager then    --CustomGossipFrameBase.lua (Retail)
-        CustomGossipFrameManager:UnregisterEvent("GOSSIP_SHOW");
-        CustomGossipFrameManager:UnregisterEvent("GOSSIP_CLOSED");
-    end
 
-    if GossipFrame then --Classic
-        GossipFrame:UnregisterEvent("GOSSIP_SHOW");
-	    GossipFrame:UnregisterEvent("GOSSIP_CLOSED");
-	    GossipFrame:UnregisterEvent("QUEST_LOG_UPDATE");
-    end
+    local function MuteDefaultQuestUI()
+        if CustomGossipFrameManager then    --CustomGossipFrameBase.lua (Retail)
+            CustomGossipFrameManager:UnregisterEvent("GOSSIP_SHOW");
+            CustomGossipFrameManager:UnregisterEvent("GOSSIP_CLOSED");
+        end
 
-    local hideQuestFrame = true --not addon.IsToCVersionEqualOrNewerThan(110000);  --TWW
-    if hideQuestFrame then
-        QuestFrame:UnregisterAllEvents();
-    else
-        QuestFrame:SetParent(nil);
-        QuestFrame:SetScale(2/3);
+        if GossipFrame then --Classic
+            GossipFrame:UnregisterEvent("GOSSIP_SHOW");
+            GossipFrame:UnregisterEvent("GOSSIP_CLOSED");
+            GossipFrame:UnregisterEvent("QUEST_LOG_UPDATE");
+        end
+
+        local hideQuestFrame = true;    --false when we do debug
+        if hideQuestFrame then
+            QuestFrame:UnregisterAllEvents();
+        else
+            QuestFrame:SetParent(nil);
+            QuestFrame:SetScale(2/3);
+        end
     end
+    addon.MuteDefaultQuestUI = MuteDefaultQuestUI;
+
+    MuteDefaultQuestUI();
 end
 
 do
