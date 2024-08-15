@@ -8,6 +8,11 @@ local GossipDataProvider = addon.GossipDataProvider;
 local QuestGetAutoAccept = API.QuestGetAutoAccept;
 local CloseQuest = CloseQuest;
 
+-- Game Interface Version
+-- War Within       110000
+-- Cataclysm        40400
+-- Classic Era      11503
+GameIsClassic = (select(4, GetBuildInfo()) <= 50000)
 
 local EVENT_PROCESS_DELAY = 0.017;  --Affected by CameraMovement
 

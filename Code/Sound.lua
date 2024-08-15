@@ -59,6 +59,10 @@ do  --Mute Target Lost Sound while interacting with NPC
     local MuteSoundFile = MuteSoundFile;
     local UnmuteSoundFile = UnmuteSoundFile;
 
+    if GameIsClassic then
+        SOUND_FILE_ID = 567407
+    end
+
     local function MuteTargetLostSound()
         MuteSoundFile(SOUND_FILE_ID);
     end
