@@ -6,7 +6,7 @@ local L = addon.L;
 
 
 L["Quest Frequency Daily"] = "日常";
-L["Quest Frequency Weekly"] = "周长";
+L["Quest Frequency Weekly"] = "周常";
 
 L["Quest Type Repeatable"] = "可重复";
 L["Quest Type Trivial"] = "低等级";    --Low-level quest
