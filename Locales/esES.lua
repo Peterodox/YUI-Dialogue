@@ -108,7 +108,7 @@ L["Frame Orientation Desc"] = "Posiciona la ventana a la izquierda o derecha de 
 L["Orientation Left"] = HUD_EDIT_MODE_SETTING_BAGS_DIRECTION_LEFT or "Izquierda";
 L["Orientation Right"] = HUD_EDIT_MODE_SETTING_BAGS_DIRECTION_RIGHT or "Derecha";
 L["Hide UI"] = "Ocultar IU";
-L["Hide UI Desc"] = "Oculta la IU del juego cuado interactúas con un PNJ.";
+L["Hide UI Desc"] = "Oculta la interfaz del juego cuado interactúas con un PNJ.";
 L["Hide Unit Names"] = "Ocultar marco de unidades";
 L["Hide Unit Names Desc"] = "Oculta los nombres de jugadores y otros PNJ cuando interactúas con un PNJ.";
 L["Show Copy Text Button"] = "Mostrar Botón Copiar Texto";
@@ -148,7 +148,7 @@ L["Input Device KBM"] = "Teclado y ratón";
 L["Input Device Xbox"] = "Xbox";
 L["Input Device Xbox Tooltip"] = "Confirmar: [KEY:XBOX:PAD1]\nCancelar: [KEY:XBOX:PAD2]";
 L["Input Device PlayStation"] = "PlayStation";
-L["Input Device PlayStation Tooltip"] = "COnfirmar: [KEY:PS:PAD1]\nCancelar: [KEY:PS:PAD2]";
+L["Input Device PlayStation Tooltip"] = "Confirmar: [KEY:PS:PAD1]\nCancelar: [KEY:PS:PAD2]";
 L["Input Device Switch"] = "Intercambiar";
 L["Input Device Switch Tooltip"] = "Confirmar: [KEY:SWITCH:PAD1]\nCancelar: [KEY:SWITCH:PAD2]";
 L["Primary Control Key"] = "Confirmar";
@@ -182,7 +182,7 @@ L["Nameplate Dialog Desc"] = "Muestra el diálogo en la Placa de Unidades del PN
 L["TTS"] = TEXT_TO_SPEECH or "Texto a voz";
 L["TTS Desc"] = "Lee el diálogo en voz alta al hacer clic en el botón en la parte superior izquierda de la interfaz.\n\nVoz, volumen y velocidad utilizan la configuración de Texto a voz del juego.";
 L["TTS Use Hotkey"] = "Utilizar Atajo de teclado";
-L["TTS Use Hotkey Desc"] = "Inicia o para la lectura presioando:";
+L["TTS Use Hotkey Desc"] = "Inicia o para la lectura presionando:";
 L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
 L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
 L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
@@ -194,7 +194,7 @@ L["TTS Auto Stop Desc"] = "Para la lectura de Texto a voz cuando abandonas al PN
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para abrir la Configuración";     --Shown when interacting with an NPC with this addon for the first time
-L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] Para abrir la Configuración";   --Use this if gamepad enabled
+L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para abrir la Configuración";   --Use this if gamepad enabled
 L["Instuction Open Settings"] = "Para abrir la Configuración, presiona [KEY:PC:F1] mientras interactúas con un PNJ.";    --Used in Game Menu - AddOns
 L["Instuction Open Settings Console"] = "Para abrir la Configuración, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un PNJ.";
 
