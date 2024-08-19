@@ -197,3 +197,12 @@ L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para alternar al menú de 
 L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para alternar al menú de Ajustes";   --Usa esto si el gamepad está habilitado
 L["Instuction Open Settings"] = "Para abrir Ajustes, presiona [KEY:PC:F1] mientras interactúas con un NPC.";
 L["Instuction Open Settings Console"] = "Para abrir Ajustes, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un NPC.";
+
+--DO NOT TRANSLATE
+L["Match Stat Armor"] = "([,%d%.]+) p. de armadura";
+L["Match Stat Stamina"] = "([,%d%.]+) Aguante";
+L["Match Stat Strengh"] = "([,%d%.]+) Fuerza";
+L["Match Stat Agility"] = "([,%d%.]+) Agilidad";
+L["Match Stat Intellect"] = "([,%d%.]+) Intelecto";
+L["Match Stat Spirit"] = "([,%d%.]+) Espíritu";
+L["Match Stat DPS"] = "([,%d%.]+) p. de daño por segundo";
