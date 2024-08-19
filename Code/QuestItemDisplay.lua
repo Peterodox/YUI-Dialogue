@@ -739,16 +739,22 @@ function QuestItemDisplay:OnHide()
     end
 end
 
-function QuestItemDisplay:OnEnter()
-    if QuestItemDisplay.isCountingDown then
-        QuestItemDisplay:SetScript("OnUpdate", nil);
+function QuestItemDisplay:PauseAutoCloseTimer(state)
+    if self.isCountingDown then
+        if state then
+            self:SetScript("OnUpdate", nil);
+        else
+            self:SetScript("OnUpdate", Countdown_OnUpdate);
+        end
     end
 end
 
+function QuestItemDisplay:OnEnter()
+    QuestItemDisplay:PauseAutoCloseTimer(true);
+end
+
 function QuestItemDisplay:OnLeave()
-    if QuestItemDisplay.isCountingDown then
-        QuestItemDisplay:SetScript("OnUpdate", Countdown_OnUpdate);
-    end
+    QuestItemDisplay:PauseAutoCloseTimer(false);
 end
 
 function QuestItemDisplay:OnMouseUp(button)
@@ -835,6 +841,61 @@ function QuestItemDisplay:EnterEditMode()
     self:Show();
 end
 
+function QuestItemDisplay:LowerFrameStrata()
+    if self.dynamicFrameStrata then
+        if not self.lowStrata then
+            self.lowStrata = true;
+            self:SetFixedFrameStrata(false);
+            self:SetFrameStrata("LOW");
+            self:SetFixedFrameStrata(true);
+        end
+        if self:IsShown() then
+            if self.AnimIn and self.AnimIn:IsPlaying() then
+                self.AnimIn:Stop();
+                self:UpdateQueueMarkers();
+            end
+            self:SetAlpha(0);
+        end
+    end
+    self:PauseAutoCloseTimer(true);
+end
+
+function QuestItemDisplay:RaiseFrameStrata()
+    if self.lowStrata then
+        self.lowStrata = false;
+        self:SetFixedFrameStrata(false);
+        self:SetFrameStrata("FULLSCREEN_DIALOG");
+        self:SetFixedFrameStrata(true);
+        if self:IsShown() then
+            self:SetAlpha(1);
+        end
+    end
+    self:PauseAutoCloseTimer(false);
+end
+
+function QuestItemDisplay:SetDynamicFrameStrata(state, userInput)
+    if state then
+        self.dynamicFrameStrata = true;
+        if not self.worldmapHooked then
+            self.worldmapHooked = true;
+            if WorldMapFrame and WorldMapFrame.RegisterCallback then
+                EventRegistry:RegisterCallback("WorldMapOnShow", self.LowerFrameStrata, self);
+                WorldMapFrame:RegisterCallback("WorldMapOnHide", self.RaiseFrameStrata, self);
+            end
+        end
+        if userInput then
+            if WorldMapFrame:IsVisible() then
+                self:LowerFrameStrata();
+            else
+                self:RaiseFrameStrata();
+            end
+        end
+    else
+        self.dynamicFrameStrata = false;
+        self:RaiseFrameStrata();
+    end
+end
+
 function QuestItemDisplay:EnableModule(state)
     if state then
         self:RegisterEvent("CHAT_MSG_LOOT");
@@ -873,6 +934,12 @@ do
         IGNORE_SEEN_ITEM = dbValue == true;
     end
     addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplayHideSeen", Settings_QuestItemDisplayHideSeen);
+
+
+    local function Settings_QuestItemDisplayDynamicFrameStrata(dbValue, userInput)
+        QuestItemDisplay:SetDynamicFrameStrata(dbValue == true, userInput);
+    end
+    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplayDynamicFrameStrata", Settings_QuestItemDisplayDynamicFrameStrata);
 end
 
 do
@@ -902,4 +969,10 @@ do
     end
 
     Items = nil;
+end
+
+do
+    --function Debug_QuestItemDisplay(itemID)
+    --    QuestItemDisplay:TryDisplayItem(itemID or 132120);
+    --end
 end

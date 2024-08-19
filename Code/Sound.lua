@@ -36,8 +36,11 @@ local SOUNDS = {
     QUEST_TEXT_SHOW = "page-turn-1.mp3",
 };
 
+local SOUNDKIT = SOUNDKIT or {};
 local SOUND_KIT = {
     ["SOUNDKIT.IG_QUEST_LIST_OPEN"] = SOUNDKIT.IG_QUEST_LIST_OPEN,
+    ["CHECKBOX_ON"] = SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON,
+    ["CHECKBOX_OFF"] = SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF,
 };
 
 local function PlaySound(name)
@@ -47,7 +50,6 @@ local function PlaySound(name)
         PlaySoundKit(SOUND_KIT[name])
     end
 end
-
 addon.PlaySound = PlaySound;
 
 

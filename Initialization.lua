@@ -41,6 +41,7 @@ local DefaultValues = {
 
     QuestItemDisplay = false,
     QuestItemDisplayHideSeen = false,
+    QuestItemDisplayDynamicFrameStrata = false,
     AutoSelectGossip = false,
     ForceGossip = false,
     NameplateDialogEnabled = false,
@@ -49,6 +50,10 @@ local DefaultValues = {
     TTSUseHotkey = true,    --Default key R
     TTSAutoPlay = false,
     TTSAutoStop = true,     --Stop when leaving
+    TTSVoiceMale = 0,       --0: System default
+    TTSVoiceFemale = 0,
+    TTSVolume = 10,
+    TTSRate = 0,
 
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
@@ -70,9 +75,9 @@ local function GetDBValue(dbKey)
 end
 addon.GetDBValue = GetDBValue;
 
-local function SetDBValue(dbKey, value)
+local function SetDBValue(dbKey, value, userInput)
     DB[dbKey] = value;
-    addon.CallbackRegistry:Trigger("SettingChanged."..dbKey, value);
+    addon.CallbackRegistry:Trigger("SettingChanged."..dbKey, value, userInput);
 end
 addon.SetDBValue = SetDBValue;
 

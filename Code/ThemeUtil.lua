@@ -65,6 +65,9 @@ local FONT_OBJECT_COLOR = {
 
     DUIFont_Constant_10 = {"DarkBrown", "DarkModeGrey70"},
     DUIFont_Constant_8 = {"DarkBrown", "DarkModeGrey70"},
+
+    DUIFont_MenuButton_Normal = {"DarkBrown", "DarkModeGrey90"},
+    DUIFont_MenuButton_Highlight = {"DarkBrown", "DarkModeGrey90"},
 };
 
 
@@ -109,6 +112,10 @@ function ThemeUtil:SetThemeByID(themeID)
 
     if addon.QuestItemDisplay then
         addon.QuestItemDisplay:LoadTheme();
+    end
+
+    if addon.DropdownMenu then
+        addon.DropdownMenu:LoadTheme();
     end
 end
 

@@ -33,8 +33,8 @@ KeyboardControl:SetFrameStrata("TOOLTIP");
 KeyboardControl:SetFixedFrameStrata(true);
 addon.KeyboardControl = KeyboardControl;
 
-KeyboardControl.noPropagateFrame = CreateFrame("Frame", nil, KeyboardControl);
-KeyboardControl.noPropagateFrame:SetPropagateKeyboardInput(false);
+KeyboardControl.combatFrame = CreateFrame("Frame", nil, KeyboardControl);   --"combatFrame" doesn't change KeyProgation dynamically based on input
+KeyboardControl.combatFrame:SetPropagateKeyboardInput(true);
 
 function KeyboardControl:ResetKeyActions()
     self.keyActions = {};
@@ -87,6 +87,7 @@ end
 function KeyboardControl:OnEvent(event, ...)
     if event == "PLAYER_REGEN_DISABLED" then
         self:RegisterEvent("PLAYER_REGEN_ENABLED");
+        self:SetPropagateKeyboardInput(true);
     elseif event == "PLAYER_REGEN_ENABLED" then
         if self:IsVisible() then
 
@@ -224,7 +225,7 @@ function KeyboardControl:SetParentFrame(frame)
 
     if InCombatLockdown() then
         if ENABLE_KEYCONTROL_IN_COMBAT then
-            listener = self.noPropagateFrame;
+            listener = self.combatFrame;
         end
     else
         listener = self;
@@ -241,18 +242,18 @@ end
 
 function KeyboardControl:StopListeningKeys()
     self:SetScript("OnKeyDown", nil);
-    self.noPropagateFrame:SetScript("OnKeyDown", nil);
+    self.combatFrame:SetScript("OnKeyDown", nil);
 
     self:SetScript("OnGamePadButtonDown", nil);
-    self.noPropagateFrame:SetScript("OnGamePadButtonDown", nil);
+    self.combatFrame:SetScript("OnGamePadButtonDown", nil);
     self:SetScript("OnGamePadButtonUp", nil);
-    self.noPropagateFrame:SetScript("OnGamePadButtonUp", nil);
+    self.combatFrame:SetScript("OnGamePadButtonUp", nil);
 
     self:EnableGamePadButton(false);
-    self.noPropagateFrame:EnableGamePadButton(false);
+    self.combatFrame:EnableGamePadButton(false);
 
     self:EnableKeyboard(false);
-    self.noPropagateFrame:EnableKeyboard(false);
+    self.combatFrame:EnableKeyboard(false);
 end
 
 function KeyboardControl.GetPrimaryControlKey()

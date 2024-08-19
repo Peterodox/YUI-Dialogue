@@ -1,11 +1,15 @@
 -- Customize Font
 ---- 1. Support LibSharedMedia
 ---- 1. Font Select and Comparison UI (Accessed via Settings)
+---  Color defined in ThemeUtil.lua
 
 local _, addon = ...
+local API = addon.API;
 local FontUtil = {};
 addon.FontUtil = FontUtil;
 
+
+local AUTO_SCALING_MIN_HEIGHT = 9;
 
 local DEFAULT_FONT_FILE = {
     roman = "Interface/AddOns/DialogueUI/Fonts/frizqt__.ttf",       --Friz Quadrata
@@ -23,32 +27,38 @@ local NUMBER_FONT_FILE = {
     russian = "Interface/AddOns/DialogueUI/Fonts/ARIALN.ttf",
 };
 
+local HEIGHT_1 = {10, 12, 14, 16};
+local HEIGHT_2 = {8, 10, 12, 12};
+
 local FONT_OBJECT_HEIGHT = {
     --FontObjectName = {10, 12, 14, 16}     --Paragraph Font Size as Base
 
     DUIFont_Quest_Title_18 = {14, 18, 18, 18},
     DUIFont_Quest_Title_16 = {12, 16, 16, 16},
-    DUIFont_Quest_SubHeader = {10, 12, 14, 16},
-    DUIFont_Quest_Paragraph = {10, 12, 14, 16},
-    DUIFont_Quest_Gossip = {10, 12, 14, 16},
-    DUIFont_Quest_Quest = {10, 12, 14, 16},
-    DUIFont_Quest_Disabled = {10, 12, 14, 16},
+    DUIFont_Quest_SubHeader = HEIGHT_1,
+    DUIFont_Quest_Paragraph = HEIGHT_1,
+    DUIFont_Quest_Gossip = HEIGHT_1,
+    DUIFont_Quest_Quest = HEIGHT_1,
+    DUIFont_Quest_Disabled = HEIGHT_1,
 
-    DUIFont_Settings_Disabled = {10, 12, 14, 16},
+    DUIFont_Settings_Disabled = HEIGHT_1,
 
-    DUIFont_Item = {8, 10, 12, 12},
-    DUIFont_ItemSelect = {8, 10, 12, 12},
+    DUIFont_Item = HEIGHT_2,
+    DUIFont_ItemSelect = HEIGHT_2,
 
-    DUIFont_Hotkey = {8, 10, 12, 12},
+    DUIFont_Hotkey = HEIGHT_2,
 
-    DUIFont_QuestType_Left = {8, 10, 12, 12},
-    DUIFont_QuestType_Right = {8, 10, 12, 12},
+    DUIFont_QuestType_Left = HEIGHT_2,
+    DUIFont_QuestType_Right = HEIGHT_2,
 
-    DUIFont_Tooltip_Large = {10, 12, 14, 16},
-    DUIFont_Tooltip_Medium = {8, 10, 12, 12},
-    DUIFont_Tooltip_Small = {8, 10, 12, 12},
+    DUIFont_Tooltip_Large = HEIGHT_1,
+    DUIFont_Tooltip_Medium = HEIGHT_2,
+    DUIFont_Tooltip_Small = HEIGHT_2,
 
     DUIFont_ItemCount = {8, 10, 10, 12},
+
+    DUIFont_MenuButton_Normal = HEIGHT_1,
+    DUIFont_MenuButton_Highlight = HEIGHT_1,
 };
 
 local IS_NUMBER_FONT = {
@@ -114,6 +124,58 @@ function FontUtil:GetInstalledFont()
     end
 end
 
+do  --Auto Downsize Font To Fit Into Region (Derivative of AutoScalingFontStringMixin, Blizzard_SharedXML/SecureUtil)
+    local Round = API.Round;
+    local AutoScalingFontStringMixin =  {};
+
+    function AutoScalingFontStringMixin:SetText(fontString, text)
+        fontString:SetText(text);
+        self:ScaleTextToFit(fontString);
+    end
+
+    function AutoScalingFontStringMixin:GetFontHeight(fontString)
+        local _, height = fontString:GetFont();
+        return Round(height);
+    end
+
+    function AutoScalingFontStringMixin:ScaleTextToFit(fontString)
+        local baseLineHeight = self:GetFontHeight(fontString);
+        local tryHeight = baseLineHeight;
+        local minLineHeight = AUTO_SCALING_MIN_HEIGHT;
+        local stringWidth = fontString:GetUnboundedStringWidth() / fontString:GetTextScale();
+
+        if stringWidth > 0 then
+            local maxLines = fontString:GetMaxLines();
+            if maxLines == 0 then
+                maxLines = Round(fontString:GetHeight() / (baseLineHeight + fontString:GetSpacing()));
+            end
+            local targetScale = fontString:GetWidth() * maxLines / stringWidth;
+            if targetScale >= 1 then
+                tryHeight = baseLineHeight;
+            else
+                tryHeight = Round(targetScale * baseLineHeight);
+                if tryHeight < minLineHeight then
+                    tryHeight = minLineHeight;
+                end
+            end
+        end
+
+        while tryHeight >= minLineHeight do
+            local scale = tryHeight / baseLineHeight;
+            fontString:SetTextScale(scale);
+            if fontString:IsTruncated() then
+                tryHeight = tryHeight - 1;
+            else
+                break
+            end
+        end
+    end
+
+    function FontUtil:SetAutoScalingText(fontString, text)
+        AutoScalingFontStringMixin:SetText(fontString, text)
+    end
+end
+
 do
     local DEFAULT_FONT_SIZE = 0;
     local FONT_SIZE_ID = 1;
@@ -153,6 +215,12 @@ do
             end
 
             _G[fontName]:SetFont(fontFile, v[k], flags);
+        end
+
+        if fontSize >= 16 then
+            AUTO_SCALING_MIN_HEIGHT = 10;
+        else
+            AUTO_SCALING_MIN_HEIGHT = 9;
         end
 
         addon.CallbackRegistry:Trigger("FontSizeChanged", fontSize, id);

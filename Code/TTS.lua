@@ -1,13 +1,19 @@
 local _, addon = ...
+local CallbackRegistry = addon.CallbackRegistry;
 
 local TTSUtil = CreateFrame("Frame");
 addon.TTSUtil = TTSUtil;
 
+local FALLBACK_VOICE_ID = 0;
+local DESTINATION = Enum.VoiceTtsDestination and Enum.VoiceTtsDestination.LocalPlayback or 1;
 
+-- User Settings
 local TTS_AUTO_PLAY = false;
 local TTS_STOP_WHEN_LEAVING = true;
+------------------
 
-
+local UnitExists = UnitExists;
+local UnitSex = UnitSex;
 local C_VoiceChat = C_VoiceChat;
 local C_TTSSettings = C_TTSSettings;
 local StopSpeakingText = C_VoiceChat.StopSpeakingText;
@@ -16,9 +22,9 @@ local TTSButton;
 
 function TTSUtil:UpdateTTSSettings()
     self.voiceID = C_TTSSettings.GetVoiceOptionID(0);
-    self.volume = C_TTSSettings.GetSpeechVolume();     --0 ~ 100 (Default: 100)
-    self.rate = C_TTSSettings.GetSpeechRate();         -- -10 ~ +10 (Default: 0)
-    self.destination = Enum.VoiceTtsDestination and Enum.VoiceTtsDestination.LocalPlayback or 1;
+    self.volume = self.defaultVolume or C_TTSSettings.GetSpeechVolume();     --0 ~ 100 (Default: 100)
+    self.rate = self.defaultRate or C_TTSSettings.GetSpeechRate();         -- -10 ~ +10 (Default: 0)
+    self.destination = DESTINATION;
 
     if self.volume == 0 then
         
@@ -84,7 +90,20 @@ function TTSUtil:SpeakText(text)
     self:UpdateTTSSettings();
 
     self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
-    C_VoiceChat.SpeakText(self.voiceID, text, self.destination, self.rate, self.volume);
+
+    local voiceID;
+
+    if UnitExists("npc") then
+        if UnitSex("npc") == 2 then
+            voiceID = self:GetDefaultVoiceA();
+        else
+            voiceID = self:GetDefaultVoiceB();
+        end
+    else
+        voiceID = self.voiceID;
+    end
+
+    C_VoiceChat.SpeakText(voiceID, text, self.destination, self.rate, self.volume);
 end
 
 function TTSUtil:SpeakCurrentContent()
@@ -149,7 +168,7 @@ function TTSUtil:EnableModule(state)
 end
 
 
-do
+do  --Event
     local function OnHandleEvent(event)
         if TTSUtil.isEnabled then
             TTSUtil:StopLastTTS();
@@ -158,30 +177,75 @@ do
             end
         end
     end
-    addon.CallbackRegistry:Register("DialogueUI.HandleEvent", OnHandleEvent);
+    CallbackRegistry:Register("DialogueUI.HandleEvent", OnHandleEvent);
 
     local function InteractionClosed()
         if TTSUtil.isEnabled and TTS_STOP_WHEN_LEAVING then
             TTSUtil:StopLastTTS();
         end
     end
-    addon.CallbackRegistry:Register("DialogueUI.Hide", InteractionClosed);
+    CallbackRegistry:Register("DialogueUI.Hide", InteractionClosed);
 
 
     local function Settings_TTSEnabled(dbValue)
         TTSUtil:EnableModule(dbValue == true);
     end
-    addon.CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
+    CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
 
     local function Settings_TTSAutoPlay(dbValue)
         TTS_AUTO_PLAY = dbValue == true;
     end
-    addon.CallbackRegistry:Register("SettingChanged.TTSAutoPlay", Settings_TTSAutoPlay);
+    CallbackRegistry:Register("SettingChanged.TTSAutoPlay", Settings_TTSAutoPlay);
 
     local function Settings_TTSAutoStop(dbValue)
         TTS_STOP_WHEN_LEAVING = dbValue == true;
     end
-    addon.CallbackRegistry:Register("SettingChanged.TTSAutoStop", Settings_TTSAutoStop);
+    CallbackRegistry:Register("SettingChanged.TTSAutoStop", Settings_TTSAutoStop);
+
+    local function Settings_TTSVoice(dbValue, userInput)
+        if userInput then
+            local voiceID = dbValue;
+            TTSUtil:PlaySample(voiceID);
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSVoiceMale", Settings_TTSVoice);
+    CallbackRegistry:Register("SettingChanged.TTSVoiceFemale", Settings_TTSVoice);
+
+    local function Settings_TTSVolume(dbValue, userInput)
+        local volume = dbValue and tonumber(dbValue) or 10;
+        if volume < 5 then
+            volume = 5;
+        elseif volume > 10 then
+            volume = 10;
+        end
+        volume = 10 * volume;
+        TTSUtil.defaultVolume = volume;
+        if userInput then
+            TTSUtil:PlaySample();
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSVolume", Settings_TTSVolume);
+
+    local TTSRateValue = {
+        [1] = 0,
+        [2] = 1,
+        [3] = 2,
+        [4] = 4,
+        [5] = 7,
+        [6] = 10,
+    };
+
+    local function Settings_TTSRate(dbValue, userInput)
+        local rate = dbValue or 1;
+        if not TTSRateValue[rate] then
+            rate = 1;
+        end
+        TTSUtil.defaultRate = TTSRateValue[rate];
+        if userInput then
+            TTSUtil:PlaySample();
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSRate", Settings_TTSRate);
 end
 
 
@@ -191,7 +255,7 @@ do  --TTS Play Button
     local ALPHA_UNFOCUSED = 0.6;
 
     local TTSButtonMixin = {};
-    
+
     local L = addon.L;
 
     function TTSButtonMixin:OnEnter()
@@ -285,7 +349,7 @@ do  --TTS Play Button
             b.Wave2:Show();
             b.Wave3:Show();
         end);
-    
+
         b.AnimWave:SetScript("OnStop", function()
             b.Wave1:Hide();
             b.Wave2:Hide();
@@ -305,4 +369,107 @@ do  --TTS Play Button
         return b
     end
     addon.CreateTTSButton = CreateTTSButton;
+end
+
+
+do  --Voice List
+    local GetDBValue = addon.GetDBValue;
+
+    function TTSUtil:GetAvailableVoices()
+        if not self.voices then
+            self.voices = C_VoiceChat.GetTtsVoices() or {};
+            self.validVoice = {};
+            for _, data in ipairs(self.voices) do
+                self.validVoice[data.voiceID] = true;
+            end
+        end
+        return self.voices
+    end
+
+    function TTSUtil:IsVoiceIDValid(voiceID)
+        if not self.voices then
+            self:GetAvailableVoices();
+        end
+        return voiceID and self.validVoice[voiceID]
+    end
+
+    function TTSUtil:GetVoiceName(voiceID)
+        if voiceID then
+            for _, data in ipairs(self:GetAvailableVoices()) do
+                if data.voiceID == voiceID then
+                    return data.name
+                end
+            end
+        end
+
+        return UNKNOWN
+    end
+
+    function TTSUtil:GetVoiceIndex(voiceID)
+        if voiceID then
+            for index, data in ipairs(self:GetAvailableVoices()) do
+                if data.voiceID == voiceID then
+                    return index
+                end
+            end
+        end
+        return 1
+    end
+
+    function TTSUtil:GetFirstValidName(voiceID)
+        if self:IsVoiceIDValid(voiceID) then
+            return self:GetVoiceName(voiceID);
+        end
+
+        return self:GetVoiceName(FALLBACK_VOICE_ID)
+    end
+
+    function TTSUtil:GetDefaultVoiceA()
+        local voiceID = GetDBValue("TTSVoiceMale");
+        if self:IsVoiceIDValid(voiceID) then
+            return voiceID
+        else
+            return FALLBACK_VOICE_ID
+        end
+    end
+
+    function TTSUtil:GetDefaultVoiceB()
+        local voiceID = GetDBValue("TTSVoiceFemale");
+        if self:IsVoiceIDValid(voiceID) then
+            return voiceID
+        else
+            return FALLBACK_VOICE_ID
+        end
+    end
+
+    function TTSUtil:OnUpdate_Process(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0 then
+            self:SetScript("OnUpdate", nil);
+            self.t = nil;
+            if self.pendingFunc then
+                self.pendingFunc();
+                self.pendingFunc = nil;
+            end
+        end
+    end
+
+    function TTSUtil:PlaySample(voiceID)
+        self:Clear();
+        voiceID = voiceID or C_TTSSettings.GetVoiceOptionID(0);
+        local destination = DESTINATION;
+        local rate = self.defaultRate or C_TTSSettings.GetSpeechRate();
+        local volume = self.defaultVolume or C_TTSSettings.GetSpeechVolume();
+
+        self.pendingFunc = function()
+            C_VoiceChat.SpeakText(voiceID, TEXT_TO_SPEECH_SAMPLE_TEXT, destination, rate, volume);
+        end
+
+        self.t = -0.2;
+        self:SetScript("OnUpdate", self.OnUpdate_Process);
+    end
+
+    addon.CallbackRegistry:Register("SettingsUI.Hide", function()
+        TTSUtil.voices = nil;
+    end);
 end

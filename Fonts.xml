@@ -257,6 +257,15 @@
     </Font>
 
 
+    <Font name="DUIFont_MenuButton_Normal" inherits="DUIFontFamily_Serif_12" virtual="true" justifyV="MIDDLE" justifyH="LEFT">
+        <Color r="0.87" g="0.86" b="0.75"/>
+    </Font>
+
+    <Font name="DUIFont_MenuButton_Highlight" inherits="DUIFontFamily_Serif_12" virtual="true" justifyV="MIDDLE" justifyH="LEFT">
+        <Color r="0.87" g="0.86" b="0.75"/>
+    </Font>
+
+
     <!--AutoFit FontString-->
     <Font name="DUIFont_Constant_10" inherits="DUIFontFamily_Serif_10" virtual="true" justifyV="MIDDLE" justifyH="CENTER">
         <Color r="0.19" g="0.17" b="0.13"/>

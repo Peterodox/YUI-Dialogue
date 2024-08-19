@@ -365,7 +365,7 @@
                                 <FontString parentKey="Title" inherits="DUIFont_Quest_Title_18" justifyH="LEFT" justifyV="BOTTOM" text="Quest Title">
                                     <Anchors>
                                         <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="53" y="2"/>
-                                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-8" y="3"/>
+                                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-8" y="2"/>
                                     </Anchors>
                                 </FontString>
                                 <FontString parentKey="Subtitle" inherits="DUIFont_QuestType_Left" justifyH="LEFT" justifyV="BOTTOM" hidden="false">

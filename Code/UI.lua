@@ -774,8 +774,10 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
 
         if questID and API.IsQuestFlaggedCompletedOnAccount(questID) then
             self.WarbandCompleteAlert:Show();
+            self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -56, 2);
         else
             self.WarbandCompleteAlert:Hide();
+            self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -8, 2);
         end
 
     elseif self.questLayout or forceUpdate then
@@ -1801,8 +1803,11 @@ function DUIDialogBaseMixin:SelectRewardChoice(choiceID)
     local claimQuestReward;
     if INPUT_DEVICE_GAME_PAD then
         self.GamePadFocusIndicator:Hide();
-        if choiceID == self.rewardChoiceID then
-            claimQuestReward = true;
+        --Briefly paused in case the button becomes too sensitive and claim the reward by accident
+        if not API.CheckActionThrottled("GamePadChooseQuestReward") then
+            if choiceID == self.rewardChoiceID then
+                claimQuestReward = true;
+            end
         end
     end
 
@@ -2921,7 +2926,7 @@ do
     end
     CallbackRegistry:Register("SettingChanged.FrameSize", Settings_FrameSize);
 
-    local function Settings_HideUI(dbValue)
+    local function Settings_HideUI(dbValue, useInput)
         ExperienceBar:SetShown(dbValue == true);
     end
     CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);

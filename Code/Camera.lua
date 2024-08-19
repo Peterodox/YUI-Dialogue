@@ -10,6 +10,7 @@ addon.SetCameraController(CameraUtil);
 local HIDE_UI = false;
 local HIDE_UNIT_NAMES = false;
 local CHANGE_FOV = false;
+local DISABLE_IN_INSTANCE = false;
 local FOV_DEFAULT = 90;
 local FOV_ZOOMED_IN = 75;
 local FOCUS_STRENGTH_PITCH = 1.0;
@@ -49,6 +50,8 @@ local CVar_TargetFocus = {  --Can be used in combat
     test_cameraTargetFocusInteractStrengthYaw = 0,
     test_cameraOverShoulder = FOCUS_SHOULDER_OFFSET,
     test_cameraHeadMovementStrength = 0,
+    CameraKeepCharacterCentered = 0,        --11.0.2 Fix
+    CameraReduceUnexpectedMovement = 0,     --11.0.2 Fix
 };
 
 local CVar_UnitText = {     --Shouldn't be used in combat
@@ -65,7 +68,6 @@ local CVar_UnitText = {     --Shouldn't be used in combat
 	UnitNameNPC = 0,
 	UnitNameInteractiveNPC = 0,
 	UnitNameHostleNPC = 0,
-	--chatBubbles = 0,
 };
 
 local CVar_Backup = {};
@@ -96,7 +98,7 @@ function CameraUtil:ChangeCVars()
         CVar_Backup[cvar] = GetCVar(cvar);
     end
 
-    if (not InCombatLockdown()) and HIDE_UNIT_NAMES then
+    if (not InCombatLockdown()) and (HIDE_UNIT_NAMES and HIDE_UI) then
         for cvar, value in pairs(CVar_UnitText) do
             CVar_Backup[cvar] = GetCVar(cvar);
             SetCVar(cvar, value);
@@ -133,11 +135,26 @@ function CameraUtil:RestoreCombatCVar()
     end
 end
 
+function CameraUtil:SetHideUnitNames(state)
+    --Trigger by clicking checkbox manually
+    if state then
+        if not InCombatLockdown() then
+            self.cvarStored = true;
+            for cvar, value in pairs(CVar_UnitText) do
+                if CVar_Backup[cvar] == nil then
+                    CVar_Backup[cvar] = GetCVar(cvar);
+                    SetCVar(cvar, value);
+                end
+            end
+        end
+    else
+        self:RestoreCombatCVar();
+    end
+end
+
 function CameraUtil:OnEvent(event, ...)
     if event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
         self:OnMountChanged();
-    elseif event == "PLAYER_ENTERING_WORLD" then
-        self:UpdateInstance();
     else
         self:RestoreCVars();
     end
@@ -384,7 +401,6 @@ end
 function CameraUtil:Intro_FocusNPC()
     --SaveView(5)   --We can't use this to restore pitch because it breaks Camera Following Style
 
-    SetCVar("CameraKeepCharacterCentered", 0);
     self.cameraMode = 1;
     self.oldZoom = GetCameraZoom();
     self.t = 0;
@@ -393,7 +409,6 @@ function CameraUtil:Intro_FocusNPC()
 end
 
 function CameraUtil:Intro_PanCamera()
-    SetCVar("CameraKeepCharacterCentered", 0);
     self.cameraMode = 2;
     self.t = 0;
     self.shoulderOffset = tonumber(GetCVar("test_cameraOverShoulder"));
@@ -411,18 +426,17 @@ function CameraUtil:Intro_PanCamera()
 end
 
 function CameraUtil:Intro_ZoomToObject()
-    SetCVar("CameraKeepCharacterCentered", 0);
     self.oldZoom = GetCameraZoom();
     self.t = 0;
     self:ZoomTo(3);
 end
 
 function CameraUtil:OnInteractionStart()
-
+    --Reserved for DynamicCam
 end
 
 function CameraUtil:OnInteractionStop()
-
+    --Reserved for DynamicCam
 end
 
 function CameraUtil:InitiateInteraction()
@@ -431,7 +445,7 @@ function CameraUtil:InitiateInteraction()
     self:UpdateMounted();
     FadeHelper:FadeOutUI();
 
-    if self.defaultCameraMode == 0 or self.inInstance then
+    if self.defaultCameraMode == 0 or (DISABLE_IN_INSTANCE and IsInInstance()) then
         self:Intro_None();
     else
         if (self.defaultCameraMode == 1) and UnitExists("npc") and (not UnitIsUnit("npc", "player")) then
@@ -517,6 +531,18 @@ end
 function FadeHelper:ShowUIParentInstantly()
     self:SnapToFadeResult();
     ShowUIParent(true);
+end
+
+function FadeHelper:HideUIParentInstantly()
+    self:SetScript("OnUpdate", nil);
+    self.t = 0;
+    self.alpha = 0;
+
+    if not InCombatLockdown() then
+        self.fadeDelta = -1;
+        UIParent:SetAlpha(1);
+        SetUIVisibility(false);
+    end
 end
 
 addon.CallbackRegistry:Register("PlayerInteraction.ShowUI", "ShowUIParentInstantly", FadeHelper);  --For Classic
@@ -631,10 +657,6 @@ function CameraUtil:OnEnterCombatDuringInteraction()
     end
 end
 
-function CameraUtil:UpdateInstance()
-    self.inInstance = IsInInstance();
-end
-
 
 do
     local function Settings_CameraMovement(dbValue)
@@ -653,24 +675,30 @@ do
     end
     addon.CallbackRegistry:Register("SettingChanged.CameraMovementMountedCamera", Settings_CameraMovementMountedCamera);
 
-    local function Settings_HideUI(dbValue)
+    local function Settings_HideUI(dbValue, userInput)
         HIDE_UI = dbValue == true;
+        if userInput then
+            if HIDE_UI then
+                FadeHelper:HideUIParentInstantly();
+                CameraUtil:SetHideUnitNames(HIDE_UNIT_NAMES);
+            else
+                FadeHelper:ShowUIParentInstantly();
+                CameraUtil:SetHideUnitNames(false);
+            end
+        end
     end
     addon.CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
 
-    local function Settings_HideUnitNames(dbValue)
+    local function Settings_HideUnitNames(dbValue, userInput)
         HIDE_UNIT_NAMES = dbValue == true;
+        if userInput then
+            CameraUtil:SetHideUnitNames(HIDE_UNIT_NAMES);
+        end
     end
     addon.CallbackRegistry:Register("SettingChanged.HideUnitNames", Settings_HideUnitNames);
 
     local function Settings_CameraMovementDisableInstance(dbValue)
-        if dbValue == true then
-            CameraUtil:RegisterEvent("PLAYER_ENTERING_WORLD");
-            CameraUtil:UpdateInstance();
-        else
-            CameraUtil:UnregisterEvent("PLAYER_ENTERING_WORLD");
-            CameraUtil.inInstance = nil;
-        end
+        DISABLE_IN_INSTANCE = dbValue == true;
     end
     addon.CallbackRegistry:Register("SettingChanged.CameraMovementDisableInstance", Settings_CameraMovementDisableInstance);
 

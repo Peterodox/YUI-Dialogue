@@ -4,7 +4,7 @@
     <Script file="TextureSlice.lua"/>
     <Script file="LocaleFormatter.lua"/>
     <Script file="TTS.lua"/>
-
+    <Script file="ActionThrottler.lua"/>
     <Script file="DevTool.lua"/>
 
 
