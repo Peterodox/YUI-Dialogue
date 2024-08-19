@@ -677,7 +677,7 @@ do
 
     local function Settings_HideUI(dbValue, userInput)
         HIDE_UI = dbValue == true;
-        if userInput then
+        if userInput and CameraUtil.isActive then
             if HIDE_UI then
                 FadeHelper:HideUIParentInstantly();
                 CameraUtil:SetHideUnitNames(HIDE_UNIT_NAMES);
@@ -691,7 +691,7 @@ do
 
     local function Settings_HideUnitNames(dbValue, userInput)
         HIDE_UNIT_NAMES = dbValue == true;
-        if userInput then
+        if userInput and CameraUtil.isActive then
             CameraUtil:SetHideUnitNames(HIDE_UNIT_NAMES);
         end
     end

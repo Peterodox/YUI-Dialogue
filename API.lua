@@ -958,7 +958,7 @@ do  -- Quest
     if C_QuestInfoSystem.GetQuestRewardCurrencies then
         local GetQuestRewardCurrencies = C_QuestInfoSystem.GetQuestRewardCurrencies;
 
-        function GetNumRewardCurrencies_TWW(questID)
+        local function GetNumRewardCurrencies_TWW(questID)
             local currencyRewards = GetQuestRewardCurrencies(questID) or {};
             return #currencyRewards
         end

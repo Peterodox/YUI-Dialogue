@@ -1436,6 +1436,7 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
     local name, texture, count, quality, isUsable, itemID, questRewardContextFlags = GetQuestItemInfo(questInfoType, index);    --no itemID in Classic; questRewardContextFlags TWW
 
     self.itemID = itemID;
+    self.rewardAmount = count;
     self.Icon:SetTexture(texture);
     self:SetItemName(name, quality);
     self:SetItemCount(count);

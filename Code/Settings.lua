@@ -1896,9 +1896,6 @@ function DialogueUI_ShowSettingsFrame()
     MainFrame:ToggleUI();
 end
 
-function DialogueUI_AddonCompartmentOnEnterLeave(addonName, button)
-
-end
 
 do
     local function OnFontSizeChanged(baseFontSize, fontSizeID)

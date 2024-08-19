@@ -11,7 +11,7 @@ local TEXTURE_INFO = {
 };
 
 
-PseudoSliceTextureMixin = {};
+local PseudoSliceTextureMixin = {};
 do  -- Texture Slicing (Temp Fix for https://github.com/Stanzilla/WoWUIBugs/issues/547)
     local InheritedMethods = {
         "SetDrawLayer", "SetVertexColor", "SetBlendMode", "SetDesaturation", "SetDesaturated",
