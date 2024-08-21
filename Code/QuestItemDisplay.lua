@@ -8,6 +8,7 @@ local match = string.match;
 local GetNumLetters = strlenutf8 or string.len;
 local Round = API.Round;
 local IsQuestLoreItem = API.IsQuestLoreItem;
+local GetBagQuestItemInfo = API.GetBagQuestItemInfo;
 local PI = math.pi;
 local After = C_Timer.After;
 
@@ -472,7 +473,7 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
 
     self:ShowTextButton(false);
 
-    local itemInfo = API.GetBagQuestItemInfo(itemID);
+    local itemInfo = GetBagQuestItemInfo(itemID);
     if itemInfo then
         startQuestID = itemInfo.questID;
         if startQuestID then

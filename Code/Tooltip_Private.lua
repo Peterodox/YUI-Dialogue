@@ -396,6 +396,29 @@ local function AlternateModeCallback_ItemComparison(self)
 end
 
 do
+    function SharedTooltip:AddDeltaToItemLevel(rewardItem)
+        local maxItemLevelDelta = API.GetMaxEquippedItemLevelDelta(rewardItem);
+        if maxItemLevelDelta then
+            if maxItemLevelDelta >= -13 then
+                local lineText = self:GetLeftLineText(2);
+                if string.find(lineText, L["Item Level"]) then
+                    local deltaText;
+                    if maxItemLevelDelta > 0 then
+                        deltaText = "|cff808080(|r|cff19ff19+"..maxItemLevelDelta.."|r|cff808080)|r";   --(+1)
+                    else
+                        if maxItemLevelDelta == 0 then
+                            maxItemLevelDelta = "";
+                        else
+                            maxItemLevelDelta = -maxItemLevelDelta;
+                        end
+                        deltaText = "|cff808080(-"..maxItemLevelDelta..")|r";   --(-1)
+                    end
+                    self:OverwriteLeftLineText(2, lineText.."  "..deltaText);
+                end
+            end
+        end
+    end
+
     if C_TooltipComparison and C_TooltipComparison.GetItemComparisonInfo and TooltipComparisonManager then
         function SharedTooltip:AddComparisonItems(shouldShowComparison, comparisonItem, rewardItem, equippedItem)
             --Item = { guid = "" }
@@ -408,7 +431,7 @@ do
                     end
                     self:AddBlankLine();
 
-                    local equippedItemLink =  C_Item.GetItemLinkByGUID(itemGUID); --API.GetEquippedItemLink(rewardItem);
+                    local equippedItemLink =  C_Item.GetItemLinkByGUID(itemGUID);
                     if equippedItemLink then
                         self:AddLeftLine(L["Format Replace Item"]:format(equippedItemLink), 1, 0.82, 0, true);
                     else
@@ -467,6 +490,10 @@ do
 
             self:ProcessItemExternal(rewardItem);
 
+            if not shouldShowComparison then
+                self:AddDeltaToItemLevel(rewardItem);
+            end
+
             if canCompare then
                 local description = shouldShowComparison and L["Hide Comparison"] or L["Show Comparison"];
                 self:ShowHotkey(HOTKEY_ALTERNATE_MODE, description, AlternateModeCallback_ItemComparison);
@@ -522,6 +549,10 @@ do
 
             self:ProcessItemExternal(rewardItem);
 
+            if not shouldShowComparison then
+                self:AddDeltaToItemLevel(rewardItem);
+            end
+
             if canCompare then
                 local description = shouldShowComparison and L["Hide Comparison"] or L["Show Comparison"];
                 self:ShowHotkey(HOTKEY_ALTERNATE_MODE, description, AlternateModeCallback_ItemComparison);
@@ -533,6 +564,7 @@ end
 
 function SharedTooltip:ProcessInfo(info)
     self.tooltipInfo = info;
+    self.getterName = info.getterName;
 
     if not info then
 		return false
@@ -659,6 +691,7 @@ SharedTooltip:SetScript("OnHide", function(self)
     self:UnregisterEvent("MODIFIER_STATE_CHANGED");
     self.tooltipInfo = nil;
     self.tooltipData = nil;
+    self.getterName = nil;
 end);
 
 

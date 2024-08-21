@@ -72,6 +72,14 @@ local CVar_UnitText = {     --Shouldn't be used in combat
 
 local CVar_Backup = {};
 
+local function BackupAndSetCVar(cvar, value)
+    if CVar_Backup[cvar] == nil then
+        CVar_Backup[cvar] = GetCVar(cvar);
+    end
+    if value ~= nil then
+        SetCVar(cvar, value);
+    end
+end
 
 function CameraUtil:SetDefaultCameraMode(mode)
     --0: No Zoom
@@ -90,18 +98,17 @@ function CameraUtil:ChangeCVars()
     if self.cameraMode == 1 then
         --ConsoleExec("actioncam on");
         for cvar, value in pairs(CVar_TargetFocus) do
-            CVar_Backup[cvar] = GetCVar(cvar);
-            SetCVar(cvar, value);
+            BackupAndSetCVar(cvar, value);
         end
     elseif self.cameraMode == 2 then
-        local cvar = "test_cameraOverShoulder";
-        CVar_Backup[cvar] = GetCVar(cvar);
+        BackupAndSetCVar("test_cameraOverShoulder", nil);
+        BackupAndSetCVar("CameraKeepCharacterCentered", 0);
+        BackupAndSetCVar("CameraReduceUnexpectedMovement", 0);
     end
 
     if (not InCombatLockdown()) and (HIDE_UNIT_NAMES and HIDE_UI) then
         for cvar, value in pairs(CVar_UnitText) do
-            CVar_Backup[cvar] = GetCVar(cvar);
-            SetCVar(cvar, value);
+            BackupAndSetCVar(cvar, value);
         end
     end
 

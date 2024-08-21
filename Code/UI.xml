@@ -63,7 +63,7 @@
         </Layers>
     </Frame>
 
-    <Frame name="DUIDialogIconFrameTemplate" mixin="DUIDialogIconFrameMixin" useParentLevel="true" virtual="true">
+    <Frame name="DUIDialogIconFrameTemplate" mixin="DUIDialogIconFrameMixin" useParentLevel="false" virtual="true">
         <Size x="14" y="14"/>
         <Layers>
             <Layer level="OVERLAY" textureSubLevel="6">

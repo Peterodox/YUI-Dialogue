@@ -41,6 +41,8 @@ local TEXT_SPACING = FONT_SIZE*0.35;                 --Font Size /3
 local PARAGRAPH_SPACING = 4*TEXT_SPACING;           --4 * TEXT_SPACING
 local PARAGRAPH_BUTTON_SPACING = 2*FONT_SIZE;    --Font Size * 2
 
+local CONTENT_BLEEDING = 16.0;    --ContentFrame is sometimes ClipChildren and there may be an overlay frame that got clipped.
+
 local CreateFrame = CreateFrame;
 local C_CampaignInfo = C_CampaignInfo;
 local C_GossipInfo = C_GossipInfo;
@@ -269,15 +271,15 @@ function DUIDialogBaseMixin:UpdateFrameSize()
 
     self.FrontFrame.FooterDivider:ClearAllPoints();
     self.FrontFrame.FooterDivider:SetPoint("CENTER", self.FrontFrame, "BOTTOM", 0, footerOffset);
-    self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", paddingH, -42);
-    self.ScrollFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -paddingH, footerOffset);
+    self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -42);
+    self.ScrollFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, footerOffset);
 
     local scrollFrameBaseHeight = self.ScrollFrame:GetHeight();
     self.ScrollFrame.range = 0;
     self.scrollFrameBaseHeight = scrollFrameBaseHeight;
     self.scrollViewHeight = scrollFrameBaseHeight;
 
-    local contentWidth = frameWidth - 2*paddingH;
+    local contentWidth = frameWidth;    -- - 2*paddingH + 2*CONTENT_BLEEDING;
     local contentHeight = Round(scrollFrameBaseHeight);
     self.ContentFrame:SetWidth(Round(contentWidth));
     self.ContentFrame:SetHeight(contentHeight);     --Irrelevant
@@ -753,7 +755,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
             local topOffset = (28 + 40) * FRAME_SIZE_MULTIPLIER;
             self.scrollViewHeight = self.scrollFrameBaseHeight - 40 * FRAME_SIZE_MULTIPLIER;
             --self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", PADDING_H, -PADDING_TOP + topOffset);
-            self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -topOffset);
+            self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -topOffset);
             self.FrontFrame.Header:Show();
             self.FrontFrame.HeaderDivider:Hide();
             FriendshipBar:Hide();
@@ -785,7 +787,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         self.questID = nil;
         self.scrollViewHeight = self.scrollFrameBaseHeight;
         --self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", PADDING_H, -PADDING_TOP);
-        self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -42);
+        self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -42);
         self.FrontFrame.Header:Hide();
         self.BackgroundDecor:Hide();
         self.FrontFrame.QuestPortrait:FadeOut();
@@ -937,6 +939,7 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ContentFrame:ClearAllPoints();
         self.ContentFrame:SetParent(self.ScrollFrame.ScrollChild);
         self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame.ScrollChild, "TOPLEFT", 0, 0);
+        self.ContentFrame:SetWidth(self.contentWidth);
         self.FrontFrame.FooterDivider:Show();
 
     elseif (not scrollable) and (self.ContentFrame.scrollable or forceUpdate) then
@@ -1027,8 +1030,8 @@ end
 function DUIDialogBaseMixin:InsertText(offsetY, text)
 	--Add no spacing
 	local fs = self:AcquireLeftFontString();
-	fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
-	fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", 0, 0);
+	fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
+	fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", -PADDING_H * FRAME_SIZE_MULTIPLIER, 0);
 	fs:SetText(text);
 	offsetY = Round(offsetY + fs:GetHeight());
 	return offsetY
@@ -1048,8 +1051,8 @@ function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
 		if not firstObject then
 			firstObject = fs;
 		end
-        fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
-        fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", 0, 0);
+        fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
+        fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", -PADDING_H * FRAME_SIZE_MULTIPLIER, 0);
         fs:SetText(paragraphText);
         offsetY = Round(offsetY + fs:GetHeight() + PARAGRAPH_SPACING);
 		lastObject = fs;
@@ -1340,7 +1343,7 @@ function DUIDialogBaseMixin:HandleQuestDetail()
         --Subtitle: Quest Objectives
         offsetY = offsetY + PARAGRAPH_SPACING;
         local subheader = self:AcquireAndSetSubHeader(L["Quest Objectives"]);
-        subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
+        subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
         offsetY = Round(offsetY + subheader.size);
 
         --Objective Texts
@@ -1384,7 +1387,7 @@ function DUIDialogBaseMixin:HandleQuestDetail()
 
         offsetY = offsetY + PARAGRAPH_SPACING;
         local subheader = self:AcquireAndSetSubHeader( (#rewardList == 1 and L["Reward"]) or L["Rewards"] );
-        subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
+        subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
         offsetY = Round(offsetY + subheader.size);
 
         offsetY = self:FormatRewards(offsetY, rewardList);
@@ -1472,7 +1475,7 @@ function DUIDialogBaseMixin:HandleQuestProgress()
 
             offsetY = offsetY + PARAGRAPH_SPACING;
             local subheader = self:AcquireAndSetSubHeader(L["Costs"]);
-            subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
+            subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
             offsetY = Round(offsetY + subheader.size);
 
             local itemList = {
@@ -1499,7 +1502,7 @@ function DUIDialogBaseMixin:HandleQuestProgress()
         if anyActualItems then
             offsetY = offsetY + PARAGRAPH_SPACING;
             local subheader = self:AcquireAndSetSubHeader(L["Requirements"]);
-            subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
+            subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
             offsetY = Round(offsetY + subheader.size);
         end
 
@@ -1561,7 +1564,7 @@ function DUIDialogBaseMixin:HandleQuestComplete()
 
         offsetY = offsetY + PARAGRAPH_SPACING;
         local subheader = self:AcquireAndSetSubHeader( (#rewardList == 1 and L["Reward"]) or L["Rewards"] );
-        subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
+        subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
         offsetY = Round(offsetY + subheader.size);
 
         offsetY = self:FormatRewards(offsetY, rewardList);
@@ -1744,7 +1747,7 @@ function DUIDialogBaseMixin:HandleGossipConfirm(gossipID, warningText, cost)
     if cost and cost > 0 then
         offsetY = offsetY + PARAGRAPH_SPACING;
         local subheader = self:AcquireAndSetSubHeader(L["Costs"]);
-        subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -offsetY);
+        subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
         offsetY = Round(offsetY + subheader.size);
 
         local itemList = {
@@ -1795,6 +1798,10 @@ end
 
 local function Predicate_ActiveChoiceButton(itemButton)
     return itemButton.type == "choice" and itemButton:IsShown()
+end
+
+function DUIDialogBaseMixin:IsChoosingReward()
+    return self.chooseItems == true
 end
 
 function DUIDialogBaseMixin:SelectRewardChoice(choiceID)
@@ -2078,6 +2085,7 @@ function DUIDialogBaseMixin:OnHide()
     self.selectedGossipIndex = nil;
     self.consumeGossipClose = nil;
     self.questIsFromGossip = nil;
+    self.chooseItems = nil;
     self.handler = nil;
     self.contentHeight = 0;
 
@@ -2533,6 +2541,7 @@ do  --Quest Rewards
         -- 4 x 2 Grid Layout:
         -- ItemButton: 2x2
         -- SmallItemButton: 1x1
+        local baseOffsetX = PADDING_H * FRAME_SIZE_MULTIPLIER;
         local chooseItems = self.chooseItems;
 
         local itemButtonWidth = self.halfFrameWidth;
@@ -2558,9 +2567,9 @@ do  --Quest Rewards
 
                 sizeX = (INPUT_DEVICE_GAME_PAD and 4) or 2;
 
-                local isChoosingRewards = data.chooseItems;
+                local isChoosingReward = data.chooseItems;
 
-                if isChoosingRewards then
+                if isChoosingReward then
                     backgroundID = 2;
                     offsetY = self:InsertText(offsetY, REWARD_CHOOSE);		--Choose
                 else
@@ -2583,7 +2592,7 @@ do  --Quest Rewards
                         object:SetRewardChoiceCurrency(orderIndex, onlyChoice);
                     end
 
-                    object:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", offsetX, -offsetY);
+                    object:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", baseOffsetX + offsetX, -offsetY);
                     offsetX = offsetX + 2*gridWidth + 2*ITEM_BUTTON_SPACING;
 
                     if INPUT_DEVICE_GAME_PAD or orderIndex % 2 == 0 then
@@ -2605,7 +2614,7 @@ do  --Quest Rewards
                     offsetY = offsetY + ITEM_BUTTON_SPACING;
                 end
 
-                if isChoosingRewards then
+                if isChoosingReward then
                     self:RequestSellPrice();
                 end
             else
@@ -2633,7 +2642,7 @@ do  --Quest Rewards
                     actualSizeX = object:GetActualGridTaken() or sizeX;
                 end
 
-                GridLayout:PlaceObject(object, actualSizeX, sizeY, self.ContentFrame, 0, -offsetY);
+                GridLayout:PlaceObject(object, actualSizeX, sizeY, self.ContentFrame, baseOffsetX, -offsetY);
             end
         end
 

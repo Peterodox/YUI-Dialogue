@@ -106,6 +106,21 @@ local CUSTOM_ICONS = {
 };
 
 
+local RedirectTextureKit = {
+    candle = true,
+    flame = true,
+    storm = true,
+    web = true,
+}
+local function GetMajorFactionIcon(textureKit)
+    if not textureKit then return end;
+    if RedirectTextureKit[textureKit] then
+        return "Interface/AddOns/DialogueUI/Art/GameAssets/ui_majorfactions_"..textureKit
+    else
+        return MAJOR_FACTION_REPUTATION_REWARD_ICON_FORMAT:format(textureKit)
+    end
+end
+
 local function Anim_ShiftButtonCentent_OnUpdate(optionButton, elapsed)
     optionButton.t = optionButton.t + elapsed;
     local offset;
@@ -807,8 +822,6 @@ function DUIDialogOptionButtonMixin:SetParentHighlightTexture(parentHighlightFra
             parentHighlightFrame.FrontTexture:SetTexture(ThemeUtil:GetTextureFile(data.frontTexture));
         end
     end
-
-
     parentHighlightFrame.FrontTexture:SetWidth(18); --self:GetHeight() --TextureSlice bugged, we use constant width now
     parentHighlightFrame.FrontTexture:ClearAllPoints();
     parentHighlightFrame.FrontTexture:SetHeight(self:GetHeight());
@@ -1181,6 +1194,13 @@ function ItemButtonSharedMixin:ShowOverflowIcon()
     iconFrame:SetPoint("CENTER", self.Icon, "TOPRIGHT", -2, -2);
 end
 
+function ItemButtonSharedMixin:ShowUpgradeIcon(playAnimation)
+    local iconFrame = addon.DialogueUI.iconFramePool:Acquire();
+    iconFrame:SetItemIsUpgrade(playAnimation);
+    iconFrame:SetParent(self);
+    iconFrame:SetPoint("CENTER", self.Icon, "BOTTOMLEFT", 1, 5);
+end
+
 function ItemButtonSharedMixin:GetClipboardOutput()
     local idFormat, id;
     local name = self.Name:GetText();
@@ -1453,6 +1473,12 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
         itemOverlayID = quality;
     end
 
+    if count == 1 and API.IsRewardItemUpgrade(questInfoType, index) then
+        --Equipment's count is always 1. No itemID in Classic
+        local playAnimation = addon.DialogueUI:IsChoosingReward();
+        self:ShowUpgradeIcon(playAnimation);
+    end
+
     self:SetItemOverlay(itemOverlayID);
     self:SetQuestRewardContextFlags(questRewardContextFlags);
 end
@@ -1564,7 +1590,7 @@ function DUIDialogItemButtonMixin:SetMajorFactionReputation(reputationRewardInfo
 	--self.Name:SetText(QUEST_REPUTATION_REWARD_TITLE:format(self.factionName));
 	--self.RewardAmount:SetText(AbbreviateNumbers(self.rewardAmount));
 
-	local majorFactionIcon = MAJOR_FACTION_REPUTATION_REWARD_ICON_FORMAT:format(majorFactionData.textureKit);
+	local majorFactionIcon = GetMajorFactionIcon(majorFactionData.textureKit);
 	self.Icon:SetTexture(majorFactionIcon);
     self.Name:SetText(factionName.. " +"..rewardAmount);
     self:SetItemCount(nil);
@@ -1811,7 +1837,7 @@ function DUIDialogSmallItemButtonMixin:SetMajorFactionReputation(reputationRewar
 	local factionName = majorFactionData.name;
 	local rewardAmount = reputationRewardInfo.rewardAmount;
 
-	local majorFactionIcon = MAJOR_FACTION_REPUTATION_REWARD_ICON_FORMAT:format(majorFactionData.textureKit);
+	local majorFactionIcon = GetMajorFactionIcon(majorFactionData.textureKit);
 	self.Icon:SetTexture(majorFactionIcon);
     self:RemoveTextureBorder(true);
     self:SetItemName(rewardAmount);
@@ -2129,20 +2155,87 @@ end
 do
     DUIDialogIconFrameMixin = {};
 
+    local inOutSine = addon.EasingFunctions.outSine;
+
+    local function IconAnimation_FlyUp(self, elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0 then
+            self.offsetY = inOutSine(self.t, self.fromY, self.toY, self.duration);
+            self.alpha = self.alpha + 4*elapsed;
+
+            if self.alpha > 1 then
+                self.alpha = 1;
+            end
+
+            if self.alpha > 0 then
+                self:SetAlpha(self.alpha);
+            else
+                self:SetAlpha(0);
+            end
+
+            if self.t >= self.duration then
+                self:SetScript("OnUpdate", nil);
+                self.Icon:SetPoint("CENTER", self, "CENTER", 0, self.toY);
+                self.t = nil;
+                self.alpha = nil;
+                self.offsetY = nil;
+                self.fromY = nil;
+                self.toY = nil;
+                self.duration = nil;
+            else
+                self.Icon:SetPoint("CENTER", self, "CENTER", 0, self.offsetY);
+            end
+        else
+            self:SetAlpha(0);
+        end
+    end
+
     function DUIDialogIconFrameMixin:Remove()
         self:ClearAllPoints();
         self:Hide();
         self.Icon:SetTexture(nil);
+        if self.t then
+            self:SetScript("OnUpdate", nil);
+            self:SetAlpha(1);
+            self.t = nil;
+            self.alpha = nil;
+        end
+    end
+
+    function DUIDialogIconFrameMixin:AllPoints(state)
+        self.Icon:ClearAllPoints();
+        if state then
+            self.Icon:SetAllPoints(true);
+        end
     end
 
     function DUIDialogIconFrameMixin:SetCurrencyOverflow()
         self:SetSize(14, 14);
+        self:AllPoints(true);
         self.Icon:SetTexture(ICON_PATH.."CurrencyOverflow.png");
     end
 
     function DUIDialogIconFrameMixin:SetHighestSellPrice()
         self:SetSize(15, 15);
+        self:AllPoints(true);
         self.Icon:SetTexture(ICON_PATH.."Coin-Gold.png");
+    end
+
+    function DUIDialogIconFrameMixin:SetItemIsUpgrade(playAnimation)
+        self:SetSize(32, 32);
+        self:AllPoints(false);
+        self.Icon:SetSize(32, 32);
+        self.Icon:SetTexture(ICON_PATH.."ItemIsUpgrade.png");
+        self.Icon:SetPoint("CENTER", self, "CENTER", 0, 0);
+        if playAnimation then
+            self.t = -0.8;
+            self.alpha = 0;
+            self.fromY = -12;
+            self.toY = 0;
+            self.duration = 0.5;
+            self:SetAlpha(0);
+            self:SetScript("OnUpdate", IconAnimation_FlyUp);
+        end
     end
 end
 

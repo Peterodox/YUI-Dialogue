@@ -1831,6 +1831,7 @@ end
 do  -- Tooltip
     local GetInventoryItemLink = GetInventoryItemLink;
     local GetItemInfoInstant = C_Item.GetItemInfoInstant or GetItemInfoInstant;
+    local GetQuestItemLink = GetQuestItemLink;
 
     local EQUIPLOC_SLOTID = {
         INVTYPE_HEAD = 1,
@@ -1857,8 +1858,8 @@ do  -- Tooltip
         INVTYPE_RANGEDRIGHT = 18,
     };
 
-    local FORMAT_POSITIVE_VALUE = "|cff19ff19+%s|r %s";
-    local FORMAT_NEGATIVE_VALUE = "|cffff2020%s|r %s";
+    local FORMAT_POSITIVE_VALUE = "|cff19ff19+%s|r %s"; --Green
+    local FORMAT_NEGATIVE_VALUE = "|cffff2020%s|r %s";  --Red
 
     local function FormatValueDiff(value, name)
         if value > 0 then
@@ -1868,19 +1869,46 @@ do  -- Tooltip
         end
     end
 
-    local function GetEquippedItemLink(comparisonItem)
-        local _, _, _, itemEquipLoc = GetItemInfoInstant(comparisonItem);
+    local function GetEquippedSlotID(item)
+        local _, _, _, itemEquipLoc = GetItemInfoInstant(item);
         local slotID = itemEquipLoc and EQUIPLOC_SLOTID[itemEquipLoc];
+        return slotID
+    end
+
+    local function GetEquippedItemLink(comparisonItem)
+        local slotID = GetEquippedSlotID(comparisonItem);
+
         if slotID then
-            return GetInventoryItemLink("player", slotID);
+            local link1 = GetInventoryItemLink("player", slotID);
+            local link2;
+            if slotID == 11 then
+                link2 = GetInventoryItemLink("player", 12);
+            elseif slotID == 13 then
+                link2 = GetInventoryItemLink("player", 14);
+            elseif slotID == 16 then
+                link2 = GetInventoryItemLink("player", 17);
+                if link2 then
+                    local slotID2 = GetEquippedSlotID(link2);
+                    if not (slotID2 and slotID2 == slotID) then
+                        link2 = nil;
+                    end
+                end
+            end
+
+            if link2 and not link1 then
+                link1 = link2;
+                link2 = nil;
+            end
+
+            return link1, link2
         end
     end
     API.GetEquippedItemLink = GetEquippedItemLink;
 
 
     local function GetItemLevelDelta(newItem, oldItem, formatedToText)
-        local newItemLevel = API.GetItemLevel(newItem) or 0;
-        local oldItemLevel = API.GetItemLevel(oldItem) or 0;
+        local newItemLevel = API.GetItemLevel(newItem);
+        local oldItemLevel = API.GetItemLevel(oldItem);
         local diff = newItemLevel - oldItemLevel;
 
         if formatedToText then
@@ -1893,6 +1921,44 @@ do  -- Tooltip
         return diff
     end
     API.GetItemLevelDelta = GetItemLevelDelta;
+
+
+    local function GetMaxEquippedItemLevelDelta(newLink)
+        --Compare a reward item to the equipped one (check 2 slots for ring, trinket, weapon)
+        --Return the maximum delta
+
+        if not API.IsEquippableItem(newLink) then return end;
+        local link1, link2 = GetEquippedItemLink(newLink);
+        local newItemLevel = API.GetItemLevel(newLink);
+        local level1 = API.GetItemLevel(link1);
+        local level2 = API.GetItemLevel(link2);
+
+        if level1 > level2 then
+            return newItemLevel - level1
+        else
+            return newItemLevel - level2
+        end
+    end
+    API.GetMaxEquippedItemLevelDelta = GetMaxEquippedItemLevelDelta;
+
+
+    local function GetRewardItemLevelDelta(questInfoType, index)
+        local newLink = GetQuestItemLink(questInfoType, index);
+        return GetMaxEquippedItemLevelDelta(newLink);
+    end
+    API.GetRewardItemLevelDelta = GetRewardItemLevelDelta;
+
+
+    local function IsRewardItemUpgrade(questInfoType, index)
+        local delta = GetRewardItemLevelDelta(questInfoType, index);
+        if delta and delta > 0 then
+            return true
+        else
+            return false
+        end
+    end
+    API.IsRewardItemUpgrade = IsRewardItemUpgrade;
+
 
     if C_TooltipInfo then
         addon.TooltipAPI = C_TooltipInfo;
@@ -2297,8 +2363,16 @@ do  -- Items
     API.IsEquippableItem = IsEquippableItem;
     API.IsCosmeticItem = IsCosmeticItem;
     API.GetTransmogItemInfo = GetTransmogItemInfo;
-    API.GetItemLevel = GetItemLevel;
     API.GetItemInfo = GetItemInfo;
+
+    local function _GetItemLevel(item)
+        if item then
+            return GetItemLevel(item) or 0
+        else
+            return 0
+        end
+    end
+    API.GetItemLevel = _GetItemLevel;
 
     local function IsItemValidForComparison(itemID)
         return itemID and (not IsCosmeticItem(itemID)) and IsEquippableItem(itemID)

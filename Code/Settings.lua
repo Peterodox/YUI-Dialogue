@@ -234,6 +234,7 @@ function DUIDialogSettingsMixin:UpdatePixel(scale)
     API.UpdateTextureSliceScale(self.Background);
     API.UpdateTextureSliceScale(self.BackgroundShadow);
     API.UpdateTextureSliceScale(self.PreviewBorder);
+    API.UpdateTextureSliceScale(self.Header.Selection);
 end
 
 function DUIDialogSettingsMixin:HighlightButton(button)

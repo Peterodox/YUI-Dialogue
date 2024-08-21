@@ -666,6 +666,18 @@ function TooltipBaseMixin:SetMaxTextWidth(maxTextWidth)
     self.maxTextWidth = maxTextWidth or FONTSTRING_MAX_WIDTH;
 end
 
+function TooltipBaseMixin:GetLeftLineText(row)
+    if self.grid[row] and self.grid[row][1] then
+        return self.grid[row][1]:GetText()
+    end
+end
+
+function TooltipBaseMixin:OverwriteLeftLineText(row, text)
+    if self.grid[row] and self.grid[row][1] then
+        return self.grid[row][1]:SetText(text)
+    end
+end
+
 
 local Tooltips = {};
 

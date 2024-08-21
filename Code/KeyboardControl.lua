@@ -318,7 +318,7 @@ do  --GamePad/Controller
         elseif button == GAMEPAD_ALT then
             local TooltipFrame = addon.SharedTooltip;
             if TooltipFrame and TooltipFrame:IsShown() then
-                TooltipFrame:ToggleAlternateInfo()
+                TooltipFrame:ToggleAlternateInfo();
             end
         else
             if RepeatableButton[button] then
@@ -367,13 +367,13 @@ do  --GamePad/Controller
         if isSwitch then
             GAMEPAD_CONFIRM = "PAD2";
             GAMEPAD_CANCEL = "PAD1";
-            GAMEPAD_ALT = "PAD4";
+            GAMEPAD_ALT = "PAD3";
             KeyRemap.PAD1 = "ESCAPE";
             KeyRemap.PAD2 = nil;
         else
             GAMEPAD_CONFIRM = "PAD1";
             GAMEPAD_CANCEL = "PAD2";
-            GAMEPAD_ALT = "PAD3";
+            GAMEPAD_ALT = "PAD4";
             KeyRemap.PAD1 = nil;
             KeyRemap.PAD2 = "ESCAPE";
         end
