@@ -53,6 +53,7 @@ L["Gossip Quest Option Prepend"] = "(Задание)";   --Some gossip options s
 L["TTS Button Tooltip"] = "Левый клик: Начать или прекратить озвучивание.\nПравый клик: Переключение автоматического озвучивания";
 L["Item Is An Upgrade"] = "Этот предмет является улучшением для вас";
 L["Identical Stats"] = "Эти два предмета имеют одинаковые характеристики";
+L["Quest Completed On Account"] = "Ваш отряд уже выполнял это задание.";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "Улучшает отношение фракции %2$s на %1$d";
@@ -102,20 +103,28 @@ L["Size Medium"] = "Средний";
 L["Size Large"] = "Большой";
 L["Font Size"] = "Размер шрифта";
 L["Font Size Desc"] = "Выберите размер шрифта.\n\nПо умолчанию: 12";
+L["Frame Orientation"] = "Расположение";
+L["Frame Orientation Desc"] = "Расположение интерфейса в левой или правой части экрана";
+L["Orientation Left"] = "Влево";
+L["Orientation Right"] = "Вправо";
 L["Hide UI"] = "Скрыть интерфейс";
 L["Hide UI Desc"] = "Скрыть интерфейс игры, когда вы взаимодействуете с NPC.";
 L["Hide Unit Names"] = "Скрыть имена";
 L["Hide Unit Names Desc"] = "Скрывать имена игроков и других NPC, когда вы взаимодействуете с NPC.";
 L["Show Copy Text Button"] = "Показать кнопку копирования текста";
-L["Show Copy Text Button Desc"] = "Показывать кнопку копирования текста в правом верхнем углу диалогового окна.";
+L["Show Copy Text Button Desc"] = "Показывать кнопку копирования текста в правом верхнем углу диалогового окна.\n\nТакже включает в себя игровые данные, такие как идентификаторы квеста, NPC, предмета.";
 L["Show Quest Type Text"] = "Показать тип задания";
 L["Show Quest Type Text Desc"] = "Показывать тип задания справа от него.\n\nПростые задания всегда помечены.";
 L["Show NPC Name On Page"] = "Показать имя NPC";
 L["Show NPC Name On Page Desc"] = "Показывать имя NPC в диалоговом окне.";
+L["Show Warband Completed Quest"] = "Задания, выполненные отрядом";
+L["Show Warband Completed Quest Desc"] = "Показывать примечание внизу описания задания, если вы ранее выполняли текущее задание на другом персонаже.";
 L["Simplify Currency Rewards"] = "Упрощение наград в виде валют";
 L["Simplify Currency Rewards Desc"] = "Использовать значки меньшего размера для обозначения наград в виде валют и убрать их названия.";
 L["Mark Highest Sell Price"] = "Метка самой высокой цены продажи";
 L["Mark Highest Sell Price Desc"] = "Покажет вам, какой товар имеет самую высокую цену продажи, когда вы выбираете награду.";
+L["Use Blizzard Tooltip"] = "Подсказка Blizzard";
+L["Use Blizzard Tooltip Desc"] = "Использовать подсказку Blizzard для награды за выполнение задания вместо нашей специальной подсказки.";
 L["Roleplaying"] = "Ролевая игра";
 L["Use RP Name In Dialogues"] = "Использовать ролевое имя в диалогах";
 L["Use RP Name In Dialogues Desc"] = "Заменить имя персонажа в диалогах на свое ролевое имя.";
@@ -140,10 +149,14 @@ L["Input Device Xbox"] = "Xbox";
 L["Input Device Xbox Tooltip"] = "Клавиша подтверждения: [KEY:XBOX:PAD1]\nКлавиша отмены: [KEY:XBOX:PAD2]";
 L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "Клавиша подтверждения: [KEY:PS:PAD1]\nКлавиша отмены: [KEY:PS:PAD2]";
+L["Input Device Switch"] = "Switch";
+L["Input Device Switch Tooltip"] = "Клавиша подтверждения: [KEY:SWITCH:PAD1]\nКлавиша отмены: [KEY:SWITCH:PAD2]";
 L["Primary Control Key"] = "Клавиша подтверждения";
 L["Primary Control Key Desc"] = "Нажмите эту клавишу, чтобы выбрать первый доступный вариант, например, принять задание."
 L["Press Button To Scroll Down"] = "Нажатие клавиши для прокрутки вниз";
 L["Press Button To Scroll Down Desc"] = "Если содержимое превышает высоту окна, нажатие клавиши подтверждения приведет к прокрутке страницы вниз вместо принятия задания.";
+L["Right Click To Close UI"] = "ПКМ для закрытия";
+L["Right Click To Close UI Desc"] = "Щелкните правой кнопкой мыши по диалоговому окну, чтобы закрыть его.";
 
 L["Key Space"] = "Пробел";
 L["Key Interact"] = "Взаимодействие";
@@ -157,6 +170,8 @@ L["Quest Item Display"] = "Отображение предмета для зад
 L["Quest Item Display Desc"] = "Автоматическое отображение описания предмета для задания и возможность использовать его, не открывая сумки.";
 L["Quest Item Display Hide Seen"] = "Игнорировать просмотренные предметы";
 L["Quest Item Display Hide Seen Desc"] = "Игнорировать предметы, которые были обнаружены кем-либо из ваших персонажей.";
+L["Quest Item Display Await World Map"] = " Ожидание Карты мира";
+L["Quest Item Display Await World Map Desc"] = "При открытии Карты мира временно скрывать \"Описания предмета для задания\" и ставить на паузу таймер его авто-скрытия.";
 L["Quest Item Display Reset Position Desc"] = "Сбросить положение окна.";
 L["Auto Select"] = "Автовыбор";
 L["Auto Select Gossip"] = "Автовыбор варианта";
@@ -167,23 +182,35 @@ L["Nameplate Dialog"] = "Отображать диалог на неймплей
 L["Nameplate Dialog Desc"] = "Отображать диалог на неймплейте NPC, если они не предлагают выбора.\n\nЭтот параметр изменяет CVar \"SoftTarget Nameplate Interact\".";
 
 L["TTS"] = "Текст в речь";
-L["TTS Desc"] = "Озвучивать текст диалога, нажав на кнопку в левом верхнем углу.\n\nГолос, громкость и скорость воспроизведения зависят от настроек \"Текст в речь\" в игре.";
+L["TTS Desc"] = "Озвучивать текст диалога, нажав на кнопку в левом верхнем углу.";
 L["TTS Use Hotkey"] = "Использовать горячую клавишу";
 L["TTS Use Hotkey Desc"] = "Начать или прекратить озвучивание текста, нажав эту клавишу:";
 L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
 L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
 L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
+L["TTS Use Hotkey Tooltip Switch"] = "[KEY:SWITCH:LT]";
 L["TTS Auto Play"] = "Автоозвучивание";
 L["TTS Auto Play Desc"] = "Автоматическое озвучивание текстов диалогов.";
 L["TTS Auto Stop"] = "Прекращение при отдалении";
 L["TTS Auto Stop Desc"] = "Прекратить озвучивание, когда отходите от NPC.";
+L["TTS Voice Male"] = "Мужской голос";
+L["TTS Voice Male Desc"] = "Использовать этот голос, когда общаетесь с персонажем мужского пола:";
+L["TTS Voice Female"] = "Женский голос";
+L["TTS Voice Female Desc"] = "Использовать этот голос, когда общаетесь с персонажем женского пола:";
+L["TTS Volume"] = "Громкость";
+L["TTS Volume Desc"] = "Регулировка громкости речи.";
+L["TTS Rate"] = "Темп речи";
+L["TTS Rate Desc"] = "Регулировка темпа речи";
 
 --Tutorial
-L["Tutorial Settings Hotkey"] = "Нажмите [KEY:PC:F1] для открытия настроек";
+L["Tutorial Settings Hotkey"] = "Нажмите [KEY:PC:F1] для открытия настроек";   --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Нажмите [KEY:PC:F1] или [KEY:CONSOLE:MENU] для открытия настроек";   --Use this if gamepad enabled
-
+L["Instuction Open Settings"] = "Чтобы открыть настройки, нажмите [KEY:PC:F1] во время взаимодействия с NPC.";    --Used in Game Menu - AddOns
+L["Instuction Open Settings Console"] = "Чтобы открыть настройки, нажмите [KEY:PC:F1] или [KEY:CONSOLE:MENU] во время взаимодействия с NPC.";
 
 --DO NOT TRANSLATE
+L["Abbrev Breakpoint 1000"] = "Т";     --1,000 = 1K
+L["Abbrev Breakpoint 10000"] = "Т";    --Reserved for Asian languages that have words for 10,000
 L["Match Stat Armor"] = "Броня: ([,%d%.]+)";
 L["Match Stat Stamina"] = "([,%d%.]+) к выносливости";
 L["Match Stat Strengh"] = "([,%d%.]+) к силе";
