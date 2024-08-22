@@ -411,6 +411,7 @@ local function TTSVoice_GetChoices()
 end
 
 local function ValueTextFormatter_TTSVoiceName(dropdownButton, dbValue)
+    --dbValue: voiceID
     if INPUT_DEVICE_GAME_PAD then
         dropdownButton.ValueText:SetText(dbValue);
     else
@@ -470,9 +471,9 @@ local function RPAddOn_ReplaceName_Tooltip()
     end
 end
 
-local Schematic = {
+local Schematic = { --Scheme
     {
-        tabName = L["UI"],
+        tabName = L["UI"],  --Cate1
         options = {
             {type = "ArrowOption", name = L["Theme"], description = L["Theme Desc"], dbKey = "Theme", preview = "Theme", ratio = 2,
                 choices = {
@@ -518,7 +519,7 @@ local Schematic = {
     },
 
     {
-        tabName = L["Camera"],
+        tabName = L["Camera"],  --Cate2
         options = {
             {type = "ArrowOption", name = L["Camera Movement"], dbKey="CameraMovement",
                 choices = {
@@ -536,7 +537,7 @@ local Schematic = {
     },
 
     {
-        tabName = L["Control"],
+        tabName = L["Control"],  --Cate3
         options = {
             {type = "ArrowOption", name = L["Input Device"], dbKey = "InputDevice", description = L["Input Device Desc"],
                 choices = {
@@ -561,7 +562,7 @@ local Schematic = {
     },
 
     {
-        tabName = L["Gameplay"],
+        tabName = L["Gameplay"],  --Cate4
         options = {
             {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay", ratio = 2},
             {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", parentKey = "QuestItemDisplay", requiredParentValue = true},
@@ -577,7 +578,7 @@ local Schematic = {
     },
 
     {
-        tabName = L["Accessibility"],
+        tabName = L["Accessibility"],  --Cate5
         options = {
             {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
             {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", parentKey = "TTSEnabled", requiredParentValue = true},
@@ -605,6 +606,9 @@ local Schematic = {
                     {dbValue = 10, valueText = "100%"},
                 },
             },
+            {type = "Subheader", name = L["TTS Include Content"], parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "Checkbox", name = L["TTS Content NPC Name"], dbKey = "TTSContentSpeaker", parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "Checkbox", name = L["TTS Content Quest Name"], dbKey = "TTSContentQuestTitle", parentKey = "TTSEnabled", requiredParentValue = true},
         },
     },
 };
@@ -1717,6 +1721,14 @@ do  --DropdownButton
         self.Arrow:SetPoint("RIGHT", self, "RIGHT", -left, 0);
     end
 
+    function DUIDialogSettingsDropdownButtonMixin:SetValueTextByID(id)
+        if self.valueTextFormatter then
+            self.valueTextFormatter(self, self.choices[id].dbValue);
+        else
+            self.ValueText:SetText(id);
+        end
+    end
+
     function DUIDialogSettingsDropdownButtonMixin:SelectChoiceByIndex(id)
         if not self.choices[id] then
             id = 1;
@@ -1727,9 +1739,9 @@ do  --DropdownButton
             self.selectedID = id;
             self:SetValueTextByID(id);
             local dbKey = self.dbKey;
-            local voiceID = choiceData.dbValue;
-            SetDBValue(dbKey, voiceID, true);
+            SetDBValue(dbKey, choiceData.dbValue, true);
             MainFrame:UpdateOptionButtonByDBKey(dbKey);
+            self:GetParent():OnEnter();
         end
     end
 
@@ -1746,14 +1758,13 @@ do  --DropdownButton
             id = self.selectedID + 1;
         end
 
-        id = Clamp(1, #self.choices);
+        id = Clamp(id, 1, #self.choices);
         self:SelectChoiceByIndex(id);
-
-        print(id)
     end
 
     function DUIDialogSettingsDropdownButtonMixin:SetData(optionData)
         self.dbKey = optionData.dbKey;
+        self.valueTextFormatter = optionData.valueTextFormatter;
 
         local choices = optionData.choices;
 
@@ -1763,14 +1774,17 @@ do  --DropdownButton
             self.choices = choices;
         end
 
-        local selectedID = GetDBValue(self.dbKey);
+        local selectedID = 1;
+        local dbValue = GetDBValue(self.dbKey);
+
+        for id, data in ipairs(self.choices) do
+            if data.dbValue == dbValue then
+                selectedID = id;
+            end
+        end
         self.selectedID = selectedID;
 
-        if optionData.valueTextFormatter then
-            optionData.valueTextFormatter(self, selectedID);
-        else
-            self:SetText(selectedID);
-        end
+        self:SetValueTextByID(selectedID);
     end
 
     function DUIDialogSettingsDropdownButtonMixin:GetSelectedChoiceTooltip()

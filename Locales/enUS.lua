@@ -201,6 +201,9 @@ L["TTS Volume"] = VOLUME or "Volume";
 L["TTS Volume Desc"] = "Adjust the speech volume.";
 L["TTS Rate"] = "Rate of Speech";
 L["TTS Rate Desc"] = "Adjust the rate of speech.";
+L["TTS Include Content"] = "Include Content";
+L["TTS Content NPC Name"] = "NPC Name";
+L["TTS Content Quest Name"] = "Quest Title";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";     --Shown when interacting with an NPC with this addon for the first time

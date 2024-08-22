@@ -10,6 +10,8 @@ local DESTINATION = Enum.VoiceTtsDestination and Enum.VoiceTtsDestination.LocalP
 -- User Settings
 local TTS_AUTO_PLAY = false;
 local TTS_STOP_WHEN_LEAVING = true;
+local TTS_CONTENT_QUEST_TITLE = true;
+local TTS_CONTENT_SPEAKER = false;
 ------------------
 
 local UnitExists = UnitExists;
@@ -84,15 +86,8 @@ function TTSUtil:StopThenPlay(text)
     self:SetScript("OnUpdate", self.OnUpdate_StopThenPlay);
 end
 
-function TTSUtil:SpeakText(text)
-    if not text then return end;
-
-    self:UpdateTTSSettings();
-
-    self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
-
+function TTSUtil:GetVoiceIDForNPC()
     local voiceID;
-
     if UnitExists("npc") then
         if UnitSex("npc") == 2 then
             voiceID = self:GetDefaultVoiceA();
@@ -102,14 +97,35 @@ function TTSUtil:SpeakText(text)
     else
         voiceID = self.voiceID;
     end
+    return voiceID or 0
+end
+
+function TTSUtil:SpeakText(text)
+    if not text then return end;
+
+    self:UpdateTTSSettings();
+
+    self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
+
+    local voiceID = self:GetVoiceIDForNPC();
 
     C_VoiceChat.SpeakText(voiceID, text, self.destination, self.rate, self.volume);
 end
 
 function TTSUtil:SpeakCurrentContent()
     StopSpeakingText();
-    local texts = addon.DialogueUI:GetContent();
-    self:QueueText(texts);
+    local content = addon.DialogueUI:GetContentForTTS();
+    local text = content.body or "";
+
+    if TTS_CONTENT_QUEST_TITLE and content.title then   --Quest Title
+        text = content.title.."\n"..text;
+    end
+
+    if TTS_CONTENT_SPEAKER and content.speaker then     --NPC name
+        text = content.speaker.."\n"..text;
+    end
+
+    self:QueueText(text);
 end
 
 function TTSUtil:IsSpeaking()
@@ -165,87 +181,6 @@ function TTSUtil:EnableModule(state)
         self:SetScript("OnEvent", nil);
         self:StopLastTTS()
     end
-end
-
-
-do  --Event
-    local function OnHandleEvent(event)
-        if TTSUtil.isEnabled then
-            TTSUtil:StopLastTTS();
-            if TTS_AUTO_PLAY then
-                TTSUtil:SpeakCurrentContent();
-            end
-        end
-    end
-    CallbackRegistry:Register("DialogueUI.HandleEvent", OnHandleEvent);
-
-    local function InteractionClosed()
-        if TTSUtil.isEnabled and TTS_STOP_WHEN_LEAVING then
-            TTSUtil:StopLastTTS();
-        end
-    end
-    CallbackRegistry:Register("DialogueUI.Hide", InteractionClosed);
-
-
-    local function Settings_TTSEnabled(dbValue)
-        TTSUtil:EnableModule(dbValue == true);
-    end
-    CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
-
-    local function Settings_TTSAutoPlay(dbValue)
-        TTS_AUTO_PLAY = dbValue == true;
-    end
-    CallbackRegistry:Register("SettingChanged.TTSAutoPlay", Settings_TTSAutoPlay);
-
-    local function Settings_TTSAutoStop(dbValue)
-        TTS_STOP_WHEN_LEAVING = dbValue == true;
-    end
-    CallbackRegistry:Register("SettingChanged.TTSAutoStop", Settings_TTSAutoStop);
-
-    local function Settings_TTSVoice(dbValue, userInput)
-        if userInput then
-            local voiceID = dbValue;
-            TTSUtil:PlaySample(voiceID);
-        end
-    end
-    CallbackRegistry:Register("SettingChanged.TTSVoiceMale", Settings_TTSVoice);
-    CallbackRegistry:Register("SettingChanged.TTSVoiceFemale", Settings_TTSVoice);
-
-    local function Settings_TTSVolume(dbValue, userInput)
-        local volume = dbValue and tonumber(dbValue) or 10;
-        if volume < 5 then
-            volume = 5;
-        elseif volume > 10 then
-            volume = 10;
-        end
-        volume = 10 * volume;
-        TTSUtil.defaultVolume = volume;
-        if userInput then
-            TTSUtil:PlaySample();
-        end
-    end
-    CallbackRegistry:Register("SettingChanged.TTSVolume", Settings_TTSVolume);
-
-    local TTSRateValue = {
-        [1] = 0,
-        [2] = 1,
-        [3] = 2,
-        [4] = 4,
-        [5] = 7,
-        [6] = 10,
-    };
-
-    local function Settings_TTSRate(dbValue, userInput)
-        local rate = dbValue or 1;
-        if not TTSRateValue[rate] then
-            rate = 1;
-        end
-        TTSUtil.defaultRate = TTSRateValue[rate];
-        if userInput then
-            TTSUtil:PlaySample();
-        end
-    end
-    CallbackRegistry:Register("SettingChanged.TTSRate", Settings_TTSRate);
 end
 
 
@@ -405,6 +340,18 @@ do  --Voice List
         return UNKNOWN
     end
 
+    function TTSUtil:GetVoiceNameByIndex(index)
+        if index then
+            for i, data in ipairs(self:GetAvailableVoices()) do
+                if i == index then
+                    return data.name
+                end
+            end
+        end
+
+        return UNKNOWN
+    end
+
     function TTSUtil:GetVoiceIndex(voiceID)
         if voiceID then
             for index, data in ipairs(self:GetAvailableVoices()) do
@@ -456,7 +403,7 @@ do  --Voice List
 
     function TTSUtil:PlaySample(voiceID)
         self:Clear();
-        voiceID = voiceID or C_TTSSettings.GetVoiceOptionID(0);
+        voiceID = voiceID or self:GetVoiceIDForNPC();
         local destination = DESTINATION;
         local rate = self.defaultRate or C_TTSSettings.GetSpeechRate();
         local volume = self.defaultVolume or C_TTSSettings.GetSpeechVolume();
@@ -472,4 +419,101 @@ do  --Voice List
     addon.CallbackRegistry:Register("SettingsUI.Hide", function()
         TTSUtil.voices = nil;
     end);
+end
+
+
+do  --CallbackRegistry
+    local function OnHandleEvent(event)
+        if TTSUtil.isEnabled then
+            TTSUtil:StopLastTTS();
+            if TTS_AUTO_PLAY then
+                TTSUtil:SpeakCurrentContent();
+            end
+        end
+    end
+    CallbackRegistry:Register("DialogueUI.HandleEvent", OnHandleEvent);
+
+    local function InteractionClosed()
+        if TTSUtil.isEnabled and TTS_STOP_WHEN_LEAVING then
+            TTSUtil:StopLastTTS();
+        end
+    end
+    CallbackRegistry:Register("DialogueUI.Hide", InteractionClosed);
+
+
+    local function Settings_TTSEnabled(dbValue)
+        TTSUtil:EnableModule(dbValue == true);
+    end
+    CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
+
+    local function Settings_TTSAutoPlay(dbValue)
+        TTS_AUTO_PLAY = dbValue == true;
+    end
+    CallbackRegistry:Register("SettingChanged.TTSAutoPlay", Settings_TTSAutoPlay);
+
+    local function Settings_TTSAutoStop(dbValue)
+        TTS_STOP_WHEN_LEAVING = dbValue == true;
+    end
+    CallbackRegistry:Register("SettingChanged.TTSAutoStop", Settings_TTSAutoStop);
+
+    local function Settings_TTSVoice(dbValue, userInput)
+        if userInput then
+            local voiceID = dbValue;
+            TTSUtil:PlaySample(voiceID);
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSVoiceMale", Settings_TTSVoice);
+    CallbackRegistry:Register("SettingChanged.TTSVoiceFemale", Settings_TTSVoice);
+
+    local function Settings_TTSVolume(dbValue, userInput)
+        local volume = dbValue and tonumber(dbValue) or 10;
+        if volume < 5 then
+            volume = 5;
+        elseif volume > 10 then
+            volume = 10;
+        end
+        volume = 10 * volume;
+        TTSUtil.defaultVolume = volume;
+        if userInput then
+            TTSUtil:PlaySample();
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSVolume", Settings_TTSVolume);
+
+    local TTSRateValue = {
+        [1] = 0,
+        [2] = 1,
+        [3] = 2,
+        [4] = 4,
+        [5] = 7,
+        [6] = 10,
+    };
+
+    local function Settings_TTSRate(dbValue, userInput)
+        local rate = dbValue or 1;
+        if not TTSRateValue[rate] then
+            rate = 1;
+        end
+        TTSUtil.defaultRate = TTSRateValue[rate];
+        if userInput then
+            TTSUtil:PlaySample();
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSRate", Settings_TTSRate);
+
+    local function Settings_TTSContentQuestTitle(dbValue, userInput)
+        TTS_CONTENT_QUEST_TITLE = dbValue == true;
+        if userInput then
+            TTSUtil:Clear();
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSContentQuestTitle", Settings_TTSContentQuestTitle);
+
+    local function Settings_TTSContentSpeaker(dbValue, userInput)
+        TTS_CONTENT_SPEAKER = dbValue == true;
+        if userInput then
+            TTSUtil:Clear();
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.TTSContentSpeaker", Settings_TTSContentSpeaker);
 end

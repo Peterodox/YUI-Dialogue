@@ -1824,6 +1824,7 @@ function DUIDialogBaseMixin:SelectRewardChoice(choiceID)
 
     if claimQuestReward and CompleteButton:IsEnabled() then
         CompleteButton:Click("LeftButton");
+        TooltipFrame:HideTooltip();
     end
 
     local buttons = self.itemButtonPool:GetObjectsByPredicate(Predicate_ActiveChoiceButton);
@@ -2298,17 +2299,12 @@ do  --Clipboard
         return str
     end
 
-    local function ConcatenateQuestIDTitle(previousText, includeID)
+    local function ConcatenateQuestIDTitle(previousText)
         local questID = GetQuestID();
         local title = GetQuestTitle();
         local idFormat = "[Quest: %d] %s";
         if questID and questID ~= 0 then
-            local text;
-            if includeID then
-                text = idFormat:format(questID, title);
-            else
-                text = title
-            end
+            local text = idFormat:format(questID, title);
             if previousText then
                 previousText = JoinText(previousText, text);
             else
@@ -2375,21 +2371,57 @@ do  --Clipboard
         return previousText
     end
 
-    function DUIDialogBaseMixin:GetContent(clipboardMode)
-        --For TTS and Clipboard
-        --clipboardMode = true includes item rewards and IDs
+    function DUIDialogBaseMixin:GetContentForTTS()
+        local content = {};
 
+        local GetGossipText = API.GetGossipText;
+        local GetQuestText = API.GetQuestText;
+
+        local npcName, npcID = API.GetCurrentNPCInfo();
+        if npcName and npcID then
+            content.speaker = npcName;
+        end
+
+        local questID = GetQuestID();
+        if questID and questID ~= 0 then
+            content.title = GetQuestTitle();
+        end
+
+        if self.handler == "HandleGossip" then
+            content.body = GetGossipText();
+
+        elseif self.handler == "HandleQuestDetail" then
+            content.body = GetQuestText("Detail");
+
+            local objective = GetObjectiveText();
+            if objective and objective ~= "" then
+                content.objective = JoinText(L["Quest Objectives"], "", objective);
+            end
+
+        elseif self.handler == "HandleQuestProgress" then
+            content.body = GetQuestText("Progress");
+
+        elseif self.handler == "HandleQuestComplete" then
+            content.body = GetQuestText("Complete");
+
+        elseif self.handler == "HandleQuestGreeting" then
+            content.body = GetQuestText("Greeting");
+
+        end
+
+        return content
+    end
+
+    function DUIDialogBaseMixin:GetContentForClipboard()
         local str;
 
         local GetGossipText = API.GetGossipText;
         local GetQuestText = API.GetQuestText;
 
-        if clipboardMode then
-            local npcName, npcID = API.GetCurrentNPCInfo();
-            if npcName and npcID then
-                local idFormat = "[NPC: %d] %s";
-                str = idFormat:format(npcID, npcName);
-            end
+        local npcName, npcID = API.GetCurrentNPCInfo();
+        if npcName and npcID then
+            local idFormat = "[NPC: %d] %s";
+            str = idFormat:format(npcID, npcName);
         end
 
         if self.handler == "HandleGossip" then
@@ -2401,27 +2433,25 @@ do  --Clipboard
                 str = gossipText;
             end
 
-            if clipboardMode then
-                local availableQuests = GetAvailableQuests();
-                local activeQuests = GetActiveQuests();
-                local options = GetOptions();
-                tsort(options, SortFunc_GossipOrder);
+            local availableQuests = GetAvailableQuests();
+            local activeQuests = GetActiveQuests();
+            local options = GetOptions();
+            tsort(options, SortFunc_GossipOrder);
 
-                if #availableQuests > 0 then
-                    str = str..ConcatenateQuestTable(availableQuests);
-                end
+            if #availableQuests > 0 then
+                str = str..ConcatenateQuestTable(availableQuests);
+            end
 
-                if #activeQuests > 0 then
-                    str = str..ConcatenateQuestTable(activeQuests);
-                end
+            if #activeQuests > 0 then
+                str = str..ConcatenateQuestTable(activeQuests);
+            end
 
-                if #options > 0 then
-                    str = str..ConcatenateOptionTable(options);
-                end
+            if #options > 0 then
+                str = str..ConcatenateOptionTable(options);
             end
 
         elseif self.handler == "HandleQuestDetail" then
-            str = ConcatenateQuestIDTitle(str, clipboardMode);
+            str = ConcatenateQuestIDTitle(str);
             str = JoinText(str, "", GetQuestText("Detail"));
 
             local objective = GetObjectiveText();
@@ -2429,83 +2459,74 @@ do  --Clipboard
                 str = JoinText(str, "", L["Quest Objectives"], "", objective);
             end
 
-            if clipboardMode then
-                str = ConcatenateRewards(str);
-            end
+            str = ConcatenateRewards(str);
 
         elseif self.handler == "HandleQuestProgress" then
-            str = ConcatenateQuestIDTitle(str, clipboardMode);
+            str = ConcatenateQuestIDTitle(str);
             str = JoinText(str, "", GetQuestText("Progress"));
 
-            if clipboardMode then
-                local numRequiredItems = GetNumQuestItems();
-                local numRequiredCurrencies = GetNumQuestCurrencies();
-                local numRequiredMoney = GetQuestMoneyToGet();
+            local numRequiredItems = GetNumQuestItems();
+            local numRequiredCurrencies = GetNumQuestCurrencies();
+            local numRequiredMoney = GetQuestMoneyToGet();
 
-                if numRequiredItems > 0 or numRequiredMoney > 0 or numRequiredCurrencies > 0 then
-                    str = JoinText(str, "", L["Requirements"]);
+            if numRequiredItems > 0 or numRequiredMoney > 0 or numRequiredCurrencies > 0 then
+                str = JoinText(str, "", L["Requirements"]);
 
-                    if numRequiredMoney > 0 then
-                        local colorized = false;
-                        local noAbbreviation = true;
-                        local moneyText = API.GenerateMoneyText(numRequiredMoney, colorized, noAbbreviation);
-                        str = JoinText(str, moneyText);
-                    end
+                if numRequiredMoney > 0 then
+                    local colorized = false;
+                    local noAbbreviation = true;
+                    local moneyText = API.GenerateMoneyText(numRequiredMoney, colorized, noAbbreviation);
+                    str = JoinText(str, moneyText);
+                end
 
-                    if numRequiredItems > 0 then
-                        str = JoinText(str, ConcatenateQuestItems("required", numRequiredItems));
-                    end
+                if numRequiredItems > 0 then
+                    str = JoinText(str, ConcatenateQuestItems("required", numRequiredItems));
+                end
 
-                    if numRequiredCurrencies > 0 then
-                        str = JoinText(str, ConcatenateCurrencies("required", numRequiredCurrencies));
-                    end
+                if numRequiredCurrencies > 0 then
+                    str = JoinText(str, ConcatenateCurrencies("required", numRequiredCurrencies));
                 end
             end
 
         elseif self.handler == "HandleQuestComplete" then
-            str = ConcatenateQuestIDTitle(str, clipboardMode);
+            str = ConcatenateQuestIDTitle(str);
             str = JoinText(str, "", GetQuestText("Complete"));
-
-            if clipboardMode then
-                str = ConcatenateRewards(str);
-            end
+            str = ConcatenateRewards(str);
 
         elseif self.handler == "HandleQuestGreeting" then
-            str = ConcatenateQuestIDTitle(str, clipboardMode);
+            str = ConcatenateQuestIDTitle(str);
             str = JoinText(str, "", GetQuestText("Greeting"));
 
-            if clipboardMode then
-                local numAvailableQuests = GetNumAvailableQuests();
-                local availableQuests = {};
-                for i = 1, numAvailableQuests do
-                    local title = GetAvailableTitle(i);
-                    local isTrivial, frequency, isRepeatable, isLegendary, questID = GetAvailableQuestInfo(i);
-                    local questInfo = {
-                        title = title,
-                        questID = questID,
-                    };
-                    tinsert(availableQuests, questInfo);
-                end
+            local numAvailableQuests = GetNumAvailableQuests();
+            local availableQuests = {};
+            for i = 1, numAvailableQuests do
+                local title = GetAvailableTitle(i);
+                local isTrivial, frequency, isRepeatable, isLegendary, questID = GetAvailableQuestInfo(i);
+                local questInfo = {
+                    title = title,
+                    questID = questID,
+                };
+                tinsert(availableQuests, questInfo);
+            end
 
-                if numAvailableQuests > 0 then
-                    str = str..ConcatenateQuestTable(availableQuests);
-                end
+            if numAvailableQuests > 0 then
+                str = str..ConcatenateQuestTable(availableQuests);
+            end
 
-                local numActiveQuests = GetNumActiveQuests();
-                local activeQuests = {};
-                for i = 1, numActiveQuests do
-                    local title, isComplete = GetActiveTitle(i);
-                    local questID = GetActiveQuestID(i);
-                    local questInfo = {
-                        title = title,
-                        questID = questID,
-                    };
-                    tinsert(activeQuests, questInfo);
-                end
+            local numActiveQuests = GetNumActiveQuests();
+            local activeQuests = {};
+            for i = 1, numActiveQuests do
+                local title, isComplete = GetActiveTitle(i);
+                local questID = GetActiveQuestID(i);
+                local questInfo = {
+                    title = title,
+                    questID = questID,
+                };
+                tinsert(activeQuests, questInfo);
+            end
 
-                if numActiveQuests > 0 then
-                    str = str..ConcatenateQuestTable(activeQuests);
-                end
+            if numActiveQuests > 0 then
+                str = str..ConcatenateQuestTable(activeQuests);
             end
         end
 
@@ -2513,7 +2534,7 @@ do  --Clipboard
     end
 
     function DUIDialogBaseMixin:SendContentToClipboard()
-        local str = self:GetContent(true);
+        local str = self:GetContentForClipboard();
 
         if str then
             if StripHyperlinks then

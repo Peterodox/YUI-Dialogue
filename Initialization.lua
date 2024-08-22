@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.3.9";
-local VERSION_DATE = 1724070000;
+local VERSION_TEXT = "v0.4.1";
+local VERSION_DATE = 1724200000;
 
 
 local addonName, addon = ...
@@ -18,7 +18,7 @@ local DefaultValues = {
     FontSizeBase = 1,
     FrameOrientation = 2,                       --1:Left  2:Right(Default)
     HideUI = true,
-    HideUnitNames = false,
+        HideUnitNames = false,
     ShowCopyTextButton = false,
     ShowNPCNameOnPage = false,
     MarkHighestSellPrice = false,
@@ -40,20 +40,23 @@ local DefaultValues = {
     RightClickToCloseUI = true,
 
     QuestItemDisplay = false,
-    QuestItemDisplayHideSeen = false,
-    QuestItemDisplayDynamicFrameStrata = false,
+        QuestItemDisplayHideSeen = false,
+        QuestItemDisplayDynamicFrameStrata = false,
     AutoSelectGossip = false,
     ForceGossip = false,
     NameplateDialogEnabled = false,
 
     TTSEnabled = false,
-    TTSUseHotkey = true,    --Default key R
-    TTSAutoPlay = false,
-    TTSAutoStop = true,     --Stop when leaving
-    TTSVoiceMale = 0,       --0: System default
-    TTSVoiceFemale = 0,
-    TTSVolume = 10,
-    TTSRate = 0,
+        TTSUseHotkey = true,    --Default key R
+        TTSAutoPlay = false,
+        TTSAutoStop = true,     --Stop when leaving
+        TTSVoiceMale = 0,       --0: System default
+        TTSVoiceFemale = 0,
+        TTSVolume = 10,
+        TTSRate = 0,
+            TTSContentSpeaker = false,
+            TTSContentQuestTitle = true,
+
 
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip

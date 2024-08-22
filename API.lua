@@ -1927,7 +1927,7 @@ do  -- Tooltip
         --Compare a reward item to the equipped one (check 2 slots for ring, trinket, weapon)
         --Return the maximum delta
 
-        if not API.IsEquippableItem(newLink) then return end;
+        if not (newLink and API.IsEquippableItem(newLink)) then return 0 end;
         local link1, link2 = GetEquippedItemLink(newLink);
         local newItemLevel = API.GetItemLevel(newLink);
         local level1 = API.GetItemLevel(link1);

@@ -170,6 +170,8 @@ L["Quest Item Display"] = "任务物品说明";
 L["Quest Item Display Desc"] = "自动显示任务物品上的说明，并且允许你在不打开背包的情况下就能使用它。";
 L["Quest Item Display Hide Seen"] = "忽略见过的物品";
 L["Quest Item Display Hide Seen Desc"] = "忽略你账号上角色见过的物品。";
+L["Quest Item Display Await World Map"] = " 等待世界地图";
+L["Quest Item Display Await World Map Desc"] = "当你打开世界地图时，将正在显示的任务物品说明隐藏并暂停自动关闭倒计时。";
 L["Quest Item Display Reset Position Desc"] = "重置窗口位置。";
 L["Auto Select"] = "自动选择";
 L["Auto Select Gossip"] = "自动选择对话选项";
@@ -191,6 +193,17 @@ L["TTS Auto Play"] = "自动播放";
 L["TTS Auto Play Desc"] = "自动朗读对话文本。";
 L["TTS Auto Stop"] = "离开时停止";
 L["TTS Auto Stop Desc"] = "在你离开NPC时停止朗读文本。";
+L["TTS Voice Male"] = "男性角色声音";
+L["TTS Voice Male Desc"] = "当你与男性角色交互时使用此声音：";
+L["TTS Voice Female"] = "女性角色声音";
+L["TTS Voice Female Desc"] = "当你与女性角色交互时使用此声音：";
+L["TTS Volume"] = "音量";
+L["TTS Volume Desc"] = "调节朗读声音的音量。";
+L["TTS Rate"] = "语速";
+L["TTS Rate Desc"] = "调节朗读声音的语速。";
+L["TTS Include Content"] = "朗读以下内容";
+L["TTS Content NPC Name"] = "NPC名字";
+L["TTS Content Quest Name"] = "任务名称";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";
