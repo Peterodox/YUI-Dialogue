@@ -583,9 +583,13 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
             {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", parentKey = "TTSEnabled", requiredParentValue = true},
             {type = "Checkbox", name = L["TTS Auto Play"], description = L["TTS Auto Play Desc"], dbKey = "TTSAutoPlay", parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "Checkbox", name = L["TTS Skip Recent"], dbKey = "TTSSkipRecent", parentKey = "TTSEnabled", requiredParentValue = true},
             {type = "Checkbox", name = L["TTS Auto Stop"], description = L["TTS Auto Stop Desc"], dbKey = "TTSAutoStop", parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "Checkbox", name = L["TTS Stop On New"], description = L["TTS Stop On New"], dbKey = "TTSStopOnNew", parentKey = "TTSEnabled", requiredParentValue = true},
             {type = "DropdownButton", name = L["TTS Voice Male"], description = L["TTS Voice Male Desc"], tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceMale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, parentKey="TTSEnabled", requiredParentValue = true, choices = TTSVoice_GetChoices},
             {type = "DropdownButton", name = L["TTS Voice Female"], description = L["TTS Voice Female Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceFemale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, parentKey="TTSEnabled", requiredParentValue = true, choices = TTSVoice_GetChoices},
+            {type = "Checkbox", name = L["TTS Use Narrator"], description = L["TTS Use Narrator Desc"], dbKey = "TTSUseNarrator", parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "DropdownButton", name = L["TTS Voice Narrator"], description = L["TTS Voice Narrator Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceNarrator", valueTextFormatter = ValueTextFormatter_TTSVoiceName, parentKey="TTSEnabled", requiredParentValue = true, choices = TTSVoice_GetChoices},
             {type = "ArrowOption", name = L["TTS Rate"], dbKey = "TTSRate", description = L["TTS Rate Desc"], parentKey="TTSEnabled", requiredParentValue = true,
                 choices = {
                     {dbValue = 1, valueText = "1"},
@@ -609,6 +613,7 @@ local Schematic = { --Scheme
             {type = "Subheader", name = L["TTS Include Content"], parentKey = "TTSEnabled", requiredParentValue = true},
             {type = "Checkbox", name = L["TTS Content NPC Name"], dbKey = "TTSContentSpeaker", parentKey = "TTSEnabled", requiredParentValue = true},
             {type = "Checkbox", name = L["TTS Content Quest Name"], dbKey = "TTSContentQuestTitle", parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "Checkbox", name = L["TTS Content Objective"], dbKey = "TTSContentObjective", parentKey = "TTSEnabled", requiredParentValue = true},
         },
     },
 };
@@ -793,7 +798,7 @@ function DUIDialogSettingsMixin:Init()
     end
 
     self.hotkeyFramePool = API.CreateObjectPool(CreateHotkeyFrame, RemoveHotkeyFrame);
-    
+
     self.numTabs = #Schematic;
 
     for i, tabData in ipairs(Schematic) do
