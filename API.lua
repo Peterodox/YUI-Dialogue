@@ -1508,6 +1508,26 @@ do  -- Grid Layout
         end
     end
 
+    function GridMixin:FlagPreviousRowFull()
+        local maxRow = #self.grid;
+
+        for row = self.fromRow, maxRow do
+            local rowStatus = self.grid[row];
+            local anyContentThisRow;
+            for col, occupied in ipairs(rowStatus) do
+                if col == 1 then
+                    if occupied then
+                        anyContentThisRow = true;
+                    end
+                else
+                    if anyContentThisRow then
+                        self.grid[row][col] = true;
+                    end
+                end
+            end
+        end
+    end
+
     function GridMixin:GetOffsetForGridPosition(topleftGridX, topleftGridY)
         local offsetX = (topleftGridX - 1) * (self.gridWidth + self.spacing);
         local offsetY = (topleftGridY - 1) * (self.gridHeight + self.spacing);

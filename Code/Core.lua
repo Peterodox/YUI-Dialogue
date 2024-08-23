@@ -44,7 +44,10 @@ function EL:OnManualEvent(event, ...)
     self:SetScript("OnUpdate", nil);
 
     if event == "QUEST_FINISHED" then
-        if not IsInteractingWithDialogNPC() then
+        --For the issue where the quest window fails to close:
+        --Sometimes QUEST_FINISHED fires but IsInteractingWithNpcOfType still thinks we are interacting with QuestGiver
+        --/dump C_PlayerInteractionManager.IsInteractingWithNpcOfType(Enum.PlayerInteractionType.QuestGiver)
+        if (true) or not IsInteractingWithDialogNPC() then
             MainFrame:HideUI();
         end
     elseif event == "GOSSIP_SHOW" then
@@ -93,6 +96,7 @@ function EL:OnEvent(event, ...)
         end
 
         self:NegateLastEvent(event);
+        self:NegateLastEvent("QUEST_FINISHED");
 
     elseif event == "GOSSIP_CLOSED" then
         self:ProcessEventNextUpdate(0.1);
@@ -114,13 +118,15 @@ function EL:OnEvent(event, ...)
         end
 
     elseif event == "QUEST_PROGRESS" or event == "QUEST_COMPLETE" or event == "QUEST_GREETING" then
+        --Sometimes QUEST_FINISHED fires before QUEST_COMPLETE
+        self:NegateLastEvent("QUEST_FINISHED");
         MainFrame:ShowUI(event);
 
     elseif CloseDialogEvents[event] then
         MainFrame:HideUI();
     end
 
-    --print(event, GetTimePreciseSec());
+    --print(event, GetTimePreciseSec());    --debug
 end
 
 
@@ -218,6 +224,13 @@ do
         end
     end
     addon.CallbackRegistry:Register("SettingChanged.CameraMovement1MaintainPosition", Settings_CameraMovement1MaintainPosition);
+
+
+    local function ManualTriggerQuestFinished()
+        EL.lastEvent = "QUEST_FINISHED";
+        EL:ProcessEventNextUpdate(0.5);
+    end
+    addon.CallbackRegistry:Register("TriggerQuestFinished", ManualTriggerQuestFinished);
 end
 
 do  --Unlisten events from default UI

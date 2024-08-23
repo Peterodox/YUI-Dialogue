@@ -1,6 +1,7 @@
 local _, addon = ...
 local L = addon.L;
 local API = addon.API;
+local CallbackRegistry = addon.CallbackRegistry;
 local PixelUtil = addon.PixelUtil;
 local TooltipFrame = addon.SharedTooltip;
 local GossipDataProvider = addon.GossipDataProvider;
@@ -153,7 +154,7 @@ local function OnClickFunc_SelectOption(gossipButton)
 
     --Classic
     if gossipButton.isTrainer or GossipDataProvider:DoesOptionOpenUI(gossipButton.gossipOptionID) then
-        addon.CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
     end
 
     C_GossipInfo.SelectOptionByIndex(gossipButton.id);
@@ -242,6 +243,7 @@ local function OnClickFunc_GetRewardAndCompleteQuest(completeButton)
         --if ( money and money > 0 ) then
         --    StaticPopup_Show("CONFIRM_COMPLETE_EXPENSIVE_QUEST");
         --end
+        CallbackRegistry:Trigger("TriggerQuestFinished");   --In some cases game doesn't fire QUEST_FINISHED after completing a quest?
         GetQuestReward(choiceID);
     end
 end
@@ -1113,6 +1115,7 @@ function ItemButtonSharedMixin:OnRelease()
     self:ClearAllPoints();
     self:Hide();
     self:SetScript("OnUpdate", nil);
+    self:RemoveButtonMarker();
 end
 
 function ItemButtonSharedMixin:RemoveTextureBorder(state)
@@ -1187,18 +1190,48 @@ function ItemButtonSharedMixin:GetActualGridTaken()
     return self.gridTakenX
 end
 
-function ItemButtonSharedMixin:ShowOverflowIcon()
-    local iconFrame = addon.DialogueUI.iconFramePool:Acquire();
-    iconFrame:SetCurrencyOverflow();
-    iconFrame:SetParent(self);
-    iconFrame:SetPoint("CENTER", self.Icon, "TOPRIGHT", -2, -2);
-end
+do  --Additional Button Overlay/Marker/Icon
+    function ItemButtonSharedMixin:DoesButtonHaveMarker(markerName)
+        --Item Button update individually so we want to avoid dulicate markers
+        if self.markers then
+            return self.markers[markerName] == true;
+        else
+            return false
+        end
+    end
 
-function ItemButtonSharedMixin:ShowUpgradeIcon(playAnimation)
-    local iconFrame = addon.DialogueUI.iconFramePool:Acquire();
-    iconFrame:SetItemIsUpgrade(playAnimation);
-    iconFrame:SetParent(self);
-    iconFrame:SetPoint("CENTER", self.Icon, "BOTTOMLEFT", 1, 5);
+    function ItemButtonSharedMixin:RemoveButtonMarker()
+        if self.markers then
+            self.markers = nil;
+        end
+    end
+
+    function ItemButtonSharedMixin:FlagButtonMarker(markerName)
+        if not self.markers then
+            self.markers = {};
+        end
+        self.markers[markerName] = true;
+    end
+
+    function ItemButtonSharedMixin:ShowOverflowIcon()
+        if self:DoesButtonHaveMarker("overflow") then return end;
+        self:FlagButtonMarker("overflow");
+
+        local iconFrame = addon.DialogueUI.iconFramePool:Acquire();
+        iconFrame:SetCurrencyOverflow();
+        iconFrame:SetParent(self);
+        iconFrame:SetPoint("CENTER", self.Icon, "TOPRIGHT", -2, -2);
+    end
+
+    function ItemButtonSharedMixin:ShowUpgradeIcon(playAnimation)
+        if self:DoesButtonHaveMarker("upgrade") then return end;
+        self:FlagButtonMarker("upgrade");
+
+        local iconFrame = addon.DialogueUI.iconFramePool:Acquire();
+        iconFrame:SetItemIsUpgrade(playAnimation);
+        iconFrame:SetParent(self);
+        iconFrame:SetPoint("CENTER", self.Icon, "BOTTOMLEFT", 1, 5);
+    end
 end
 
 function ItemButtonSharedMixin:GetClipboardOutput()
@@ -2340,7 +2373,7 @@ do
         addon.DialogueUI:OnSettingsChanged();
     end
 
-    addon.CallbackRegistry:Register("SettingChanged.QuestTypeText", Settings_QuestTypeText);
+    CallbackRegistry:Register("SettingChanged.QuestTypeText", Settings_QuestTypeText);
 
 
     local function Settings_InputDevice(dbValue)
@@ -2375,9 +2408,9 @@ do
             GAME_PAD_CONFIRM_KEY = nil;
         end
 
-        addon.CallbackRegistry:Trigger("PostInputDeviceChanged", dbValue);
+        CallbackRegistry:Trigger("PostInputDeviceChanged", dbValue);
     end
-    addon.CallbackRegistry:Register("SettingChanged.InputDevice", Settings_InputDevice);
+    CallbackRegistry:Register("SettingChanged.InputDevice", Settings_InputDevice);
 end
 
 
@@ -2405,8 +2438,8 @@ do
         BUTTON_PADDING_LARGE = (2*HOTKEYFRAME_PADDING + HOTKEYFRAME_SIZE - baseFontSize)/2
         --print("HOTKEYFRAME_PADDING", HOTKEYFRAME_PADDING)
 
-        addon.CallbackRegistry:Trigger("PostFontSizeChanged");
+        CallbackRegistry:Trigger("PostFontSizeChanged");
     end
 
-    addon.CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
+    CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 end

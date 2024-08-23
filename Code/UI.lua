@@ -1079,7 +1079,7 @@ function DUIDialogBaseMixin:HandleInitialLoadingComplete()
         --We handle quests that are auto accepted upon logging in
         --If the player talks to an NPC immediately after the initial loading screen, our UI won't turn visible
         local questID = GetQuestID();
-        if questID and questID ~= 0 then    --Some quests are auto accepted and closed by the game
+        if (self.deferredEvent == "GOSSIP_SHOW" or self.deferredEvent == "QUEST_GREETING") or (questID and questID ~= 0) then    --Some quests are auto accepted and closed by the game
             self:ShowUI(self.deferredEvent);
         end
         self.deferredEvent = nil;
@@ -1705,7 +1705,7 @@ function DUIDialogBaseMixin:GetQuestFinishedDelay()
     if (self.numAvailableQuests and self.numAvailableQuests > 1) or QuestIsFromAreaTrigger() then
         return 0.5
     else
-        return 0
+        return 0.03
     end
 end
 
@@ -2639,14 +2639,17 @@ do  --Quest Rewards
                     self:RequestSellPrice();
                 end
             else
-                if data.title then
+                if data.header then
+                    GridLayout:FlagPreviousRowFull();
                     object = self:AcquireLeftFontString();
-                    object:SetText(data.title);
+                    object:SetText(data.header);
                     actualSizeX = 4;
                     sizeY = 1;
-                else
-                    local method = data[1];
+                    GridLayout:PlaceObject(object, actualSizeX, sizeY, self.ContentFrame, baseOffsetX, -offsetY);
+                end
 
+                local method = data[1];
+                if method then
                     if data.small then
                         sizeX = 1;
                         sizeY = 1;
@@ -2658,12 +2661,11 @@ do  --Quest Rewards
                     end
 
                     object:SetBaseGridSize(sizeX, gridWidth, ITEM_BUTTON_SPACING);
-
                     object[method](object, data[2], data[3], data[4], data[5]);
                     actualSizeX = object:GetActualGridTaken() or sizeX;
-                end
 
-                GridLayout:PlaceObject(object, actualSizeX, sizeY, self.ContentFrame, baseOffsetX, -offsetY);
+                    GridLayout:PlaceObject(object, actualSizeX, sizeY, self.ContentFrame, baseOffsetX, -offsetY);
+                end
             end
         end
 

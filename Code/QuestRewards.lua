@@ -41,8 +41,30 @@ local QUEST_INFO_SPELL_REWARD_ORDERING = {
 	QuestCompleteSpellType.Ability,
 	QuestCompleteSpellType.Aura,
 	QuestCompleteSpellType.Spell,
-	QuestCompleteSpellType.Unlock,
 };
+
+local QUEST_INFO_SPELL_REWARD_TO_HEADER = {};
+
+do	--Retail
+	local SpellTypes = {
+		{"Unlock", "REWARD_UNLOCK"},
+		{"QuestlineUnlock", "REWARD_QUESTLINE_UNLOCK"},
+		{"QuestlineReward", "REWARD_QUESTLINE_REWARD"},
+		{"QuestlineUnlockPart", "REWARD_QUESTLINE_UNLOCK_PART"},
+	};
+
+	for _, info in ipairs(SpellTypes) do
+		local name = info[1];
+		local v = QuestCompleteSpellType[name];
+		if v then
+			local header = info[2];
+			table.insert(QUEST_INFO_SPELL_REWARD_ORDERING, v);
+			QUEST_INFO_SPELL_REWARD_TO_HEADER[v] = _G[header] or header;
+		end
+	end
+
+	SpellTypes = nil;
+end
 
 --[[
 local QUEST_INFO_SPELL_REWARD_TO_HEADER = {
@@ -53,6 +75,9 @@ local QUEST_INFO_SPELL_REWARD_TO_HEADER = {
 	[QuestCompleteSpellType.Aura] = REWARD_AURA,
 	[QuestCompleteSpellType.Spell] = REWARD_SPELL,
 	[QuestCompleteSpellType.Unlock] = REWARD_UNLOCK,
+	[Enum.QuestCompleteSpellType.QuestlineUnlock] = REWARD_QUESTLINE_UNLOCK,
+	[Enum.QuestCompleteSpellType.QuestlineReward] = REWARD_QUESTLINE_REWARD,
+	[Enum.QuestCompleteSpellType.QuestlineUnlockPart] = REWARD_QUESTLINE_UNLOCK_PART,
 };
 --]]
 
@@ -98,20 +123,21 @@ local SORT_PRIORITY = {
 
 local function SortRewardList(a, b)
 	if a.small ~= b.small then
+		--small: true > false > nil 
 		return b.small
 	end
 
-	if a[1] ~= b[1] then
-		local p1 = SORT_PRIORITY[a[1]];
-		local p2 = SORT_PRIORITY[b[1]];
-		if p1 and p2 then
-			return p1 < p2
-		elseif p1 then
-			return true
-		elseif p2 then
-			return false
-		end
-	end
+	--if a[1] ~= b[1] then
+	--	local p1 = SORT_PRIORITY[a[1]];
+	--	local p2 = SORT_PRIORITY[b[1]];
+	--	if p1 and p2 then
+	--		return p1 < p2
+	--	elseif p1 then
+	--		return true
+	--	elseif p2 then
+	--		return false
+	--	end
+	--end
 
 	if a.order and b.order then
 		return a.order < b.order
@@ -183,32 +209,59 @@ local function BuildRewardList(questComplete)
 		local artifactName, icon = C_ArtifactUI.GetArtifactXPRewardTargetInfo(artifactCategory);
 	end
 
+	local anyPreviousHeader = false;
 
 	-- Setup spell rewards
+	local spellIndex = 100;		--order_spell
 	if #spellRewards > 0 then
-		local spellIndex = 100;
 		for orderIndex, spellBucketType in ipairs(QUEST_INFO_SPELL_REWARD_ORDERING) do
 			local spellBucket = spellRewardBuckets[spellBucketType];
 			if spellBucket then
 				for i, spellInfo in ipairs(spellBucket) do
+					local data;
 					spellIndex = spellIndex + 1;
+
+					if i == 1 then
+						local header = QUEST_INFO_SPELL_REWARD_TO_HEADER[spellBucketType];
+						if header then
+							anyPreviousHeader = true;
+						elseif anyPreviousHeader then
+							anyPreviousHeader = false;
+							header = REWARD_ITEMS;	--You will also receive
+						end
+						if header then
+							tinsert(rewardList, {header = header, order = spellIndex});
+							spellIndex = spellIndex + 1;
+						end
+					end
 
 					if spellInfo.garrFollowerID then
 						local followerInfo = C_Garrison.GetFollowerInfo(spellInfo.garrFollowerID);
-						tinsert(rewardList, {"SetRewardFollower", spellInfo.garrFollowerID});
+						data = {"SetRewardFollower", spellInfo.garrFollowerID};
 					else
 						local spellIcon = spellInfo.texture;
 						local spellName = spellInfo.name;
 						local spellID = spellInfo.spellID;
-						tinsert(rewardList, {"SetRewardspell", spellID, spellIcon, spellName, order = spellIndex});
+						data = {"SetRewardspell", spellID, spellIcon, spellName, order = spellIndex};
 					end
+
+					tinsert(rewardList, data);
 				end
 			end
 		end
 	end
 
+	if anyPreviousHeader then
+		anyPreviousHeader = false;
+		local header = REWARD_ITEMS;	--You will also receive
+		if header then
+			spellIndex = spellIndex + 1;
+			tinsert(rewardList, {header = header, order = spellIndex});
+		end
+	end
+
 	if playerTitle then
-		tinsert(rewardList, {"SetRewardTitle", playerTitle, order = 10});
+		tinsert(rewardList, {"SetRewardTitle", playerTitle, order = 200});
 	end
 
 	local hasChanceForQuestSessionBonusReward = QuestHasQuestSessionBonus(questID);  --Party Sync
@@ -216,52 +269,51 @@ local function BuildRewardList(questComplete)
 	if ( numQuestRewards > 0 or numQuestCurrencies > 0 or money > 0 or xp > 0 or honor > 0 or majorFactionRepRewards or hasChanceForQuestSessionBonusReward ) then
 		-- Money rewards
 		if ( money > 0 ) then
-			tinsert(rewardList, {"SetMoney", money, small = true});
+			tinsert(rewardList, {"SetMoney", money, small = true, order = 2});
 		end
 		-- XP rewards
 		if xp > 0 then
-			tinsert(rewardList, {"SetXP", xp, small = true});
+			tinsert(rewardList, {"SetXP", xp, small = true, order = 1});
 		end
 		-- Skill Point rewards
 		if skillPoints then
 			local skillLineID = GetRewardSkillLineID();
-			tinsert(rewardList, {"SetRewardSkill", skillIcon, skillPoints, skillName, skillLineID, order = 50});
+			local order_SkillPoints = 250;
+			tinsert(rewardList, {"SetRewardSkill", skillIcon, skillPoints, skillName, skillLineID, order = order_SkillPoints});
 		end
 
 
 		-- Item rewards
+		local order_Item = 300;
 		for i = 1, numQuestRewards do
-            tinsert(rewardList, {"SetRewardItem", i});
+            tinsert(rewardList, {"SetRewardItem", i, order = order_Item + i});
 		end
 
 		-- currency
-		local foundCurrencies = 0;
+		local order_Currency = 400;
 		for i = 1, numQuestCurrencies, 1 do
-            tinsert(rewardList, {"SetRewardCurrency", i, small = SIMPLIFY_CURRENCY_REWARD});
-
-			foundCurrencies = foundCurrencies + 1;
-			if (foundCurrencies == numQuestCurrencies) then
-				break;
-			end
+            tinsert(rewardList, {"SetRewardCurrency", i, small = SIMPLIFY_CURRENCY_REWARD, order = order_Currency + i});
 		end
 
 		-- Major Faction Reputation Rewards
+		local order_Faction = 500;
 		if majorFactionRepRewards then
 			for i, rewardInfo in ipairs(majorFactionRepRewards) do
-                tinsert(rewardList, {"SetMajorFactionReputation", rewardInfo, small = SIMPLIFY_CURRENCY_REWARD, order = i});
+                tinsert(rewardList, {"SetMajorFactionReputation", rewardInfo, small = SIMPLIFY_CURRENCY_REWARD, order = order_Faction + i});
 			end
 		end
 
 		-- warmode bonus
+		local order_pvp = 500;
 		if hasWarModeBonus and C_PvP.IsWarModeDesired() then
 			local bonus = C_PvP.GetWarModeRewardBonus();
 			if bonus and bonus > 0 then
-				tinsert(rewardList, {"SetWarModeBonus", bonus, order = 500});
+				tinsert(rewardList, {"SetWarModeBonus", bonus, order = order_pvp});
 			end
 		end
 
         if honor > 0 then
-			tinsert(rewardList, {"SetRewardHonor", honor, small = SIMPLIFY_CURRENCY_REWARD, order = 510});
+			tinsert(rewardList, {"SetRewardHonor", honor, small = SIMPLIFY_CURRENCY_REWARD, order = order_pvp + 10});
         end
 
         -- Bonus reward chance for quest sessions
@@ -311,7 +363,7 @@ addon.BuildRewardList = BuildRewardList;
 
 do
     local function Settings_SimplifyCurrencyReward(dbValue)
-        SIMPLIFY_CURRENCY_REWARD = dbValue == true;
+        SIMPLIFY_CURRENCY_REWARD = dbValue == true or nil;
 		addon.DialogueUI:OnSettingsChanged();
     end
 
