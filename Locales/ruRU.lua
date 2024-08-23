@@ -201,6 +201,9 @@ L["TTS Volume"] = "Громкость";
 L["TTS Volume Desc"] = "Регулировка громкости речи.";
 L["TTS Rate"] = "Темп речи";
 L["TTS Rate Desc"] = "Регулировка темпа речи";
+L["TTS Include Content"] = "Включать содержимое";
+L["TTS Content NPC Name"] = "Имя NPC";
+L["TTS Content Quest Name"] = "Название задания";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Нажмите [KEY:PC:F1] для открытия настроек";   --Shown when interacting with an NPC with this addon for the first time
