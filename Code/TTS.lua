@@ -169,10 +169,18 @@ function TTSUtil:SpeakCurrentContent()
     if TTS_USE_NARRATOR then
         local voiceIDNarrator = self:GetDefaultVoiceC();
         if TTS_CONTENT_QUEST_TITLE and content.title then   --Quest Title
-            self:QueueText(content.title.."\n", voiceIDNarrator, id);
+            -- don't repeat quest title
+            if not self.previousTitle or (self.previousTitle ~= content.title) then
+                self:QueueText(content.title.."\n", voiceIDNarrator, id);
+            end
+            self.previousTitle = content.title
         end
         if TTS_CONTENT_SPEAKER and content.speaker then     --NPC name
-            self:QueueText(content.speaker.."\n", voiceIDNarrator, id);
+            -- don't repeat NPC name
+            if not self.previousSpeaker or (self.previousSpeaker ~= content.speaker) then
+                self:QueueText(content.title.."\n", voiceIDNarrator, id);
+            end
+            self.previousSpeaker = content.speaker
         end
         if content.body then
             --for body (trima any spaces), search any text inside <> and queue it as narrator, otherwise use actor voiceID
@@ -194,11 +202,19 @@ function TTSUtil:SpeakCurrentContent()
         local text = content.body or "";
 
         if TTS_CONTENT_QUEST_TITLE and content.title then   --Quest Title
-            text = content.title.."\n"..text;
+            -- don't repeat quest title
+            if not self.previousTitle or (self.previousTitle ~= content.title) then
+                text = content.title.."\n"..text;
+            end
+            self.previousTitle = content.title
         end
 
         if TTS_CONTENT_SPEAKER and content.speaker then     --NPC name
-            text = content.speaker.."\n"..text;
+            -- don't repeat NPC name
+            if not self.previousSpeaker or (self.previousSpeaker ~= content.speaker) then
+                text = content.speaker.."\n"..text;
+            end
+            self.previousSpeaker = content.speaker
         end
         --added option to read objectives
         if TTS_CONTENT_OBJECTIVE and content.objective then --Objective
