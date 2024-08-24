@@ -604,7 +604,7 @@ function TooltipBaseMixin:AddRightLine(text, r, g, b, wrapText, offsetY, sizeInd
     --Right line must come in pairs with a LeftLine
     --This will NOT start a new line
 
-    if not text then return end
+    if (not text) or (text == "") then return end
     local alignIndex = 3;
     local fs = self:AddText(text, r, g, b, wrapText, offsetY, sizeIndex, alignIndex);
     local n = self.numLines;

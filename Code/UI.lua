@@ -1046,19 +1046,28 @@ function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
     local paragraphs = API.SplitParagraph(text);
 	local firstObject, lastObject;
 
-    for i, paragraphText in ipairs(paragraphs) do
+    if paragraphs and #paragraphs > 0 then
+        for i, paragraphText in ipairs(paragraphs) do
+            local fs = self:AcquireLeftFontString();
+            if not firstObject then
+                firstObject = fs;
+            end
+            fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
+            fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", -PADDING_H * FRAME_SIZE_MULTIPLIER, 0);
+            fs:SetText(paragraphText);
+            offsetY = Round(offsetY + fs:GetHeight() + PARAGRAPH_SPACING);
+            lastObject = fs;
+        end
+        offsetY = offsetY - PARAGRAPH_SPACING;
+    else
+        --For QuestGreeting where the NPC says nothing
         local fs = self:AcquireLeftFontString();
-		if not firstObject then
-			firstObject = fs;
-		end
+        firstObject = fs;
         fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
         fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", -PADDING_H * FRAME_SIZE_MULTIPLIER, 0);
-        fs:SetText(paragraphText);
-        offsetY = Round(offsetY + fs:GetHeight() + PARAGRAPH_SPACING);
-		lastObject = fs;
+        fs:SetText(" ");
+        lastObject = fs;
     end
-
-    offsetY = offsetY - PARAGRAPH_SPACING;
 
     return offsetY, firstObject, lastObject
 end
@@ -1321,7 +1330,7 @@ function DUIDialogBaseMixin:HandleGossip()
     return true
 end
 
-function DUIDialogBaseMixin:HandleQuestDetail()
+function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1409,7 +1418,9 @@ function DUIDialogBaseMixin:HandleQuestDetail()
 
     self.questIsFromGossip = nil;
 
-    self:FadeInContentFrame();
+    if playFadeIn then
+        self:FadeInContentFrame();
+    end
 
     return true
 end
@@ -1447,7 +1458,7 @@ local function CalulateLockDuration(rawCopper)
     end
 end
 
-function DUIDialogBaseMixin:HandleQuestProgress()
+function DUIDialogBaseMixin:HandleQuestProgress(playFadeIn)
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1527,7 +1538,9 @@ function DUIDialogBaseMixin:HandleQuestProgress()
 
     self:SetScrollRange(offsetY);
 
-    self:FadeInContentFrame();
+    if playFadeIn then
+        self:FadeInContentFrame();
+    end
 
     return true
 end
@@ -1538,7 +1551,7 @@ function DUIDialogBaseMixin:IsRewardChosen()
     return numRewardChoices <= 1 or (choiceID ~= nil);
 end
 
-function DUIDialogBaseMixin:HandleQuestComplete()
+function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
@@ -1578,7 +1591,9 @@ function DUIDialogBaseMixin:HandleQuestComplete()
 
     self:SetScrollRange(offsetY);
 
-    self:FadeInContentFrame();
+    if playFadeIn then
+        self:FadeInContentFrame();
+    end
 
     return true
 end
@@ -2013,7 +2028,8 @@ function DUIDialogBaseMixin:ShowUI(event)
 
     if Handler[event] then
         self.handler = Handler[event];
-        shouldShowUI = self[ Handler[event] ](self);
+        local playFadeIn = true;
+        shouldShowUI = self[ Handler[event] ](self, playFadeIn);
     end
 
     if not shouldShowUI then return end;
@@ -2157,7 +2173,32 @@ function DUIDialogBaseMixin:HighlightButton(optionButton)
 end
 
 function DUIDialogBaseMixin:UpdateRewards()
-    self.itemButtonPool:CallActive("Refresh");
+    if self.questLayout and self.handler then
+        --New items might appear after "QUEST_ITEM_UPDATE"
+        --self.itemButtonPool:CallActive("Refresh");
+
+        if not self.rewardUpdator then
+            self.rewardUpdator = CreateFrame("Frame", self);
+            self.rewardUpdator:SetScript("OnHide", function(f)
+                f:Hide();
+            end);
+        end
+
+        local function UpdateRewards_OnUpdate(f, elapsed)
+            f.t = f.t + elapsed;
+            if f.t > 0.5 then
+                f.t = nil;
+                f:SetScript("OnUpdate", nil);
+                if self.questLayout and self.handler then
+                    self[self.handler](self);
+                end
+            end
+        end
+
+        self.rewardUpdator.t = 0;
+        self.rewardUpdator:SetScript("OnUpdate", UpdateRewards_OnUpdate);
+        self.rewardUpdator:Show();
+    end
 end
 
 function DUIDialogBaseMixin:OnEvent(event, ...)

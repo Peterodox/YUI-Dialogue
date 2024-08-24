@@ -1350,6 +1350,16 @@ function DUIDialogItemButtonMixin:UpdatePixel(scale)
 end
 
 function DUIDialogItemButtonMixin:OnClick(button)
+    if self.objectType == "item" and IsControlKeyDown() then
+        --I'm reluctant to add Dressing Room support due to potential taint (DressUpFrame), but if that's what the users want
+        local link = GetQuestItemLink(self.type, self.index);
+        if link and API.IsDressableItem(link) and not InCombatLockdown() then
+            CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+            DressUpVisual(link);
+            return
+        end
+    end
+
     if self.type == "choice" then
         if button == "GamePad" then
             addon.DialogueUI:SelectRewardChoice(self.index);
