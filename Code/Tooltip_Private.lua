@@ -620,7 +620,7 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
 
     local leftText, leftColor, wrapText, rightText, rightColor;
     local r, g, b;
-    LS = tooltipData.lines; --debug
+
     for i, lineData in ipairs(tooltipData.lines) do
         leftText = lineData.leftText;
         leftColor = lineData.leftColor or NORMAL_FONT_COLOR;
