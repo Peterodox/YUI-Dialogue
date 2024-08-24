@@ -618,7 +618,7 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
 
     self:RegisterEvent("TOOLTIP_DATA_UPDATE");
 
-    local leftText, leftColor, wrapText, rightText, rightColor, leftOffset;
+    local leftText, leftColor, wrapText, rightText, rightColor;
     local r, g, b;
 
     for i, lineData in ipairs(tooltipData.lines) do
@@ -626,7 +626,6 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
         leftColor = lineData.leftColor or NORMAL_FONT_COLOR;
         rightText = lineData.rightText;
         wrapText = lineData.wrapText or false;
-        leftOffset = lineData.leftOffset;
 
         if leftText then
             if leftText == " "then

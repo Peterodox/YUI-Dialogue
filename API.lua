@@ -1954,9 +1954,9 @@ do  -- Tooltip
         local level2 = API.GetItemLevel(link2);
 
         if level1 > level2 then
-            return newItemLevel - level1
-        else
             return newItemLevel - level2
+        else
+            return newItemLevel - level1
         end
     end
     API.GetMaxEquippedItemLevelDelta = GetMaxEquippedItemLevelDelta;
@@ -2378,12 +2378,14 @@ do  -- Items
     local GetTransmogItemInfo = (C_TransmogCollection and C_TransmogCollection.GetItemInfo) or AlwaysFalse;
     local GetItemLevel = C_Item.GetDetailedItemLevelInfo or GetDetailedItemLevelInfo or AlwaysZero;
     local GetItemInfo = C_Item.GetItemInfo or GetItemInfo;
+    local IsDressableItem = C_Item.IsDressableItemByID or IsDressableItem or AlwaysFalse;
     local GetQuestItemLink = GetQuestItemLink;
 
     API.IsEquippableItem = IsEquippableItem;
     API.IsCosmeticItem = IsCosmeticItem;
     API.GetTransmogItemInfo = GetTransmogItemInfo;
     API.GetItemInfo = GetItemInfo;
+    API.IsDressableItem = IsDressableItem;
 
     local function _GetItemLevel(item)
         if item then

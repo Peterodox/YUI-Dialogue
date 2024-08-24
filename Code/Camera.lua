@@ -579,6 +579,7 @@ function FadeHelper:SnapToFadeResult(inCombat)
         elseif not inCombat then
             ShowUIParent(false);
         end
+        self.fadeDelta = nil;
     end
 end
 

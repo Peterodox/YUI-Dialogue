@@ -10,6 +10,7 @@ local CloseQuest = CloseQuest;
 
 
 local EVENT_PROCESS_DELAY = 0.017;  --Affected by CameraMovement
+local MAINTAIN_CAMERA_POSITION = false;
 
 local EL = CreateFrame("Frame");
 
@@ -43,11 +44,12 @@ end
 function EL:OnManualEvent(event, ...)
     self:SetScript("OnUpdate", nil);
 
-    if event == "QUEST_FINISHED" then
+    if event == "QUEST_FINISHED" or event == "QUEST_FINISHED_FORCED" then
         --For the issue where the quest window fails to close:
         --Sometimes QUEST_FINISHED fires but IsInteractingWithNpcOfType still thinks we are interacting with QuestGiver
         --/dump C_PlayerInteractionManager.IsInteractingWithNpcOfType(Enum.PlayerInteractionType.QuestGiver)
-        if (true) or not IsInteractingWithDialogNPC() then
+        --print(event, "IS INTERACTING", IsInteractingWithDialogNPC(), GetTimePreciseSec())   --debug
+        if (event == "QUEST_FINISHED_FORCED") or (not IsInteractingWithDialogNPC()) then
             MainFrame:HideUI();
         end
     elseif event == "GOSSIP_SHOW" then
@@ -81,9 +83,8 @@ function EL:NegateLastEvent(event)
 end
 
 function EL:OnEvent(event, ...)
-    self.lastEvent = event;
-
     if event == "GOSSIP_SHOW" then
+        self.lastEvent = event;
         local handler = self:GetHandler(...);
         if handler then
             self.customFrame = handler(...);
@@ -96,9 +97,9 @@ function EL:OnEvent(event, ...)
         end
 
         self:NegateLastEvent(event);
-        self:NegateLastEvent("QUEST_FINISHED");
 
     elseif event == "GOSSIP_CLOSED" then
+        self.lastEvent = event;
         self:ProcessEventNextUpdate(0.1);
         --self:OnGossipClosed(...);
 
@@ -107,10 +108,18 @@ function EL:OnEvent(event, ...)
         --sometimes there is a delay between QUEST_FINISHED and GOSSIP_SHOW (presumably depends on various of factors including latency)
         --the game determinates interaction then re-engage, messing up ActionCam and gossip info
         --our workaround is setting s delay to this event
+        --print(event, GetTimePreciseSec(), IsInteractingWithDialogNPC());
 
-        self:ProcessEventNextUpdate(MainFrame:GetQuestFinishedDelay());
+        self.timeSinceQuestFinish = 0;
+
+        if self.lastEvent ~= "QUEST_FINISHED_FORCED" then
+            self.lastEvent = event;
+            self:ProcessEventNextUpdate(MainFrame:GetQuestFinishedDelay());
+        end
 
     elseif event == "QUEST_DETAIL" then
+        self.lastEvent = event;
+
         if ( QuestGetAutoAccept() and QuestIsFromAreaTrigger() ) then
             CloseQuest();
         else
@@ -119,10 +128,11 @@ function EL:OnEvent(event, ...)
 
     elseif event == "QUEST_PROGRESS" or event == "QUEST_COMPLETE" or event == "QUEST_GREETING" then
         --Sometimes QUEST_FINISHED fires before QUEST_COMPLETE
-        self:NegateLastEvent("QUEST_FINISHED");
+        self.lastEvent = event;
         MainFrame:ShowUI(event);
 
     elseif CloseDialogEvents[event] then
+        self.lastEvent = event;
         MainFrame:HideUI();
     end
 
@@ -151,8 +161,24 @@ function EL:ListenEvent(state)
 end
 
 function EL:OnUpdate(elapsed)
+    if self.timeSinceQuestFinish then
+        self.timeSinceQuestFinish = self.timeSinceQuestFinish + elapsed;
+        if self.timeSinceQuestFinish > EVENT_PROCESS_DELAY then
+            self.timeSinceQuestFinish = nil;
+            if self.lastEvent == "QUEST_FINISHED" or self.lastEvent == "QUEST_FINISHED_FORCED" then
+                if not IsInteractingWithDialogNPC() then
+                    --print("COUNTER STOP", UnitExists("npc"))
+                    self.processEvent = nil;
+                    self.lastEvent = nil;
+                    MainFrame:HideUI();
+                end
+            end
+        end
+    end
+
     if self.processEvent then
         self.t = self.t + elapsed;
+
         if self.t > EVENT_PROCESS_DELAY then
             self.t = 0;
             self.processEvent = nil;
@@ -198,7 +224,6 @@ EL:ListenEvent(true);
 
 do
     local DEFAULT_CAMERA_MODE = 1;
-    local MAINTAIN_CAMERA_POSITION = false;
 
     local function OnCameraModeChanged(_, mode)
         if mode == 0 then   --0: No Zoom
@@ -227,8 +252,11 @@ do
 
 
     local function ManualTriggerQuestFinished()
-        EL.lastEvent = "QUEST_FINISHED";
-        EL:ProcessEventNextUpdate(0.5);
+        --print("TRIGGER FINISH", GetTimePreciseSec())      --debug
+        if EL.lastEvent ~= "QUEST_FINISHED_FORCED" then
+            EL.lastEvent = "QUEST_FINISHED_FORCED";
+            EL:ProcessEventNextUpdate(1.5);                 --Force trigger QUEST_FINISHED event to close the UI. We use extended delay (1s) due to unavailable server latency
+        end
     end
     addon.CallbackRegistry:Register("TriggerQuestFinished", ManualTriggerQuestFinished);
 end
