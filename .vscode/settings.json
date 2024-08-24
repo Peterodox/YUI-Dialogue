@@ -158,7 +158,8 @@
         "TooltipComparisonManager",
         "ITEM_DELTA_DESCRIPTION",
         "REWARD_CHOOSE",
-        "REWARD_CHOICES"
+        "REWARD_CHOICES",
+        "DressUpVisual"
     ],
     "Lua.runtime.version": "Lua 5.1",
     "Lua.runtime.builtin": {

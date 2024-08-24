@@ -173,14 +173,14 @@ function TTSUtil:SpeakCurrentContent()
             if not self.previousTitle or (self.previousTitle ~= content.title) then
                 self:QueueText(content.title.."\n", voiceIDNarrator, id);
             end
-            self.previousTitle = content.title
+            self.previousTitle = content.title;
         end
         if TTS_CONTENT_SPEAKER and content.speaker then     --NPC name
             -- don't repeat NPC name
             if not self.previousSpeaker or (self.previousSpeaker ~= content.speaker) then
                 self:QueueText(content.title.."\n", voiceIDNarrator, id);
             end
-            self.previousSpeaker = content.speaker
+            self.previousSpeaker = content.speaker;
         end
         if content.body then
             --for body (trima any spaces), search any text inside <> and queue it as narrator, otherwise use actor voiceID
@@ -206,7 +206,7 @@ function TTSUtil:SpeakCurrentContent()
             if not self.previousTitle or (self.previousTitle ~= content.title) then
                 text = content.title.."\n"..text;
             end
-            self.previousTitle = content.title
+            self.previousTitle = content.title;
         end
 
         if TTS_CONTENT_SPEAKER and content.speaker then     --NPC name
@@ -214,13 +214,17 @@ function TTSUtil:SpeakCurrentContent()
             if not self.previousSpeaker or (self.previousSpeaker ~= content.speaker) then
                 text = content.speaker.."\n"..text;
             end
-            self.previousSpeaker = content.speaker
+            self.previousSpeaker = content.speaker;
         end
         --added option to read objectives
         if TTS_CONTENT_OBJECTIVE and content.objective then --Objective
             text = text .. "\n" .. content.objective;
         end
         self:QueueText(text, voiceID, id);
+    end
+    -- force to readi quest title when speaking to the same npc when returning from the quest
+    if content.objective then
+        self.previousTitle = nil;
     end
 end
 
