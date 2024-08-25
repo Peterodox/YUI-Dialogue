@@ -163,6 +163,12 @@ do  -- Pixel
     end
     API.DisableSharpening = DisableSharpening;
 
+    local function GetBestViewportSize()
+        local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
+        viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
+        return viewportWidth, viewportHeight
+    end
+    API.GetBestViewportSize = GetBestViewportSize;
 
     local PixelUtil = CreateFrame("Frame");
     addon.PixelUtil = PixelUtil;
@@ -2510,6 +2516,16 @@ end
 
 do  -- Spell
     local DoesSpellExist = C_Spell.DoesSpellExist;
+    local GetShapeshiftFormID = GetShapeshiftFormID or AlwaysZero;
+    local GetCurrentGlyphNameForSpell = GetCurrentGlyphNameForSpell or AlwaysNil;
+
+    API.GetShapeshiftFormID = GetShapeshiftFormID;
+
+    local function GetGlyphIDForSpell(spellID)
+        local _, glyphID = GetCurrentGlyphNameForSpell(spellID);
+        return glyphID
+    end
+    API.GetGlyphIDForSpell = GetGlyphIDForSpell;
 
     if IS_TWW then
         local GetSpellInfo_Table = C_Spell.GetSpellInfo;    --{"name", "rank", "iconID", "castTime", "minRange", "maxRange", "spellID", "originalIconID"}

@@ -191,8 +191,7 @@ end
 
 function DUIDialogBaseMixin:UpdateFrameBaseOffset(viewportWidth)
     if not viewportWidth then
-        local width, height = WorldFrame:GetSize();
-        viewportWidth = math.min(width, height * 16/9);
+        viewportWidth = API.GetBestViewportSize();
     end
 
     local offsetRatio = FRAME_OFFSET_RATIO;
@@ -212,8 +211,7 @@ function DUIDialogBaseMixin:UpdateFrameBaseOffset(viewportWidth)
 end
 
 function DUIDialogBaseMixin:UpdateFrameSize()
-    local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
-    viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
+    local viewportWidth, viewportHeight = API.GetBestViewportSize();
 
     AlertFrame:ClearAllPoints();
     local alertFrameOffset = 36;

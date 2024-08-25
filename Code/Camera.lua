@@ -14,10 +14,13 @@ local DISABLE_IN_INSTANCE = false;
 local FOV_DEFAULT = 90;
 local FOV_ZOOMED_IN = 75;
 local FOCUS_STRENGTH_PITCH = 1.0;
-local FOCUS_SHOULDER_OFFSET = 1.5;
+local FOCUS_SHOULDER_OFFSET_DEFAULT = 1.5;
+local FOCUS_SHOULDER_OFFSET = FOCUS_SHOULDER_OFFSET_DEFAULT;
 local MOUNTED_CAMERA_ENABLED = true;
-local MOUNTED_CAMERA_MULTIPLIER = 5.725;  --1.85 (Netherwing)     1.25(Renewed Proto)
+local MOUNTED_CAMERA_MULTIPLIER = 4.8;  --1.85 (Netherwing)     1.25(Renewed Proto)   (update 5.725)
 ------------------
+local PAN_MULTIPLIER = 1.0;
+local PLAYER_IS_SHAPESHIFTER = false;
 
 local DeltaLerp = API.DeltaLerp;
 local Esaing_OutSine = addon.EasingFunctions.outSine;
@@ -43,6 +46,8 @@ local UIParent = UIParent;
 UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EXPERIMENTAL_CVAR_WARNING
 
 local FadeHelper = CreateFrame("Frame");
+
+local OFFSET_INFO = {};
 
 local CVar_TargetFocus = {  --Can be used in combat
     test_cameraTargetFocusInteractEnable = 1,
@@ -162,7 +167,9 @@ end
 function CameraUtil:OnEvent(event, ...)
     if event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
         self:OnMountChanged();
-    else
+    elseif event == "UPDATE_SHAPESHIFT_FORM" then
+        self:RequestUpdateShapeshiftForm(0.0);
+    else    --Logout
         self:RestoreCVars();
     end
 end
@@ -283,18 +290,25 @@ function CameraUtil:ListenEvent(state)
         self:RegisterEvent("PLAYER_QUITING");
         self:RegisterEvent("PLAYER_CAMPING");
         self:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
+        if PLAYER_IS_SHAPESHIFTER then
+            self:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
+        end
         self:SetScript("OnEvent", self.OnEvent);
     else
         self:UnregisterEvent("PLAYER_LOGOUT");
         self:UnregisterEvent("PLAYER_QUITING");
         self:UnregisterEvent("PLAYER_CAMPING");
         self:UnregisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
+        if PLAYER_IS_SHAPESHIFTER then
+            self:UnregisterEvent("UPDATE_SHAPESHIFT_FORM");
+        end
         self:SetScript("OnEvent", nil);
     end
 end
 
 local function GetShoulderOffsetByZoom(zoom)
-	return zoom * 0.3283 - 0.02
+	--return zoom * 0.3283 - 0.02
+    return (zoom * 0.4314 + 0.1057) * PAN_MULTIPLIER
 end
 
 CameraUtil.offsetMultiplier = 1;
@@ -450,6 +464,11 @@ function CameraUtil:InitiateInteraction()
     self.isActive = true;
 
     self:UpdateMounted();
+
+    if PLAYER_IS_SHAPESHIFTER then
+        self:UpdateShapeshiftForm();
+    end
+
     FadeHelper:FadeOutUI();
 
     if self.defaultCameraMode == 0 or (DISABLE_IN_INSTANCE and IsInInstance()) then
@@ -509,6 +528,17 @@ function CameraUtil:OnFovSettingsChanged()
     else
         self.fovChanged = nil;
         SetCVar("cameraFov", FOV_DEFAULT);
+    end
+end
+
+do  --Calibrator
+    function CameraUtil:EnterCalibartorMode()
+        self:SetScript("OnUpdate", nil);
+    end
+
+    function CameraUtil:ExitCalibartorMode()
+        if not self.isActive then return end;
+        self:InitiateInteraction();
     end
 end
 
@@ -778,4 +808,78 @@ do  --DynamicCam
     end
 
     addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckRequiredMethods);
+end
+
+
+do  --Update Parameters Based On Player Form
+    local _, _, playerClassID = UnitClass("player");
+    if playerClassID == 11 then
+        PLAYER_IS_SHAPESHIFTER = true;
+    end
+
+    OFFSET_INFO = {
+        DruidForm_1 = 1.0,          --Cat
+        DruidForm_2 = 1.0,          --Tree of Life  (untested)
+        DruidForm_3 = 1.1,          --Travel (Run)
+        DruidForm_4 = 0.9,          --Swim
+        DruidForm_5 = 0.9,          --Bear
+        DruidForm_27 = 0.55,        --Fly Swift
+        DruidForm_29 = 0.55,        --Fly
+        DruidForm_31 = 1.0          --Moonkin
+    };
+
+    local function Updator_OnUpdate(self, elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            if CameraUtil.isActive then
+                CameraUtil:UpdateShapeshiftForm(true);
+            end
+        end
+    end
+
+    function CameraUtil:UpdateShapeshiftForm(setToFinalValue)
+        local newOffset;
+
+        if PLAYER_IS_SHAPESHIFTER then
+            local formID = API.GetShapeshiftFormID();
+            if formID then
+                if formID == 31 then
+                    local glyphID = API.GetGlyphIDForSpell(24858);		--Moonkin form with Glyph of Stars use regular configuration
+                    if glyphID and glyphID == 114301 then
+                        formID = 0;
+                    end
+                end
+
+                local key = "DruidForm_"..formID;
+                newOffset = OFFSET_INFO[key];
+                if newOffset then
+                    PAN_MULTIPLIER = newOffset / FOCUS_SHOULDER_OFFSET_DEFAULT;
+                end
+            end
+        end
+
+        if not newOffset then
+            newOffset = FOCUS_SHOULDER_OFFSET_DEFAULT;
+            PAN_MULTIPLIER = 1.0;
+        end
+
+        if newOffset ~= FOCUS_SHOULDER_OFFSET then
+            FOCUS_SHOULDER_OFFSET = newOffset;
+            if setToFinalValue then
+                CameraUtil:MoveCameraToFinalPosition();
+            end
+        end
+    end
+
+    function CameraUtil:RequestUpdateShapeshiftForm(delay)
+        if not self.updator then
+            self.updator = CreateFrame("Frame", nil, self);
+        end
+
+        delay = (delay and -delay) or 0;
+        self.updator.t = delay;
+        self.updator:SetScript("OnUpdate", Updator_OnUpdate);
+    end
 end
