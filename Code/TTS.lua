@@ -112,11 +112,15 @@ function TTSUtil:GetVoiceIDForNPC()
     if UnitExists("npc") then
         if UnitSex("npc") == 2 then
             voiceID = self:GetDefaultVoiceA();
-        else
+        elseif UnitSex("npc") == 3 then
             voiceID = self:GetDefaultVoiceB();
+        else
+            --use Narrator
+            voiceID = self:GetDefaultVoiceC();
         end
     else
-        voiceID = self.voiceID;
+        --use Narrator
+        voiceID = self:GetDefaultVoiceC();
     end
     return voiceID or 0
 end
@@ -134,8 +138,10 @@ end
 function TTSUtil:SpeakCurrentContent()
     --removed StopSpeakingText as it is handeled different way
     local content = addon.DialogueUI:GetContentForTTS();
-    --get NPC gender
+    --get NPC actor voiceID
     local voiceID = self:GetVoiceIDForNPC();
+    --get Narrator voiceID
+    local voiceIDNarrator = self:GetDefaultVoiceC();
     --OK, there should be some hash calculation, but I am not good enough, so I just use content.body as quest identifier
     local id = content.body
     -- self.forceRead is set only when player clicks on the Play TTS button on the dialog
@@ -165,9 +171,8 @@ function TTSUtil:SpeakCurrentContent()
         end
         self.forceRead = nil;
     end
-    --if player wants to use narrator, queue different parts of quest for reading
-    if TTS_USE_NARRATOR then
-        local voiceIDNarrator = self:GetDefaultVoiceC();
+    --if player wants to use narrator and actor voice is not narrator, queue different parts of quest for reading
+    if TTS_USE_NARRATOR and voiceID ~= voiceIDNarrator then
         if TTS_CONTENT_QUEST_TITLE and content.title then   --Quest Title
             -- don't repeat quest title
             if not self.previousTitle or (self.previousTitle ~= content.title) then
