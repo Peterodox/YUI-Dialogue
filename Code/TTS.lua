@@ -10,12 +10,13 @@ local DESTINATION = Enum.VoiceTtsDestination and Enum.VoiceTtsDestination.LocalP
 -- User Settings
 local TTS_AUTO_PLAY = false;
 local TTS_STOP_WHEN_LEAVING = true;
-local TTS_STOP_ON_NEW = true;
+local TTS_STOP_ON_NEW = true;         --stop reading previous quest when new quest is available
 local TTS_CONTENT_QUEST_TITLE = true;
 local TTS_CONTENT_SPEAKER = false;
-local TTS_CONTENT_OBJECTIVE = false;
-local TTS_USE_NARRATOR = false;
-local TTS_SKIP_RECENT = false;
+local TTS_CONTENT_OBJECTIVE = false;  --read objectives
+local TTS_USE_NARRATOR = false;       --use narrator voice
+local TTS_SKIP_RECENT = false;        --skp reading recently read quest dialogs
+local TTS_HISTORY_DEPTH = 20;         --number of quest dialogs that will be skipped
 ------------------
 
 local UnitExists = UnitExists;
@@ -147,8 +148,6 @@ function TTSUtil:SpeakCurrentContent()
     -- self.forceRead is set only when player clicks on the Play TTS button on the dialog
     -- well, if player wants to skip recent texts and has autoplay enabled ...
     if self.forceRead or (TTS_SKIP_RECENT and TTS_AUTO_PLAY) then
-        -- number of quest dislogs that will be remembered
-        local historyDepth = 20
         if not self.history then
             self.history = { id };
         else
@@ -163,7 +162,7 @@ function TTSUtil:SpeakCurrentContent()
             --insert it into self.history
             table.insert(self.history, id)
             --remove older entries
-            while #self.history > historyDepth do
+            while #self.history > TTS_HISTORY_DEPTH do
                 table.remove(self.history, 1)
             end
             -- if found and player does not pressed the paly button manualy return
@@ -183,12 +182,12 @@ function TTSUtil:SpeakCurrentContent()
         if TTS_CONTENT_SPEAKER and content.speaker then     --NPC name
             -- don't repeat NPC name
             if not self.previousSpeaker or (self.previousSpeaker ~= content.speaker) then
-                self:QueueText(content.title.."\n", voiceIDNarrator, id);
+                self:QueueText(content.speaker.."\n", voiceIDNarrator, id);
             end
             self.previousSpeaker = content.speaker;
         end
         if content.body then
-            --for body (trima any spaces), search any text inside <> and queue it as narrator, otherwise use actor voiceID
+            --for body (trim any spaces), search any text inside <> and queue it as narrator, otherwise use actor voiceID
             local text = content.body:match("^%s*(.-)%s*$");
             local narrate = text:sub(1, 1) == "<";
             for segment in string.gmatch(text, "([^<>]+)") do
