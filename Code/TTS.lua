@@ -224,6 +224,8 @@ function TTSUtil:SpeakCurrentContent()
         if TTS_CONTENT_OBJECTIVE and content.objective then --Objective
             text = text .. "\n" .. content.objective;
         end
+        --remove any "<>" as TTS has problems reading it
+        text = text:gsub("<", ""):gsub(">", "");
         self:QueueText(text, voiceID, id);
     end
     -- force to readi quest title when speaking to the same npc when returning from the quest
