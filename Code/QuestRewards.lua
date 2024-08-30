@@ -254,7 +254,7 @@ local function BuildRewardList(questComplete)
 	if anyPreviousHeader then
 		anyPreviousHeader = false;
 		local header = REWARD_ITEMS;	--You will also receive
-		if header then
+		if header and totalRewards > 0 then		--totalRewards don't include Spell rewards
 			spellIndex = spellIndex + 1;
 			tinsert(rewardList, {header = header, order = spellIndex});
 		end

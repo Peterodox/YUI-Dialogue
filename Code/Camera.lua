@@ -251,8 +251,12 @@ function CameraUtil:MoveCameraToFinalPosition()
     SetCameraOverShoulder(offset);
 end
 
+function CameraUtil:ShouldUseOffset()
+    return self.isActive and self.cameraMode ~= 0
+end
+
 function CameraUtil:OnMountChanged()
-    if (not self.isActive) or (self.cameraMode == 0) then return end;
+    if not self:ShouldUseOffset()then return end;
 
     local changed;
 
@@ -260,7 +264,6 @@ function CameraUtil:OnMountChanged()
         if not self.isMounted then
             self:UpdateMounted();
             changed = true;
-
             --GetMountID();
         end
     else
@@ -278,7 +281,7 @@ end
 function CameraUtil:OnUIOrientationChanged()
     self:UpdateMounted();
 
-    if self.isActive and self.cameraMode ~= 0 then
+    if self:ShouldUseOffset() then
         self:MoveCameraToFinalPosition();
     end
 end
@@ -495,6 +498,8 @@ end
 
 function CameraUtil:Restore()
     self.isActive = false;
+    self:SetScript("OnUpdate", nil);
+    self:StopUpdatingForm();
 
     if not self:RestoreCVars() then
         return
@@ -508,7 +513,6 @@ function CameraUtil:Restore()
         self.fovChanged = nil;
     end
 
-    self:SetScript("OnUpdate", nil);
     FadeHelper:FadeInUI();
 
     if self.oldZoom then
@@ -867,9 +871,16 @@ do  --Update Parameters Based On Player Form
 
         if newOffset ~= FOCUS_SHOULDER_OFFSET then
             FOCUS_SHOULDER_OFFSET = newOffset;
-            if setToFinalValue then
+            if setToFinalValue and self:ShouldUseOffset() then
                 CameraUtil:MoveCameraToFinalPosition();
             end
+        end
+    end
+
+    function CameraUtil:StopUpdatingForm()
+        if self.updator then
+            self.updator.t = 0;
+            self.updator:SetScript("OnUpdate", nil);
         end
     end
 

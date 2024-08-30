@@ -59,6 +59,7 @@ local GetQuestReward = GetQuestReward;
 local SelectActiveQuest = SelectActiveQuest;        --QUEST_GREETING
 local SelectAvailableQuest = SelectAvailableQuest;  --QUEST_GREETING
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
+local GetQuestItemLink = GetQuestItemLink;
 
 
 local MAJOR_FACTION_REPUTATION_REWARD_ICON_FORMAT = [[Interface\Icons\UI_MajorFaction_%s]];
@@ -1498,28 +1499,40 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
 
     local name, texture, count, quality, isUsable, itemID, questRewardContextFlags = GetQuestItemInfo(questInfoType, index);    --no itemID in Classic; questRewardContextFlags TWW
 
+    if not itemID then
+        local link = GetQuestItemLink(questInfoType, index);    --For Classic
+        if link then
+            itemID = API.GetItemIDFromHyperlink(link);
+        end
+    end
+
     self.itemID = itemID;
     self.rewardAmount = count;
     self.Icon:SetTexture(texture);
     self:SetItemName(name, quality);
     self:SetItemCount(count);
 
+    local isEquippable = itemID and IsEquippableItem(itemID);
     local itemOverlayID;
 
     if not isUsable then
         itemOverlayID = "alert";
     elseif itemID and IsCosmeticItem(itemID) then
         itemOverlayID = "cosmetic";
-    elseif itemID and IsEquippableItem(itemID) then
+    elseif itemID and isEquippable then
         itemOverlayID = quality;
     else
         itemOverlayID = quality;
     end
 
-    if count == 1 and API.IsRewardItemUpgrade(questInfoType, index) then
+    if isEquippable then
         --Equipment's count is always 1. No itemID in Classic
-        local playAnimation = addon.DialogueUI:IsChoosingReward();
-        self:ShowUpgradeIcon(playAnimation);
+        --Inventory Itemlink may not be immediately available
+        self.isEquippable = true;
+        API.IsRewardItemUpgrade(questInfoType, index);
+        addon.DialogueUI:RequestItemUpgrade();
+    else
+        self.isEquippable = nil;
     end
 
     self:SetItemOverlay(itemOverlayID);
