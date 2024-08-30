@@ -110,10 +110,12 @@ end
 
 function TTSUtil:GetVoiceIDForNPC()
     local voiceID;
-    if UnitExists("npc") then
-        if UnitSex("npc") == 2 then
+    --added questnpc for remote quests
+    if UnitExists("questnpc") or  UnitExists("npc") then
+        local unitSex = UnitSex("questnpc") or UnitSex("npc")
+        if unitSex == 2 then
             voiceID = self:GetDefaultVoiceA();
-        elseif UnitSex("npc") == 3 then
+        elseif unitSex == 3 then
             voiceID = self:GetDefaultVoiceB();
         else
             --use Narrator
