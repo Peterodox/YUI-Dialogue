@@ -12,6 +12,11 @@ local AutoSelectGossip = {
     [107827] = 1,           --Trading Post
     [107825] = 1,           --Trading Post
     [107826] = 1,           --Trading Post
+
+    [123145] = 1,           --Scouting Map, Dornagal
+    [123493] = 1,           --Delver's Guide, Dornagal
+    [122660] = 1,           --Explorers' League Supplies, Dornagal
+    [120910] = 1,           --Breem, Dornagal Flight Master
 };
 
 local function IsAutoSelectOption(gossipOptionID, onlyOption)

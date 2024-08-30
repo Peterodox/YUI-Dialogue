@@ -1126,8 +1126,9 @@ function DUIDialogBaseMixin:HandleGossip()
     end
 
     local autoSelectGossip = GetDBBool("AutoSelectGossip");
+    local onlyOption = #options == 1;
 
-    if (not GetDBBool("ForceGossip")) and (not anyQuest) and (#options == 1) and (not ForceGossip()) then
+    if (not GetDBBool("ForceGossip")) and (not anyQuest) and (onlyOption) and (not ForceGossip()) then
         if options[1].selectOptionWhenOnlyOption then
             C_GossipInfo.SelectOptionByIndex(options[1].orderIndex);
             return false
@@ -1140,9 +1141,9 @@ function DUIDialogBaseMixin:HandleGossip()
         end
     end
 
-    if autoSelectGossip then
+    if (not anyQuest) and autoSelectGossip then
         for i, data in ipairs(options) do
-            if IsAutoSelectOption(data.gossipOptionID) then
+            if IsAutoSelectOption(data.gossipOptionID, onlyOption) then
                 C_GossipInfo.SelectOption(data.gossipOptionID);
                 API.PrintMessage(L["Auto Select"], data.name);
                 return false
@@ -1885,6 +1886,21 @@ function DUIDialogBaseMixin:FlashRewardChoices()
             button:PlaySheen();
         end
     end
+end
+
+function DUIDialogBaseMixin:RequestItemUpgrade()
+    if self.isRequestingItemLevel then return end;
+    self.isRequestingItemLevel = true;
+
+    After(0.25, function()
+        self.isRequestingItemLevel = nil;
+        local playAnimation = self:IsChoosingReward();
+        self.itemButtonPool:ProcessActiveObjects(function(button)
+            if button.isEquippable and button.objectType == "item" and button.type and button.index and API.IsRewardItemUpgrade(button.type, button.index) then
+                button:ShowUpgradeIcon(playAnimation);
+            end
+        end);
+    end);
 end
 
 function DUIDialogBaseMixin:RequestSellPrice(isRequery)

@@ -963,6 +963,7 @@ do
         191140,     --Bronze Timepiece
         227450,     --Sky Racer's Purse
         212493,     --Odd Glob of Wax
+        228361,     --Adventurer's Cache
     };
 
     for _, itemID in ipairs(Items) do

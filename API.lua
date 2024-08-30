@@ -1933,8 +1933,8 @@ do  -- Tooltip
 
 
     local function GetItemLevelDelta(newItem, oldItem, formatedToText)
-        local newItemLevel = API.GetItemLevel(newItem);
-        local oldItemLevel = API.GetItemLevel(oldItem);
+        local newItemLevel = API.GetItemLevel(newItem) or 0;
+        local oldItemLevel = API.GetItemLevel(oldItem) or 0;
         local diff = newItemLevel - oldItemLevel;
 
         if formatedToText then
@@ -1955,14 +1955,26 @@ do  -- Tooltip
 
         if not (newLink and API.IsEquippableItem(newLink)) then return 0 end;
         local link1, link2 = GetEquippedItemLink(newLink);
-        local newItemLevel = API.GetItemLevel(newLink);
+        local newItemLevel = API.GetItemLevel(newLink) or 0;
         local level1 = API.GetItemLevel(link1);
         local level2 = API.GetItemLevel(link2);
-
-        if level1 > level2 then
-            return newItemLevel - level2
+        --print(newItemLevel, level1, level2)
+        if not (level1 or level2) then
+            return newItemLevel
         else
-            return newItemLevel - level1
+            if level1 then
+                if level2 then
+                    if level1 > level2 then
+                        return newItemLevel - level2
+                    else
+                        return newItemLevel - level1
+                    end
+                else
+                    return newItemLevel - level1
+                end
+            else
+                return newItemLevel - level2
+            end
         end
     end
     API.GetMaxEquippedItemLevelDelta = GetMaxEquippedItemLevelDelta;
@@ -2396,8 +2408,6 @@ do  -- Items
     local function _GetItemLevel(item)
         if item then
             return GetItemLevel(item) or 0
-        else
-            return 0
         end
     end
     API.GetItemLevel = _GetItemLevel;
