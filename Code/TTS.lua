@@ -1,3 +1,8 @@
+-- Narrator (Use VoiceC for Quest objective, <Enclosed Text>) is contributed by https://github.com/BelegCufea
+
+
+
+
 local _, addon = ...
 local CallbackRegistry = addon.CallbackRegistry;
 
@@ -68,8 +73,9 @@ function TTSUtil:ProcessQueue()
     end
 end
 
--- Added voice for the text to be read with and some id for dialog the text belong to as there could be more segments of text to be read from the same quest
-function TTSUtil:QueueText(text, voiceID, id)
+-- Added voice for the text to be read with and some identifier for dialog the text belong to as there could be more segments of text to be read from the same quest
+function TTSUtil:QueueText(text, voiceID, identifier)
+    --"identifier" determines which quest/gossip the queued text belongs to
     if not self.queue then
         self.queue = {};
     end
@@ -77,17 +83,17 @@ function TTSUtil:QueueText(text, voiceID, id)
     if TTS_STOP_ON_NEW then
         -- remove every entry from speech queue that does not belong to the same quest
         for i = #self.queue, 1, -1 do
-            if self.queue[i].id ~= id then
+            if self.queue[i].identifier ~= identifier then
                 table.remove(self.queue, i)
             end
         end
         -- if TTS is currently reading and currentle read segment (self.nextSegment) does not belog to the same quest, stop reading
-        if self:IsSpeaking() and self.nextSegment and self.nextSegment.id ~= id then
+        if self:IsSpeaking() and self.nextSegment and self.nextSegment.identifier ~= identifier then
             StopSpeakingText();
         end
     end
     -- insert new entry into queue
-    table.insert(self.queue, { text = text, voiceID = voiceID, id = id });
+    table.insert(self.queue, { text = text, voiceID = voiceID, identifier = identifier });
     self.t = -0.75;
     self:SetScript("OnUpdate", self.OnUpdate_InitialDelay);
 end
@@ -111,18 +117,16 @@ end
 function TTSUtil:GetVoiceIDForNPC()
     local voiceID;
     --added questnpc for remote quests
-    if UnitExists("questnpc") or  UnitExists("npc") then
+    if UnitExists("questnpc") or UnitExists("npc") then
         local unitSex = UnitSex("questnpc") or UnitSex("npc")
         if unitSex == 2 then
             voiceID = self:GetDefaultVoiceA();
         elseif unitSex == 3 then
             voiceID = self:GetDefaultVoiceB();
         else
-            --use Narrator
             voiceID = self:GetDefaultVoiceC();
         end
     else
-        --use Narrator
         voiceID = self:GetDefaultVoiceC();
     end
     return voiceID or 0
@@ -132,59 +136,56 @@ function TTSUtil:SpeakText(segment)
     if not segment then return end;
 
     self:UpdateTTSSettings();
-
     self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
-    --send the segment.text to the WoW TTS using segment.voiceID
+
     C_VoiceChat.SpeakText(segment.voiceID, segment.text, self.destination, self.rate, self.volume);
 end
 
 function TTSUtil:SpeakCurrentContent()
-    --removed StopSpeakingText as it is handeled different way
     local content = addon.DialogueUI:GetContentForTTS();
-    --get NPC actor voiceID
     local voiceID = self:GetVoiceIDForNPC();
-    --get Narrator voiceID
     local voiceIDNarrator = self:GetDefaultVoiceC();
-    --OK, there should be some hash calculation, but I am not good enough, so I just use content.body as quest identifier
-    local id = content.body
+
+    local identifier = content.body;
+
     -- self.forceRead is set only when player clicks on the Play TTS button on the dialog
     -- well, if player wants to skip recent texts and has autoplay enabled ...
     if self.forceRead or (TTS_SKIP_RECENT and TTS_AUTO_PLAY) then
         if not self.history then
-            self.history = { id };
+            self.history = { identifier };
         else
             --search fif the same text was read recently
             local found = false;
             for _, v in ipairs(self.history) do
-                if v == id then
+                if v == identifier then
                     found = true;
                     break;
                 end
             end
             --insert it into self.history
-            table.insert(self.history, id)
+            table.insert(self.history, identifier)
             --remove older entries
             while #self.history > TTS_HISTORY_DEPTH do
                 table.remove(self.history, 1)
             end
-            -- if found and player does not pressed the paly button manualy return
+            -- if found and player didn't press the play button manually then return
             if found and not self.forceRead then return end
         end
         self.forceRead = nil;
     end
-    --if player wants to use narrator and actor voice is not narrator, queue different parts of quest for reading
+    --if player wants to use narrator and the current voice is not narrator, queue different parts of quest for reading
     if TTS_USE_NARRATOR and voiceID ~= voiceIDNarrator then
         if TTS_CONTENT_QUEST_TITLE and content.title then   --Quest Title
             -- don't repeat quest title
             if not self.previousTitle or (self.previousTitle ~= content.title) then
-                self:QueueText(content.title.."\n", voiceIDNarrator, id);
+                self:QueueText(content.title.."\n", voiceIDNarrator, identifier);
             end
             self.previousTitle = content.title;
         end
         if TTS_CONTENT_SPEAKER and content.speaker then     --NPC name
             -- don't repeat NPC name
             if not self.previousSpeaker or (self.previousSpeaker ~= content.speaker) then
-                self:QueueText(content.speaker.."\n", voiceIDNarrator, id);
+                self:QueueText(content.speaker.."\n", voiceIDNarrator, identifier);
             end
             self.previousSpeaker = content.speaker;
         end
@@ -194,15 +195,15 @@ function TTSUtil:SpeakCurrentContent()
             local narrate = text:sub(1, 1) == "<";
             for segment in string.gmatch(text, "([^<>]+)") do
                 if narrate then
-                    self:QueueText(segment, voiceIDNarrator, id);
+                    self:QueueText(segment, voiceIDNarrator, identifier);
                 else
-                    self:QueueText(segment, voiceID, id);
+                    self:QueueText(segment, voiceID, identifier);
                 end
                 narrate = not narrate;
             end
         end
         if TTS_CONTENT_OBJECTIVE and content.objective then --Objective
-            self:QueueText(content.objective, voiceIDNarrator, id);
+            self:QueueText(content.objective, voiceIDNarrator, identifier);
         end
     else
         local text = content.body or "";
@@ -227,10 +228,10 @@ function TTSUtil:SpeakCurrentContent()
             text = text .. "\n" .. content.objective;
         end
         --remove any "<>" as TTS has problems reading it
-        text = text:gsub("<", ""):gsub(">", "");
-        self:QueueText(text, voiceID, id);
+        text = text:gsub("[<>]", "");
+        self:QueueText(text, voiceID, identifier);
     end
-    -- force to readi quest title when speaking to the same npc when returning from the quest
+    -- force to read quest title when speaking to the same npc when returning from the quest
     if content.objective then
         self.previousTitle = nil;
     end
@@ -244,7 +245,7 @@ function TTSUtil:ToggleSpeaking()
     if self:IsSpeaking() then
         self:StopLastTTS();
     else
-        --teher is the forced reading of text when player pushes paly button, so it may override history hwen TTS_SKIP_RECENT is enabled
+        --there is the forced reading of text when player pushes Play button, so it may override history when TTS_SKIP_RECENT is enabled
         self.forceRead = true;
         self:SpeakCurrentContent();
     end
@@ -271,8 +272,7 @@ function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_FINISHED(numConsumers, utteranceID, des
     self:UnregisterEvent("VOICE_CHAT_TTS_PLAYBACK_FINISHED");
     if TTSButton then
         TTSButton.AnimWave:Stop();
-        --Well, ehm ... just process next segment from self.queue, really I don't know how to do it better
-        self:ProcessQueue()
+        self:ProcessQueue();
     end
 end
 
@@ -290,10 +290,13 @@ function TTSUtil:EnableModule(state)
         self:SetScript("OnEvent", self.OnEvent);
     elseif self.isEnabled then
         self.isEnabled = false;
+        self.previousSpeaker = nil;
+        self.previousTitle = nil;
+        self:StopLastTTS();
+        self:VOICE_CHAT_TTS_PLAYBACK_FINISHED();
         self:UnregisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
         self:UnregisterEvent("VOICE_CHAT_TTS_PLAYBACK_FINISHED");
         self:SetScript("OnEvent", nil);
-        self:StopLastTTS()
     end
 end
 
@@ -502,7 +505,7 @@ do  --Voice List
             return FALLBACK_VOICE_ID
         end
     end
-    -- get narrator voice
+
     function TTSUtil:GetDefaultVoiceC()
         local voiceID = GetDBValue("TTSVoiceNarrator");
         if self:IsVoiceIDValid(voiceID) then
@@ -548,7 +551,6 @@ end
 do  --CallbackRegistry
     local function OnHandleEvent(event)
         if TTSUtil.isEnabled then
-            --removed TTSUtil:StopLastTTS() as it is handeled elsewhere
             if TTS_AUTO_PLAY then
                 TTSUtil:SpeakCurrentContent();
             end
@@ -557,8 +559,12 @@ do  --CallbackRegistry
     CallbackRegistry:Register("DialogueUI.HandleEvent", OnHandleEvent);
 
     local function InteractionClosed()
-        if TTSUtil.isEnabled and TTS_STOP_WHEN_LEAVING then
-            TTSUtil:StopLastTTS();
+        if TTSUtil.isEnabled then
+            TTSUtil.previousSpeaker = nil;
+            TTSUtil.previousTitle = nil;
+            if TTS_STOP_WHEN_LEAVING then
+                TTSUtil:StopLastTTS();
+            end
         end
     end
     CallbackRegistry:Register("DialogueUI.Hide", InteractionClosed);
@@ -578,6 +584,7 @@ do  --CallbackRegistry
         TTS_STOP_WHEN_LEAVING = dbValue == true;
     end
     CallbackRegistry:Register("SettingChanged.TTSAutoStop", Settings_TTSAutoStop);
+
     --"Stop reading old text when opening new dialog"
     local function Settings_TTSStopOnNew(dbValue)
         TTS_STOP_ON_NEW = dbValue == true;
@@ -590,6 +597,7 @@ do  --CallbackRegistry
             TTSUtil:PlaySample(voiceID);
         end
     end
+
     --"Use anrrator voice for quest titles, npc names, objectives and any text in <> in the body"
     local function Settings_TTSUseNarrator(dbValue)
         TTS_USE_NARRATOR = dbValue == true;
@@ -651,6 +659,7 @@ do  --CallbackRegistry
         end
     end
     CallbackRegistry:Register("SettingChanged.TTSContentSpeaker", Settings_TTSContentSpeaker);
+
     --"Read Quest Objectives"
     local function Settings_TTSContentObjective(dbValue, userInput)
         TTS_CONTENT_OBJECTIVE = dbValue == true;
@@ -659,6 +668,7 @@ do  --CallbackRegistry
         end
     end
     CallbackRegistry:Register("SettingChanged.TTSContentObjective", Settings_TTSContentObjective);
+
     --"Skip recently read quest"
     local function Settings_TTSSkipRecent(dbValue, userInput)
         TTS_SKIP_RECENT = dbValue == true;

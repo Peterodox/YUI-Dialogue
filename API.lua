@@ -2573,6 +2573,8 @@ do  -- Spell
 end
 
 do  -- Time -- Date
+    local time = time;
+
     local D_DAYS = D_DAYS or "%d |4Day:Days;";
     local D_HOURS = D_HOURS or "%d |4Hour:Hours;";
     local D_MINUTES = D_MINUTES or "%d |4Minute:Minutes;";
@@ -2680,6 +2682,18 @@ do  -- Time -- Date
         return format("%s:%02d", floor(seconds / 60), floor(seconds % 60))
     end
     API.SecondsToClock = SecondsToClock;
+
+
+    local REF_TIME;
+    local function GetRelativeTime()
+        if not REF_TIME then
+            REF_TIME = time();
+            return 0
+        end
+
+        return time() - REF_TIME
+    end
+    API.GetRelativeTime = GetRelativeTime;
 end
 
 do  -- System

@@ -1657,6 +1657,7 @@ end
 function DUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self.dynamicResize = true;
     self.objectType = "spell";
+    self.type = "reward";
     self.spellID = spellID;
     self.itemID = nil;
     self.currencyID = nil;
@@ -1677,6 +1678,7 @@ end
 function DUIDialogItemButtonMixin:SetRewardSkill(skillIcon, skillPoints, skillName, skillLineID)
     self.dynamicResize = true;
     self.objectType = "skill";
+    self.type = "reward";
     self.spellID = nil;
     self.itemID = nil;
     self.skillLineID = skillLineID;
@@ -1693,6 +1695,7 @@ end
 function DUIDialogItemButtonMixin:SetRewardTitle(titleName)
     self.dynamicResize = true;
     self.objectType = "title";
+    self.type = "reward";
     self.spellID = nil;
     self.itemID = nil;
 
@@ -1721,6 +1724,7 @@ function DUIDialogItemButtonMixin:SetRewardHonor(honor)
 
     self.dynamicResize = true;
     self.objectType = "honor";
+    self.type = "reward";
     self.spellID = nil;
     self.itemID = nil;
 
@@ -1739,6 +1743,7 @@ function DUIDialogItemButtonMixin:SetRewardFollower(followerID)
 
     self.dynamicResize = true;
     self.objectType = "follower";
+    self.type = "reward";
     self.spellID = nil;
     self.itemID = nil;
     self.followerID = followerID;
