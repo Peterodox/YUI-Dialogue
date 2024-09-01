@@ -3,7 +3,14 @@ local API = addon.API;
 local ThemeUtil = addon.ThemeUtil;
 local FontUtil = addon.FontUtil;
 
+
 local BG_MAX_SIZE = 340;
+local MAX_BUTTON_PER_PAGE = 8;
+local BUTTON_TEXT_OFFSET_X = 12;
+local BUTTON_PUSH_OFFSET = 1;
+local BUTTON_HEIGHT = 24;
+local BUTTON_MIN_WIDTH = 192;
+local MENU_BUTTON_PADDING = 8;  --Padding (Top/Bottom)
 
 local MainDropdownMenu;
 
@@ -16,9 +23,6 @@ end
 addon.CloseDropdownMenu = CloseDropdownMenu;
 
 
-
-local BUTTON_TEXT_OFFSET_X = 12;
-local BUTTON_PUSH_OFFSET = 1;
 local MenuButtonMixin = {};
 
 function MenuButtonMixin:OnLoad()
@@ -102,8 +106,8 @@ local function CreateMenuButton(parent)
 
     b:OnLoad();
 
-    b:SetWidth(192);
-    b:SetHeight(24);
+    b:SetWidth(BUTTON_MIN_WIDTH);
+    b:SetHeight(BUTTON_HEIGHT);
 
     return b
 end
@@ -138,19 +142,29 @@ end
 function DropdownMenuMixin:LoadTheme()
     local filePath = ThemeUtil:GetTexturePath();
 
-    self.Border:SetTexture(filePath.."DropdownMenu-Component.png");
+    local file1 = filePath.."DropdownMenu-Component.png";
+    self.Border:SetTexture(file1);
     self.Background:SetTexture(filePath.."DropdownMenu-Background.jpg");
     self.ButtonHighlight.BackTexture:SetTexture(filePath.."Settings-ButtonHighlight.png");
 
-    self.BottomShadow.Left:SetTexture(filePath.."DropdownMenu-Component.png");
-    self.BottomShadow.Center:SetTexture(filePath.."DropdownMenu-Component.png");
-    self.BottomShadow.Right:SetTexture(filePath.."DropdownMenu-Component.png");
+    self.BottomShadow.Left:SetTexture(file1);
+    self.BottomShadow.Center:SetTexture(file1);
+    self.BottomShadow.Right:SetTexture(file1);
     self.BottomShadow.Left:SetTexCoord(0, 32/1024, 136/512, 265/512);
     self.BottomShadow.Center:SetTexCoord(32/1024, 304/1024, 136/512, 265/512);
     self.BottomShadow.Right:SetTexCoord(304/1024, 336/1024, 136/512, 265/512);
 
-    self.SelectedIcon.Texture:SetTexture(filePath.."DropdownMenu-Component.png");
+    self.SelectedIcon.Texture:SetTexture(file1);
     self.SelectedIcon.Texture:SetTexCoord(0, 64/1024, 272/512, 336/512);
+
+    self.PageNav.Background:SetTexture(file1);
+    self.PageNav.Background:SetTexCoord(0, 192/1024, 336/512, 384/512);
+
+    local arrowTexture = filePath.."Settings-ArrowOption.png";
+    self.PageNav.LeftArrow.Texture:SetTexture(arrowTexture);
+    self.PageNav.LeftArrow.Highlight:SetTexture(arrowTexture);
+    self.PageNav.RightArrow.Texture:SetTexture(arrowTexture);
+    self.PageNav.RightArrow.Highlight:SetTexture(arrowTexture);
 end
 
 function DropdownMenuMixin:HighlightButton(button)
@@ -235,6 +249,9 @@ function DropdownMenuMixin:OnHide()
     self:SetParent(nil);
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
 
+    self.OwnerScrollArea:Hide();
+    self.OwnerScrollArea:ClearAllPoints();
+
     if self.owner then
         if self.owner.OnMenuClosed then
             self.owner:OnMenuClosed();
@@ -256,27 +273,111 @@ function DropdownMenuMixin:SetMenuData(menuData)
     self:Release();
 
     local total = menuData and #menuData.buttons or 0;
+    local maxPage = math.ceil(total / MAX_BUTTON_PER_PAGE);
+    self.menuData = menuData;
 
-    local padding = 8;
     local minMenuWidth = self.owner and (self.owner:GetWidth() + 4);
     local buttonWidth = menuData.buttonWidth or minMenuWidth or (self:GetWidth());
     buttonWidth = API.Round(buttonWidth);
-    local buttonHeight = menuData.buttonHeight or 24;
-
+    local buttonHeight = menuData.buttonHeight or BUTTON_HEIGHT;
     local menuWidth = API.Round(minMenuWidth);
+
+    self.buttonWidth = buttonWidth;
+    self.buttonHeight = buttonHeight;
+    self.menuWidth = menuWidth;
+
+    local bestPage = 1;
 
     if total > 0 then
         local selectedID = menuData.selectedID;
-        local fitWidth = menuData.fitWidth == true;
-        local autoScaling = menuData.autoScaling == true;
-        local matchFound = selectedID == nil;
-        local textWidth;
-        local maxTextWidth = 0;
+        if selectedID ~= nil then
+            for i, data in ipairs(menuData.buttons) do
+                if data.id == selectedID then
+                    bestPage = math.ceil(i / MAX_BUTTON_PER_PAGE);
+                    break
+                end
+            end
+        end
+    else
+        total = 2;
+        self:Hide();    --TEMP
+        return
+    end
 
-        for i, data in ipairs(menuData.buttons) do
+    self.totalButtons = total;
+    self:SetMaxPage(maxPage);
+    self:SetPage(bestPage);
+end
+
+function DropdownMenuMixin:SetMaxPage(maxPage)
+    local scrollable = maxPage > 1;
+    self.maxPage = maxPage;
+    self.OwnerScrollArea:ClearAllPoints();
+    if scrollable then
+        self:SetScript("OnMouseWheel", self.OnMouseWheel);
+        self.PageNav:Show();
+        self.scrollable = true;
+        if self.owner then
+            self.OwnerScrollArea:SetPoint("TOPLEFT", self.owner, "TOPLEFT", 0, 0);
+            self.OwnerScrollArea:SetPoint("BOTTOMRIGHT", self.owner, "BOTTOMRIGHT", 0, 0);
+            self.OwnerScrollArea:Show();
+        else
+            self.OwnerScrollArea:Hide();
+        end
+    else
+        self:SetScript("OnMouseWheel", nil);
+        self.PageNav:Hide();
+        self.scrollable = false;
+        self.OwnerScrollArea:Hide();
+    end
+end
+
+local function EnableArrowButton(arrowButton, enable)
+    if enable then
+        arrowButton:Enable();
+        arrowButton.Texture:SetAlpha(1);
+    else
+        arrowButton:Disable();
+        arrowButton.Texture:SetAlpha(0);
+    end
+end
+
+function DropdownMenuMixin:SetPage(page)
+    if page < 0 or page > self.maxPage then
+        page = 1;
+    end
+
+    self.page = page;
+    self.PageNav.PageText:SetText(page.." / "..self.maxPage);
+
+    local menuData = self.menuData;
+    if not menuData then
+        self:Hide();
+        return
+    end
+
+    EnableArrowButton(self.PageNav.LeftArrow, page > 1);
+    EnableArrowButton(self.PageNav.RightArrow, page < self.maxPage);
+
+    local buttonWidth = self.buttonWidth;
+    local buttonHeight = self.buttonHeight;
+    local selectedID = menuData.selectedID;
+    local fitWidth = menuData.fitWidth == true;
+    local autoScaling = menuData.autoScaling == true;
+    local matchFound = selectedID == nil;
+    local textWidth;
+    local maxTextWidth = 0;
+    local menuWidth = self.menuWidth;
+    local fromIndex = (page - 1) * MAX_BUTTON_PER_PAGE;
+
+    self:Release();
+
+    for i = 1, MAX_BUTTON_PER_PAGE do
+        local data = menuData.buttons[i + fromIndex];
+        if data then
             local button = self:AcquireButton();
             button:SetParent(self);
-            button:SetPoint("TOP", self, "TOP", 0, -padding + (1- i) * buttonHeight);
+            button:SetPoint("TOP", self, "TOP", 0, -MENU_BUTTON_PADDING + (1- i) * buttonHeight);
             button:SetSize(buttonWidth, buttonHeight);
             textWidth = button:SetButtonText(data.name, autoScaling, fitWidth);
             button.id = data.id;
@@ -292,22 +393,42 @@ function DropdownMenuMixin:SetMenuData(menuData)
             if textWidth and textWidth > maxTextWidth then
                 maxTextWidth = textWidth;
             end
+        else
+            break
         end
-
-        if fitWidth then
-            menuWidth = math.max(minMenuWidth, maxTextWidth + 2*BUTTON_TEXT_OFFSET_X);
-            self.buttonPool:ProcessActiveObjects(
-                function(menuButton)
-                    menuButton:SetWidth(menuWidth);
-                end
-            );
-        end
-    else
-        total = 2;
-        self:Hide();    --TEMP
     end
 
-    self:SetSize(menuWidth, total * buttonHeight + 2*padding);
+    if fitWidth then
+        menuWidth = math.max(menuWidth, maxTextWidth + 2*BUTTON_TEXT_OFFSET_X);
+        self.buttonPool:ProcessActiveObjects(
+            function(menuButton)
+                menuButton:SetWidth(menuWidth);
+            end
+        );
+    end
+
+    local footerHeight, numButtons;
+    if self.scrollable then
+        footerHeight = BUTTON_HEIGHT;
+        numButtons = MAX_BUTTON_PER_PAGE;
+    else
+        footerHeight = MENU_BUTTON_PADDING;
+        numButtons = self.totalButtons;
+    end
+
+    self:SetSize(menuWidth, numButtons * buttonHeight + footerHeight + MENU_BUTTON_PADDING);
+end
+
+function DropdownMenuMixin:OnMouseWheel(delta)
+    if delta > 0 then
+        if self.page > 1 then
+            self:SetPage(self.page - 1);
+        end
+    elseif delta < 0 then
+        if self.page < self.maxPage then
+            self:SetPage(self.page + 1);
+        end
+    end
 end
 
 function DropdownMenuMixin:AcquireButton()
@@ -321,6 +442,24 @@ local function CreateDropdownMenu(parent)
     local f = CreateFrame("Frame", nil, parent, "DUIDropdownMenuTemplate");
     f:Hide();
     API.Mixin(f, DropdownMenuMixin);
+
+
+    local function PageArrow_OnClick(self)
+        f:OnMouseWheel(self.delta);
+    end
+
+    --The NavArrow here mainly serves as a visual indicator
+    --Its position may shift due to "fitWidth"
+    local nav = f.PageNav;
+    local centerHalfWidth = 32;
+    nav.LeftArrow:ClearAllPoints();
+    nav.RightArrow:ClearAllPoints();
+    nav.LeftArrow:SetScript("OnClick", PageArrow_OnClick);
+    nav.RightArrow:SetScript("OnClick", PageArrow_OnClick);
+    nav.LeftArrow:SetPoint("CENTER", nav, "CENTER", -centerHalfWidth, 0);
+    nav.RightArrow:SetPoint("CENTER", nav, "CENTER", centerHalfWidth, 0);
+    nav.Background:SetSize(4*BUTTON_HEIGHT, BUTTON_HEIGHT);
+
     f:LoadTheme();
     f:OnSizeChanged();
     f:SetScript("OnSizeChanged", f.OnSizeChanged);
@@ -330,6 +469,16 @@ local function CreateDropdownMenu(parent)
     f:SetScript("OnEvent", f.OnEvent);
     f:UpdatePixel();
     addon.PixelUtil:AddPixelPerfectObject(f);
+
+
+    --Scroll on the DropdownButton will propagate to the menu
+    local OwnerScrollArea = CreateFrame("Frame", nil, f);
+    OwnerScrollArea:Hide();
+    f.OwnerScrollArea = OwnerScrollArea;
+    OwnerScrollArea:SetScript("OnMouseWheel", function(_, delta)
+        f:OnMouseWheel(delta);
+    end);
+
     return f
 end
 

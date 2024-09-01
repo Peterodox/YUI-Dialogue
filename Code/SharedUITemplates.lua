@@ -2284,7 +2284,7 @@ do
         self.Icon:SetTexture(ICON_PATH.."ItemIsUpgrade.png");
         self.Icon:SetPoint("CENTER", self, "CENTER", 0, 0);
         if playAnimation then
-            self.t = -0.8;
+            self.t = -0.5;
             self.alpha = 0;
             self.fromY = -12;
             self.toY = 0;

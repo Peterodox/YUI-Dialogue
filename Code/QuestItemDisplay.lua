@@ -964,6 +964,7 @@ do
         227450,     --Sky Racer's Purse
         212493,     --Odd Glob of Wax
         228361,     --Adventurer's Cache
+        229899,     --Coffer Key Shard
     };
 
     for _, itemID in ipairs(Items) do

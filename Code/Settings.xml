@@ -195,6 +195,90 @@
                     </Layer>
                 </Layers>
             </Frame>
+            <Frame parentKey="PageNav" hidden="true">
+                <Size y="24"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <Texture parentKey="Background">
+                            <Size x="96" y="24"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="PageText" inherits="DUIFont_Item" justifyH="CENTER" justifyV="MIDDLE" text="1 / 1">
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Button parentKey="LeftArrow">
+                        <KeyValues>
+                            <KeyValue key="delta" value="1" type="number"/>
+                        </KeyValues>
+                        <Size x="18" y="18"/>
+                        <Anchors>
+                            <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="-32"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Texture">
+                                    <Size x="14" y="14"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                    <TexCoords left="0.5" right="0" top="0" bottom="0.5"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="HIGHLIGHT">
+                                <Texture parentKey="Highlight">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.Texture" relativePoint="TOPLEFT"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Texture" relativePoint="BOTTOMRIGHT"/>
+                                    </Anchors>
+                                    <TexCoords left="1" right="0.5" top="0" bottom="0.5"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                    <Button parentKey="RightArrow">
+                        <KeyValues>
+                            <KeyValue key="delta" value="-1" type="number"/>
+                        </KeyValues>
+                        <Size x="18" y="18"/>
+                        <Anchors>
+                            <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="32"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture parentKey="Texture">
+                                    <Size x="14" y="14"/>
+                                    <Anchors>
+                                        <Anchor point="CENTER"/>
+                                    </Anchors>
+                                    <TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="HIGHLIGHT">
+                                <Texture parentKey="Highlight">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeKey="$parent.Texture" relativePoint="TOPLEFT"/>
+                                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Texture" relativePoint="BOTTOMRIGHT"/>
+                                    </Anchors>
+                                    <TexCoords left="0.5" right="1" top="0" bottom="0.5"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </Button>
+                </Frames>
+            </Frame>
         </Frames>
     </Frame>
 
