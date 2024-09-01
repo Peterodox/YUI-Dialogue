@@ -607,8 +607,8 @@ local Schematic = { --Scheme
                 },
             },
             {type = "Subheader", name = L["TTS Include Content"], parentKey = "TTSEnabled", requiredParentValue = true},
-            {type = "Checkbox", name = L["TTS Content NPC Name"], dbKey = "TTSContentSpeaker", parentKey = "TTSEnabled", requiredParentValue = true},
-            {type = "Checkbox", name = L["TTS Content Quest Name"], dbKey = "TTSContentQuestTitle", parentKey = "TTSEnabled", requiredParentValue = true},
+            {type = "Checkbox", name = L["TTS Content NPC Name"], dbKey = "TTSContentSpeaker", parentKey = "TTSEnabled", requiredParentValue = true, branchLevel = 2},
+            {type = "Checkbox", name = L["TTS Content Quest Name"], dbKey = "TTSContentQuestTitle", parentKey = "TTSEnabled", requiredParentValue = true, branchLevel = 2},
         },
     },
 };
@@ -1273,12 +1273,14 @@ function DUIDialogSettingsOptionMixin:SetData(optionData)
     local nameOffset;
 
     if optionData.parentKey then
-        nameOffset = OPTIONBUTTON_LABEL_OFFSET + 24;
         local branch = MainFrame.texturePool:Acquire();
-        branch:SetSize(OPTIONBUTTON_HEIGHT*0.5, OPTIONBUTTON_HEIGHT*0.5);
+        local branchLevel = optionData.branchLevel or 1;
+        local branchWidth = OPTIONBUTTON_HEIGHT*0.5;
+        nameOffset = OPTIONBUTTON_LABEL_OFFSET + branchLevel * (branchWidth*0.5 + 10)
+        branch:SetSize(branchWidth, OPTIONBUTTON_HEIGHT*0.5);
         branch:SetTexture(ThemeUtil:GetTextureFile("Settings-SubOptionIcon.png"));
         branch:SetVertexColor(1, 1, 1, 0.5);
-        branch:SetPoint("BOTTOM", self, "LEFT", OPTIONBUTTON_LABEL_OFFSET + 2, 0);
+        branch:SetPoint("BOTTOMRIGHT", self, "LEFT", nameOffset - 8, 0);
         branch:SetParent(self);
     else
         nameOffset = OPTIONBUTTON_LABEL_OFFSET;
