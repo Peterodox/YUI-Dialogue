@@ -49,13 +49,18 @@ local DefaultValues = {
     TTSEnabled = false,
         TTSUseHotkey = true,    --Default key R
         TTSAutoPlay = false,
+        TTSSkipRecent = false,  --Skip recently read texts
         TTSAutoStop = true,     --Stop when leaving
+        TTSStopOnNew = true,    --Stop when reading new quest
         TTSVoiceMale = 0,       --0: System default
         TTSVoiceFemale = 0,
+        TTSUseNarrator = false,
+            TTSVoiceNarrator = 0,
         TTSVolume = 10,
         TTSRate = 0,
             TTSContentSpeaker = false,
             TTSContentQuestTitle = true,
+            TTSContentObjective = false,
 
 
     --Not shown in the Settings. Accessible by other means
