@@ -59,6 +59,8 @@ local FONT_OBJECT_HEIGHT = {
 
     DUIFont_MenuButton_Normal = HEIGHT_1,
     DUIFont_MenuButton_Highlight = HEIGHT_1,
+
+    DUIFont_AlertHeader = {8, 9, 10, 12},
 };
 
 local IS_NUMBER_FONT = {

@@ -1333,6 +1333,15 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
+    if self.handlerArgs and self.handlerArgs[1] and self.handlerArgs[1] ~= 0 then
+        local questStartItemID = self.handlerArgs[1];
+        local icon = C_Item.GetItemIconByID(questStartItemID);
+        if icon then
+            self.FrontFrame.Header.Portrait:SetTexture(icon);
+        end
+    end
+
+
     local fs, text;
 
     --Title
@@ -1406,7 +1415,7 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
     local AcceptButton = self:AcquireAcceptButton(true);
     local ExitButton = self:AcquireExitButton();
 
-    if API.IsQuestAutoAccepted() then
+    if API.IsQuestAutoAccepted() or API.IsPlayerOnQuest(self.questID) then
         AcceptButton:SetButtonAlreadyOnQuest();
         ExitButton:SetButtonCloseAutoAcceptQuest();
         self.acknowledgeAutoAcceptQuest = true;
@@ -1433,9 +1442,6 @@ function DUIDialogBaseMixin:HandleQuestAccepted(questID)
             local ExitButton = self:AcquireExitButton();
             AcceptButton:SetButtonAlreadyOnQuest();
             ExitButton:SetButtonCloseAutoAcceptQuest();
-
-            --local title = C_QuestLog.GetTitleForQuestID(questID);
-            --print(questID, title)
         end
     end
 end
@@ -2025,7 +2031,7 @@ local Handler = {
     ["QUEST_GREETING"] = "HandleQuestGreeting",     --Similar to GOSSIP_SHOW
 };
 
-function DUIDialogBaseMixin:ShowUI(event)
+function DUIDialogBaseMixin:ShowUI(event, ...)
     if self.isGameLoading then
         self.deferredEvent = event;
         return
@@ -2042,6 +2048,7 @@ function DUIDialogBaseMixin:ShowUI(event)
 
     if Handler[event] then
         self.handler = Handler[event];
+        self.handlerArgs = { ... };
         local playFadeIn = true;
         shouldShowUI = self[ Handler[event] ](self, playFadeIn);
     end
@@ -2118,6 +2125,7 @@ function DUIDialogBaseMixin:OnHide()
     self.questIsFromGossip = nil;
     self.chooseItems = nil;
     self.handler = nil;
+    self.handlerArgs = nil;
     self.contentHeight = 0;
 
     self:UnregisterEvent("GOSSIP_SHOW");
@@ -2152,7 +2160,7 @@ function DUIDialogBaseMixin:OnHide()
 end
 
 function DUIDialogBaseMixin:OnMouseUp(button)
-    if button == "RightButton" and GetDBBool("RightClickToCloseUI") then
+    if button == "RightButton" and GetDBBool("RightClickToCloseUI") and self:IsMouseMotionFocus() then
         self:CloseDialogInteraction();
     end
 end

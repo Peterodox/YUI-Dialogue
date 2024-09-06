@@ -54,6 +54,7 @@ L["TTS Button Tooltip"] = "Left Click: Play/Stop Reading.\nRight Click: Toggle A
 L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
+L["New Quest Available"] = "New Quest Available";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -88,6 +89,7 @@ L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Disabled";
 L["Move Position"] = "Move";
 L["Reset Position"] = RESET_POSITION or "Reset Position";
 L["Drag To Move"] = "Left-click and drag to move the window.";
+L["Middle Click To Reset Position"] = "Middle-click to reset position.";
 
 L["Quest"] = "Quest";
 L["Gossip"] = "Gossip";

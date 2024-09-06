@@ -754,6 +754,13 @@ do  -- Quest
 
     API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
 
+    local function IsPlayerOnQuest(questID)
+        if questID then
+            return IsOnQuest(questID)
+        end
+    end
+    API.IsPlayerOnQuest = IsPlayerOnQuest;
+
     --TWW
     local GetQuestCurrency;
 
@@ -1070,16 +1077,24 @@ do  -- Quest
     local function GetQuestName(questID)
         local questName = C_TaskQuest.GetQuestInfoByQuestID(questID);
         if not questName then
-            if C_QuestLog.GetTitleForQuestID then   --Retail
-                return C_QuestLog.GetTitleForQuestID(questID);
+            --Retail
+            if C_QuestLog.GetTitleForQuestID then
+                questName = C_QuestLog.GetTitleForQuestID(questID);
+                if questName and questName ~= "" then
+                    return questName
+                else
+                    C_QuestLog.RequestLoadQuestByID(questID);
+                end
             end
 
             --Classic
-            local questIndex = GetQuestLogIndexByID(questID);
-            if questIndex and questIndex > 0 then
-                questName = GetQuestLogTitle(questIndex);
-            else
-                questName = C_QuestLog.GetQuestInfo(questID);
+            if GetQuestLogIndexByID then
+                local questIndex = GetQuestLogIndexByID(questID);
+                if questIndex and questIndex > 0 then
+                    questName = GetQuestLogTitle(questIndex);
+                else
+                    questName = C_QuestLog.GetQuestInfo(questID);
+                end
             end
         end
         return questName
@@ -1856,6 +1871,7 @@ end
 
 do  -- Tooltip
     local GetInventoryItemLink = GetInventoryItemLink;
+    local GetInventoryItemID = GetInventoryItemID;
     local GetItemInfoInstant = C_Item.GetItemInfoInstant or GetItemInfoInstant;
     local GetQuestItemLink = GetQuestItemLink;
 
@@ -1949,32 +1965,103 @@ do  -- Tooltip
     API.GetItemLevelDelta = GetItemLevelDelta;
 
 
-    local function GetMaxEquippedItemLevelDelta(newLink)
+    local function GetEquippedItemLevelDelta(newLink)
         --Compare a reward item to the equipped one (check 2 slots for ring, trinket, weapon)
         --Return the maximum delta
 
-        if not (newLink and API.IsEquippableItem(newLink)) then return 0 end;
-        local link1, link2 = GetEquippedItemLink(newLink);
+        if not (newLink and API.IsEquippableItem(newLink)) then return end;
+
         local newItemLevel = API.GetItemLevel(newLink) or 0;
-        local level1 = API.GetItemLevel(link1);
-        local level2 = API.GetItemLevel(link2);
-        --print(newItemLevel, level1, level2)
-        if not (level1 or level2) then
-            return newItemLevel
-        else
-            if level1 then
-                if level2 then
-                    if level1 > level2 then
-                        return newItemLevel - level2
-                    else
-                        return newItemLevel - level1
+        local slotID = GetEquippedSlotID(newLink);
+        local unit = "player";
+
+        if slotID then
+            local link1, link2, secondarySlotID;
+            local itemID1 = GetInventoryItemID(unit, slotID);
+            local itemID2;
+
+            if itemID1 then
+                link1 = GetInventoryItemLink(unit, slotID);
+            end
+            if slotID == 11 then
+                secondarySlotID = 12;
+            elseif slotID == 13 then
+                secondarySlotID = 14;
+            elseif slotID == 16 then
+                --Case: Two-hand vs One-hand, Offhand vs Shield
+                secondarySlotID = 17;
+                itemID2 = GetInventoryItemID(unit, secondarySlotID);
+                if itemID2 then
+                    local equippedSlotID = GetEquippedSlotID(itemID2);
+                    if not (equippedSlotID and equippedSlotID == slotID) then
+                        itemID2 = nil;
+                        secondarySlotID = nil;
                     end
                 else
-                    return newItemLevel - level1
+                    secondarySlotID = nil;
                 end
-            else
-                return newItemLevel - level2
             end
+
+            local n = 0;
+            local tbl = {};
+            local itemLevel;
+
+            if itemID1 then
+                n = n + 1;
+                itemLevel = link1 and API.GetItemLevel(link1) or 0;
+                tbl[n] = {
+                    isReady = itemLevel > 0 and newItemLevel > 0,
+                    delta = newItemLevel - itemLevel,
+                };
+            else
+                n = n + 1;
+                tbl[n] = {
+                    isReady = newItemLevel > 0,
+                    delta = newItemLevel,
+                };
+            end
+
+            if secondarySlotID then
+                itemID2 = GetInventoryItemID(unit, secondarySlotID);
+                link2 = GetInventoryItemLink(unit, secondarySlotID);
+                n = n + 1;
+                if itemID2 then
+                    itemLevel = link1 and API.GetItemLevel(link2) or 0;
+                    tbl[n] = {
+                        isReady = itemLevel > 0 and newItemLevel > 0,
+                        delta = newItemLevel - itemLevel,
+                    };
+                else
+                    tbl[n] = {
+                        isReady = newItemLevel > 0,
+                        delta = newItemLevel,
+                    };
+                end
+            end
+
+            return tbl
+        end
+    end
+
+    local function GetMaxEquippedItemLevelDelta(newLink)
+        local itemLevelDeltaInfo = GetEquippedItemLevelDelta(newLink);
+        if itemLevelDeltaInfo then
+            local isReady = true;
+            local maxDelta;
+            for _, info in ipairs(itemLevelDeltaInfo) do
+                if info.isReady then
+                    if not maxDelta then
+                        maxDelta = info.delta;
+                    elseif info.delta > maxDelta then
+                        maxDelta = info.delta;
+                    end
+                else
+                    isReady = false;
+                end
+            end
+            return maxDelta, isReady
+        else
+            return nil, true
         end
     end
     API.GetMaxEquippedItemLevelDelta = GetMaxEquippedItemLevelDelta;
@@ -1988,12 +2075,8 @@ do  -- Tooltip
 
 
     local function IsRewardItemUpgrade(questInfoType, index)
-        local delta = GetRewardItemLevelDelta(questInfoType, index);
-        if delta and delta > 0 then
-            return true
-        else
-            return false
-        end
+        local delta, isReady = GetRewardItemLevelDelta(questInfoType, index);
+        return (delta and delta > 0), isReady
     end
     API.IsRewardItemUpgrade = IsRewardItemUpgrade;
 

@@ -7,6 +7,7 @@ local QuestIsFromAreaTrigger = API.QuestIsFromAreaTrigger;
 local GossipDataProvider = addon.GossipDataProvider;
 local QuestGetAutoAccept = API.QuestGetAutoAccept;
 local CloseQuest = CloseQuest;
+local InCombatLockdown = InCombatLockdown;
 
 
 local EVENT_PROCESS_DELAY = 0.017;  --Affected by CameraMovement
@@ -50,6 +51,7 @@ function EL:OnManualEvent(event, ...)
         --/dump C_PlayerInteractionManager.IsInteractingWithNpcOfType(Enum.PlayerInteractionType.QuestGiver)
         --print(event, "IS INTERACTING", IsInteractingWithDialogNPC(), GetTimePreciseSec())   --debug
         if (event == "QUEST_FINISHED_FORCED") or (not IsInteractingWithDialogNPC()) then
+            self.timeSinceQuestFinish = nil;
             MainFrame:HideUI();
         end
     elseif event == "GOSSIP_SHOW" then
@@ -70,6 +72,7 @@ function EL:OnGossipClosed(interactionIsContinuing)
     if not IsInteractingWithDialogNPC() then
         if not MainFrame:IsGossipCloseConsumed() then
             --MainFrame:SetInteractionIsContinuing(interactionIsContinuing);
+            self.timeSinceQuestFinish = nil;
             MainFrame:HideUI();
         end
         GossipDataProvider:OnInteractStopped();
@@ -110,20 +113,31 @@ function EL:OnEvent(event, ...)
         --our workaround is setting s delay to this event
         --print(event, GetTimePreciseSec(), IsInteractingWithDialogNPC());
 
-        self.timeSinceQuestFinish = 0;
+        local delay = MainFrame:GetQuestFinishedDelay();
+
+        self.timeSinceQuestFinish = -delay;
 
         if self.lastEvent ~= "QUEST_FINISHED_FORCED" then
             self.lastEvent = event;
-            self:ProcessEventNextUpdate(MainFrame:GetQuestFinishedDelay());
+            self:ProcessEventNextUpdate(delay);
         end
 
     elseif event == "QUEST_DETAIL" then
         self.lastEvent = event;
 
-        if ( QuestGetAutoAccept() and QuestIsFromAreaTrigger() ) then
+        local questStartItemID = ...
+
+        if questStartItemID and questStartItemID ~= 0 then
+			addon.WidgetManager:AddAutoQuestPopUp(questStartItemID);
+            CloseQuest();
+            return
+		end
+
+        if QuestIsFromAreaTrigger() and (QuestGetAutoAccept() or InCombatLockdown()) then
+            addon.WidgetManager:AddAutoQuestPopUp();
             CloseQuest();
         else
-            MainFrame:ShowUI(event);
+            MainFrame:ShowUI(event, questStartItemID);
         end
 
     elseif event == "QUEST_PROGRESS" or event == "QUEST_COMPLETE" or event == "QUEST_GREETING" then
@@ -133,6 +147,7 @@ function EL:OnEvent(event, ...)
 
     elseif CloseDialogEvents[event] then
         self.lastEvent = event;
+        self.timeSinceQuestFinish = nil;
         MainFrame:HideUI();
     end
 

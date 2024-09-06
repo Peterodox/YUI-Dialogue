@@ -266,6 +266,11 @@
     </Font>
 
 
+    <Font name="DUIFont_AlertHeader" inherits="DUIFontFamily_Serif_10" virtual="true" justifyV="MIDDLE" justifyH="LEFT">
+        <Color r="0.7" g="0.7" b="0.7"/>
+    </Font>
+
+
     <!--AutoFit FontString-->
     <Font name="DUIFont_Constant_10" inherits="DUIFontFamily_Serif_10" virtual="true" justifyV="MIDDLE" justifyH="CENTER">
         <Color r="0.19" g="0.17" b="0.13"/>

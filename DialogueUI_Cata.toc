@@ -23,12 +23,12 @@ Code\Utility.xml
 Code\Sound.lua
 Code\Camera.lua
 Code\Tooltip.xml
-Code\ScrollBar.lua
-Code\ScrollView.lua
+Code\Scroll.xml
 Code\Settings.xml
 Code\GossipDataProvider.xml
 Code\NameplateGossip.lua
 Code\UI.xml
+Code\WidgetManager.xml
 Code\Core.lua
 
 Code\SupportedAddOns\SupportedAddOns.xml

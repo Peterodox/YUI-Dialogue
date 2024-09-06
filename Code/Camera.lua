@@ -117,6 +117,11 @@ function CameraUtil:ChangeCVars()
         end
     end
 
+    if CHANGE_FOV then
+        FOV_DEFAULT = GetCVar("cameraFov") or 90;
+        BackupAndSetCVar("cameraFov", nil);
+    end
+
     self:ListenEvent(true);
 end
 
@@ -390,7 +395,6 @@ end
 local function ZoomIn_FocusNPC_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
 
-
     local pitch = Esaing_OutSine(self.t, 88,  15, CAMERA_MOVEMENT_DURATION);
     local targetStrengh = Esaing_OutSine(self.t, 0.0, FOCUS_STRENGTH_PITCH, CAMERA_MOVEMENT_DURATION);
 
@@ -509,7 +513,6 @@ function CameraUtil:Restore()
     ConsoleExec("pitchlimit 88");
 
     if self.fovChanged then
-        SetCVar("cameraFov", FOV_DEFAULT);
         self.fovChanged = nil;
     end
 
@@ -526,12 +529,21 @@ end
 function CameraUtil:OnFovSettingsChanged()
     if not (self.isActive and self.cameraMode == 1) then return end;
 
+    local cvar = "cameraFov";
+
     if CHANGE_FOV then
-        self.fovChanged = true;
-        SetCVar("cameraFov", FOV_ZOOMED_IN);
+        if not self.fovChanged then
+            self.fovChanged = true;
+            BackupAndSetCVar(cvar, FOV_ZOOMED_IN);
+        end
     else
-        self.fovChanged = nil;
-        SetCVar("cameraFov", FOV_DEFAULT);
+        if self.fovChanged then
+            self.fovChanged = nil;
+            if CVar_Backup[cvar] ~= nil then
+                SetCVar(cvar, CVar_Backup[cvar]);
+                CVar_Backup[cvar] = nil;
+            end
+        end
     end
 end
 

@@ -397,21 +397,21 @@ end
 
 do
     function SharedTooltip:AddDeltaToItemLevel(rewardItem)
-        local maxItemLevelDelta = API.GetMaxEquippedItemLevelDelta(rewardItem);
-        if maxItemLevelDelta then
-            if maxItemLevelDelta >= -13 then
+        local maxDelta, isReady = API.GetMaxEquippedItemLevelDelta(rewardItem);
+        if maxDelta and isReady then
+            if maxDelta >= -13 then
                 local lineText = self:GetLeftLineText(2);
                 if string.find(lineText, L["Item Level"]) then
                     local deltaText;
-                    if maxItemLevelDelta > 0 then
-                        deltaText = "|cff808080(|r|cff19ff19+"..maxItemLevelDelta.."|r|cff808080)|r";   --(+1)
+                    if maxDelta > 0 then
+                        deltaText = "|cff808080(|r|cff19ff19+"..maxDelta.."|r|cff808080)|r";   --(+1)
                     else
-                        if maxItemLevelDelta == 0 then
-                            maxItemLevelDelta = "";
+                        if maxDelta == 0 then
+                            maxDelta = "";
                         else
-                            maxItemLevelDelta = -maxItemLevelDelta;
+                            maxDelta = -maxDelta;
                         end
-                        deltaText = "|cff808080(-"..maxItemLevelDelta..")|r";   --(-1)
+                        deltaText = "|cff808080(-"..maxDelta..")|r";   --(-1)
                     end
                     self:OverwriteLeftLineText(2, lineText.."  "..deltaText);
                 end

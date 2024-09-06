@@ -1529,8 +1529,16 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
         --Equipment's count is always 1. No itemID in Classic
         --Inventory Itemlink may not be immediately available
         self.isEquippable = true;
-        API.IsRewardItemUpgrade(questInfoType, index);
-        addon.DialogueUI:RequestItemUpgrade();
+        if not self:DoesButtonHaveMarker("upgrade") then
+            local isUpgrade, isReady = API.IsRewardItemUpgrade(questInfoType, index);
+            if isReady then
+                if isUpgrade then
+                    self:ShowUpgradeIcon();
+                end
+            else
+                addon.DialogueUI:RequestItemUpgrade();
+            end
+        end
     else
         self.isEquippable = nil;
     end
@@ -2353,9 +2361,9 @@ do
     function DUIDialogQuestPortraitMixin:OnHide()
         self:SetScript("OnUpdate", nil);
         self:Hide();
-        self:SetFrameAlpha(0);
         self.alpha = 0;
         self.Model:ClearModel();
+        self:SetFrameAlpha(0);
     end
 
     function DUIDialogQuestPortraitMixin:SetFrameAlpha(alpha)
