@@ -10,8 +10,8 @@ local CreateFrame = CreateFrame;
 local GetCursorPosition = GetCursorPosition;
 local UIParent = UIParent;
 
-local MainAnchor = CreateFrame("Frame");
-MainAnchor:SetSize(8, 8);
+local MainAnchor = CreateFrame("Frame");    --Used as the anchor for docking/chaining pop-ups
+MainAnchor:SetSize(268, 44);
 MainAnchor:SetClampedToScreen(true);
 MainAnchor:SetPoint("CENTER", UIParent, "LEFT", 24, 32);
 MainAnchor:Hide();
@@ -157,7 +157,8 @@ do  --Draggable Widget
             if self.isChainable and self:IsVisible() then
                 WidgetManager:ChainAdd(self);
             else
-                self:SetPoint("LEFT", nil, "LEFT", 24, 32);
+                local viewportWidth = API.GetBestViewportSize();
+                self:SetPoint("LEFT", nil, "CENTER", Round(-0.5*viewportWidth + 24), 32);
             end
         end
     end
@@ -485,6 +486,87 @@ do  --Position Chain, Dock
             end
         end
     end
+end
+
+do  --Change Main Anchor Position
+    local AnchorPosition = WidgetManager:CreateWidget(DBKEY_POSITION);
+    AnchorPosition:Hide();
+    AnchorPosition:SetPoint("LEFT", MainAnchor, "LEFT", 0, 0);
+
+    function AnchorPosition:SetPoint(...)
+        MainAnchor:SetPoint(...)
+    end
+
+    function AnchorPosition:ClearAllPoints()
+        MainAnchor:ClearAllPoints();
+    end
+
+    function AnchorPosition:Init()
+        self.Init = nil;
+
+        local E_SCALE = 0.5;
+        local FRAME_WIDTH, FRAME_HEIGHT = 536, 88;
+        local BG_WIDTH, BG_HEIGHT = 576, 128;
+        local file = "Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestAlert.png";
+
+        self:SetSize(FRAME_WIDTH * E_SCALE, FRAME_HEIGHT * E_SCALE);
+
+        local Background = self:CreateTexture(nil, "OVERLAY");
+        Background:SetPoint("CENTER", self, "CENTER", 0, 0);
+        Background:SetSize(BG_WIDTH * E_SCALE, BG_HEIGHT * E_SCALE);
+        Background:SetTexture(file);
+        Background:SetTexCoord(0, 576/1024, 384/1024, 512/1024);
+
+        local Text = self:CreateFontString(nil, "OVERLAY", "DUIFontFamily_Serif_16", 2);
+        Text:SetPoint("CENTER", self, "CENTER", 0, 0);
+        Text:SetJustifyH("CENTER");
+        Text:SetJustifyV("MIDDLE");
+        Text:SetTextColor(0, 0, 0);
+        Text:SetShadowColor(1, 1, 1, 0.5);
+        Text:SetShadowOffset(2, -2);
+        Text:SetText(addon.L["Popup Position"]);
+    end
+
+    function AnchorPosition:OnMouseUp(button)
+        if button == "RightButton" and self:IsMouseMotionFocus() then
+            self:Hide();
+        elseif button == "MiddleButton" then
+            self:ResetPosition();
+        end
+    end
+
+
+    function WidgetManager:TogglePopupAnchor(state)
+        if state == nil then
+            state = not AnchorPosition:IsShown();
+        end
+
+        if state then
+            if AnchorPosition.Init then
+                AnchorPosition:Init();
+            end
+            AnchorPosition:LoadPosition();
+            AnchorPosition:Show();
+            AnchorPosition:SetFrameStrata("FULLSCREEN_DIALOG");
+            AnchorPosition:SetFrameLevel(128);
+        else
+            AnchorPosition:Hide();
+        end
+    end
+
+    function WidgetManager:ResetPosition()
+        AnchorPosition:ResetPosition();
+    end
+
+    function WidgetManager:IsUsingCustomPosition()
+        return AnchorPosition:IsUsingCustomPosition()
+    end
+
+
+    local function Settings_WidgetManagerDummy(dbValue)
+        AnchorPosition:LoadPosition();
+    end
+    addon.CallbackRegistry:Register("SettingChanged.WidgetManagerDummy", Settings_WidgetManagerDummy);
 end
 
 do  --Event Handler

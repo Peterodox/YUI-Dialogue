@@ -39,6 +39,8 @@ local DefaultValues = {
     ScrollDownThenAcceptQuest = false,
     RightClickToCloseUI = true,
 
+    WidgetManagerDummy = true,                  --Doesn't control anything, used as a trigger
+    AutoQuestPopup = true,
     QuestItemDisplay = false,
         QuestItemDisplayHideSeen = false,
         QuestItemDisplayDynamicFrameStrata = false,
@@ -66,6 +68,7 @@ local DefaultValues = {
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
 
+    --WidgetManagerPosition = {x, y};
     --QuestItemDisplayPosition = {x, y};
 
     --Deprecated:

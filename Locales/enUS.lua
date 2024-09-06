@@ -168,6 +168,9 @@ L["Use Default Control Key Alert"] = "We will still use [KEY:PC:SPACE] as the Co
 L["Key Disabled"] = "Disabled";
 L["Key Disabled Tooltip"] = "Confirm Button has been disabled.\n\nYou will not be able to accept quest by pressing keys.";
 
+L["Auto Quest Popup"] = "Auto Quest Popup";
+L["Auto Quest Popup Desc"] = "If a new quest is automatically triggered by picking up an item or entering an area, the quest will be displayed on a pop-up first.";
+L["Popup Position"] = "Pop-up Position";    --Pop-up window position
 L["Quest Item Display"] = "Quest Item Display";
 L["Quest Item Display Desc"] = "Auto display the quest item's description and allow you to use it without opening bags.";
 L["Quest Item Display Hide Seen"] = "Ignore Seen Items";

@@ -2554,6 +2554,10 @@ do  -- Keybindings
         return key, errorText
     end
     API.GetBestInteractKey = GetBestInteractKey;
+
+    API.IsControllerMode = function()
+        return addon.GetDBValue("InputDevice") ~= 1
+    end
 end
 
 do  -- TextureUtil

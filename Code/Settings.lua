@@ -447,8 +447,20 @@ local function TTSVoice_BuildMenuData(dropdownButton, dbKey)
     end
 end
 
+local function WidgetManager_Move_OnClick()
+    addon.WidgetManager:TogglePopupAnchor();
+end
+
+local function WidgetManager_Reset_OnClick()
+    addon.WidgetManager:ResetPosition();
+end
+
+local function WidgetManagerPosition_Validation()
+    return addon.WidgetManager:IsUsingCustomPosition();
+end
+
 local function QuestItemDisplay_Move_OnClick()
-    addon.QuestItemDisplay:EnterEditMode();
+    addon.QuestItemDisplay:ToggleEditMode();
 end
 
 local function QuestItemDisplay_Reset_OnClick()
@@ -564,6 +576,10 @@ local Schematic = { --Scheme
     {
         tabName = L["Gameplay"],  --Cate4
         options = {
+            {type = "Checkbox", name = L["Auto Quest Popup"], description = L["Auto Quest Popup Desc"], dbKey = "AutoQuestPopup", preview = "AutoQuestPopup", ratio = 2},
+            {type = "Custom", name = L["Move Position"], icon = "Settings-Move.png", onClickFunc = WidgetManager_Move_OnClick, requiredParentValue = {AutoQuestPopup = true}},
+            {type = "Custom", name = L["Reset Position"], icon = "Settings-Reset.png", description = L["Quest Item Display Reset Position Desc"], validationFunc = WidgetManagerPosition_Validation, onClickFunc = WidgetManager_Reset_OnClick, requireSameParentValue = true},
+
             {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay", ratio = 2},
             {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", requiredParentValue = {QuestItemDisplay = true}},
             {type = "Checkbox", name = L["Quest Item Display Await World Map"], description = L["Quest Item Display Await World Map Desc"], dbKey = "QuestItemDisplayDynamicFrameStrata", parentKey = "QuestItemDisplay", requireSameParentValue = true},

@@ -12,6 +12,7 @@ local AddAutoQuestPopUp = AddAutoQuestPopUp;
 local RemoveAutoQuestPopUp = RemoveAutoQuestPopUp;
 local PlayAutoAcceptQuestSound = PlayAutoAcceptQuestSound;
 local ShowQuestOffer = ShowQuestOffer;
+local AcceptQuest = AcceptQuest;
 
 
 local QuestWidgets = {};    --[questID] = widget
@@ -268,6 +269,14 @@ do
             self:ShowCloseButton(false);
             self.allowRightClickClose = false;
             self:FadeIn();
+
+            if API.IsControllerMode() then
+                After(1, function()
+                    if not API.IsPlayerOnQuest(questID) then
+                        AcceptQuest();
+                    end
+                end);
+            end
         else
             self:RequestQuestData(questID);
         end
@@ -370,9 +379,9 @@ end
 
 --[[
 C_Timer.After(3, function()
-    --local f = WidgetManager:AcquireQuestAlert();
-    --f:SetAcceptedQuest(72291);
+    local f = WidgetManager:AcquireQuestAlert();
+    f:SetAcceptedQuest(72291);
     local b = WidgetManager:AcquireQuestAlert();
-    b:SetQuestOffer(78154); --72291 72481
+    b:SetQuestOffer(83719); --72291 72481
 end);
--]]
+--]]

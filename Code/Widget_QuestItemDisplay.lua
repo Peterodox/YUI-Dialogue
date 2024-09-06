@@ -331,6 +331,7 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
         self:QueueItem(itemID);
         return
     end
+    self.isEditMode = false;
 
     local tooltipData = C_TooltipInfo.GetItemByID(itemID);
     if not (tooltipData and tooltipData.lines) then
@@ -733,7 +734,13 @@ function QuestItemDisplay:LoadSaves()
     SEEN_ITEMS_ALL = DialogueUI_Saves.QuestItems;
 end
 
-function QuestItemDisplay:EnterEditMode()
+function QuestItemDisplay:ToggleEditMode()
+    if self.isEditMode and self:IsShown() then
+        self.isEditMode = false;
+        self:Clear();
+        return
+    end
+
     if self.Init then
         self:Init();
     end
@@ -748,6 +755,11 @@ function QuestItemDisplay:EnterEditMode()
     self.AnimIn:Stop();
     self.AnimIn:Play();
     self:Show();
+    self.isEditMode = true;
+
+    --if WidgetManager:ChainContain(self) then
+    --    WidgetManager:TogglePopupAnchor(true);
+    --end
 end
 
 function QuestItemDisplay:LowerFrameStrata()

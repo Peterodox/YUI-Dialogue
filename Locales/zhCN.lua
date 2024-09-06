@@ -54,6 +54,7 @@ L["TTS Button Tooltip"] = "左键点击： 播放/停止阅读\n右键点击： 
 L["Item Is An Upgrade"] = "这件装备对你有提升";
 L["Identical Stats"] = "这两件装备的属性相同";
 L["Quest Completed On Account"] = "你的战团此前已经完成了这个任务。";
+L["New Quest Available"] = "发现新任务";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";
@@ -88,6 +89,7 @@ L["Option Disabled"] = "已禁用";
 L["Move Position"] = "移动";
 L["Reset Position"] = "重置位置";
 L["Drag To Move"] = "左键点击并拖拽以移动该窗口。";
+L["Middle Click To Reset Position"] = "中键点击以重置位置。";
 
 L["Quest"] = "任务";
 L["Gossip"] = "对话";
@@ -166,6 +168,9 @@ L["Use Default Control Key Alert"] = "将继续使用 [KEY:PC:SPACE] 作为确�
 L["Key Disabled"] = "不做设定";
 L["Key Disabled Tooltip"] = "不再使用确认键。\n\n你将无法通过按键盘的方式来接受任务。";
 
+L["Auto Quest Popup"] = "自动任务弹窗";
+L["Auto Quest Popup Desc"] = "如果一个新任务是由拾取物品或进入某区域后自动触发的，先用小弹窗显示这个任务。";
+L["Popup Position"] = "弹窗位置";    --Pop-up window position
 L["Quest Item Display"] = "任务物品说明";
 L["Quest Item Display Desc"] = "自动显示任务物品上的说明，并且允许你在不打开背包的情况下就能使用它。";
 L["Quest Item Display Hide Seen"] = "忽略见过的物品";
