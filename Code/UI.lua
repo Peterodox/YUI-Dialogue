@@ -932,7 +932,7 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ContentFrame:SetPoint("BOTTOMRIGHT", self.ScrollFrame, "BOTTOMRIGHT", 0, 0);
     end
 
-    SwipeEmulator:SetScrollable(true);
+    SwipeEmulator:SetScrollable(scrollable);
 end
 
 function DUIDialogBaseMixin:IsScrollable()
