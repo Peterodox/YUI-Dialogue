@@ -1,9 +1,9 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="WidgetManager.lua"/>
     <Script file="Widget_QuestItemDisplay.lua"/>
-    <Script file="Widget_QuestAlert.lua"/>
+    <Script file="Widget_QuestPopup.lua"/>
 
-    <Frame name="DUIQuestAlertTemplate" virtual="true">
+    <Frame name="DUIQuestPopupTemplate" virtual="true">
         <Size x="536" y="88"/>
         <Layers>
             <Layer level="BACKGROUND">
@@ -13,7 +13,7 @@
                         <Anchor point="CENTER"/>
                     </Anchors>
                 </Texture>
-                <MaskTexture parentKey="BrushMask" file="Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestAlert-Brush-Mask" hWrapMode="CLAMP" vWrapMode="CLAMP">
+                <MaskTexture parentKey="BrushMask" file="Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestPopup-Brush-Mask" hWrapMode="CLAMP" vWrapMode="CLAMP">
                     <MaskedTextures>
                         <MaskedTexture childKey="Background"/>
                     </MaskedTextures>

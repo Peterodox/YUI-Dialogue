@@ -9,6 +9,7 @@ local PlaySound = addon.PlaySound;
 local ThemeUtil = addon.ThemeUtil;
 local GetPrimaryControlKey = addon.KeyboardControl.GetPrimaryControlKey;
 local RewardTooltipCode = addon.RewardTooltipCode;
+local SwipeEmulator = addon.SwipeEmulator;
 
 -- User Settings
 local SHOW_QUEST_TYPE_TEXT = true;
@@ -349,6 +350,12 @@ end
 function DUIDialogOptionButtonMixin:OnClick(button)
     if button == "LeftButton" or button == "GamePad" then
         if self.onClickFunc then
+            if button ~= "GamePad" and SwipeEmulator:ShouldConsumeClick() then
+                --KeyboardControl sends custom "button" type here
+                --Pressing key is also deemed as "GamePad"
+                --We only consume "MouseClick" when Swiping gesture finished
+                return
+            end
             --PlaySound("DIALOG_OPTION_CLICK");
             return self.onClickFunc(self, button == "LeftButton");
         end
@@ -2471,7 +2478,7 @@ do
 
         --BUTTON_PADDING_LARGE = baseFontSize
         HOTKEYFRAME_PADDING = math.min(8, (BUTTON_HEIGHT_LARGE - HOTKEYFRAME_SIZE)/2);
-        BUTTON_PADDING_LARGE = (2*HOTKEYFRAME_PADDING + HOTKEYFRAME_SIZE - baseFontSize)/2
+        BUTTON_PADDING_LARGE = (2*HOTKEYFRAME_PADDING + HOTKEYFRAME_SIZE - baseFontSize)/2;
         --print("HOTKEYFRAME_PADDING", HOTKEYFRAME_PADDING)
 
         CallbackRegistry:Trigger("PostFontSizeChanged");

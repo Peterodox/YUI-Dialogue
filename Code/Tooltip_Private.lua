@@ -833,12 +833,14 @@ do
 end
 
 do  --Used by UI widgets
-    function SharedTooltip.ShowWidgetTooltip(widget)
-        if widget.tooltipText then
+    function SharedTooltip.ShowWidgetTooltip(widget, text)
+        text = text or widget.tooltipText;
+        if text then
             SharedTooltip:Hide();
             SharedTooltip:SetOwner(widget, "TOPRIGHT");
-            SharedTooltip:AddLeftLine(widget.tooltipText, 1, 1, 1);
+            SharedTooltip:AddLeftLine(text, 1, 1, 1);
             SharedTooltip:Show();
+            SharedTooltip:Raise();
         end
     end
 

@@ -12,6 +12,7 @@ local InCombatLockdown = InCombatLockdown;
 
 local EVENT_PROCESS_DELAY = 0.017;  --Affected by CameraMovement
 local MAINTAIN_CAMERA_POSITION = false;
+local USE_AUTO_QUEST_POPUP = true;
 
 local EL = CreateFrame("Frame");
 
@@ -127,13 +128,13 @@ function EL:OnEvent(event, ...)
 
         local questStartItemID = ...
 
-        if questStartItemID and questStartItemID ~= 0 then
+        if USE_AUTO_QUEST_POPUP and questStartItemID and questStartItemID ~= 0 then
 			addon.WidgetManager:AddAutoQuestPopUp(questStartItemID);
             CloseQuest();
             return
 		end
 
-        if QuestIsFromAreaTrigger() and (QuestGetAutoAccept() or InCombatLockdown()) then
+        if USE_AUTO_QUEST_POPUP and QuestIsFromAreaTrigger() and (QuestGetAutoAccept() or InCombatLockdown()) then
             addon.WidgetManager:AddAutoQuestPopUp();
             CloseQuest();
         else
@@ -265,7 +266,6 @@ do
     end
     addon.CallbackRegistry:Register("SettingChanged.CameraMovement1MaintainPosition", Settings_CameraMovement1MaintainPosition);
 
-
     local function ManualTriggerQuestFinished()
         --print("TRIGGER FINISH", GetTimePreciseSec())      --debug
         if EL.lastEvent ~= "QUEST_FINISHED_FORCED" then
@@ -274,6 +274,11 @@ do
         end
     end
     addon.CallbackRegistry:Register("TriggerQuestFinished", ManualTriggerQuestFinished);
+
+    local function Settings_AutoQuestPopup(dbValue)
+        USE_AUTO_QUEST_POPUP = dbValue ~= false
+    end
+    addon.CallbackRegistry:Register("SettingChanged.AutoQuestPopup", Settings_AutoQuestPopup);
 end
 
 do  --Unlisten events from default UI

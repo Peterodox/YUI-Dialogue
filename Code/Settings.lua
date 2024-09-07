@@ -464,7 +464,8 @@ local function QuestItemDisplay_Move_OnClick()
 end
 
 local function QuestItemDisplay_Reset_OnClick()
-    addon.QuestItemDisplay:ResetPosition();
+    local fromSettingsUI = true;
+    addon.QuestItemDisplay:ResetPosition(fromSettingsUI);
 end
 
 local function QuestItemDisplayPosition_Validation()
@@ -483,6 +484,13 @@ local function RPAddOn_ReplaceName_Tooltip()
     end
 end
 
+local function OptionHasNoEffectDueToMobile()
+    --Size options have no effect due to MobileDeviceMode
+    if GetDBValue("MobileDeviceMode") == true then
+        return L["Mobile Device Mode Override Option"]
+    end
+end
+
 local Schematic = { --Scheme
     {
         tabName = L["UI"],  --Cate1
@@ -493,7 +501,7 @@ local Schematic = { --Scheme
                     {dbValue = 2, valueText = L["Theme Dark"]},
                 },
             },
-            {type = "ArrowOption", name = L["Frame Size"], description = L["Frame Size Desc"], dbKey = "FrameSize",
+            {type = "ArrowOption", name = L["Frame Size"], description = L["Frame Size Desc"], tooltip = OptionHasNoEffectDueToMobile, dbKey = "FrameSize",
                 choices = {
                     {dbValue = 0, valueText = L["Size Extra Small"]},
                     {dbValue = 1, valueText = L["Size Small"]},
@@ -501,7 +509,7 @@ local Schematic = { --Scheme
                     {dbValue = 3, valueText = L["Size Large"]},
                 },
             },
-            {type = "ArrowOption", name = L["Font Size"], description = L["Font Size Desc"], dbKey = "FontSizeBase", realignAfterClicks = true,
+            {type = "ArrowOption", name = L["Font Size"], description = L["Font Size Desc"], tooltip = OptionHasNoEffectDueToMobile, dbKey = "FontSizeBase", realignAfterClicks = true,
                 choices = {
                     {dbValue = 0, valueText = "10"},
                     {dbValue = 1, valueText = "12"},
@@ -570,6 +578,10 @@ local Schematic = { --Scheme
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
+
+            {type = "Subheader", name = L["Experimental Features"]},
+            {type = "Checkbox", name = L["Mobile Device Mode"], description = L["Mobile Device Mode Desc"], dbKey = "MobileDeviceMode"},
+            {type = "Checkbox", name = L["Emulate Swipe"], description = L["Emulate Swipe Desc"], dbKey = "EmulateSwipe"},
         },
     },
 
@@ -1581,6 +1593,10 @@ do  --ArrowOption
     function DUIDialogSettingsArrowOptionMixin:GetSelectedChoiceTooltip()
         if self.selectedID and self.choices and self.choices[self.selectedID] then
             local tooltip = self.choices[self.selectedID].tooltip;
+            if not tooltip then
+                local optionButton = self:GetParent();
+                tooltip = optionButton.optionData and optionButton.optionData.tooltip;
+            end
             if type(tooltip) == "function" then
                 return tooltip()
             else
@@ -1955,6 +1971,11 @@ do
             ARROWOTPION_BAR_HEIGHT = 6;
         elseif fontSizeID == 3 then
             NUM_VISIBLE_OPTIONS = 8.5;
+            widthMultiplier = 10;
+            ARROWOTPION_WIDTH_RATIO = 6;
+            ARROWOTPION_BAR_HEIGHT = 6;
+        elseif fontSizeID == 4 then   --For MobileDeviceMode
+            NUM_VISIBLE_OPTIONS = 7.5;
             widthMultiplier = 10;
             ARROWOTPION_WIDTH_RATIO = 6;
             ARROWOTPION_BAR_HEIGHT = 6;

@@ -38,6 +38,8 @@ local DefaultValues = {
     PrimaryControlKey = 1,                      --1: Space  2:Interact Key
     ScrollDownThenAcceptQuest = false,
     RightClickToCloseUI = true,
+    EmulateSwipe = true,
+    MobileDeviceMode = false,
 
     WidgetManagerDummy = true,                  --Doesn't control anything, used as a trigger
     AutoQuestPopup = true,
@@ -112,12 +114,16 @@ local function LoadDatabase()
 
     local type = type;
 
+
     for dbKey, defaultValue in pairs(DefaultValues) do
+        --Some settings are inter-connected so we load all values first
         if DB[dbKey] == nil or type(DB[dbKey]) ~= type(defaultValue) then
-            SetDBValue(dbKey, defaultValue);
-        else
-            SetDBValue(dbKey, DB[dbKey]);
+            DB[dbKey] = defaultValue;
         end
+    end
+
+    for dbKey, defaultValue in pairs(DefaultValues) do
+        SetDBValue(dbKey, DB[dbKey]);
     end
 
     if not DB.installTime or type(DB.installTime) ~= "number" then

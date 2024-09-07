@@ -5,6 +5,7 @@
 
 local _, addon = ...
 local API = addon.API;
+local GetDBValue = addon.GetDBValue;
 local FontUtil = {};
 addon.FontUtil = FontUtil;
 
@@ -27,14 +28,15 @@ local NUMBER_FONT_FILE = {
     russian = "Interface/AddOns/DialogueUI/Fonts/ARIALN.ttf",
 };
 
-local HEIGHT_1 = {10, 12, 14, 16};
-local HEIGHT_2 = {8, 10, 12, 12};
+local HEIGHT_1 = {10, 12, 14, 16, 24};
+local HEIGHT_2 = {8, 10, 12, 14, 20};
 
 local FONT_OBJECT_HEIGHT = {
+    --Fifth value is currently used for MobileDeviceMode
     --FontObjectName = {10, 12, 14, 16}     --Paragraph Font Size as Base
 
-    DUIFont_Quest_Title_18 = {14, 18, 18, 18},
-    DUIFont_Quest_Title_16 = {12, 16, 16, 16},
+    DUIFont_Quest_Title_18 = {14, 18, 18, 18, 18},
+    DUIFont_Quest_Title_16 = {12, 16, 16, 16, 16},
     DUIFont_Quest_SubHeader = HEIGHT_1,
     DUIFont_Quest_Paragraph = HEIGHT_1,
     DUIFont_Quest_Gossip = HEIGHT_1,
@@ -55,12 +57,12 @@ local FONT_OBJECT_HEIGHT = {
     DUIFont_Tooltip_Medium = HEIGHT_2,
     DUIFont_Tooltip_Small = HEIGHT_2,
 
-    DUIFont_ItemCount = {8, 10, 10, 12},
+    DUIFont_ItemCount = {8, 10, 10, 12, 12},
 
     DUIFont_MenuButton_Normal = HEIGHT_1,
     DUIFont_MenuButton_Highlight = HEIGHT_1,
 
-    DUIFont_AlertHeader = {8, 9, 10, 12},
+    DUIFont_AlertHeader = {8, 9, 10, 12, 12},
 };
 
 local IS_NUMBER_FONT = {
@@ -190,7 +192,17 @@ do
         [3] = 16,
     };
 
+    local MOBILE_DEVICE_FONT_SIZE_ID = 4;
+
+    for index, size in ipairs(HEIGHT_1) do
+        FONT_SIZE_INDEX[index - 1] = size;
+    end
+
     function FontUtil:SetFontSizeByID(id)
+        if (GetDBValue("MobileDeviceMode") == true) and FONT_SIZE_INDEX[MOBILE_DEVICE_FONT_SIZE_ID] then
+            id = MOBILE_DEVICE_FONT_SIZE_ID;
+        end
+
         if not (id and FONT_SIZE_INDEX[id]) then return end;
 
         FONT_SIZE_ID = id;
@@ -255,6 +267,14 @@ do
         FontUtil:SetFontSizeByID(dbValue);
     end
     addon.CallbackRegistry:Register("SettingChanged.FontSizeBase", Settings_FontSizeBase);
+
+    local function Settings_MobileDeviceMode(dbValue, userInput)
+        if userInput then
+            FontUtil:SetFontSizeByID(GetDBValue("FontSizeBase"));
+            addon.SetDBValue("FrameSize", GetDBValue("FrameSize"));
+        end
+    end
+    addon.CallbackRegistry:Register("SettingChanged.MobileDeviceMode", Settings_MobileDeviceMode);
 end
 
 

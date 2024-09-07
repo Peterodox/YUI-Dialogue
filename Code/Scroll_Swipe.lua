@@ -1,74 +1,277 @@
+-- Mostly for touchscreen devices:
+-- Emulate Swipe on DialogueUI using GLOBAL_MOUSE_DOWN/UP
+
+
 local _, addon = ...
 local API = addon.API;
 
-local SWIPE_START_THRESHOLD = 16;   --Distance Square
 local GetCursorPosition = GetCursorPosition;
+local EMULATE_SWIPE = true;
 
 
-local SwpieEmulator = CreateFrame("Frame");
-SwpieEmulator:Hide();
+local SWIPE_START_THRESHOLD = 25;   --Distance Square
+local RUBBERBAND_MAX_OFFSET = 64;
+local RUBBERBAND_STRENGH = 0.5;
 
-function SwpieEmulator:StopWatching()
-    self:SetParent(nil);
-    self:SetScript("OnUpdate", nil);
-    self.t = nil;
-    self.x, self.y = nil, nil;
-    self.x0, self.y0 = nil, nil;
-    self.delta = nil;
-    self:UnregisterEvent("GLOBAL_MOUSE_UP");
+local function CalculateOffset(offset, range)
+    if offset > 0 and offset < range then
+        return offset
+    end
 
-    if self.owner then
-        self.isMoving = nil;
-        self.owner = nil;
+    if offset < 0 then
+        return  0 -((1 - (1 / (((0 - offset) * RUBBERBAND_STRENGH / RUBBERBAND_MAX_OFFSET) + 1))) * RUBBERBAND_MAX_OFFSET)
+    elseif offset > range then
+        return  range + ((1 - (1 / (((offset - range) * RUBBERBAND_STRENGH / RUBBERBAND_MAX_OFFSET) + 1))) * RUBBERBAND_MAX_OFFSET)
     end
 end
 
-function SwpieEmulator:StartWatching(owner)
-    self:SetParent(owner);
-    self.owner = owner;
+local SwipeEmulator = CreateFrame("Frame");
+SwipeEmulator:Hide();
+addon.SwipeEmulator = SwipeEmulator;
 
-    if not owner:IsVisible() then
-        self:StopWatching();
-        return
+local ClickBlocker = CreateFrame("Frame");
+do  --Consume the Click if we just finished Swiping
+    --Shouldn't affect "Click" from pressing hotkey
+    ClickBlocker.isLocked = false;
+
+    function ClickBlocker:Enable()
+        self.isLocked = true;
+        self:SetScript("OnUpdate", nil);
     end
 
-    self.x0, self.y0 = GetCursorPosition();
-    self.t = 0;
-    self:SetScript("OnUpdate", self.OnUpdate_PreDrag);
-    self:RegisterEvent("GLOBAL_MOUSE_UP");
-end
+    function ClickBlocker:IsEnabled()
+        return self.isLocked
+    end
 
-function SwpieEmulator:SetOwnerPosition()
-    self.x , self.y = GetCursorPosition();
-    self.x = (self.x - self.x0) / self.scale;
-    self.y = (self.y - self.y0) / self.scale;
-    self.owner:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.x + self.ownerX, self.y + self.ownerY);
-end
-
-function SwpieEmulator:OnUpdate_PreDrag(elapsed)
-    self.t = self.t + elapsed;
-    if self.t > 0.016 then
-        self.t = 0;
-        self.x , self.y = GetCursorPosition();
-        self.delta = (self.x - self.x0)*(self.x - self.x0) + (self.y - self.y0)*(self.y - self.y0);
-        if self.delta >= SWIPE_START_THRESHOLD then
-            self.isMoving = true;
-            self.scale = self.owner:GetEffectiveScale();
-            self.x0, self.y0 = GetCursorPosition();
-            self:SetScript("OnUpdate", self.OnUpdate_OnDrag);
+    function ClickBlocker:Release(instantly)
+        if self.isLocked then
+            self.t = 0;
+            if instantly then
+                self.isLocked = false;
+            else
+                self:SetScript("OnUpdate", self.OnUpdate_Release);
+            end
         end
     end
-end
 
-function SwpieEmulator:OnEvent(event, ...)
-    if event == "GLOBAL_MOUSE_UP" then
-        self:StopWatching();
+    function ClickBlocker:OnUpdate_Release(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.03 then
+            self.t = nil;
+            self:SetScript("OnUpdate", nil);
+            self.isLocked = false;
+        end
+    end
+
+
+    function SwipeEmulator:ShouldConsumeClick()
+        return ClickBlocker.isLocked
     end
 end
-SwpieEmulator:SetScript("OnEvent", SwpieEmulator.OnEvent);
 
-function SwpieEmulator:OnHide()
-    self:Hide();
-    self:StopWatching();
+do
+    function SwipeEmulator:StopWatching()
+        self:SetScript("OnUpdate", nil);
+        if not self.t then return end;
+
+        self.t = nil;
+        self._x = nil;
+        self.y = nil;
+        self.y0 = nil;
+        self.newY = nil;
+        self.delta = nil;
+        ClickBlocker:Release();
+
+        if self.isDragging then
+            if self.owner:IsVisible() then
+                self:PostDragging();
+            end
+        end
+
+        self.isDragging = nil;
+    end
+
+    function SwipeEmulator:StartWatching()
+        if not self.owner:IsVisible() then
+            self:StopWatching();
+            return
+        end
+
+        self._x, self.y0 = GetCursorPosition();
+        self.t = 0;
+        self.isDragging = false;
+        self.sampleSpeed = nil;
+        self:SetScript("OnUpdate", self.OnUpdate_PreDrag);
+        self:Show();
+    end
+
+    function SwipeEmulator:StartDragging()
+        self.isDragging = true;
+        self.scale = self.owner:GetEffectiveScale();
+        self._x, self.y0 = GetCursorPosition();
+        self._x, self.y = GetCursorPosition();
+        self.range = self.owner.range or 0;
+        self.fromY = self.owner:GetVerticalScroll();
+        self.sampleT = 0;
+        self.lastSampledY = self.y0;
+        self.sampleSpeed = 0;
+        self:SetScript("OnUpdate", self.OnUpdate_OnDrag);
+        ClickBlocker:Enable();
+    end
+
+    function SwipeEmulator:SetOwnerOffset(offset)
+        self.owner:SetOffset(offset);
+        self.owner.scrollTarget = offset;
+        self.owner.value = offset;
+    end
+
+    function SwipeEmulator:HandleDrag()
+        self._x , self.newY = GetCursorPosition();
+        self.dy = self.newY - self.y;
+        self.y = self.newY;
+
+        if self.sampleT > 0.05 then --SampleWindow 3 frames (60fps)
+            self.sampleT = 0;
+            self.sampleSpeed = (self.newY - (self.lastSampledY or self.newY)) / 0.05;
+            self.lastSampledY = self.newY;
+        end
+
+        self.offset = self.owner:GetVerticalScroll() + self.dy;
+        if self.offset < 0 then
+            if self.dy > 0 then
+
+            else
+                self.offset = self.fromY + self.newY - self.y0;
+                self.offset = CalculateOffset(self.offset, self.range);
+            end
+        elseif self.offset > self.range then
+            if self.dy < 0 then
+
+            else
+                self.offset = self.fromY + self.newY - self.y0;
+                self.offset = CalculateOffset(self.offset, self.range);
+            end
+        else
+            self.fromY = self.offset;
+            self.y0 = self.newY;
+        end
+
+        self:SetOwnerOffset(self.offset);
+    end
+
+    function SwipeEmulator:PostDragging()
+        --Reset to scroll bound if needed
+        if self.owner.value < 0 then
+            addon.DialogueUI:ScrollTo(0);
+        elseif self.owner.range and self.owner.value > self.owner.range then
+            addon.DialogueUI:ScrollTo(self.owner.range);
+        elseif self.sampleSpeed and self.sampleSpeed ~= 0 then
+            --Handle Inertia
+            local effectiveSpeed = self.sampleSpeed / 5;
+            if effectiveSpeed > 2 or effectiveSpeed < -2 then
+                if self:IsVisible() then
+                    self.speed = effectiveSpeed;
+                    self.accDirection = (effectiveSpeed > 0 and -1) or 1;
+                    self.range = self.owner.range or 0;
+                    self:SetScript("OnUpdate", self.OnUpdate_Inertia);
+                end
+            end
+        end
+    end
+
+    function SwipeEmulator:OnUpdate_OnDrag(elapsed)
+        self.t = self.t + elapsed;
+        self.sampleT = self.sampleT + elapsed;
+        if self.t > 0.008 then
+            self.t = 0;
+            self:HandleDrag();
+        end
+    end
+
+    function SwipeEmulator:OnUpdate_PreDrag(elapsed)
+        self.t = self.t + elapsed;
+
+        if self.t > 0.016 then
+            self.t = 0;
+            self._x , self.y = GetCursorPosition();
+            self.delta = (self.y - self.y0)*(self.y - self.y0);
+            if self.delta >= SWIPE_START_THRESHOLD then
+                self:StartDragging();
+            end
+        end
+    end
+
+    function SwipeEmulator:OnUpdate_Inertia(elapsed)
+        self.speed = self.speed + 400 * self.accDirection * elapsed;
+        if self.accDirection < 0 and self.speed <= 0 then
+            self:SetScript("OnUpdate", nil);
+        elseif self.accDirection > 0 and self.speed >= 0 then
+            self:SetScript("OnUpdate", nil);
+        end
+
+        local newOffset = self.owner:GetVerticalScroll() + self.speed * elapsed;
+        if newOffset > self.range then
+            newOffset = self.range;
+            self:SetScript("OnUpdate", nil);
+        elseif newOffset < 0 then
+            newOffset = 0;
+            self:SetScript("OnUpdate", nil);
+        end
+
+        self:SetOwnerOffset(newOffset);
+    end
+
+    function SwipeEmulator:OnEvent(event, ...)
+        if event == "GLOBAL_MOUSE_DOWN" then
+            if self.owner:IsMouseOver() then
+                self:StartWatching();
+            end
+        elseif event == "GLOBAL_MOUSE_UP" then
+            self:StopWatching();
+        end
+    end
+    SwipeEmulator:SetScript("OnEvent", SwipeEmulator.OnEvent);
+
+    function SwipeEmulator:OnHide()
+        self:Hide();
+        self:StopWatching();
+        if self.scrollable then
+            self:SetScrollable(false);
+        end
+    end
+    SwipeEmulator:SetScript("OnHide", SwipeEmulator.OnHide);
+
+    function SwipeEmulator:SetOwner(owner)
+        --In our case owner is DialogueUI.ScrollFrame
+        self.owner = owner;
+        self:SetParent(owner);
+    end
+
+    function SwipeEmulator:SetScrollable(scrollable)
+        self.scrollable = scrollable;
+        if scrollable and EMULATE_SWIPE then
+            self:RegisterEvent("GLOBAL_MOUSE_DOWN");
+            self:RegisterEvent("GLOBAL_MOUSE_UP");
+            self:SetScript("OnUpdate", nil);
+        else
+            self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+            self:UnregisterEvent("GLOBAL_MOUSE_UP");
+            self:StopWatching();
+            ClickBlocker:Release(true);
+        end
+    end
+
+    local function Settings_EmulateSwipe(dbValue)
+        EMULATE_SWIPE = dbValue == true;
+        if EMULATE_SWIPE then
+            if SwipeEmulator.owner and addon.DialogueUI:IsScrollable() then
+                SwipeEmulator:SetScrollable(true)
+            end
+        else
+            if SwipeEmulator.scrollable then
+                SwipeEmulator:OnHide();
+            end
+        end
+    end
+    addon.CallbackRegistry:Register("SettingChanged.EmulateSwipe", Settings_EmulateSwipe);
 end
-SwpieEmulator:SetScript("OnHide", SwpieEmulator.OnHide);

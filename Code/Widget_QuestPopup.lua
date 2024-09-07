@@ -17,7 +17,7 @@ local AcceptQuest = AcceptQuest;
 
 local QuestWidgets = {};    --[questID] = widget
 
-local CreateQuestAlert;
+local CreateQuestPopup;
 do
     local E_SCALE = 0.5;
 
@@ -28,12 +28,12 @@ do
     local TITLE_MAX_WIDTH = 372;
 
 
-    local QuestAlertFrameMixin = {};
+    local QuestPopupFrameMixin = {};
 
-    function QuestAlertFrameMixin:OnLoad()
+    function QuestPopupFrameMixin:OnLoad()
         self:UpdateScale();
 
-        local file = "Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestAlert.png";
+        local file = "Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestPopup.png";
         self.Background:SetTexture(file);
         self.QuestIcon:SetTexture(file);
         self.Highlight:SetTexture(file);
@@ -41,7 +41,7 @@ do
         --self:SetLayout("accepted");
     end
 
-    function QuestAlertFrameMixin:UpdateScale()
+    function QuestPopupFrameMixin:UpdateScale()
         self:SetSize(FRAME_WIDTH * E_SCALE, FRAME_HEIGHT * E_SCALE);
         self.Background:SetSize(BG_WIDTH * E_SCALE, BG_HEIGHT * E_SCALE);
         self.BrushMask:SetSize(2 * BG_HEIGHT * E_SCALE, BG_HEIGHT * E_SCALE);
@@ -71,7 +71,7 @@ do
         self:SetAlpha(self.alpha);
     end
 
-    function QuestAlertFrameMixin:FadeIn()
+    function QuestPopupFrameMixin:FadeIn()
         self.t = 0;
         self.alpha = 0;
         self:SetScript("OnUpdate", OnUpdate_FadeIn);
@@ -89,7 +89,7 @@ do
         self:SetAlpha(self.alpha);
     end
 
-    function QuestAlertFrameMixin:FadeOut()
+    function QuestPopupFrameMixin:FadeOut()
         if self:IsVisible() then
             self.t = 0;
             self.alpha = self:GetAlpha();
@@ -97,11 +97,11 @@ do
         end
     end
 
-    function QuestAlertFrameMixin:OnMouseDown()
+    function QuestPopupFrameMixin:OnMouseDown()
         --self:FadeIn();
     end
 
-    function QuestAlertFrameMixin:OnMouseUp(button)
+    function QuestPopupFrameMixin:OnMouseUp(button)
         local isFocused = self:IsMouseMotionFocus();
 
         if button == "RightButton" and self.allowRightClickClose and isFocused then
@@ -120,33 +120,33 @@ do
         end
     end
 
-    function QuestAlertFrameMixin:OnEnter()
+    function QuestPopupFrameMixin:OnEnter()
         self:PauseAutoCloseTimer(true);
         self.Highlight:Show();
     end
 
-    function QuestAlertFrameMixin:OnLeave()
+    function QuestPopupFrameMixin:OnLeave()
         self:PauseAutoCloseTimer(false);
         self.Highlight:Hide();
     end
 
-    function QuestAlertFrameMixin:PauseAutoCloseTimer(state)
+    function QuestPopupFrameMixin:PauseAutoCloseTimer(state)
         if self.CloseButton then
             self.CloseButton:PauseAutoCloseTimer(state);
         end
     end
 
-    function QuestAlertFrameMixin:OnShow()
+    function QuestPopupFrameMixin:OnShow()
         self.isActive = true;
         WidgetManager:ChainAdd(self);
     end
 
-    function QuestAlertFrameMixin:OnHide()
+    function QuestPopupFrameMixin:OnHide()
         --QuestAlert is child of UIParent, but we don't want to trigger anything is the Frame becomes hidden due to UIParent
         self.Highlight:Hide();
     end
 
-    function QuestAlertFrameMixin:SetTitle(title)
+    function QuestPopupFrameMixin:SetTitle(title)
         self.Title:SetText("");
         self.Title:SetMaxLines(1);
         FontUtil:SetAutoScalingText(self.Title, title);
@@ -160,7 +160,7 @@ do
         end)
     end
 
-    function QuestAlertFrameMixin:SetQuestDataByID(questID)
+    function QuestPopupFrameMixin:SetQuestDataByID(questID)
         self.questID = questID;
 
         if not QuestWidgets[questID] then
@@ -177,7 +177,7 @@ do
         end
     end
 
-    function QuestAlertFrameMixin:SetLayout(layout)
+    function QuestPopupFrameMixin:SetLayout(layout)
         if layout == self.layout then
             return
         else
@@ -201,7 +201,7 @@ do
         self:UpdateScale();
     end
 
-    function QuestAlertFrameMixin:ShowCloseButton(state, autoCloseCountdown)
+    function QuestPopupFrameMixin:ShowCloseButton(state, autoCloseCountdown)
         if state then
             if not self.CloseButton then
                 self.CloseButton = WidgetManager:CreateAutoCloseButton(self, true);
@@ -220,7 +220,7 @@ do
         end
     end
 
-    function QuestAlertFrameMixin:Close()
+    function QuestPopupFrameMixin:Close()
         self.isActive = false;
         self:Hide();
         WidgetManager:ChainRemove(self);
@@ -232,12 +232,12 @@ do
         end
     end
 
-    function QuestAlertFrameMixin:OnCountdownFinished()
+    function QuestPopupFrameMixin:OnCountdownFinished()
         --self:Close();
         self:FadeOut();
     end
 
-    function QuestAlertFrameMixin:RequestQuestData(questID)
+    function QuestPopupFrameMixin:RequestQuestData(questID)
         if not self.requestCounter then
             self.requestCounter = 0;
         end
@@ -258,7 +258,7 @@ do
     end
 
     --For different Quest Types
-    function QuestAlertFrameMixin:SetQuestOffer(questID, questStartItemID)
+    function QuestPopupFrameMixin:SetQuestOffer(questID, questStartItemID)
         self.method = "SetQuestOffer";
         self:SetLayout("offer");
         if self:SetQuestDataByID(questID) then
@@ -282,7 +282,7 @@ do
         end
     end
 
-    function QuestAlertFrameMixin:SetAcceptedQuest(questID, questStartItemID)
+    function QuestPopupFrameMixin:SetAcceptedQuest(questID, questStartItemID)
         self.method = "SetAcceptedQuest";
         self:SetLayout("accepted");
         if self:SetQuestDataByID(questID) then
@@ -298,12 +298,12 @@ do
         end
     end
 
-    function CreateQuestAlert()
-        local f = CreateFrame("Frame", nil, UIParent, "DUIQuestAlertTemplate");
+    function CreateQuestPopup()
+        local f = CreateFrame("Frame", nil, UIParent, "DUIQuestPopupTemplate");
         f:SetIgnoreParentScale(true);
         f:SetIgnoreParentAlpha(true);
         f:Hide();
-        API.Mixin(f, QuestAlertFrameMixin);
+        API.Mixin(f, QuestPopupFrameMixin);
         f:OnLoad();
         f:SetScript("OnMouseDown", f.OnMouseDown);
         f:SetScript("OnMouseUp", f.OnMouseUp);
@@ -311,6 +311,7 @@ do
         f:SetScript("OnLeave", f.OnLeave);
         f:SetScript("OnShow", f.OnShow);
         f:SetScript("OnHide", f.OnHide);
+        f.widgetName = L["Auto Quest Popup"];
         return f
     end
 end
@@ -318,12 +319,12 @@ end
 do  --Create Popup
     --Regarding Blizzard Objective Tracker:
     --See ObjectiveTrackerModuleMixin:Update, LayoutContents, AutoQuestPopupTrackerMixin:AddAutoQuestObjectives
-    --Due to methods mentioned above, "OFFER" type of QuestPopUps will still appear dispite muting QUEST_DETAIL on QuestFrame.
+    --Due to methods mentioned above, "OFFER" type of QuestPopups will still appear dispite muting QUEST_DETAIL on QuestFrame.
     --This doesn't negatively affect us in any way. But It could be a disorienting since our popups are on the left and the ObjectiveTracker is on the right.
 
     local FramePool = {};
 
-    function WidgetManager:AcquireQuestAlert()
+    function WidgetManager:AcquireQuestPopup()
         local f;
         for widget in pairs(FramePool) do
             if not widget.isActive then
@@ -333,7 +334,7 @@ do  --Create Popup
         end
 
         if not f then
-            f = CreateQuestAlert();
+            f = CreateQuestPopup();
             FramePool[f] = true;
         end
 
@@ -350,7 +351,7 @@ do  --Create Popup
             if AddAutoQuestPopUp(questID, popUpType) then
                 local f = QuestWidgets[questID];
                 if not f then
-                    f = self:AcquireQuestAlert();
+                    f = self:AcquireQuestPopup();
                 end
 
                 if API.IsPlayerOnQuest(questID) then
@@ -368,20 +369,34 @@ do  --Create Popup
         end
     end
 
+    function WidgetManager:RemoveAutoQuestPopUp()
+        for widget in pairs(FramePool) do
+            widget:Close();
+        end
+    end
+
     function WidgetManager:QUEST_ACCEPTED(questID)
         if questID and QuestWidgets[questID] then
             self:UnregisterEvent("QUEST_ACCEPTED");
             QuestWidgets[questID]:SetAcceptedQuest(questID);
         end
     end
+
+
+    local function Settings_AutoQuestPopup(dbValue)
+        if dbValue == false then
+            WidgetManager:RemoveAutoQuestPopUp()
+        end
+    end
+    addon.CallbackRegistry:Register("SettingChanged.AutoQuestPopup", Settings_AutoQuestPopup);
 end
 
 
 --[[
 C_Timer.After(3, function()
-    local f = WidgetManager:AcquireQuestAlert();
+    local f = WidgetManager:AcquireQuestPopup();
     f:SetAcceptedQuest(72291);
-    local b = WidgetManager:AcquireQuestAlert();
+    local b = WidgetManager:AcquireQuestPopup();
     b:SetQuestOffer(83719); --72291 72481
 end);
 --]]

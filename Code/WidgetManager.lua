@@ -1,6 +1,8 @@
 local _, addon = ...
 local API = addon.API;
+local L = addon.L;
 local GetDBValue = addon.GetDBValue;
+local TooltipFrame = addon.SharedTooltip;
 
 
 local DBKEY_POSITION = "WidgetManagerPosition";
@@ -35,9 +37,17 @@ do  --Emulate Drag gesture
         if self.owner then
             if self.owner.isMoving then
                 --This method may get called during PreDrag, when the owner isn't moving
-                if self.owner.SavePosition then
-                    self.owner:SavePosition();
+                if WidgetManager.isEditMode and MainAnchor:IsMouseOver() and (self.owner.dbkeyPosition ~= DBKEY_POSITION) then
+                    if self.owner.ResetPosition then
+                        self.owner:ResetPosition();
+                    end
+
+                else
+                    if self.owner.SavePosition then
+                        self.owner:SavePosition();
+                    end
                 end
+
                 if self.owner.OnDragStop then
                     self.owner:OnDragStop();
                 end
@@ -132,7 +142,7 @@ do  --Draggable Widget
         addon.SettingsUI:RequestUpdate();
     end
 
-    function WidgetBaseMixin:ResetPosition()
+    function WidgetBaseMixin:ResetPosition(fromSettingsUI)
         if not self.dbkeyPosition then return end;
 
         if self:IsUsingCustomPosition() then
@@ -140,6 +150,10 @@ do  --Draggable Widget
         end
         self:LoadPosition();
         addon.SettingsUI:RequestUpdate();
+
+        if fromSettingsUI then
+            WidgetManager:TogglePopupAnchor(true)
+        end
     end
 
     function WidgetBaseMixin:IsUsingCustomPosition()
@@ -179,12 +193,13 @@ do  --Draggable Widget
         end
     end
 
-    function WidgetManager:CreateWidget(dbkeyPosition)
+    function WidgetManager:CreateWidget(dbkeyPosition, widgetName)
         local f = CreateFrame("Frame");
         f:SetClampedToScreen(true);
         f:SetMovable(true);
         API.Mixin(f, WidgetBaseMixin);
         f.dbkeyPosition = dbkeyPosition;
+        f.widgetName = widgetName;
         f:SetScript("OnMouseDown", WidgetBaseMixin_OnMouseDown);
         f:SetScript("OnMouseUp", WidgetBaseMixin_OnMouseUp);
         return f
@@ -391,6 +406,10 @@ do  --Position Chain, Dock
         self.widgets = widgets;
         self.numWidgets = n;
 
+        if self.isEditMode then
+            WidgetManager:UpdateLinkIndicator();
+        end
+
         if n == 0 then return end;
 
         table.sort(widgets, function(a, b)
@@ -419,6 +438,18 @@ do  --Position Chain, Dock
 
         animate = true;
         self:ChainPosition(animate);
+    end
+
+    function WidgetManager:ChainGetActive()
+        local widgets = {};
+        local n = 0;
+        for widget, index in pairs(ChainedFrames) do
+            if widget:IsShown() then
+                n = n + 1;
+                widgets[n] = widget;
+            end
+        end
+        return widgets
     end
 
     local function ChainPosition_OnUpdate(self, elapsed)
@@ -507,7 +538,7 @@ do  --Change Main Anchor Position
         local E_SCALE = 0.5;
         local FRAME_WIDTH, FRAME_HEIGHT = 536, 88;
         local BG_WIDTH, BG_HEIGHT = 576, 128;
-        local file = "Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestAlert.png";
+        local file = "Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestPopup.png";
 
         self:SetSize(FRAME_WIDTH * E_SCALE, FRAME_HEIGHT * E_SCALE);
 
@@ -524,7 +555,7 @@ do  --Change Main Anchor Position
         Text:SetTextColor(0, 0, 0);
         Text:SetShadowColor(1, 1, 1, 0.5);
         Text:SetShadowOffset(2, -2);
-        Text:SetText(addon.L["Popup Position"]);
+        Text:SetText(L["Popup Position"]);
     end
 
     function AnchorPosition:OnMouseUp(button)
@@ -535,6 +566,75 @@ do  --Change Main Anchor Position
         end
     end
 
+    function AnchorPosition:ShowLinkIndicator(state)
+        if state then
+            if not self.linkPool then
+                local function OnEnter(f)
+                    if f.owner then
+                        local tooltipText;
+                        if f.owner.widgetName then
+                            tooltipText = string.format(L["Widget Is Docked Named"], f.owner.widgetName);
+                        else
+                            tooltipText = L["Widget Is Docked Generic"];
+                        end
+                        TooltipFrame.ShowWidgetTooltip(f, tooltipText);
+                    end
+                end
+
+                local function OnLeave(f)
+                    TooltipFrame.HideTooltip();
+                end
+
+                local function OnAcquire(f)
+                    local level = self:GetFrameLevel() - 1;
+                    f:SetFrameLevel(level);
+                    local px = API.GetPixelForWidget(f, 1);
+                    f.Icon:SetSize(64*px, 64*px);
+                    f:SetSize(40*px, 40*px);
+                end
+
+                local function OnCreate()
+                    local f = CreateFrame("Frame", nil, self);
+                    local Icon = f:CreateTexture(nil, "OVERLAY", nil, -1);
+                    f.Icon = Icon;
+                    Icon:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestPopup.png");
+                    Icon:SetTexCoord(832/1024, 896/1024, 0, 64/1024);
+                    Icon:SetPoint("CENTER", f, "CENTER", 0, 0);
+                    OnAcquire(f);
+                    f:SetScript("OnEnter", OnEnter);
+                    f:SetScript("OnLeave", OnLeave);
+                    return f
+                end
+
+                local function OnRemove(f)
+                    f:Hide();
+                    f:ClearAllPoints();
+                end
+
+                self.linkPool = API.CreateObjectPool(OnCreate, OnRemove, OnAcquire);
+            end
+            WidgetManager:UpdateLinkIndicator();
+        else
+            if self.linkPool then
+                self.linkPool:Release();
+            end
+        end
+    end
+
+
+    function WidgetManager:UpdateLinkIndicator()
+        if AnchorPosition.linkPool then
+            AnchorPosition.linkPool:Release();
+
+            local widgets = WidgetManager:ChainGetActive();
+            local f;
+            for _, widget in ipairs(widgets) do
+                f = AnchorPosition.linkPool:Acquire();
+                f.owner = widget;
+                f:SetPoint("CENTER", widget, "TOP", 0, 0);
+            end
+        end
+    end
 
     function WidgetManager:TogglePopupAnchor(state)
         if state == nil then
@@ -542,6 +642,7 @@ do  --Change Main Anchor Position
         end
 
         if state then
+            self.isEditMode = true;
             if AnchorPosition.Init then
                 AnchorPosition:Init();
             end
@@ -549,8 +650,12 @@ do  --Change Main Anchor Position
             AnchorPosition:Show();
             AnchorPosition:SetFrameStrata("FULLSCREEN_DIALOG");
             AnchorPosition:SetFrameLevel(128);
+            AnchorPosition:ShowLinkIndicator(true);
         else
+            self.isEditMode = false;
             AnchorPosition:Hide();
+            AnchorPosition:ShowLinkIndicator(false);
+            TooltipFrame.HideTooltip();
         end
     end
 

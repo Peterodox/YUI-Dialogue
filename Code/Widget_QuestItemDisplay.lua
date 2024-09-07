@@ -16,6 +16,7 @@ local After = C_Timer.After;
 -- User Settings
 local IGNORE_SEEN_ITEM = false;
 local DBKEY_POSITION = "QuestItemDisplayPosition";
+local WIDGET_NAME = L["Quest Item Display"];
 ------------------
 
 local MAX_TEXT_WIDTH = 224; --256 when font size >12
@@ -41,7 +42,7 @@ local ALWAYS_IGNORED = {};      --Some World Quest Items
 local READABLE_ITEM = ITEM_CAN_BE_READ or "<This item can be read>";
 local START_QUEST_ITEM = ITEM_STARTS_QUEST or "This Item Begins a Quest";
 
-local QuestItemDisplay = WidgetManager:CreateWidget(DBKEY_POSITION);
+local QuestItemDisplay = WidgetManager:CreateWidget(DBKEY_POSITION, WIDGET_NAME);
 QuestItemDisplay:Hide();
 QuestItemDisplay.isChainable = true;
 addon.QuestItemDisplay = QuestItemDisplay;

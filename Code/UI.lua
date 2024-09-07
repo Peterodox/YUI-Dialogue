@@ -14,6 +14,7 @@ local FriendshipBar = addon.FriendshipBar;
 local PlaySound = addon.PlaySound;
 local IsAutoSelectOption = addon.IsAutoSelectOption;
 local GetDBBool = addon.GetDBBool;
+local SwipeEmulator = addon.SwipeEmulator;
 local IS_MODERN_WOW = not addon.IS_CLASSIC;
 
 local FadeFrame = API.UIFrameFade;
@@ -115,23 +116,7 @@ local function ScrollFrame_Easing(self, elapsed)
         end
     end
 
-    self.topDividerAlpha = self.value/24;
-    if self.topDividerAlpha > 1 then
-        self.topDividerAlpha = 1;
-    elseif self.topDividerAlpha < 0 then
-        self.topDividerAlpha = 0;
-    end
-    self.borderTop:SetAlpha(self.topDividerAlpha);
-
-    self.BottomDividerAlpha = (self.range - self.value)/24;
-    if self.BottomDividerAlpha > 1 then
-        self.BottomDividerAlpha = 1;
-    elseif self.BottomDividerAlpha < 0 then
-        self.BottomDividerAlpha = 0;
-    end
-    self.borderBottom:SetAlpha(self.BottomDividerAlpha);
-
-    self:SetVerticalScroll(self.value);
+    self:SetOffset(self.value);
 end
 
 
@@ -319,7 +304,7 @@ function DUIDialogBaseMixin:OnLoad()
     MainFrame = self;
     addon.DialogueUI = self;
 
-    TooltipFrame:SetParent(self);
+    --TooltipFrame:SetParent(self);
     TooltipFrame:SetShowDelay(0.25);
 
     AlertFrame:SetParent(self);
@@ -384,10 +369,33 @@ function DUIDialogBaseMixin:OnLoad()
         else
             self:ScrollBy(offsetPerScroll);
         end
-    end
 
-    self.ScrollFrame:SetScript("OnMouseWheel", ScrollFrame_OnMouseWheel);
+        SwipeEmulator:StopWatching();
+    end
     self.ScrollFrame.OnMouseWheel = ScrollFrame_OnMouseWheel;
+    self.ScrollFrame:SetScript("OnMouseWheel", ScrollFrame_OnMouseWheel);
+
+    local function ScrollFrame_SetOffset(f, value)
+        f.topDividerAlpha = value/24;
+        if f.topDividerAlpha > 1 then
+            f.topDividerAlpha = 1;
+        elseif f.topDividerAlpha < 0 then
+            f.topDividerAlpha = 0;
+        end
+        f.borderTop:SetAlpha(f.topDividerAlpha);
+
+        f.BottomDividerAlpha = (f.range - value)/24;
+        if f.BottomDividerAlpha > 1 then
+            f.BottomDividerAlpha = 1;
+        elseif f.BottomDividerAlpha < 0 then
+            f.BottomDividerAlpha = 0;
+        end
+        f.borderBottom:SetAlpha(f.BottomDividerAlpha);
+
+        f:SetVerticalScroll(value);
+    end
+    self.ScrollFrame.SetOffset = ScrollFrame_SetOffset;
+
 
     local function CreateFontString()
         local fontString = self.ContentFrame:CreateFontString(nil, "ARTWORK", "DUIFont_Quest_Paragraph");
@@ -401,7 +409,11 @@ function DUIDialogBaseMixin:OnLoad()
         fontString:ClearAllPoints();
     end
 
-    self.fontStringPool = API.CreateObjectPool(CreateFontString, RemoveFontString);
+    local function OnAcquireFontString(fontString)
+        fontString:SetSpacing(TEXT_SPACING);
+    end
+
+    self.fontStringPool = API.CreateObjectPool(CreateFontString, RemoveFontString, OnAcquireFontString);
 
 
     local function CreateOptionButton()
@@ -870,35 +882,7 @@ end
 function DUIDialogBaseMixin:ScrollBy(offset)
     local f = self.ScrollFrame;
     local value = f.scrollTarget or f:GetVerticalScroll();
-    
     self:ScrollTo(value + offset);
-
-    --[[
-    if offset > 0 and value < f.range then
-        anyChange = true;
-        value = value + offset;
-        if value > f.range then
-            value = f.range;
-        end
-    elseif offset < 0 and value > 0 then
-        anyChange = true;
-        value = value + offset;
-        if value < 0 then
-            value = 0;
-        end
-    end
-
-    if anyChange then
-        f.scrollTarget = value;
-        if not self.questLayout then
-            FadeFrame(f.borderTop, 0.25, 1);
-        end
-        if value < f.range then
-            FadeFrame(f.borderBottom, 0.25, 1);
-        end
-        f:SetScript("OnUpdate", ScrollFrame_Easing);
-    end
-    --]]
 end
 
 function DUIDialogBaseMixin:ScrollToBottom()
@@ -947,6 +931,8 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame, "TOPLEFT", 0, 0);
         self.ContentFrame:SetPoint("BOTTOMRIGHT", self.ScrollFrame, "BOTTOMRIGHT", 0, 0);
     end
+
+    SwipeEmulator:SetScrollable(true);
 end
 
 function DUIDialogBaseMixin:IsScrollable()
@@ -966,10 +952,9 @@ function DUIDialogBaseMixin:SetScrollRange(contentHeight)
         if range < 12 then
             range = 12;
         end
+        range = Round(range + 36);
 
-        range = range + 36;
-
-        self.ScrollFrame.range = Round(range);
+        self.ScrollFrame.range = range;
         self.FrontFrame.FooterDivider:Show();
         self.FrontFrame.FooterDivider:SetAlpha(1);
     else
@@ -2080,6 +2065,7 @@ end
 
 function DUIDialogBaseMixin:OnShow()
     KeyboardControl:SetParentFrame(self);
+    SwipeEmulator:SetOwner(self.ScrollFrame);
 
     self:RegisterEvent("GOSSIP_SHOW");
     self:RegisterEvent("GOSSIP_CLOSED");
@@ -2161,7 +2147,8 @@ end
 
 function DUIDialogBaseMixin:OnMouseUp(button)
     if button == "RightButton" and GetDBBool("RightClickToCloseUI") and self:IsMouseMotionFocus() then
-        self:CloseDialogInteraction();
+        self:Hide();
+        --self:CloseDialogInteraction();
     end
 end
 
@@ -2989,10 +2976,12 @@ do
     CallbackRegistry:Register("PostFontSizeChanged", PostFontSizeChanged);
 
     local FrameSizeIndexScale = {
+        --Ceil: 1/0.618
         [0] = 0.9,
         [1] = 1.0,
         [2] = 1.1,
         [3] = 1.25,
+        [4] = 1.4;
     };
 
     local function Settings_FrameOrientation()
@@ -3005,7 +2994,13 @@ do
 
     local function Settings_FrameSize(dbValue)
         --1: 1.0, 2: 1.1, 3:1.25
-        local newScale = dbValue and FrameSizeIndexScale[dbValue]
+
+        if GetDBBool("MobileDeviceMode") then
+            dbValue = 4;
+        end
+
+        local newScale = dbValue and FrameSizeIndexScale[dbValue];
+
         if newScale and newScale ~= FRAME_SIZE_MULTIPLIER then
             FRAME_SIZE_MULTIPLIER = newScale;
 

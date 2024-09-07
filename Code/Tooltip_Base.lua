@@ -708,6 +708,8 @@ addon.CreateTooltipBase = CreateTooltipBase;
 
 
 do
+    local CallbackRegistry = addon.CallbackRegistry;
+
     local function PostInputDeviceChanged(dbValue)
         for _, tooltip in ipairs(Tooltips) do
             if tooltip.HotkeyFrame then
@@ -715,7 +717,7 @@ do
             end
         end
     end
-    addon.CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
+    CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
 
     local function PostFontSizeChanged()
         PostInputDeviceChanged();
@@ -723,6 +725,9 @@ do
         local _;
         _, FONT_HEIGHT_MEDIUM = _G[FONT_MEDIUM]:GetFont();
         FONT_HEIGHT_MEDIUM = Round(FONT_HEIGHT_MEDIUM);
+
+        local widthMultiplier = max(1, FONT_HEIGHT_MEDIUM / 10);
+        FONTSTRING_MAX_WIDTH = widthMultiplier * (TOOLTIP_MAX_WIDTH - 2*TOOLTIP_PADDING);
     end
-    addon.CallbackRegistry:Register("PostFontSizeChanged", PostFontSizeChanged);
+    CallbackRegistry:Register("PostFontSizeChanged", PostFontSizeChanged);
 end
