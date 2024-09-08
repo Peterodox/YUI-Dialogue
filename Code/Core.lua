@@ -135,6 +135,8 @@ function EL:OnEvent(event, ...)
 		end
 
         if USE_AUTO_QUEST_POPUP and QuestIsFromAreaTrigger() and (QuestGetAutoAccept() or InCombatLockdown()) then
+            --"QuestIsFromAreaTrigger" and "QuestGetAutoAccept" Doesn't work in Classic
+            --Some quests that triggered upon login aren't "QuestIsFromAreaTrigger"
             addon.WidgetManager:AddAutoQuestPopUp();
             CloseQuest();
         else

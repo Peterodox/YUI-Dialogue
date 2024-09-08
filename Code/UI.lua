@@ -79,7 +79,7 @@ local SetPortraitTexture = SetPortraitTexture;
 local AcceptQuest = AcceptQuest;
 local GetQuestPortraitGiver = GetQuestPortraitGiver;
 local GetNumQuestChoices = GetNumQuestChoices;
-local AcknowledgeAutoAcceptQuest = AcknowledgeAutoAcceptQuest;
+local AcknowledgeAutoAcceptQuest = API.AcknowledgeAutoAcceptQuest;
 
 
 local After = C_Timer.After;
@@ -1208,6 +1208,7 @@ function DUIDialogBaseMixin:HandleGossip()
         questIndex = questIndex + 1;
         questInfo.isOnQuest = false;
         questInfo.isAvailableQuest = true;
+        questInfo.isComplete = false;
         questInfo.originalOrder = questIndex;
         questInfo.index = i;
         quests[questIndex] = questInfo;
@@ -1217,6 +1218,9 @@ function DUIDialogBaseMixin:HandleGossip()
         questIndex = questIndex + 1;
         questInfo.isOnQuest = true;     --there is a delay between C_Gossip and C_QuestLog.IsOnQuest
         questInfo.isAvailableQuest = false;
+        if questInfo.isComplete == nil then
+            questInfo.isComplete = false;
+        end
         questInfo.originalOrder = questIndex;
         questInfo.index = i;
         quests[questIndex] = questInfo;
@@ -1415,14 +1419,19 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
         self:FadeInContentFrame();
     end
 
+    addon.WidgetManager:RemoveQuestPopUpByID(self.questID);
+
     return true
 end
 
-function DUIDialogBaseMixin:HandleQuestAccepted(questID)
-    --QUEST_ACCEPTED
+function DUIDialogBaseMixin:HandleQuestAccepted(questID, classicQuestID)
+    --QUEST_ACCEPTED (In Classic) questLogIndex, questID
     if self.handler == "HandleQuestDetail" then
         local currentQuestID = GetQuestID();
-        if currentQuestID and currentQuestID ~= 0 and currentQuestID == questID then
+        if classicQuestID then
+            questID = classicQuestID;
+        end
+        if (currentQuestID and currentQuestID ~= 0) and (questID and questID == currentQuestID) then
             local AcceptButton = self:AcquireAcceptButton(true);
             local ExitButton = self:AcquireExitButton();
             AcceptButton:SetButtonAlreadyOnQuest();
@@ -1624,6 +1633,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         local questInfo = {
             index = i,
             title = title,
+            isComplete = false,
             questID = questID,
             isOnQuest = false,
             isTrivial = isTrivial,
@@ -2112,6 +2122,7 @@ function DUIDialogBaseMixin:OnHide()
     self.chooseItems = nil;
     self.handler = nil;
     self.handlerArgs = nil;
+    self.questID = nil;
     self.contentHeight = 0;
 
     self:UnregisterEvent("GOSSIP_SHOW");
@@ -2219,8 +2230,7 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
         self.keepGossipHistory = false;
         self.selectedGossipIndex = nil;
     elseif event == "QUEST_ACCEPTED" then
-        local questID = ...
-        self:HandleQuestAccepted(questID);
+        self:HandleQuestAccepted(...);
     elseif event == "QUEST_LOG_UPDATE" then
         if self.hasActiveGossipQuests then
             self.keepGossipHistory = false;

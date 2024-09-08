@@ -226,6 +226,7 @@ do
         WidgetManager:ChainRemove(self);
         if self.questID then
             RemoveAutoQuestPopUp(self.questID);
+            API.RemoveQuestObjectiveTrackerQuestPopUp(self.questID);
             if QuestWidgets[self.questID] == self then
                 QuestWidgets[self.questID] = nil;
             end
@@ -362,14 +363,23 @@ do  --Create Popup
                     self:RegisterEvent("QUEST_ACCEPTED");   --TO-DO: Unregister if player turns down the offer
                 end
 
-                PlayAutoAcceptQuestSound();
+                if PlayAutoAcceptQuestSound then
+                    PlayAutoAcceptQuestSound();
+                end
             else
 
             end
         end
     end
 
-    function WidgetManager:RemoveAutoQuestPopUp()
+    function WidgetManager:RemoveQuestPopUpByID(questID)
+        --Triggered by DialogueUI:HandleQuestDetail()
+        if QuestWidgets[questID] then
+            QuestWidgets[questID]:Close();
+        end
+    end
+
+    function WidgetManager:RemoveAllQuestPopUps()
         for widget in pairs(FramePool) do
             widget:Close();
         end
@@ -385,7 +395,7 @@ do  --Create Popup
 
     local function Settings_AutoQuestPopup(dbValue)
         if dbValue == false then
-            WidgetManager:RemoveAutoQuestPopUp()
+            WidgetManager:RemoveAllQuestPopUps()
         end
     end
     addon.CallbackRegistry:Register("SettingChanged.AutoQuestPopup", Settings_AutoQuestPopup);

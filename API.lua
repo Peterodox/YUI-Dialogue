@@ -132,10 +132,10 @@ do  -- Pixel
     end
     API.UpdateTextureSliceScale = UpdateTextureSliceScale;
 
-    if addon.IS_CATA then    --IS_CLASSIC
+    --if addon.IS_CATA then
         --Era 1.15.3 has this issue too
-        API.UpdateTextureSliceScale = AlwaysNil;
-    end
+        --API.UpdateTextureSliceScale = AlwaysNil;  --4.4.1 has this issue too
+    --end
 
     local function GetPixelForScale(scale, pixelSize)
         if pixelSize then
@@ -760,6 +760,12 @@ do  -- Quest
         end
     end
     API.IsPlayerOnQuest = IsPlayerOnQuest;
+
+    if AcknowledgeAutoAcceptQuest then
+        API.AcknowledgeAutoAcceptQuest = AcknowledgeAutoAcceptQuest;
+    else    --Classic
+        API.AcknowledgeAutoAcceptQuest = AcceptQuest;
+    end
 
     --TWW
     local GetQuestCurrency;
@@ -2796,6 +2802,54 @@ do  -- System
     else
         API.GetMouseFocus = AlwaysNil;
     end
+
+    local function TriggerQuestObjectiveTrackerDirty()
+        --(Retail Only) Trigger a "SUPER_TRACKING_CHANGED" so QuestObjectiveTracker removes its popups after QuestObjectiveTrackerMixin:OnEvent
+        if not C_SuperTrack then return end;
+
+        local oldWaypoint C_Map.GetUserWaypoint();
+        local hasWaypoints = oldWaypoint ~= nil;
+        local isTracking = hasWaypoints and C_SuperTrack.IsSuperTrackingUserWaypoint();
+
+        C_QuestLog.AddQuestWatch(0);
+        if not hasWaypoints then
+            oldWaypoint = {
+                uiMapID = 84,
+                position = {
+                    x = 0.5,
+                    y = 0.5,
+                },
+            };
+
+            C_Map.SetUserWaypoint(oldWaypoint);
+        end
+
+        C_SuperTrack.SetSuperTrackedUserWaypoint(not isTracking);
+
+        if hasWaypoints then
+            C_SuperTrack.SetSuperTrackedUserWaypoint(isTracking);
+        else
+            C_Map.ClearUserWaypoint();
+        end
+    end
+    API.TriggerQuestObjectiveTrackerDirty = TriggerQuestObjectiveTrackerDirty;
+
+    local function RemoveQuestObjectiveTrackerQuestPopUp(questID)
+        --QuestObjectiveTracker:RemoveAutoQuestPopUp() isn't safe
+        --AutoQuest is usually auto-tracked, we change the tracking status to trigger "QUEST_WATCH_LIST_CHANGED";
+        if not C_QuestLog.GetQuestWatchType then return end;
+
+        local watchType = C_QuestLog.GetQuestWatchType(questID);
+        local isWatched = watchType ~= nil;
+        if isWatched then
+            C_QuestLog.RemoveQuestWatch(questID);
+            C_QuestLog.AddQuestWatch(questID);
+        else
+            C_QuestLog.AddQuestWatch(questID);
+            C_QuestLog.RemoveQuestWatch(questID);
+        end
+    end
+    API.RemoveQuestObjectiveTrackerQuestPopUp = RemoveQuestObjectiveTrackerQuestPopUp;
 end
 
 do  -- Dev Tool

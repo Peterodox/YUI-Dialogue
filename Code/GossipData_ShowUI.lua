@@ -10,7 +10,8 @@ local ShowUIGossip = {
     [55556] = true,     --Iskaara Renown
     [54514] = true,     --Maruuk Renown
     [55557] = true,     --Valdrakken Renown
-    [54632] = true,     --Dragonscale Renown   
+    [54632] = true,     --Dragonscale Renown
+    [82449] = true,     --Faerin, Dornagal Weekly
 };
 
 function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)

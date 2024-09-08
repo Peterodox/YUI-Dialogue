@@ -271,7 +271,9 @@ do
     local function Settings_MobileDeviceMode(dbValue, userInput)
         if userInput then
             FontUtil:SetFontSizeByID(GetDBValue("FontSizeBase"));
-            addon.SetDBValue("FrameSize", GetDBValue("FrameSize"));
+            C_Timer.After(0.05, function()  --Wait until "PostFontSizeChanged" tiggered in SharedUITemplate.lua
+                addon.SetDBValue("FrameSize", GetDBValue("FrameSize"));
+            end);
         end
     end
     addon.CallbackRegistry:Register("SettingChanged.MobileDeviceMode", Settings_MobileDeviceMode);

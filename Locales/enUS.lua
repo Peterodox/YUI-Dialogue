@@ -175,7 +175,7 @@ L["Key Disabled"] = "Disabled";
 L["Key Disabled Tooltip"] = "Confirm Button has been disabled.\n\nYou will not be able to accept quest by pressing keys.";
 
 L["Auto Quest Popup"] = "Auto Quest Popup";
-L["Auto Quest Popup Desc"] = "If a new quest is automatically triggered by picking up an item or entering an area, the quest will be displayed on a pop-up first instead of showing quest details.";
+L["Auto Quest Popup Desc"] = "If a new quest is automatically triggered by picking up an item or entering an area, the quest will be displayed on a pop-up first instead of showing quest details.\n\nQuests triggered upon login may not meet our criteria.";
 L["Popup Position"] = "Pop-up Position";    --Pop-up window position
 L["Widget Is Docked Generic"] = "This widget is docked with other pop-ups.";   --Indicate a window is docked with other pop-up windows
 L["Widget Is Docked Named"] = "%s is docked with other pop-ups.";

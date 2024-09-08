@@ -366,7 +366,7 @@ do  --Camera Calibrator
         RightArrow:SetPoint("LEFT", CvarReading, "CENTER", 48, 0);
     end
 
-    function DialogueUI_ShowCameraCalibrator(show)
+    local function DialogueUI_ShowCameraCalibrator(show)
         show = show ~= false;
         if show then
             Calibrator_Init();

@@ -845,27 +845,37 @@ end
 
 
 do
+    local CallbackRegistry = addon.CallbackRegistry;
+
     local function GetPlayerGUID()
         PLAYER_GUID = UnitGUID("player");
         PLAYER_NAME = UnitName("player");
     end
-    addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", GetPlayerGUID);
+    CallbackRegistry:Register("PLAYER_ENTERING_WORLD", GetPlayerGUID);
 
     local function Settings_QuestItemDisplay(dbValue)
         QuestItemDisplay:EnableModule(dbValue == true);
     end
-    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplay", Settings_QuestItemDisplay);
+    CallbackRegistry:Register("SettingChanged.QuestItemDisplay", Settings_QuestItemDisplay);
 
     local function Settings_QuestItemDisplayHideSeen(dbValue)
         IGNORE_SEEN_ITEM = dbValue == true;
     end
-    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplayHideSeen", Settings_QuestItemDisplayHideSeen);
-
+    CallbackRegistry:Register("SettingChanged.QuestItemDisplayHideSeen", Settings_QuestItemDisplayHideSeen);
 
     local function Settings_QuestItemDisplayDynamicFrameStrata(dbValue, userInput)
         QuestItemDisplay:SetDynamicFrameStrata(dbValue == true, userInput);
     end
-    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplayDynamicFrameStrata", Settings_QuestItemDisplayDynamicFrameStrata);
+    CallbackRegistry:Register("SettingChanged.QuestItemDisplayDynamicFrameStrata", Settings_QuestItemDisplayDynamicFrameStrata);
+
+    local function OnFontSizeChanged(baseFontSize)
+        if baseFontSize > 16 then
+            MAX_TEXT_WIDTH = Round(224 * baseFontSize / 16);
+        else
+            MAX_TEXT_WIDTH = 224;
+        end
+    end
+    CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 end
 
 do

@@ -1,5 +1,5 @@
-## Interface: 40400
-## Version: 0.4.5
+## Interface: 40400, 40401
+## Version: 0.4.6
 
 ## Title: Dialogue UI
 
@@ -10,8 +10,6 @@
 
 ## IconTexture: Interface\AddOns\DialogueUI\Art\Icons\Logo
 ## AddonCompartmentFunc: DialogueUI_ShowSettingsFrame
-
-
 
 
 Initialization.lua

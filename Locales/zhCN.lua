@@ -175,7 +175,7 @@ L["Key Disabled"] = "不做设定";
 L["Key Disabled Tooltip"] = "不再使用确认键。\n\n你将无法通过按键盘的方式来接受任务。";
 
 L["Auto Quest Popup"] = "自动任务弹窗";
-L["Auto Quest Popup Desc"] = "如果一个新任务是由拾取物品或进入某区域后自动触发的，先用小弹窗显示这个任务。";
+L["Auto Quest Popup Desc"] = "如果一个新任务是由拾取物品或进入某区域后自动触发的，先用小弹窗显示这个任务。\n\n那些在你登录后就自动弹出的任务可能不满足我们的判定条件。";
 L["Popup Position"] = "弹窗位置";    --Pop-up window position
 L["Widget Is Docked Generic"] = "此窗口与其他弹窗停靠在一起。";   --Indicate a window is docked with other pop-up windows
 L["Widget Is Docked Named"] = "%s与其他弹窗停靠在一起。";

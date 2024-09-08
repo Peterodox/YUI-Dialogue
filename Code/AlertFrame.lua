@@ -102,7 +102,10 @@ function AlertFrame:OnEvent(event, ...)
     elseif event == "UI_ERROR_MESSAGE" then
         self:TryDisplayMessage(...);
     elseif event == "QUEST_ACCEPTED" then
-        local questID = ...
+        local questID, classicQuestID = ...
+        if classicQuestID and classicQuestID ~= 0 then
+            questID = classicQuestID;
+        end
         if API.ShouldShowQuestAcceptedAlert(questID) then   --Emissary Quests (LEG, BFA) are auto accepted upon login
             self:DisplayQuestMessage(questID, L["Format Quest Accepted"], COLOR_YELLOW);
         end

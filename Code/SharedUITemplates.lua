@@ -191,7 +191,7 @@ local function OnClickFunc_AcceptQuest(acceptButton, fromMouseClick)
 		QuestFrame.dialog = StaticPopup_Show("CONFIRM_ACCEPT_PVP_QUEST");
 	else
 		if ( QuestFrame.autoQuest ) then
-			AcknowledgeAutoAcceptQuest();
+			API.AcknowledgeAutoAcceptQuest();
 		else
 			AcceptQuest();
 		end
@@ -2483,6 +2483,5 @@ do
 
         CallbackRegistry:Trigger("PostFontSizeChanged");
     end
-
     CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 end
