@@ -9,6 +9,7 @@ local GetCursorPosition = GetCursorPosition;
 local EMULATE_SWIPE = true;
 
 
+local SWIPE_SPEED_SAMPLE_T = 2/60;
 local SWIPE_START_THRESHOLD = 25;   --Distance Square
 local RUBBERBAND_MAX_OFFSET = 64;
 local RUBBERBAND_STRENGH = 0.5;
@@ -130,10 +131,10 @@ do
         self.dy = self.newY - self.y;
         self.y = self.newY;
 
-        if self.sampleT > 0.05 then --SampleWindow 3 frames (60fps)
-            self.sampleT = 0;
-            self.sampleSpeed = (self.newY - (self.lastSampledY or self.newY)) / 0.05;
+        if self.sampleT > SWIPE_SPEED_SAMPLE_T then --SampleWindow 3 frames (60fps)
+            self.sampleSpeed = (self.newY - (self.lastSampledY or self.newY)) / self.sampleT;
             self.lastSampledY = self.newY;
+            self.sampleT = 0;
         end
 
         self.offset = self.owner:GetVerticalScroll() + self.dy;
@@ -167,12 +168,15 @@ do
             addon.DialogueUI:ScrollTo(self.owner.range);
         elseif self.sampleSpeed and self.sampleSpeed ~= 0 then
             --Handle Inertia
-            local effectiveSpeed = self.sampleSpeed / 5;
+            local effectiveSpeed = self.sampleSpeed / 4;
             if effectiveSpeed > 2 or effectiveSpeed < -2 then
                 if self:IsVisible() then
+                    --print(effectiveSpeed)
+                    effectiveSpeed = API.Clamp(effectiveSpeed, -640, 640);
                     self.speed = effectiveSpeed;
                     self.accDirection = (effectiveSpeed > 0 and -1) or 1;
                     self.range = self.owner.range or 0;
+                    self.supposedOffset = self.owner:GetVerticalScroll();
                     self:SetScript("OnUpdate", self.OnUpdate_Inertia);
                 end
             end
@@ -202,7 +206,8 @@ do
     end
 
     function SwipeEmulator:OnUpdate_Inertia(elapsed)
-        self.speed = self.speed + 400 * self.accDirection * elapsed;
+        self.speed = self.speed + 320 * self.accDirection * elapsed;
+
         if self.accDirection < 0 and self.speed <= 0 then
             self:SetScript("OnUpdate", nil);
         elseif self.accDirection > 0 and self.speed >= 0 then
@@ -210,12 +215,28 @@ do
         end
 
         local newOffset = self.owner:GetVerticalScroll() + self.speed * elapsed;
-        if newOffset > self.range then
-            newOffset = self.range;
-            self:SetScript("OnUpdate", nil);
-        elseif newOffset < 0 then
-            newOffset = 0;
-            self:SetScript("OnUpdate", nil);
+        self.supposedOffset = self.supposedOffset + self.speed * elapsed;
+
+        local offet = self.supposedOffset;
+        if offet < 0 then
+            newOffset = CalculateOffset(offet, self.range);
+            self.offsetDelta = newOffset  - self.owner:GetVerticalScroll();
+            if (self.offsetDelta < 1 and self.offsetDelta > -1) then
+                self:SetScript("OnUpdate", nil);
+                addon.DialogueUI:ScrollTo(0);
+                return
+            end
+        elseif offet > self.range then
+            newOffset = CalculateOffset(offet, self.range);
+            self.offsetDelta = newOffset  - self.owner:GetVerticalScroll();
+            if (self.offsetDelta < 1 and self.offsetDelta > -1) then
+                self:SetScript("OnUpdate", nil);
+                addon.DialogueUI:ScrollTo(self.owner.range);
+                return
+            end
+        else
+            newOffset = offet;
+            self.offsetDelta = self.speed * elapsed;
         end
 
         self:SetOwnerOffset(newOffset);

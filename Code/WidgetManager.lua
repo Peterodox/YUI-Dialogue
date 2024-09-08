@@ -577,7 +577,8 @@ do  --Change Main Anchor Position
                         else
                             tooltipText = L["Widget Is Docked Generic"];
                         end
-                        TooltipFrame.ShowWidgetTooltip(f, tooltipText);
+                        f.tooltipText = tooltipText;
+                        TooltipFrame.ShowWidgetTooltip(f);
                     end
                 end
 

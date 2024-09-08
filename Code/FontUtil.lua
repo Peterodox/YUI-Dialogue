@@ -35,8 +35,8 @@ local FONT_OBJECT_HEIGHT = {
     --Fifth value is currently used for MobileDeviceMode
     --FontObjectName = {10, 12, 14, 16}     --Paragraph Font Size as Base
 
-    DUIFont_Quest_Title_18 = {14, 18, 18, 18, 18},
-    DUIFont_Quest_Title_16 = {12, 16, 16, 16, 16},
+    DUIFont_Quest_Title_18 = {14, 18, 18, 18, 24},
+    DUIFont_Quest_Title_16 = {12, 16, 16, 16, 20},
     DUIFont_Quest_SubHeader = HEIGHT_1,
     DUIFont_Quest_Paragraph = HEIGHT_1,
     DUIFont_Quest_Gossip = HEIGHT_1,
