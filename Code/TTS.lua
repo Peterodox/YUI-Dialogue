@@ -169,10 +169,14 @@ function TTSUtil:SpeakCurrentContent()
                 table.remove(self.history, 1)
             end
             -- if found and player didn't press the play button manually then return
-            if found and not self.forceRead then return end
+            if found and not self.forceRead then
+                TTSButton.Read:Show();
+                return
+            end
         end
         self.forceRead = nil;
     end
+    TTSButton.Read:Hide();
     --if player wants to use narrator and the current voice is not narrator, queue different parts of quest for reading
     if TTS_USE_NARRATOR and voiceID ~= voiceIDNarrator then
         if TTS_CONTENT_QUEST_TITLE and content.title then   --Quest Title
@@ -393,6 +397,12 @@ do  --TTS Play Button
         b.Wave1:Hide();
         b.Wave2:Hide();
         b.Wave3:Hide();
+
+        b.Read = b:CreateTexture(nil, "OVERLAY");
+        b.Read:SetSize(0.75*ICON_SIZE, 0.75*ICON_SIZE);
+        b.Read:SetPoint("TOPLEFT", b, "TOPLEFT", -2, 2);
+        b.Read:SetTexture("Interface/AddOns/DialogueUI/Art/Icons/Gossip.png");
+        b.Read:Hide();        
 
         b.AnimWave = b:CreateAnimationGroup(nil, "DUISpeakerAnimationTemplate");
 
