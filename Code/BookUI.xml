@@ -1,0 +1,96 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\..\Blizzard_SharedXML\UI.xsd">
+    <Script file="BookUI_Component.lua"/>
+    <Script file="BookUI_Atlas.lua"/>
+    <Script file="BookUI.lua"/>
+
+    <Frame name="DUIDebugAreaTemplate" setAllPoints="true" hidden="true" virtual="true">
+        <KeyValues>
+            <KeyValue key="r" value="1.0" type="number"/>
+            <KeyValue key="g" value="0.0" type="number"/>
+            <KeyValue key="b" value="0.0" type="number"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="BG" setAllPoints="true"/>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad>
+                self.BG:SetColorTexture(self.r, self.g, self.b, 0.2);
+            </OnLoad>
+        </Scripts>
+    </Frame>
+
+    <Frame name="DUIBookFrame" mixin="DUIBookUIMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">
+        <Anchors>
+            <Anchor point="LEFT" relativeTo="UIParent" relativePoint="LEFT" x="48"/>
+        </Anchors>
+        <Frames>
+            <ScrollFrame parentKey="ScrollFrame">
+                <ScrollChild>
+                    <Frame parentKey="ScrollChild">
+                        <Size x="16" y="16"/>
+                    </Frame>
+                </ScrollChild>
+                <Frames>
+                    <Frame inherits="DUIDebugAreaTemplate">
+                        <KeyValues>
+                            <KeyValue key="r" value="0.0" type="number"/>
+                            <KeyValue key="g" value="0.0" type="number"/>
+                            <KeyValue key="b" value="1.0" type="number"/>
+                        </KeyValues>
+                    </Frame>
+                </Frames>
+            </ScrollFrame>
+
+            <Frame parentKey="Header" frameLevel="10">
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <Texture parentKey="HeaderScrollOverlap" hidden="true">
+                            <Size x="768" y="80"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.$parent.ScrollFrame" relativePoint="TOP" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="Footer" frameLevel="10">
+                <Layers>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <Texture parentKey="FooterDivider" hidden="true">
+                            <Size x="768" y="40"/>
+                            <Anchors>
+                                <Anchor point="BOTTOM" relativeKey="$parent.$parent.ScrollFrame" relativePoint="BOTTOM" y="0"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+
+            <Frame parentKey="ContentFrame">
+                <Frames>
+                    <Frame inherits="DUIDebugAreaTemplate">
+                        <KeyValues>
+                            <KeyValue key="r" value="1.0" type="number"/>
+                            <KeyValue key="g" value="0.0" type="number"/>
+                            <KeyValue key="b" value="0.0" type="number"/>
+                        </KeyValues>
+                    </Frame>
+                </Frames>
+            </Frame>
+
+            <Frame parentKey="DebugArea" inherits="DUIDebugAreaTemplate"/>
+        </Frames>
+        <KeyValues>
+            <KeyValue key="nodeignore" value="true" type="boolean"/>
+        </KeyValues>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnShow method="OnShow"/>
+            <OnHide method="OnHide"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Frame>
+</Ui>

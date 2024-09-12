@@ -751,6 +751,9 @@ do  -- Quest
     local GetQuestObjectives = C_QuestLog.GetQuestObjectives;
     local GetQuestTimeLeftSeconds = C_TaskQuest and C_TaskQuest.GetQuestTimeLeftSeconds or AlwaysNil;
     local IsQuestFlaggedCompletedOnAccount = C_QuestLog.IsQuestFlaggedCompletedOnAccount or AlwaysFalse;
+    local GetQuestLogQuestText = GetQuestLogQuestText;
+    local GetNumQuestLeaderBoards = GetNumQuestLeaderBoards;
+    local GetQuestLogLeaderBoard = GetQuestLogLeaderBoard;
 
     API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
 
@@ -816,6 +819,38 @@ do  -- Quest
     end
     API.GetQuestCurrency = GetQuestCurrency;
 
+    local function GetQuestLogProgress(questID)
+        local questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID);
+        if questLogIndex then
+            --local detailText, objectiveText = GetQuestLogQuestText(questLogIndex);
+            local numObjectives = GetNumQuestLeaderBoards(questLogIndex);
+            if numObjectives > 0 then
+                local tbl;
+                local text, objectiveType, finished;
+                local n = 0;
+                for i = 1, numObjectives do
+                    text, objectiveType, finished = GetQuestLogLeaderBoard(i, questLogIndex);
+                    if text then
+                        --[[
+                        if not tbl then
+                            tbl = {};
+                        end
+                        n = n + 1;
+                        tbl[n] = text;
+                        --]]
+                        
+                        if tbl then
+                            tbl = tbl.."\n".."- "..text;
+                        else
+                            tbl = "- "..text;
+                        end
+                    end
+                end
+                return tbl
+            end
+        end
+    end
+    API.GetQuestLogProgress = GetQuestLogProgress;
 
     --Classic
     API.QuestGetAutoAccept = QuestGetAutoAccept;

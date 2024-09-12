@@ -10,7 +10,7 @@
     <Script file="StatusBar.lua"/>
     <Script file="ChatFrame.lua"/>
     <Script file="FriendshipBar.lua"/>
-    <Script file="UI.lua"/>
+    <Script file="DialogueUI.lua"/>
     <Script file="Tutorial.lua"/>
 
     <Frame name="DUIDialogHotkeyTemplate" mixin="DUIDialogHotkeyFrameMixin" hidden="false" virtual="true">

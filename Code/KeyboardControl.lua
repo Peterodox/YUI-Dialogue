@@ -157,6 +157,9 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
         elseif addon.SettingsUI:IsShown() then
             addon.SettingsUI:Hide();
             processed = true;
+        elseif addon.BookUI:IsShown() then
+            addon.BookUI:Hide();
+            processed = true;
         else
             if fromGamePad then
 

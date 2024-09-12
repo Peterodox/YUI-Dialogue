@@ -25,7 +25,8 @@ Code\Scroll.xml
 Code\Settings.xml
 Code\GossipDataProvider.xml
 Code\NameplateGossip.lua
-Code\UI.xml
+Code\DialogueUI.xml
+Code\BookUI.xml
 Code\WidgetManager.xml
 Code\Core.lua
 

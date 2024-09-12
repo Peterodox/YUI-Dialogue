@@ -42,8 +42,6 @@ local TEXT_SPACING = FONT_SIZE*0.35;                 --Font Size /3
 local PARAGRAPH_SPACING = 4*TEXT_SPACING;           --4 * TEXT_SPACING
 local PARAGRAPH_BUTTON_SPACING = 2*FONT_SIZE;    --Font Size * 2
 
-local CONTENT_BLEEDING = 16.0;    --ContentFrame is sometimes ClipChildren and there may be an overlay frame that got clipped.
-
 local CreateFrame = CreateFrame;
 local C_CampaignInfo = C_CampaignInfo;
 local C_GossipInfo = C_GossipInfo;
@@ -90,34 +88,14 @@ local find = string.find;
 local Esaing_OutSine = addon.EasingFunctions.outSine;
 local Round = API.Round;
 
-local DeltaLerp = API.DeltaLerp;
-local SCROLL_BLEND_SPEED = 0.15;    --0.2
-
 local MainFrame;
 
 local SETTINGS_UI_VISIBLE = false;
 
-local function ScrollFrame_Easing(self, elapsed)
-    self.value = DeltaLerp(self.value, self.scrollTarget, SCROLL_BLEND_SPEED, elapsed);
 
-    if (self.value - self.scrollTarget) > -0.4 and (self.value - self.scrollTarget) < 0.4 then
-        --complete
-        self.value = self.scrollTarget;
-        self:SetScript("OnUpdate", nil);
-
-        if self.value == 0 then
-            --at top
-            --self.borderTop:Hide();
-            --FadeFrame(self.borderTop, 0.25, 0);
-        elseif self.value == self.range then
-            --at bottom
-            --self.borderBottom:Hide();
-            --FadeFrame(self.borderBottom, 0.25, 0);
-        end
-    end
-
-    self:SetOffset(self.value);
-end
+local SharedVignette = CreateFrame("Frame");
+SharedVignette:Hide();
+addon.SharedVignette = SharedVignette;
 
 
 DUIDialogBaseMixin = {};
@@ -262,7 +240,7 @@ function DUIDialogBaseMixin:UpdateFrameSize()
     self.scrollFrameBaseHeight = scrollFrameBaseHeight;
     self.scrollViewHeight = scrollFrameBaseHeight;
 
-    local contentWidth = frameWidth;    -- - 2*paddingH + 2*CONTENT_BLEEDING;
+    local contentWidth = frameWidth;
     local contentHeight = Round(scrollFrameBaseHeight);
     self.ContentFrame:SetWidth(Round(contentWidth));
     self.ContentFrame:SetHeight(contentHeight);     --Irrelevant
@@ -300,7 +278,9 @@ function DUIDialogBaseMixin:UpdateFrameSize()
 end
 
 function DUIDialogBaseMixin:OnLoad()
-    --table.insert(UISpecialFrames, self:GetName());
+    self.OnLoad = nil;
+    self:SetScript("OnLoad", nil);
+
     MainFrame = self;
     addon.DialogueUI = self;
 
@@ -326,6 +306,7 @@ function DUIDialogBaseMixin:OnLoad()
 
     API.DisableSharpening(self.ButtonHighlight.BackTexture);
 
+
     --Warband Completed Alert
     local wb = self.FrontFrame.Header.WarbandCompleteAlert;
     self.WarbandCompleteAlert = wb;
@@ -333,6 +314,7 @@ function DUIDialogBaseMixin:OnLoad()
     wb:SetScript("OnEnter", TooltipFrame.ShowWidgetTooltip);
     wb:SetScript("OnLeave", TooltipFrame.HideTooltip);
     API.DisableSharpening(wb.Icon);
+
 
     --Frame Background
     self.Parchments = {};
@@ -354,20 +336,18 @@ function DUIDialogBaseMixin:OnLoad()
 
     self.BackgroundDecor = self.BackgroundFrame.ClipFrame.BackgroundDecor;
 
-    do
-        self.ScrollFrame.borderTop = self.FrontFrame.HeaderDivider;
-        self.ScrollFrame.borderBottom = self.FrontFrame.FooterDivider;
-    end
 
+    --ScrollFrame
+    addon.InitEasyScrollFrame(self.ScrollFrame, self.FrontFrame.HeaderDivider, self.FrontFrame.FooterDivider)
     self:ResetScroll();
 
     local offsetPerScroll = 96;
 
     local function ScrollFrame_OnMouseWheel(f, delta)
         if delta > 0 then
-            self:ScrollBy(-offsetPerScroll);
+            f:ScrollBy(-offsetPerScroll);
         else
-            self:ScrollBy(offsetPerScroll);
+            f:ScrollBy(offsetPerScroll);
         end
 
         SwipeEmulator:StopWatching();
@@ -375,28 +355,8 @@ function DUIDialogBaseMixin:OnLoad()
     self.ScrollFrame.OnMouseWheel = ScrollFrame_OnMouseWheel;
     self.ScrollFrame:SetScript("OnMouseWheel", ScrollFrame_OnMouseWheel);
 
-    local function ScrollFrame_SetOffset(f, value)
-        f.topDividerAlpha = value/24;
-        if f.topDividerAlpha > 1 then
-            f.topDividerAlpha = 1;
-        elseif f.topDividerAlpha < 0 then
-            f.topDividerAlpha = 0;
-        end
-        f.borderTop:SetAlpha(f.topDividerAlpha);
 
-        f.BottomDividerAlpha = (f.range - value)/24;
-        if f.BottomDividerAlpha > 1 then
-            f.BottomDividerAlpha = 1;
-        elseif f.BottomDividerAlpha < 0 then
-            f.BottomDividerAlpha = 0;
-        end
-        f.borderBottom:SetAlpha(f.BottomDividerAlpha);
-
-        f:SetVerticalScroll(value);
-    end
-    self.ScrollFrame.SetOffset = ScrollFrame_SetOffset;
-
-
+    --Object Pools
     local function CreateFontString()
         local fontString = self.ContentFrame:CreateFontString(nil, "ARTWORK", "DUIFont_Quest_Paragraph");
         fontString:SetSpacing(TEXT_SPACING);
@@ -519,27 +479,13 @@ function DUIDialogBaseMixin:OnLoad()
 
     self.hotkeyFramePool = API.CreateObjectPool(CreateHotkeyFrame, RemoveHotkeyFrame);
 
-    if not self.Vignette then
-        self.Vignette = CreateFrame("Frame", nil);
-        self.Vignette:SetFrameStrata("BACKGROUND");
-        self.Vignette:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, 0);
-        self.Vignette:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", 0, 0);
-        self.Vignette:SetAlpha(0);
-        self.Vignette:Hide();
-        local texture = self.Vignette:CreateTexture(nil, "BACKGROUND");
-        texture:SetAllPoints(true);
-        texture:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Shared/ScreenVignette.png");
-    end
-
     self:UpdateFrameSize();
 
     API.SetPlayCutsceneCallback(function()
         self:HideUI();
     end);
 
-
-    self.OnLoad = nil;
-    self:SetScript("OnLoad", nil);
+    SharedVignette:AddOwner(self);
 
     self.isGameLoading = true;
     self:RegisterEvent("LOADING_SCREEN_DISABLED");
@@ -792,8 +738,8 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
             self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -8, 2);
         end
 
-    elseif self.questLayout or forceUpdate then
-        self.questLayout = nil;
+    elseif self.questLayout ~= false or forceUpdate then
+        self.questLayout = false;
         self.questID = nil;
         self.scrollViewHeight = self.scrollFrameBaseHeight;
         --self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", PADDING_H, -PADDING_TOP);
@@ -863,31 +809,15 @@ function DUIDialogBaseMixin:UpdateQuestTitle()
 end
 
 function DUIDialogBaseMixin:ScrollTo(value)
-    local f = self.ScrollFrame;
-
-    value = API.Clamp(value, 0, f.range);
-
-    if value ~= f.scrollTarget then
-        f.scrollTarget = value;
-        if not self.questLayout then
-            FadeFrame(f.borderTop, 0.25, 1);
-        end
-        if value < f.range then
-            FadeFrame(f.borderBottom, 0.25, 1);
-        end
-        f:SetScript("OnUpdate", ScrollFrame_Easing);
-    end
+    self.ScrollFrame:ScrollTo(value);
 end
 
 function DUIDialogBaseMixin:ScrollBy(offset)
-    local f = self.ScrollFrame;
-    local value = f.scrollTarget or f:GetVerticalScroll();
-    self:ScrollTo(value + offset);
+    self.ScrollFrame:ScrollBy(offset);
 end
 
 function DUIDialogBaseMixin:ScrollToBottom()
-    self:ScrollBy(self.ScrollFrame.range);
-    FadeFrame(self.ScrollFrame.borderBottom, 0, 0);
+    self.ScrollFrame:ScrollToBottom();
 end
 
 function DUIDialogBaseMixin:IsScrollAtBottom()
@@ -901,12 +831,7 @@ function DUIDialogBaseMixin:IsScrollAtBottom()
 end
 
 function DUIDialogBaseMixin:ResetScroll()
-    self.ScrollFrame:SetScript("OnUpdate", nil);
-    self.ScrollFrame:SetHorizontalScroll(0);
-    self.ScrollFrame:SetVerticalScroll(0);
-    self.ScrollFrame.value = 0;
-    self.ScrollFrame.scrollTarget = 0;
-    FadeFrame(self.ScrollFrame.borderTop, 0, 0);
+    self.ScrollFrame:ResetScroll();
 end
 
 function DUIDialogBaseMixin:SetScrollable(scrollable)
@@ -922,7 +847,6 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ContentFrame:SetParent(self.ScrollFrame.ScrollChild);
         self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame.ScrollChild, "TOPLEFT", 0, 0);
         self.ContentFrame:SetWidth(self.contentWidth);
-        self.FrontFrame.FooterDivider:Show();
 
     elseif (not scrollable) and (self.ContentFrame.scrollable or forceUpdate) then
         self.ContentFrame.scrollable = false;
@@ -930,6 +854,13 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ContentFrame:SetParent(self);
         self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame, "TOPLEFT", 0, 0);
         self.ContentFrame:SetPoint("BOTTOMRIGHT", self.ScrollFrame, "BOTTOMRIGHT", 0, 0);
+    end
+
+    if scrollable then
+        local useTop = not self.questLayout;
+        self.ScrollFrame:SetUseOverlapBorder(useTop, true);
+    else
+        self.ScrollFrame:SetUseOverlapBorder(false, false);
     end
 
     SwipeEmulator:SetScrollable(scrollable);
@@ -955,13 +886,10 @@ function DUIDialogBaseMixin:SetScrollRange(contentHeight)
         range = Round(range + 36);
 
         self.ScrollFrame.range = range;
-        self.FrontFrame.FooterDivider:Show();
         self.FrontFrame.FooterDivider:SetAlpha(1);
     else
         scrollable = false;
         self.ScrollFrame.range = 0;
-        self.FrontFrame.FooterDivider:Hide();
-        self.FrontFrame.HeaderDivider:Hide();
     end
 
     self:SetScrollable(scrollable);
@@ -1300,6 +1228,7 @@ function DUIDialogBaseMixin:HandleGossip()
         end
         local actualRange = Round(fromOffsetY - PARAGRAPH_SPACING + extraScroll);
         self.ScrollFrame.range = actualRange;
+        self.ScrollFrame:SetUseOverlapBorder(true, true);
         self:SetScrollable(true);
 
         FadeFrame(self.ContentFrame, 0.35, 1, 0);
@@ -1524,6 +1453,18 @@ function DUIDialogBaseMixin:HandleQuestProgress(playFadeIn)
     end
 
     local canComplete = IsQuestCompletable();
+
+    if not canComplete then
+        local objcetiveProgress = API.GetQuestLogProgress(self.questID);
+        if objcetiveProgress then
+            offsetY = offsetY + PARAGRAPH_SPACING;
+            local subheader = self:AcquireAndSetSubHeader(L["Quest Objectives"]);
+            subheader:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
+            offsetY = Round(offsetY + subheader.size);
+            self:InsertText(offsetY, objcetiveProgress);
+        end
+    end
+
     local ContinueButton = self:AcquireAcceptButton(canComplete);
     ContinueButton:SetButtonContinueQuest(canComplete, lockDuration);
 
@@ -2092,7 +2033,7 @@ function DUIDialogBaseMixin:OnShow()
         self:RegisterEvent("PLAYER_CHOICE_UPDATE");   --Watch TRAIT_SYSTEM_INTERACTION_STARTED
     end
 
-    FadeFrame(self.Vignette, 0.75, 1);
+    SharedVignette:TryShow();
 
     CallbackRegistry:Trigger("DialogueUI.Show");
 end
@@ -2145,7 +2086,7 @@ function DUIDialogBaseMixin:OnHide()
     self:ReleaseAllObjects();
     self:HideInputBox();
 
-    FadeFrame(self.Vignette, 0.5, 0);
+    SharedVignette:TryHide();
     TooltipFrame:Hide();
 
     CallbackRegistry:Trigger("DialogueUI.Hide");
@@ -2927,6 +2868,74 @@ do  --TTS
         end
     end
     CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
+end
+
+do  --Vignette
+    SharedVignette:SetFrameStrata("BACKGROUND");
+    SharedVignette:SetFixedFrameStrata(true);
+    SharedVignette:SetPoint("TOPLEFT", UIParent, "TOPLEFT", -1, 1);
+    SharedVignette:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", 1, -1);
+    SharedVignette:Hide();
+    SharedVignette:SetAlpha(0);
+
+    SharedVignette.Texture = SharedVignette:CreateTexture(nil, "BACKGROUND");
+    SharedVignette.Texture:SetAllPoints(true);
+    SharedVignette.Texture:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Shared/ScreenVignette.png");
+
+    SharedVignette.owners = {};
+
+    function SharedVignette:AddOwner(owner)
+        tinsert(self.owners, owner);
+    end
+
+    function SharedVignette:IsInUse()
+        for _, owner in ipairs(self.owners) do
+            if owner:IsShown() then
+               return true
+            end
+        end
+        return false
+    end
+
+    function SharedVignette:OnUpdate_FadeIn(elapsed)
+        self.alpha = self.alpha + 1.35 * elapsed;
+        if self.alpha >= 1 then
+            self.alpha = 1;
+            self:SetScript("OnUpdate", nil);
+        end
+        self:SetAlpha(self.alpha);
+    end
+
+    function SharedVignette:OnUpdate_FadeOut(elapsed)
+        self.alpha = self.alpha - 2 * elapsed;
+        if self.alpha <= 0 then
+            self.alpha = 0;
+            self:SetScript("OnUpdate", nil);
+            self:Hide();
+        end
+        self:SetAlpha(self.alpha);
+    end
+
+    function SharedVignette:TryShow()
+        self:Show();
+        self.alpha = self:GetAlpha();
+        if self.alpha < 1 then
+            self:SetScript("OnUpdate", self.OnUpdate_FadeIn);
+        else
+            self:SetScript("OnUpdate", nil);
+        end
+    end
+
+    function SharedVignette:TryHide()
+        if self:IsShown() and not self:IsInUse() then
+            self.alpha = self:GetAlpha();
+            if self.alpha > 0 then
+                self:SetScript("OnUpdate", self.OnUpdate_FadeOut);
+            else
+                self:SetScript("OnUpdate", nil);
+            end
+        end
+    end
 end
 
 do
