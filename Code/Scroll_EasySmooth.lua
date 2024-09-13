@@ -57,6 +57,10 @@ function ScrollFrameMixin:ResetScroll()
     self.scrollTarget = 0;
 end
 
+function ScrollFrameMixin:GetScrollTarget()
+    return self.scrollTarget or self:GetVerticalScroll()
+end
+
 function ScrollFrameMixin:ScrollBy(deltaValue)
     local offset = self:GetVerticalScroll();
     self:ScrollTo(offset + deltaValue);

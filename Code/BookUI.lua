@@ -11,10 +11,12 @@ local MainFrame;
 local EL = CreateFrame("Frame");    --EventListener
 local DataProvider = {};            --Store text info
 local Formatter = {};               --Format content, convert html to fontstring
+local Cache = CreateFrame("Frame"); --Cache the whole book when opened
 
 
 local InCombatLockdown = InCombatLockdown;
 local UnitGUID = UnitGUID;
+local IsShiftKeyDown = IsShiftKeyDown;
 local match = string.match;
 local find = string.find;
 local gsub = string.gsub;
@@ -102,8 +104,7 @@ local function IsMultiPageBook()
 end
 
 
-local Cache = CreateFrame("Frame");
-do
+do  --Cache
     Cache.data = {};
 
     function Cache:ClearObjectCache()
@@ -113,6 +114,7 @@ do
     function Cache:SetActiveObject(objectType, objectID)
         --objectType: item, npc
         --objectID: itemID, creatureID
+        self:SetScript("OnUpdate", nil);
 
         local isObjectChanged;
         local identifier;
@@ -131,6 +133,7 @@ do
             pageTexts = {},         --[page] = rawText
             fullyCached = false,
             maxPage = 1,
+            pageStartOffset = {},   --[page] = offsetY,
             maxContentIndex = 0,
             formattedContent = {
                 --[index] = {
@@ -171,9 +174,15 @@ do
         self.t = self.t + elapsed;
         if self.t > 0.016 then
             self.t = 0;
+            self:SetScript("OnUpdate", nil);
             ItemTextNextPage();
             self.needTurnBack = false;
         end
+    end
+
+    function Cache:RequestTurnNextPage()
+        self.t = 0;
+        self:SetScript("OnUpdate", self.OnUpdate_TurnNextPage);
     end
 
     function Cache:OnUpdate_TurnPrevPage(elapsed)
@@ -185,14 +194,9 @@ do
             if page <= 1 then
                 self:SetScript("OnUpdate", nil);
                 self.needTurnBack = false;
-                MainFrame:ShowUI();
+                self:BeginCalculateTextHeight();
             end
         end
-    end
-
-    function Cache:RequestTurnNextPage()
-        self.t = 0;
-        self:SetScript("OnUpdate", self.OnUpdate_TurnNextPage);
     end
 
     function Cache:RequestTurnPrevPage()
@@ -217,11 +221,7 @@ do
                 self.needTurnBack = false;
             end
 
-            if self.needTurnBack and false then
-                Cache:RequestTurnPrevPage();
-            else
-                MainFrame:ShowUI();
-            end
+            self:BeginCalculateTextHeight();
         end
     end
 
@@ -249,34 +249,82 @@ do
         end
     end
 
-    function Cache:StoreText(fontTag, text, justifyH, posY)
+    function Cache:OnUpdate_CalculateTextHeight(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.0 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            for i = 1, 10 do
+                self.fromContentIndex = self.fromContentIndex + 1;
+
+                if self.fromContentIndex <= self.toContentIndex then
+                    local data = self.activeData.formattedContent[self.fromContentIndex];
+                    if data.text then
+                        local height = Formatter:GetTextHeight(data.fontTag, data.text);
+                        data.textHeight = height;
+                    end
+                else
+                    MainFrame:ShowUI();
+                    return
+                end
+            end
+            self:SetScript("OnUpdate", self.OnUpdate_CalculateTextHeight);
+        end
+    end
+
+    function Cache:BeginCalculateTextHeight()
+        MainFrame:DisplayCurrentPage();
+
+        self.t = 0;
+        self.fromContentIndex = 0;
+        self.toContentIndex = self:GetMaxContentIndex();
+        self:SetScript("OnUpdate", self.OnUpdate_CalculateTextHeight);
+    end
+
+    function Cache:StoreText(fontTag, text, justifyH, spacingBelow)
         local index = self.activeData.maxContentIndex + 1;
         self.activeData.maxContentIndex = index;
 
         justifyH = justifyH or "LEFT";
 
+        local spacingAbove = 0;
+        if self.spacingPending then
+            spacingAbove = self.spacingPending;
+            self.spacingPending = nil;
+        end
+
+        local isPageStart;
+        if self.nextContentIsPageStart then
+            self.nextContentIsPageStart = nil;
+            isPageStart = true;
+        end
+
         self.activeData.formattedContent[index] = {
             text = text,
             align = justifyH,
             fontTag = fontTag,
-            posY = posY,
+            spacingBelow = spacingBelow or 0,
+            spacingAbove = spacingAbove,
+            isPageStart = isPageStart,
         };
     end
 
-    function Cache:StoreImage(file, width, height, justifyH, posY)
+    function Cache:StoreImage(file, width, height, left, right, top, bottom)
         local index = self.activeData.maxContentIndex + 1;
         self.activeData.maxContentIndex = index;
 
-        justifyH = justifyH or "CENTER";
-        local align;
-        if justifyH == "LEFT" then
-            align = 1;
-        elseif justifyH == "CENTER" then
-            align = 2;
-        elseif justifyH == "RIGHT" then
-            align = 3;
-        else
-            align = 1;
+        local align = "CENTER";
+
+        local spacingAbove = 0;
+        if self.spacingPending then
+            spacingAbove = self.spacingPending;
+            self.spacingPending = nil;
+        end
+
+        local isPageStart;
+        if self.nextContentIsPageStart then
+            self.nextContentIsPageStart = nil;
+            isPageStart = true;
         end
 
         self.activeData.formattedContent[index] = {
@@ -284,8 +332,52 @@ do
             align = align,
             width = width,
             height = height,
-            posY = posY,
+            left = left,
+            right = right,
+            top = top,
+            bottom = bottom,
+            spacingBelow = 0,
+            spacingAbove = spacingAbove,
+            isPageStart = isPageStart,
         };
+    end
+
+    function Cache:AddSpacerToLastContent(height)
+        local index = self.activeData.maxContentIndex;
+        local data = self:GetFormattedContentByIndex(index);
+        if data then
+            data.spacingBelow = data.spacingBelow + height;
+        end
+    end
+
+    function Cache:AddSpacerToNextContent(height)
+        if self.spacingPending then
+            self.spacingPending = self.spacingPending + height;
+        else
+            self.spacingPending = height;
+        end
+    end
+
+    function Cache:FlagNextContentIsPageStart()
+        self.nextContentIsPageStart = true;
+    end
+
+    function Cache:SetPageStartOffset(page, offsetY)
+        if self.activeData then
+            self.activeData.pageStartOffset[page] = offsetY;
+        end
+    end
+
+    function Cache:GetPageStartOffset(page)
+        if self.activeData then
+            return self.activeData.pageStartOffset[page]
+        end
+    end
+
+    function Cache:GetFormattedContentByIndex(contentIndex)
+        if self.activeData and self.activeData.formattedContent[contentIndex] then
+            return self.activeData.formattedContent[contentIndex]
+        end
     end
 end
 
@@ -479,9 +571,17 @@ do  --Scroll Anim
 
         if self.oneScrollMode then
             if delta > 0 then
-                self:ScrollBy(-Formatter.OFFSET_PER_SCROLL);
+                if IsShiftKeyDown() then
+                    self:ScrollToNearPrevPage();
+                else
+                    self:ScrollBy(-Formatter.OFFSET_PER_SCROLL);
+                end
             else
-                self:ScrollBy(Formatter.OFFSET_PER_SCROLL);
+                if IsShiftKeyDown() then
+                    self:ScrollToNearNextPage();
+                else
+                    self:ScrollBy(Formatter.OFFSET_PER_SCROLL);
+                end
             end
         else
             if not self.ScrollLocker then
@@ -535,6 +635,60 @@ do  --Scroll Anim
     function DUIBookUIMixin:ScrollTo(value)
         self.ScrollFrame:ScrollTo(value);
     end
+
+    function DUIBookUIMixin:ScrollToContent(contentIndex)
+        local data = Cache:GetFormattedContentByIndex(contentIndex);
+        if data then
+            local offsetY = data.offsetY;
+            offsetY = offsetY - self.scrollTopOffet;
+            self:ScrollTo(offsetY);
+        end
+    end
+
+    function DUIBookUIMixin:ScrollToPage(page)
+        local maxPage = Cache:GetMaxPage();
+        if page > maxPage then
+            page = maxPage;
+        end
+
+        local offsetY = Cache:GetPageStartOffset(page);
+        if offsetY then
+            offsetY = offsetY - self.scrollTopOffet;
+            self:ScrollTo(offsetY);
+        end
+    end
+
+    function DUIBookUIMixin:ScrollToNearNextPage()
+        local offset = self.ScrollFrame:GetScrollTarget() + self.scrollTopOffet + 0.1;
+        local maxPage = Cache:GetMaxPage();
+
+        local pageOffset;
+
+        for page = 1, maxPage do
+            pageOffset = Cache:GetPageStartOffset(page);
+            if offset < pageOffset then
+                local offsetY = pageOffset - self.scrollTopOffet;
+                self:ScrollTo(offsetY)
+                break
+            end
+        end
+    end
+
+    function DUIBookUIMixin:ScrollToNearPrevPage()
+        local offset = self.ScrollFrame:GetScrollTarget() + self.scrollTopOffet - 0.1;
+        local maxPage = Cache:GetMaxPage();
+
+        local pageOffset;
+
+        for page = maxPage, 1, -1 do
+            pageOffset = Cache:GetPageStartOffset(page);
+            if offset > pageOffset then
+                local offsetY = pageOffset - self.scrollTopOffet;
+                self:ScrollTo(offsetY)
+                break
+            end
+        end
+    end
 end
 
 do  --Formatter
@@ -565,9 +719,8 @@ do  --Formatter
         self.PAGE_SPACING = 4 * self.PARAGRAPH_SPACING;
         self.OFFSET_PER_SCROLL = Round(5 * (self.FONT_SIZE + self.TEXT_SPACING));
 
-        self.UtilityFontString:SetSpacing(Formatter.TEXT_SPACING);
+        self.UtilityFontString:SetSpacing(self.TEXT_SPACING);
     end
-    Formatter:SetBaseFontSize(12);  --debug
 
     function Formatter:AcquireTexture()
         local tex = MainFrame.texturePool:Acquire();
@@ -584,6 +737,7 @@ do  --Formatter
     end
 
     function Formatter:InsertText(offsetY, text, tag, justifyH)
+        --Unused
         --Add no spacing
         local fs = self:AcquireFontStringByTag(tag);
         local textRef = MainFrame.ContentFrame;
@@ -596,6 +750,7 @@ do  --Formatter
     end
 
     function Formatter:InsertHeader(offsetY, text, tag, justifyH)
+        --Unused
         --Add paragrah spacing to the bottom
         local textHeight;
         offsetY, textHeight = self:InsertText(offsetY, text, tag, justifyH);
@@ -604,57 +759,57 @@ do  --Formatter
     end
 
     function Formatter:InsertParagraph(offsetY, text, tag, justifyH)
+        --Unused
         --Add paragrah spacing to the top
         local textHeight;
         offsetY, textHeight = self:InsertText(offsetY + self.PARAGRAPH_SPACING, text, tag, justifyH);
         return offsetY, textHeight
     end
 
-    function Formatter:FormatText(offsetY, text)
+    function Formatter:FormatText(text)
         if find(text, "^<HTML>") then
-            return self:FormatHTML(offsetY, text)
+            return self:FormatHTML(text)
         else
-            return self:FormatParagraph(offsetY, text)
+            return self:FormatParagraph(text)
         end
     end
 
-    function Formatter:FormatParagraph(offsetY, text)
+    function Formatter:FormatParagraph(text)
         local paragraphs = API.SplitParagraph(text);
-        local textRef = MainFrame.ContentFrame;
         local fontTag = "p";
         local align = "LEFT";
-        if paragraphs and #paragraphs > 0 then
-            for i, paragraphText in ipairs(paragraphs) do
-                local fs = self:AcquireFontStringByTag();
-                fs:SetPoint("TOP", textRef, "TOP", 0, -offsetY);
-                fs:SetJustifyH(align);
-                fs:SetText(paragraphText);
-                fs.posY = offsetY;
-                Cache:StoreText(fontTag, paragraphText, align, offsetY);
-                offsetY = Round(offsetY + fs:GetHeight() + self.PARAGRAPH_SPACING);
-            end
-            offsetY = offsetY - self.PARAGRAPH_SPACING;
-        else
-            local fs = MainFrame.fontStringPool:Acquire();
-            fs:SetPoint("TOP", textRef, "TOP", 0, -offsetY);
-            fs.posY = offsetY;
-            fs:SetText(" ");
-        end
+        local paragraphSpacing = self.PARAGRAPH_SPACING;
+        local numParagraphs = paragraphs and #paragraphs or 0;
 
-        return offsetY
+        if numParagraphs > 0 then
+            for i, paragraphText in ipairs(paragraphs) do
+                if i == numParagraphs then
+                    Cache:StoreText(fontTag, paragraphText, align, 0);
+                else
+                    Cache:StoreText(fontTag, paragraphText, align, paragraphSpacing);
+                end
+            end
+        else
+
+        end
     end
 
     function Formatter:SetUtilityTextWidth(width)
         self.UtilityFontString:SetWidth(width);
     end
 
-    function Formatter:GetTextHeight(text, fontTag)
+    function Formatter:GetTextHeight(fontTag, text)
+        self.UtilityFontString:SetSpacing(Formatter.TEXT_SPACING);
+        self.UtilityFontString:SetSize(ConvertedSize.CONTENT_WIDTH, 0);
         if fontTag ~= self.utilityFontTag then
             self.utilityFontTag = fontTag;
             self.UtilityFontString:SetFontObject(TagFonts[fontTag]);
         end
         self.UtilityFontString:SetText(text);
-        return self.UtilityFontString:GetHeight()
+        local height = self.UtilityFontString:GetHeight();
+        self.UtilityFontString:SetText(nil);
+
+        return height
     end
 
 
@@ -667,16 +822,17 @@ do  --Formatter
         return text
     end
 
-    function Formatter:FormatHTML(offsetY, text)
+    function Formatter:FormatHTML(text)
         local paragraphs = API.SplitParagraph(text);
-        local textRef = MainFrame.ContentFrame;
         local match = match;
         local lower = string.lower;
 
         local numTexts = 0;
         local numImages = 0;
+        local paragraphSpacing = self.PARAGRAPH_SPACING
+        local numParagraphs = paragraphs and #paragraphs or 0;
 
-        if paragraphs and #paragraphs > 0 then
+        if numParagraphs > 0 then
             for i, paragraphText in ipairs(paragraphs) do
                 if not IgnoredTags[paragraphText] then
                     local tag, align;
@@ -722,22 +878,14 @@ do  --Formatter
                                 end
                                 if width and height then
                                     if lower(file) == "interface\\common\\spacer" then
-                                        --offsetY = Round(offsetY + height);
-                                        offsetY = Round(offsetY + self.PARAGRAPH_SPACING);  --Alter spacer height?
+                                        Cache:AddSpacerToNextContent(self.PARAGRAPH_SPACING);
                                     else
-                                        local tex = self:AcquireTexture();
                                         if not imageWidth then
                                             local scale = width / WOW_PAGE_WIDTH;
                                             imageWidth = Round(ConvertedSize.CONTENT_WIDTH * scale);
                                             imageHeight = Round(imageWidth * height / width);
                                         end
-                                        tex:SetTexture(file);
-                                        tex:SetSize(imageWidth, imageHeight);
-                                        tex:SetTexCoord(left, right, top, bottom);
-                                        tex:SetPoint("TOP", textRef, "TOP", 0, -offsetY);
-                                        tex.posY = offsetY;
-                                        Cache:StoreImage(file, imageWidth, imageHeight, 2, offsetY);
-                                        offsetY = Round(offsetY + imageHeight);
+                                        Cache:StoreImage(file, imageWidth, imageHeight, left, right, top, bottom);
                                     end
                                 end
                             end
@@ -758,13 +906,14 @@ do  --Formatter
                             if paragraphText and paragraphText ~= "" then
                                 numTexts = numTexts + 1;
                                 if numTexts > 1 or (paragraphText ~= self.titleText) then
-                                    local fs = self:AcquireFontStringByTag(tag);
-                                    fs:SetPoint("TOP", textRef, "TOP", 0, -offsetY);
-                                    fs:SetJustifyH(align);
-                                    fs:SetText(paragraphText);
-                                    fs.posY = offsetY;
-                                    Cache:StoreText(tag, paragraphText, align, offsetY);
-                                    offsetY = Round(offsetY + fs:GetHeight() + self.PARAGRAPH_SPACING);
+                                    if not (tag and TagFonts[tag]) then
+                                        tag = "p";
+                                    end
+                                    if i == numParagraphs then
+                                        Cache:StoreText(tag, paragraphText, align, 0);
+                                    else
+                                        Cache:StoreText(tag, paragraphText, align, paragraphSpacing);
+                                    end
                                 end
                             end
                         end
@@ -773,31 +922,24 @@ do  --Formatter
                         if paragraphText and paragraphText ~= "" then
                             numTexts = numTexts + 1;
                             align = "LEFT";
-                            local fs = self:AcquireFontStringByTag(tag);
-                            fs:SetPoint("TOP", textRef, "TOP", 0, -offsetY);
-                            fs:SetJustifyH(align);
-                            fs:SetText(paragraphText);
-                            fs.posY = offsetY;
-                            Cache:StoreText(tag, paragraphText, align, offsetY);
-                            offsetY = Round(offsetY + fs:GetHeight() + self.PARAGRAPH_SPACING);
+                            tag = "p";
+                            if i == numParagraphs then
+                                Cache:StoreText(tag, paragraphText, align, 0);
+                            else
+                                Cache:StoreText(tag, paragraphText, align, paragraphSpacing);
+                            end
                         end
                     end
                 end
             end
-            offsetY = offsetY - self.PARAGRAPH_SPACING;
         else
-            local fs = MainFrame.fontStringPool:Acquire();
-            fs:SetPoint("TOP", textRef, "TOP", 0, -offsetY);
-            fs:SetText(" ");
-            fs.posY = offsetY;
+
         end
 
         PP = paragraphs;    --debug
-
-        return offsetY
     end
 
-    function DUIBookUIMixin:RebuildPageFromCache()
+    function DUIBookUIMixin:RebuildContentFromCache()
         --debug
         if not Cache:IsCurrentObjectFullyCached() then
             return
@@ -809,19 +951,51 @@ do  --Formatter
         local textRef = MainFrame.ContentFrame;
         local Formatter = Formatter;
 
-        for i, data in Cache:EnumerateFormattedContent() do
-            if data.text then
-                obj = Formatter:AcquireFontStringByTag(data.fontTag);
-                obj:SetPoint("TOP", textRef, "TOP", 0, -data.posY);
-                obj:SetJustifyH(data.align);
-                obj:SetText(data.text);
-            elseif data.image then
-                obj = Formatter:AcquireTexture();
-                obj:SetPoint("TOP", textRef, "TOP", 0, -data.posY);
-                obj:SetSize(data.width, data.height);
-                obj:SetTexture(data.image);
+        local offsetY = Round(ConvertedSize.PADDING_H - Formatter.PARAGRAPH_SPACING);
+        self.scrollTopOffet = offsetY;
+        local data;
+
+        local page = 0;
+
+        local debugMaxVisible = 200;
+
+        for i, v in Cache:EnumerateFormattedContent() do
+            if v.text then
+                offsetY = offsetY + v.spacingAbove;
+                if i < debugMaxVisible then
+                    obj = Formatter:AcquireFontStringByTag(v.fontTag);
+                    obj:SetPoint("TOP", textRef, "TOP", 0, -offsetY);
+                    obj:SetJustifyH(v.align);
+                    obj:SetText(v.text);
+                end
+                if v.isPageStart then
+                    page = page + 1;
+                    Cache:SetPageStartOffset(page, offsetY);
+                end
+                v.offsetY = offsetY;
+                offsetY = Round(offsetY + v.textHeight);
+                offsetY = offsetY + v.spacingBelow;
+            elseif v.image then
+                offsetY = offsetY + v.spacingAbove;
+                if i < debugMaxVisible then
+                    obj = Formatter:AcquireTexture();
+                    obj:SetPoint("TOP", textRef, "TOP", 0, -offsetY);
+                    obj:SetSize(v.width, v.height);
+                    obj:SetTexture(v.image);
+                    obj:SetTexCoord(v.left, v.right, v.top, v.bottom);
+                end
+                if v.isPageStart then
+                    page = page + 1;
+                    Cache:SetPageStartOffset(page, offsetY);
+                end
+                v.offsetY = offsetY;
+                offsetY = Round(offsetY + v.height);
             end
         end
+
+        self:SetScrollContentHeight(offsetY);
+
+        --print("MAX INDEX", Cache:GetMaxContentIndex());
     end
 
     function DUIBookUIMixin:DisplayCurrentPage()
@@ -837,8 +1011,6 @@ do  --Formatter
         self.Header:SetTitle(title);
         Formatter.titleText = title;
 
-        local offsetY = ConvertedSize.PADDING_H - Formatter.PARAGRAPH_SPACING;
-
         local oneScrollMode = true;
         self.oneScrollMode = oneScrollMode;
 
@@ -847,21 +1019,17 @@ do  --Formatter
             local maxPage = Cache:GetMaxPage();
 
             for page, rawText in Cache:EnumeratePageTexts() do
-                offsetY = Formatter:FormatText(offsetY, rawText);
+                Cache:FlagNextContentIsPageStart();
+                Formatter:FormatText(rawText);
                 if addPagePadding and (page ~= maxPage) then
-                    offsetY = offsetY + Formatter.PAGE_SPACING;
+                    Cache:AddSpacerToLastContent(Formatter.PAGE_SPACING);
                 end
             end
         else
             local rawText = ItemTextGetText();
-            offsetY = Formatter:FormatText(offsetY, rawText);
+            Cache:FlagNextContentIsPageStart();
+            Formatter:FormatText(rawText);
         end
-
-        local contentHeight = offsetY;
-
-        self:SetScrollContentHeight(contentHeight);
-
-        self:RebuildPageFromCache();
     end
 end
 
@@ -872,19 +1040,20 @@ do  --Main UI
         self.OnLoad = nil;
         self:SetScript("OnLoad", nil);
 
-        self:SetFrameHeight(480);
         addon.SharedVignette:AddOwner(self);    --"SharedVignette" defined in DialogueUI.lua
 
-
         --UtilityFontString is used to evaluate text height
-        local UtilityFontString = self:CreateFontString(nil, "BACKGROUND", "DUIFont_Quest_Paragraph", -1);
+        local UtilityFontString = self.ContentFrame:CreateFontString(nil, "ARTWORK", "DUIFont_Quest_Paragraph");
         UtilityFontString:SetJustifyV("TOP");
-        UtilityFontString:SetPoint("TOP", UIParent, "BOTTOM", 0, -64);
-        UtilityFontString:SetIgnoreParentAlpha(true);
+        --UtilityFontString:SetPoint("TOP", nil, "BOTTOM", 0, -64);
+        UtilityFontString:SetPoint("TOP", MainFrame.ContentFrame, "TOP", 0, 0);
+        --UtilityFontString:SetIgnoreParentAlpha(true);
         Formatter.UtilityFontString = UtilityFontString;
 
 
         CalculateSizeData();
+        Formatter:SetBaseFontSize(12);  --debug
+        self:SetFrameHeight(480);
     end
 
     function DUIBookUIMixin:Init()
@@ -995,7 +1164,8 @@ do  --Main UI
 
     function DUIBookUIMixin:ShowUI()
         self.isMultiPageBook = IsMultiPageBook();
-        self:DisplayCurrentPage();
+        --self:DisplayCurrentPage();
+        self:RebuildContentFromCache();
 
         if not self:IsShown() then
             self.t = 0;
@@ -1010,7 +1180,7 @@ do  --Main UI
 
     function DUIBookUIMixin:DebugHide()
         local cutoffY = self.ScrollFrame:GetHeight();
-        print(cutoffY)
+
         local function HideOutOfBoundObjects(obj)
             if obj.posY and obj.posY > cutoffY then
                 --obj:Hide();
@@ -1078,7 +1248,6 @@ do  --EventListener
 
             if guid then
                 objectType, objectID = GetObjectTypeAndID(guid);
-                print(objectType, objectID, ItemTextGetItem())
             end
 
             local isObjectChanged = Cache:SetActiveObject(objectType, objectID);
@@ -1093,7 +1262,7 @@ do  --EventListener
                 --MainFrame:ShowUI();
             elseif Cache.needTurnBack and IsMultiPageBook() then
                 --Cache:RequestTurnPrevPage();
-            else
+            elseif not Cache:IsCurrentObjectFullyCached() then
                 Cache:CacheCurrentPage();
             end
 
@@ -1125,7 +1294,7 @@ end
 
 
 do
-    local hideDefaultUI = true;    --false when we do debug
+    local hideDefaultUI = false;    --false when we do debug
     if hideDefaultUI then
         if ItemTextFrame then   --Mute
             ItemTextFrame:UnregisterAllEvents();
