@@ -101,7 +101,7 @@ do  --Header / Book Title
     end
 
     function BookComponent:InitHeader(headerFrame)
-        local Title = headerFrame:CreateFontString(nil, "OVERLAY", "DUIFont_Quest_Title_18");
+        local Title = headerFrame:CreateFontString(nil, "OVERLAY", "DUIFont_Book_Title");
         headerFrame.Title = Title;
         Title:SetJustifyH("CENTER");
         Title:SetJustifyV("TOP");

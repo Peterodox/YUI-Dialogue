@@ -344,7 +344,7 @@ do  --Cache
 
     function Cache:AddSpacerToLastContent(height)
         local index = self.activeData.maxContentIndex;
-        local data = self:GetFormattedContentByIndex(index);
+        local data = self:GetContentDataByIndex(index);
         if data then
             data.spacingBelow = data.spacingBelow + height;
         end
@@ -374,9 +374,17 @@ do  --Cache
         end
     end
 
-    function Cache:GetFormattedContentByIndex(contentIndex)
+    function Cache:GetContentDataByIndex(contentIndex)
         if self.activeData and self.activeData.formattedContent[contentIndex] then
             return self.activeData.formattedContent[contentIndex]
+        end
+    end
+
+    function Cache:GetFormattedContent()
+        if self.activeData then
+            return self.activeData.formattedContent
+        else
+            return {}
         end
     end
 end
@@ -637,7 +645,7 @@ do  --Scroll Anim
     end
 
     function DUIBookUIMixin:ScrollToContent(contentIndex)
-        local data = Cache:GetFormattedContentByIndex(contentIndex);
+        local data = Cache:GetContentDataByIndex(contentIndex);
         if data then
             local offsetY = data.offsetY;
             offsetY = offsetY - self.scrollTopOffet;
@@ -727,12 +735,16 @@ do  --Formatter
         return tex
     end
 
-    function Formatter:AcquireFontStringByTag(fontTag)
-        local fs = MainFrame.fontStringPool:Acquire();
+    function Formatter:SetFontObjectByTag(fontString, fontTag)
         if not (fontTag and TagFonts[fontTag]) then
             fontTag = "p";
         end
-        fs:SetFontObject(TagFonts[fontTag]);
+        fontString:SetFontObject(TagFonts[fontTag]);
+    end
+
+    function Formatter:AcquireFontStringByTag(fontTag)
+        local fs = MainFrame.fontStringPool:Acquire();
+        self:SetFontObjectByTag(fs, fontTag);
         return fs
     end
 
@@ -766,34 +778,6 @@ do  --Formatter
         return offsetY, textHeight
     end
 
-    function Formatter:FormatText(text)
-        if find(text, "^<HTML>") then
-            return self:FormatHTML(text)
-        else
-            return self:FormatParagraph(text)
-        end
-    end
-
-    function Formatter:FormatParagraph(text)
-        local paragraphs = API.SplitParagraph(text);
-        local fontTag = "p";
-        local align = "LEFT";
-        local paragraphSpacing = self.PARAGRAPH_SPACING;
-        local numParagraphs = paragraphs and #paragraphs or 0;
-
-        if numParagraphs > 0 then
-            for i, paragraphText in ipairs(paragraphs) do
-                if i == numParagraphs then
-                    Cache:StoreText(fontTag, paragraphText, align, 0);
-                else
-                    Cache:StoreText(fontTag, paragraphText, align, paragraphSpacing);
-                end
-            end
-        else
-
-        end
-    end
-
     function Formatter:SetUtilityTextWidth(width)
         self.UtilityFontString:SetWidth(width);
     end
@@ -812,6 +796,37 @@ do  --Formatter
         return height
     end
 
+    function Formatter:FormatText(text)
+        if find(text, "^<HTML>") then
+            return self:FormatHTML(text)
+        else
+            return self:FormatParagraph(text)
+        end
+    end
+
+    function Formatter:FormatParagraph(text)
+        local paragraphs = API.SplitParagraph(text);
+        local fontTag = "p";
+        local align = "LEFT";
+        local paragraphSpacing = self.PARAGRAPH_SPACING;
+        local numParagraphs = paragraphs and #paragraphs or 0;
+
+        if numParagraphs > 0 then
+            for i, paragraphText in ipairs(paragraphs) do
+                if paragraphText ~= " " then
+                    if i == numParagraphs then
+                        Cache:StoreText(fontTag, paragraphText, align, 0);
+                    else
+                        Cache:StoreText(fontTag, paragraphText, align, paragraphSpacing);
+                    end
+                end
+            end
+        else
+
+        end
+
+        PP = paragraphs;    --debug
+    end
 
     local function CleanUpTags(text)
         --Remove <>
@@ -957,7 +972,7 @@ do  --Formatter
 
         local page = 0;
 
-        local debugMaxVisible = 200;
+        local debugMaxVisible = 0;
 
         for i, v in Cache:EnumerateFormattedContent() do
             if v.text then
@@ -973,8 +988,8 @@ do  --Formatter
                     Cache:SetPageStartOffset(page, offsetY);
                 end
                 v.offsetY = offsetY;
-                offsetY = Round(offsetY + v.textHeight);
-                offsetY = offsetY + v.spacingBelow;
+                offsetY = Round(offsetY + v.textHeight + v.spacingBelow);
+                v.endingOffsetY = offsetY;
             elseif v.image then
                 offsetY = offsetY + v.spacingAbove;
                 if i < debugMaxVisible then
@@ -990,11 +1005,14 @@ do  --Formatter
                 end
                 v.offsetY = offsetY;
                 offsetY = Round(offsetY + v.height);
+                v.endingOffsetY = offsetY;
             end
         end
 
         self:SetScrollContentHeight(offsetY);
 
+        self.ScrollFrame:SetContent(Cache:GetFormattedContent());
+        self.ScrollFrame:UpdateView();
         --print("MAX INDEX", Cache:GetMaxContentIndex());
     end
 
@@ -1061,7 +1079,43 @@ do  --Main UI
         self:Reposition();
 
         BookComponent:InitHeader(self.Header);
+
+
         addon.InitEasyScrollFrame(self.ScrollFrame, self.Header.HeaderScrollOverlap, self.Footer.FooterDivider);
+        addon.InitRecyclableScrollFrame(self.ScrollFrame);
+
+        function self.ScrollFrame:SetObjectData(obj, data)
+            if not obj then
+                if data.text then
+                    obj = Formatter:AcquireFontStringByTag(data.fontTag);
+                elseif data.image then
+                    obj = Formatter:AcquireTexture();
+                end
+            end
+
+            if data.text then
+                Formatter:SetFontObjectByTag(obj, data.fontTag);
+                obj:SetJustifyH(data.align);
+                obj:SetText(data.text);
+            elseif data.image then
+                obj:SetSize(data.width, data.height);
+                obj:SetTexture(data.image);
+                obj:SetTexCoord(data.left, data.right, data.top, data.bottom);
+            end
+
+            obj:SetPoint("TOP", MainFrame.ContentFrame, "TOP", 0, -data.offsetY);
+            obj:Show();
+
+            return obj
+        end
+
+        function self.ScrollFrame:GetDataRequiredObjectType(data)
+            if data.text then
+                return "FontString"
+            elseif data.image then
+                return "Texture"
+            end
+        end
 
         local function CreateFontString()
             local fontString = self.ContentFrame:CreateFontString(nil, "ARTWORK", "DUIFont_Quest_Paragraph");
@@ -1126,6 +1180,7 @@ do  --Main UI
         CloseItemText();
         self:ReleaseAllObjects();
         Cache:ClearObjectCache();
+        self.ScrollFrame:ClearContent();
         addon.SharedVignette:TryHide();
     end
 
@@ -1294,7 +1349,7 @@ end
 
 
 do
-    local hideDefaultUI = false;    --false when we do debug
+    local hideDefaultUI = true;    --false when we do debug
     if hideDefaultUI then
         if ItemTextFrame then   --Mute
             ItemTextFrame:UnregisterAllEvents();
