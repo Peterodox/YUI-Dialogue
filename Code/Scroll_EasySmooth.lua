@@ -28,7 +28,16 @@ do
 
             if self.isRecyclable then
                 --self:DebugGetCount();
-                self.recycleTimer = 1;
+                self.recycleTimer = -1;
+                self:UpdateView(true);
+            end
+
+            if self.usePagination then
+                self.paginationTimer = 1;
+            end
+
+            if self.onScrollFinishedCallback then
+                self.onScrollFinishedCallback();
             end
         end
 
@@ -37,6 +46,14 @@ do
             if self.recycleTimer > 0.033 then
                 self.recycleTimer = 0;
                 self:UpdateView();
+            end
+        end
+
+        if self.usePagination then
+            self.paginationTimer = self.paginationTimer + elapsed;
+            if self.paginationTimer > 0.2 then
+                self.paginationTimer = 0;
+                self:UpdatePagination();
             end
         end
 
@@ -89,6 +106,7 @@ do
             self.scrollTarget = value;
             self:SetScript("OnUpdate", self.OnUpdate_Easing);
             self.recycleTimer = 0;
+            self.paginationTimer = 0;
             if self.range > 0 then
                 self:UpdateOverlapBorderVisibility();
             end
@@ -180,7 +198,7 @@ do
         self.contentIndexObject = nil;
     end
 
-    function RecyclableFrameMixin:AcquireAndSetData(data)
+    function RecyclableFrameMixin:AcquireAndSetData(data, contentIndex)
         local type = self:GetDataRequiredObjectType(data);
         local obj;
 
@@ -191,7 +209,7 @@ do
             b.count = b.count - 1;
         end
 
-        return self:SetObjectData(obj, data);
+        return self:SetObjectData(obj, data, contentIndex);
     end
 
     function RecyclableFrameMixin:RecycleObject(contentIndex)
@@ -214,16 +232,21 @@ do
         self.contentIndexObject[contentIndex] = nil;
     end
 
-    function RecyclableFrameMixin:UpdateView()
+    function RecyclableFrameMixin:UpdateView(useScrollTarget)
         local viewSize = self:GetViewSize();
-        local fromOffset = self:GetVerticalScroll(); --self:GetScrollTarget();
+        local fromOffset;
+        if useScrollTarget then
+            fromOffset = self:GetScrollTarget();
+        else
+            fromOffset = self:GetVerticalScroll();
+        end
         local toOffset = fromOffset + viewSize;
 
         for contentIndex, data in ipairs(self.content) do
             if (data.offsetY <= fromOffset and data.endingOffsetY >= fromOffset) or (data.offsetY >= fromOffset and data.endingOffsetY <= toOffset) or (data.offsetY <= toOffset and data.endingOffsetY >= toOffset) then
                 --In range
                 if not self.contentIndexObject[contentIndex] then
-                    self.contentIndexObject[contentIndex] = self:AcquireAndSetData(data);
+                    self.contentIndexObject[contentIndex] = self:AcquireAndSetData(data, contentIndex);
                 end
             else
                 --Outside range
@@ -232,6 +255,10 @@ do
                 end
             end
         end
+    end
+
+    function RecyclableFrameMixin:SetUsePagination(usePagination)
+        self.usePagination = usePagination;
     end
 
     function RecyclableFrameMixin:DebugGetCount()
@@ -251,15 +278,21 @@ do
         print("Active:", active, " Unused:", unused)
     end
 
+
     --Overridden by Owner
-    function RecyclableFrameMixin:SetObjectData(object, data)
+    function RecyclableFrameMixin:SetObjectData(object, data, contentIndex)
         --Override
         --Return object
     end
 
     function RecyclableFrameMixin:GetDataRequiredObjectType(data)
+
+    end
+
+    function RecyclableFrameMixin:UpdatePagination()
         --Override
     end
+    ----
 
 
     local function InitRecyclableScrollFrame(scrollFrame)

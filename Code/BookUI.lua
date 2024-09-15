@@ -4,7 +4,10 @@ local L = addon.L;
 local BookComponent = addon.BookComponent;
 local KeyboardControl = addon.KeyboardControl;
 local GetDBBool = addon.GetDBBool;
+local CallbackRegistry = addon.CallbackRegistry;
+local TTSUtil = addon.TTSUtil;
 local Round = API.Round;
+local FadeFrame = API.UIFrameFade;
 
 
 local MainFrame;
@@ -38,7 +41,7 @@ local PIXEL_SCALE = 0.53333;
 local FRAME_SIZE_MULTIPLIER = 1.0;  --(See DialogueUI.lua) 1.1 / 1.25
 local WOW_PAGE_WIDTH = 412; --ParchmentLarge
 
-local NEW_PAGE_SCROLL_COOLDOWN = 0.5;   --Only allow turning 1 page every X duration
+local OTHER_CONTENT_ALPHA = 0.4;
 
 
 local RawSize = {   --Unit: Pixel
@@ -62,8 +65,14 @@ local RawSize = {   --Unit: Pixel
     CLOSE_BUTTON_OFFSET = 26,
     CLOSE_BUTTON_SIZE = 64,
 
-    HEADER_SCROLL_OVERLAP = 80,
-    FOOTER_SCROLL_OVERLAP = 40,
+    HEADER_DIVIDER_HEIGHT = 32,
+    FOOTER_DIVIDER_HEIGHT = 32,
+
+    HEADER_OVERLAP_HEIGHT = 80,
+    HEADER_DIVIDER_BELOW_TITLE = -46,
+
+    PAGE_BUTTON_SIZE = 40,
+    PAGE_BUTTON_GAP = 2,
 };
 
 local ConvertedSize = {};
@@ -76,7 +85,7 @@ local function CalculateSizeData()
 
     ConvertedSize.FRAME_SHRINK_RANGE = a * (RawSize.FRAME_HEIGHT_MAX - RawSize.FRAME_TOP_HEIGHT - RawSize.FRAME_BOTTOM_HEIGHT);
     ConvertedSize.CONTENT_WIDTH = a * (RawSize.FRAME_WIDTH - 2*RawSize.PADDING_H);
-    
+
     Formatter.UtilityFontString:SetWidth(ConvertedSize.CONTENT_WIDTH);
 end
 
@@ -109,6 +118,7 @@ do  --Cache
 
     function Cache:ClearObjectCache()
         self.activeData = nil;
+        self.fullyCached = false;
     end
 
     function Cache:SetActiveObject(objectType, objectID)
@@ -273,8 +283,27 @@ do  --Cache
     end
 
     function Cache:BeginCalculateTextHeight()
-        MainFrame:DisplayCurrentPage();
+        local title = ItemTextGetItem();   --"The Dark Portal and the Fall of Stormwind"
+        MainFrame.Header:SetTitle(title);
+        Formatter.titleText = title;
 
+        local addPagePadding = IsMultiPageBook();
+        local maxPage = Cache:GetMaxPage();
+
+        for page, rawText in Cache:EnumeratePageTexts() do
+            Cache:FlagNextContentIsPageStart();
+            Formatter:FormatText(rawText);
+            if addPagePadding and (page ~= maxPage) then
+                Cache:AddSpacerToLastContent(Formatter.PAGE_SPACING);
+            end
+        end
+
+        self:CalculateTextHeight();
+    end
+
+    function Cache:CalculateTextHeight()
+        --OnSettingsChanged
+        MainFrame:ReleaseAllObjects();
         self.t = 0;
         self.fromContentIndex = 0;
         self.toContentIndex = self:GetMaxContentIndex();
@@ -412,8 +441,16 @@ do  --Background Calculation \ Theme
                 self.CloseButton:SetUITexture(file);
             end
 
+            self.Header:SetUITexture(file);
+
             self.Header.HeaderScrollOverlap:SetTexture(file);
             self.Header.HeaderScrollOverlap:SetTexCoord(128/1024, 896/1024, 1408/2048, 1488/2048);
+
+            self.Footer.FooterDivider:SetTexture(file);
+            self.Footer.FooterDivider:SetTexCoord(0, 768/1024, 1488/2048, 1520/2048);
+
+            self.Header.HeaderDivider:SetTexture(file);
+            self.Header.HeaderDivider:SetTexCoord(0, 768/1024, 1520/2048, 1552/2048);
         end
     end
 
@@ -499,10 +536,13 @@ do  --Background Calculation \ Theme
 
         self.Header.Title:SetWidth(ConvertedSize.CONTENT_WIDTH);
         self.Header.Title:SetPoint("TOP", self, "TOP", 0, -cs.PADDING_V);
-        self.Header:SetHeightBelowTitle(Formatter.PARAGRAPH_SPACING);
 
-        self.Header.HeaderScrollOverlap:SetSize(cs.FRAME_WIDTH, cs.HEADER_SCROLL_OVERLAP);
-        self.Footer.FooterDivider:SetSize(cs.FRAME_WIDTH, cs.FOOTER_SCROLL_OVERLAP);
+        self.Header.HeaderScrollOverlap:SetSize(cs.FRAME_WIDTH, cs.HEADER_OVERLAP_HEIGHT);
+        self.Footer.FooterDivider:SetSize(cs.FRAME_WIDTH, cs.FOOTER_DIVIDER_HEIGHT);
+        self.Header.HeaderDivider:SetSize(cs.FRAME_WIDTH, cs.HEADER_DIVIDER_HEIGHT);
+        self.Header:SetPageButtonSize(cs.PAGE_BUTTON_SIZE, cs.PAGE_BUTTON_GAP);
+
+        self.Header:SetWidth(ConvertedSize.CONTENT_WIDTH);
     end
 
     function DUIBookUIMixin:SetScrollContentHeight(contentHeight)
@@ -524,27 +564,33 @@ do  --Background Calculation \ Theme
         --self.DebugArea:ClearAllPoints();
         --self.DebugArea:SetSize(32, contentHeight);
         --self.DebugArea:SetPoint("TOP", self.ContentFrame, "TOP", 0, 0);
-        self:ResetScroll();
+
+        self.ScrollFrame:ClearAllPoints();
+        self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0,  -cs.PADDING_V - headerHeight);
+        self.ScrollFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, cs.PADDING_V);
 
         if scrollable then
-            self.ScrollFrame:ClearAllPoints();
-            self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0,  -cs.PADDING_V - headerHeight);
-            self.ScrollFrame:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, cs.PADDING_V);
             self.ContentFrame:SetParent(self.ScrollFrame.ScrollChild);
             self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame.ScrollChild, "TOPLEFT", 0, 0);
             self.ContentFrame:SetFrameLevel(self.ScrollFrame.ScrollChild:GetFrameLevel());
             local scrollFrameHeight = self.ScrollFrame:GetHeight();
             scrollRange = Round(contentHeight + Formatter.PAGE_SPACING - scrollFrameHeight);
+            self:SetScript("OnMouseWheel", self.OnMouseWheel);
         else
             scrollRange = 0;
             self.ContentFrame:SetParent(self);
             self.ContentFrame:SetPoint("TOP", self, "TOP", 0, -cs.PADDING_V - headerHeight);
             self.ContentFrame:SetFrameLevel(self.Footer:GetFrameLevel() + 10);
+            self:SetScript("OnMouseWheel", nil);
         end
 
         self.scrollable = scrollable;
         self.ScrollFrame:SetScrollRange(scrollRange);
         self.ScrollFrame:SetUseOverlapBorder(scrollable, scrollable);
+
+        self.Header:SetHeight(Round(headerHeight));
+
+        self:ResetScroll();
     end
 end
 
@@ -577,62 +623,18 @@ do  --Scroll Anim
             return
         end
 
-        if self.oneScrollMode then
-            if delta > 0 then
-                if IsShiftKeyDown() then
-                    self:ScrollToNearPrevPage();
-                else
-                    self:ScrollBy(-Formatter.OFFSET_PER_SCROLL);
-                end
+        if delta > 0 then
+            if IsShiftKeyDown() then
+                self:ScrollToNearPrevPage();
             else
-                if IsShiftKeyDown() then
-                    self:ScrollToNearNextPage();
-                else
-                    self:ScrollBy(Formatter.OFFSET_PER_SCROLL);
-                end
+                self:ScrollBy(-Formatter.OFFSET_PER_SCROLL);
             end
         else
-            if not self.ScrollLocker then
-                local f = CreateFrame("Frame");
-                self.ScrollLocker = f;
-                f:Hide();
-                f.t = 0;
-                f:SetScript("OnUpdate", function(_, elapsed)
-                    f.t = f.t + elapsed;
-                    if f.t > NEW_PAGE_SCROLL_COOLDOWN then
-                        f.t = 0;
-                        f:Hide();
-                        self.scrollLocked = false;
-                    end
-                end)
-            end
-
-            if delta > 0 then
-                if self:IsAtPageTop() then
-                    local page = ItemTextGetPage();
-                    if page > 1 then
-                        --if not self.scrollLocked then
-                            ItemTextPrevPage();
-                        --end
-                    end
-                else
-                    self:ScrollBy(-Formatter.OFFSET_PER_SCROLL);
-                end
+            if IsShiftKeyDown() then
+                self:ScrollToNearNextPage();
             else
-                if self:IsAtPageBottom() then
-                    local hasNext = ItemTextHasNextPage();
-                    if hasNext then
-                        if not self.scrollLocked then
-                            ItemTextNextPage();
-                        end
-                    end
-                else
-                    self:ScrollBy(Formatter.OFFSET_PER_SCROLL);
-                end
+                self:ScrollBy(Formatter.OFFSET_PER_SCROLL);
             end
-
-            self.scrollLocked = true;
-            self.ScrollLocker:Show();
         end
     end
 
@@ -645,6 +647,7 @@ do  --Scroll Anim
     end
 
     function DUIBookUIMixin:ScrollToContent(contentIndex)
+        --Move content to the top if possible
         local data = Cache:GetContentDataByIndex(contentIndex);
         if data then
             local offsetY = data.offsetY;
@@ -659,11 +662,33 @@ do  --Scroll Anim
             page = maxPage;
         end
 
+        if page == 1 then
+            self:ScrollTo(0);
+            return
+        end
+
         local offsetY = Cache:GetPageStartOffset(page);
         if offsetY then
             offsetY = offsetY - self.scrollTopOffet;
             self:ScrollTo(offsetY);
         end
+    end
+
+    function DUIBookUIMixin:GetCurrentPage()
+        --We consider the new page as the current one when it reach the x% of the frame
+        local offset = self.ScrollFrame:GetScrollTarget() + self.scrollTopOffet + 0.4*self.ScrollFrame:GetViewSize();
+        local maxPage = Cache:GetMaxPage();
+
+        local pageOffset;
+
+        for page = maxPage, 1, -1 do
+            pageOffset = Cache:GetPageStartOffset(page);
+            if offset > pageOffset then
+                return page
+            end
+        end
+
+        return 1
     end
 
     function DUIBookUIMixin:ScrollToNearNextPage()
@@ -675,6 +700,10 @@ do  --Scroll Anim
         for page = 1, maxPage do
             pageOffset = Cache:GetPageStartOffset(page);
             if offset < pageOffset then
+                if page == 1 and page < maxPage then
+                    page = 2;
+                    pageOffset = Cache:GetPageStartOffset(page);
+                end
                 local offsetY = pageOffset - self.scrollTopOffet;
                 self:ScrollTo(offsetY)
                 break
@@ -691,7 +720,12 @@ do  --Scroll Anim
         for page = maxPage, 1, -1 do
             pageOffset = Cache:GetPageStartOffset(page);
             if offset > pageOffset then
-                local offsetY = pageOffset - self.scrollTopOffet;
+                local offsetY;
+                if page == 1 then
+                    offsetY = 0;
+                else
+                    offsetY = pageOffset - self.scrollTopOffet;
+                end
                 self:ScrollTo(offsetY)
                 break
             end
@@ -725,7 +759,7 @@ do  --Formatter
         self.TEXT_SPACING = 0.35 * baseFontSize;        --Recommended Line Height: 1.2 - 1.5
         self.PARAGRAPH_SPACING = 4 * self.TEXT_SPACING;
         self.PAGE_SPACING = 4 * self.PARAGRAPH_SPACING;
-        self.OFFSET_PER_SCROLL = Round(5 * (self.FONT_SIZE + self.TEXT_SPACING));
+        self.OFFSET_PER_SCROLL = Round(4 * (self.FONT_SIZE + self.TEXT_SPACING));
 
         self.UtilityFontString:SetSpacing(self.TEXT_SPACING);
     end
@@ -965,8 +999,15 @@ do  --Formatter
         local obj;
         local textRef = MainFrame.ContentFrame;
         local Formatter = Formatter;
+        local maxPage = Cache:GetMaxPage();
+        local offsetY;
 
-        local offsetY = Round(ConvertedSize.PADDING_H - Formatter.PARAGRAPH_SPACING);
+        if maxPage > 1 then
+            offsetY = Round(ConvertedSize.PADDING_H - Formatter.PARAGRAPH_SPACING);
+        else
+            offsetY = Round(Formatter.PARAGRAPH_SPACING);
+        end
+
         self.scrollTopOffet = offsetY;
         local data;
 
@@ -1009,6 +1050,8 @@ do  --Formatter
             end
         end
 
+        self:SetMaxPage(maxPage);
+
         self:SetScrollContentHeight(offsetY);
 
         self.ScrollFrame:SetContent(Cache:GetFormattedContent());
@@ -1016,37 +1059,38 @@ do  --Formatter
         --print("MAX INDEX", Cache:GetMaxContentIndex());
     end
 
-    function DUIBookUIMixin:DisplayCurrentPage()
-        if IsMultiPageBook() then
-            self:SetScript("OnMouseWheel", self.OnMouseWheel);
+    function DUIBookUIMixin:SetMaxPage(maxPage)
+        --Update Pagination
+        local numPageButtons = self.Header:SetMaxPage(maxPage);
+
+        --Cut HeaderDivider
+        local usePagination = maxPage > 1;
+        if usePagination then
+            self.Header.HeaderDividerExclusion:Show();
         else
-            self:SetScript("OnMouseWheel", nil);
+            self.Header.HeaderDividerExclusion:Hide();
         end
 
-        self:ReleaseAllObjects();
+        --Adjust Header: padding below title
+        local headerOffsetY;
+        local cs = ConvertedSize;
 
-        local title = ItemTextGetItem();   --"The Dark Portal and the Fall of Stormwind"
-        self.Header:SetTitle(title);
-        Formatter.titleText = title;
-
-        local oneScrollMode = true;
-        self.oneScrollMode = oneScrollMode;
-
-        if oneScrollMode then
-            local addPagePadding = IsMultiPageBook();
-            local maxPage = Cache:GetMaxPage();
-
-            for page, rawText in Cache:EnumeratePageTexts() do
-                Cache:FlagNextContentIsPageStart();
-                Formatter:FormatText(rawText);
-                if addPagePadding and (page ~= maxPage) then
-                    Cache:AddSpacerToLastContent(Formatter.PAGE_SPACING);
-                end
-            end
+        if usePagination then
+            local buttonSpan = numPageButtons * (cs.PAGE_BUTTON_SIZE + cs.PAGE_BUTTON_GAP) + 3*cs.PAGE_BUTTON_GAP;
+            self.Header.HeaderDividerExclusion:SetWidth(buttonSpan);
+            self.Header.HeaderDividerExclusion:SetHeight(cs.PAGE_BUTTON_SIZE + 4);
+            self.Header:SetHeightBelowTitle(Formatter.PARAGRAPH_SPACING + cs.PAGE_BUTTON_SIZE);
+            headerOffsetY = cs.HEADER_DIVIDER_BELOW_TITLE;
+            self.Header.HeaderDivider:ClearAllPoints();
+            self.Header.HeaderDivider:SetPoint("CENTER", self.Header.Title, "BOTTOM", 0, headerOffsetY);
         else
-            local rawText = ItemTextGetText();
-            Cache:FlagNextContentIsPageStart();
-            Formatter:FormatText(rawText);
+            headerOffsetY = -Formatter.PARAGRAPH_SPACING;
+            self.Header.HeaderDivider:ClearAllPoints();
+            local titleHeight = self.Header:GetTitleHeight();
+            local titleLineHeight = self.Header:GetTitleEffectiveLineHeight();
+            local titleSpacing = 0.35 * titleLineHeight;
+            self.Header.HeaderDivider:SetPoint("CENTER", self, "TOP", 0, -Round(cs.PADDING_V + titleHeight + titleSpacing));
+            self.Header:SetHeightBelowTitle(titleSpacing + 2);
         end
     end
 end
@@ -1081,10 +1125,12 @@ do  --Main UI
         BookComponent:InitHeader(self.Header);
 
 
-        addon.InitEasyScrollFrame(self.ScrollFrame, self.Header.HeaderScrollOverlap, self.Footer.FooterDivider);
-        addon.InitRecyclableScrollFrame(self.ScrollFrame);
+        --ScrollFrame
+        local ScrollFrame = self.ScrollFrame;
+        addon.InitEasyScrollFrame(ScrollFrame, self.Header.HeaderScrollOverlap, self.Footer.FooterDivider);
+        addon.InitRecyclableScrollFrame(ScrollFrame);
 
-        function self.ScrollFrame:SetObjectData(obj, data)
+        function ScrollFrame:SetObjectData(obj, data, contentIndex)
             if not obj then
                 if data.text then
                     obj = Formatter:AcquireFontStringByTag(data.fontTag);
@@ -1103,13 +1149,26 @@ do  --Main UI
                 obj:SetTexCoord(data.left, data.right, data.top, data.bottom);
             end
 
+            obj.contentIndex = contentIndex;
             obj:SetPoint("TOP", MainFrame.ContentFrame, "TOP", 0, -data.offsetY);
             obj:Show();
+
+            if MainFrame.isReadingContent then
+                if data.text then
+                    if obj.contentIndex == MainFrame.focusedContentIndex then
+                        --obj:SetAlpha(1);
+                        FadeFrame(obj, 0, 1);
+                    else
+                        FadeFrame(obj, 0, OTHER_CONTENT_ALPHA);
+                        --obj:SetAlpha(OTHER_CONTENT_ALPHA);
+                    end
+                end
+            end
 
             return obj
         end
 
-        function self.ScrollFrame:GetDataRequiredObjectType(data)
+        function ScrollFrame:GetDataRequiredObjectType(data)
             if data.text then
                 return "FontString"
             elseif data.image then
@@ -1117,6 +1176,14 @@ do  --Main UI
             end
         end
 
+        function ScrollFrame:UpdatePagination()
+            local page = MainFrame:GetCurrentPage();
+            MainFrame.Header:SetCurrentPage(page);
+        end
+        ScrollFrame:SetUsePagination(true);
+
+
+        --Objecti Pool
         local function CreateFontString()
             local fontString = self.ContentFrame:CreateFontString(nil, "ARTWORK", "DUIFont_Quest_Paragraph");
             fontString:SetSpacing(Formatter.TEXT_SPACING);
@@ -1162,6 +1229,7 @@ do  --Main UI
     function DUIBookUIMixin:ReleaseAllObjects()
         if self.Init then return end;
 
+        self.focusedContentIndex = nil;
         self.fontStringPool:Release();
         self.texturePool:Release();
     end
@@ -1182,10 +1250,15 @@ do  --Main UI
         Cache:ClearObjectCache();
         self.ScrollFrame:ClearContent();
         addon.SharedVignette:TryHide();
+        self.isReadingContent = nil;
+
+        CallbackRegistry:Trigger("BookUI.Hide");
     end
 
     function DUIBookUIMixin:OnMouseUp(button)
-        if button == "RightButton" and GetDBBool("RightClickToCloseUI") and self:IsMouseMotionFocus() then
+        if button == "LeftButton" then
+            self:SpeakCursorFocusContent();
+        elseif button == "RightButton" and GetDBBool("RightClickToCloseUI") and self:IsMouseMotionFocus() then
             self:Hide();
         end
     end
@@ -1219,31 +1292,122 @@ do  --Main UI
 
     function DUIBookUIMixin:ShowUI()
         self.isMultiPageBook = IsMultiPageBook();
-        --self:DisplayCurrentPage();
         self:RebuildContentFromCache();
 
         if not self:IsShown() then
             self.t = 0;
-
-            self:DebugHide();
-
             self:SetAlpha(0);
             self:Show();
             self:SetScript("OnUpdate", AnimIntro_FlyIn_OnUpdate);
         end
     end
+end
 
-    function DUIBookUIMixin:DebugHide()
-        local cutoffY = self.ScrollFrame:GetHeight();
+do  --TTS
+    function DUIBookUIMixin:GetCursorFocusContent()
+        if not self:IsMouseMotionFocus() then return end;
 
-        local function HideOutOfBoundObjects(obj)
-            if obj.posY and obj.posY > cutoffY then
-                --obj:Hide();
+        for _, obj in self.fontStringPool:EnumerateActive() do
+            if obj:IsMouseOver() then
+                return obj.contentIndex
             end
         end
+    end
 
-        self.fontStringPool:ProcessActiveObjects(HideOutOfBoundObjects);
-        self.texturePool:ProcessActiveObjects(HideOutOfBoundObjects);
+    function DUIBookUIMixin:FadeOtherContent()
+        --Debug make other paragraphs transparent
+        if self.focusedContentIndex then
+            local function FadeObject(obj)
+                if obj.contentIndex == self.focusedContentIndex then
+                    FadeFrame(obj, 1, 1);
+                else
+                    FadeFrame(obj, 1, OTHER_CONTENT_ALPHA);
+                end
+            end
+            self.fontStringPool:ProcessAllObjects(FadeObject);
+            self.ScrollFrame.onScrollFinishedCallback = function()
+                self:FadeOtherContent();
+            end;
+        else
+            local function FadeObject(obj)
+                FadeFrame(obj, 0.5, 1);
+            end
+            self.fontStringPool:ProcessAllObjects(FadeObject);
+            self.ScrollFrame.onScrollFinishedCallback = nil;
+        end
+    end
+
+    function DUIBookUIMixin:ReadAndMoveToNextLine()
+        --We only move the page when the current view cannot contain the full paragrah
+
+        if not Cache:IsCurrentObjectFullyCached() then
+            self.isReadingContent = false;
+            return
+        end
+
+        local contentIndex = (self.focusedContentIndex or 0) + 1;
+        local data = Cache:GetContentDataByIndex(contentIndex);
+        local found;
+
+        if data then
+            while data and (not data.text) do
+                contentIndex = contentIndex + 1;
+                data = Cache:GetContentDataByIndex(contentIndex);
+            end
+
+            if data and data.text then
+                found = true;
+                self.focusedContentIndex = contentIndex;
+                TTSUtil:ReadBookLine(data.text);
+
+                local viewSize = self.ScrollFrame:GetViewSize();
+                local fromOffset = self.ScrollFrame:GetVerticalScroll(); --self:GetScrollTarget();
+                local toOffset = fromOffset + viewSize;
+                if (data.endingOffsetY <= fromOffset) or (data.offsetY >= toOffset) or (data.offsetY <= toOffset and data.endingOffsetY >= toOffset) then
+                    local offsetY = data.offsetY;
+                    offsetY = offsetY - self.scrollTopOffet;
+                    self:ScrollTo(offsetY);
+                end
+            end
+        else
+
+        end
+
+        if found then
+            self.isReadingContent = true;
+        else
+            self.isReadingContent = nil;
+        end
+
+        self:FadeOtherContent();
+
+        return found
+    end
+
+    function DUIBookUIMixin:SpeakCursorFocusContent()
+        local contentIndex = self:GetCursorFocusContent();
+        if contentIndex then
+            local data = Cache:GetContentDataByIndex(contentIndex);
+            if data and data.text then
+                self.focusedContentIndex = contentIndex;
+                self.isReadingContent = true;
+                local userInput = true;
+                TTSUtil:ReadBookLine(data.text, userInput);
+                self:FadeOtherContent();
+            end
+        end
+    end
+
+    function DUIBookUIMixin:GetAndScrollToNextText()
+        local contentIndex = self.focusedContentIndex or self:GetCursorFocusContent();
+        if contentIndex then
+            local data = Cache:GetContentDataByIndex(contentIndex);
+            if data then
+                local offsetY = data.offsetY;
+                offsetY = offsetY - self.scrollTopOffet;
+                self:ScrollTo(offsetY);
+            end
+        end
     end
 end
 
@@ -1305,6 +1469,9 @@ do  --EventListener
                 objectType, objectID = GetObjectTypeAndID(guid);
             end
 
+            MainFrame.Header:UpdateLocation(objectType == "GameObject");
+
+
             local isObjectChanged = Cache:SetActiveObject(objectType, objectID);
             self.itemTextBegun = true;
 
@@ -1345,6 +1512,28 @@ do  --EventListener
         --print(event, ..., GetTimePreciseSec()); --debug
     end
     EL:SetScript("OnEvent", EL.OnEvent);
+end
+
+
+do
+    function DUIBookUIMixin:OnSettingsChanged()
+        if not self:IsShown() then return end;
+
+        if not self.settingsDirty then
+            self.settingsDirty = true;
+            C_Timer.After(0, function()
+                self.settingsDirty = nil;
+                CalculateSizeData();
+                Cache:CalculateTextHeight();
+            end)
+        end
+    end
+
+    local function OnFontSizeChanged(baseFontSize, fontSizeID)
+        Formatter:SetBaseFontSize(baseFontSize);
+        MainFrame:OnSettingsChanged();
+    end
+    CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 end
 
 

@@ -296,6 +296,11 @@ do  -- Object Pool
         return tbl
     end
 
+    function ObjectPoolMixin:EnumerateActive()
+        local activeObjects = self:GetActiveObjects();
+        return ipairs(activeObjects)
+    end
+
     local function RemoveObject(object)
         object:Hide();
         object:ClearAllPoints();

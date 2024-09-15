@@ -21,6 +21,27 @@
         </Scripts>
     </Frame>
 
+    <Button name="DUIBookPageButtonTemplate" virtual="true">
+        <Size x="40" y="40"/>
+        <Layers>
+            <Layer level="BORDER" textureSubLevel="2">
+                <Texture parentKey="Background" setAllPoints="true">
+                </Texture>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentKey="Highlight" hidden="true" setAllPoints="true">
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="PageText" inherits="DUIFontFamily_Serif_10" justifyH="CENTER" justifyV="MIDDLE" text="1">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Button>
+
     <Frame name="DUIBookFrame" mixin="DUIBookUIMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">
         <Anchors>
             <Anchor point="LEFT" relativeTo="UIParent" relativePoint="LEFT" x="48"/>
@@ -44,14 +65,34 @@
             </ScrollFrame>
 
             <Frame parentKey="Header" frameLevel="10">
+                <Anchors>
+                    <Anchor point="TOP"/>
+                </Anchors>
                 <Layers>
                     <Layer level="OVERLAY" textureSubLevel="3">
                         <Texture parentKey="HeaderScrollOverlap" hidden="true">
-                            <Size x="768" y="80"/>
+                            <Size x="768" y="32"/>
                             <Anchors>
                                 <Anchor point="CENTER" relativeKey="$parent.$parent.ScrollFrame" relativePoint="TOP" y="0"/>
                             </Anchors>
                         </Texture>
+
+                        <Texture parentKey="HeaderDivider" hidden="false">
+                            <Size x="768" y="64"/>
+                            <Anchors>
+                                <Anchor point="BOTTOM" relativeKey="$parent.$parent.ScrollFrame" relativePoint="TOP" y="-6"/>
+                            </Anchors>
+                        </Texture>
+
+                        <MaskTexture parentKey="HeaderDividerExclusion" hWrapMode="CLAMPTOWHITE" vWrapMode="CLAMPTOWHITE" file="Interface\AddOns\DialogueUI\Art\BasicShapes\Mask-AllBlack">
+                            <Size x="1" y="80"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.HeaderDivider" relativePoint="CENTER"/>
+                            </Anchors>
+                            <MaskedTextures>
+                                <MaskedTexture childKey="HeaderDivider"/>
+                            </MaskedTextures>
+                        </MaskTexture>
                     </Layer>
                 </Layers>
             </Frame>
@@ -60,9 +101,9 @@
                 <Layers>
                     <Layer level="OVERLAY" textureSubLevel="3">
                         <Texture parentKey="FooterDivider" hidden="true">
-                            <Size x="768" y="40"/>
+                            <Size x="768" y="32"/>
                             <Anchors>
-                                <Anchor point="BOTTOM" relativeKey="$parent.$parent.ScrollFrame" relativePoint="BOTTOM" y="0"/>
+                                <Anchor point="CENTER" relativeKey="$parent.$parent.ScrollFrame" relativePoint="BOTTOM" y="0"/>
                             </Anchors>
                         </Texture>
                     </Layer>

@@ -67,11 +67,18 @@ local DefaultValues = {
             TTSContentObjective = false,
 
 
+    --Book Settings
+        --BookShowLocation = false,
+        --BookAlwaysDarkMode = false,
+        --BookTTSVoice = 0,
+        --BookTTSClickToPlay,
+
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
 
     --WidgetManagerPosition = {x, y};
     --QuestItemDisplayPosition = {x, y};
+
 
     --Deprecated:
     --WarbandCompletedQuest = true,         --Always ON

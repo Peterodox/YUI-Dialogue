@@ -33,14 +33,10 @@ local StopSpeakingText = C_VoiceChat.StopSpeakingText;
 local TTSButton;
 
 function TTSUtil:UpdateTTSSettings()
-    self.voiceID = C_TTSSettings.GetVoiceOptionID(0);
-    self.volume = self.defaultVolume or C_TTSSettings.GetSpeechVolume();     --0 ~ 100 (Default: 100)
-    self.rate = self.defaultRate or C_TTSSettings.GetSpeechRate();         -- -10 ~ +10 (Default: 0)
+    self.voiceID = C_TTSSettings.GetVoiceOptionID(0);                       --Unused
+    self.volume = self.defaultVolume or C_TTSSettings.GetSpeechVolume();    --0 ~ 100 (Default: 100)
+    self.rate = self.defaultRate or C_TTSSettings.GetSpeechRate();          -- -10 ~ +10 (Default: 0)
     self.destination = DESTINATION;
-
-    if self.volume == 0 then
-
-    end
 end
 
 function TTSUtil:OnUpdate_InitialDelay(elapsed)
@@ -93,7 +89,8 @@ function TTSUtil:QueueText(text, voiceID, identifier)
         end
     end
     -- insert new entry into queue
-    table.insert(self.queue, { text = text, voiceID = voiceID, identifier = identifier });
+    local segment = { text = text, voiceID = voiceID, identifier = identifier };
+    table.insert(self.queue, segment);
     self.t = -0.75;
     self:SetScript("OnUpdate", self.OnUpdate_InitialDelay);
 end
@@ -141,7 +138,9 @@ function TTSUtil:SpeakText(segment)
     C_VoiceChat.SpeakText(segment.voiceID, segment.text, self.destination, self.rate, self.volume);
 end
 
-function TTSUtil:SpeakCurrentContent()
+function TTSUtil:ReadCurrentDialogue()
+    self.contentSource = "dialogue";
+
     local content = addon.DialogueUI:GetContentForTTS();
     local voiceID = self:GetVoiceIDForNPC();
     local voiceIDNarrator = self:GetDefaultVoiceC();
@@ -237,6 +236,46 @@ function TTSUtil:SpeakCurrentContent()
     end
 end
 
+function TTSUtil:ReadCurrentBook()
+    self.contentSource = "book";
+
+    local voiceID = self:GetDefaultVoiceForBook();
+end
+
+
+function TTSUtil:OnUpdate_PauseThenReadNextBookLine(elapsed)
+    self.t = self.t + elapsed;
+    if self.t > 0.5 then
+        self.t = 0;
+        self:SetScript("OnUpdate", nil);
+        if addon.BookUI:ReadAndMoveToNextLine() then
+            
+        else
+
+        end
+    end
+end
+
+function TTSUtil:RequestReadNextBookLine()
+    self.t = 0;
+    self:SetScript("OnUpdate", self.OnUpdate_PauseThenReadNextBookLine);
+end
+
+function TTSUtil:ReadBookLine(text, userInput)
+    self.contentSource = "book";
+    self.manullyStopped = userInput == true and self:IsSpeaking();
+
+    local segment = {
+        text = text,
+        voiceID = self:GetDefaultVoiceForBook(),
+    };
+
+    self.queue = nil;
+    self:SetScript("OnUpdate", nil);
+
+    self:StopThenPlay(segment)
+end
+
 function TTSUtil:IsSpeaking()
     return self.utteranceID ~= nil;
 end
@@ -247,7 +286,7 @@ function TTSUtil:ToggleSpeaking()
     else
         --there is the forced reading of text when player pushes Play button, so it may override history when TTS_SKIP_RECENT is enabled
         self.forceRead = true;
-        self:SpeakCurrentContent();
+        self:ReadCurrentDialogue();
     end
 end
 
@@ -270,17 +309,26 @@ end
 function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_FINISHED(numConsumers, utteranceID, destination)
     self.utteranceID = nil;
     self:UnregisterEvent("VOICE_CHAT_TTS_PLAYBACK_FINISHED");
+
     if TTSButton then
         TTSButton.AnimWave:Stop();
-        self:ProcessQueue();
+        if self.contentSource == "dialogue" then
+            self:ProcessQueue();
+        elseif self.contentSource == "book" then
+            if not self.manullyStopped then
+                self:RequestReadNextBookLine();
+            end
+        end
+    end
+
+    if self.manullyStopped then
+        self.manullyStopped = nil;
     end
 end
 
 function TTSUtil:StopLastTTS()
     if self.utteranceID then
-        --clear self.queue just to be sure
-        self.queue = nil;
-        StopSpeakingText();
+        self:Clear();
     end
 end
 
@@ -515,6 +563,21 @@ do  --Voice List
         end
     end
 
+    function TTSUtil:GetDefaultVoiceForBook()
+        local voiceID = GetDBValue("BookTTSVoice");
+        if (not voiceID) and TTS_USE_NARRATOR then
+            voiceID = GetDBValue("TTSUseNarrator");
+        end
+        if (not voiceID) then
+            voiceID = GetDBValue("TTSVoiceMale");
+        end
+        if self:IsVoiceIDValid(voiceID) then
+            return voiceID
+        else
+            return FALLBACK_VOICE_ID
+        end
+    end
+
     function TTSUtil:OnUpdate_Process(elapsed)
         self.t = self.t + elapsed;
         if self.t > 0 then
@@ -528,6 +591,8 @@ do  --Voice List
     end
 
     function TTSUtil:PlaySample(voiceID)
+        self.contentSource = "sample";
+
         self:Clear();
         voiceID = voiceID or self:GetVoiceIDForNPC();
         local destination = DESTINATION;
@@ -552,7 +617,7 @@ do  --CallbackRegistry
     local function OnHandleEvent(event)
         if TTSUtil.isEnabled then
             if TTS_AUTO_PLAY then
-                TTSUtil:SpeakCurrentContent();
+                TTSUtil:ReadCurrentDialogue();
             end
         end
     end
@@ -677,4 +742,11 @@ do  --CallbackRegistry
         end
     end
     CallbackRegistry:Register("SettingChanged.TTSSkipRecent", Settings_TTSSkipRecent);
+
+
+    --Book
+    local function BookUI_OnHide()
+        TTSUtil:StopLastTTS();
+    end
+    CallbackRegistry:Register("BookUI.Hide", BookUI_OnHide);
 end
