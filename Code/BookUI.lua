@@ -1091,6 +1091,7 @@ do  --Formatter
             local titleSpacing = 0.35 * titleLineHeight;
             self.Header.HeaderDivider:SetPoint("CENTER", self, "TOP", 0, -Round(cs.PADDING_V + titleHeight + titleSpacing));
             self.Header:SetHeightBelowTitle(titleSpacing + 2);
+            --self.Header:SetHeightBelowTitle(cs.PADDING_V);
         end
     end
 end
@@ -1316,7 +1317,7 @@ do  --TTS
 
     function DUIBookUIMixin:FadeOtherContent()
         --Debug make other paragraphs transparent
-        if self.focusedContentIndex then
+        if self.focusedContentIndex and self.isReadingContent then
             local function FadeObject(obj)
                 if obj.contentIndex == self.focusedContentIndex then
                     FadeFrame(obj, 1, 1);

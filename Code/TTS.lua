@@ -236,16 +236,9 @@ function TTSUtil:ReadCurrentDialogue()
     end
 end
 
-function TTSUtil:ReadCurrentBook()
-    self.contentSource = "book";
-
-    local voiceID = self:GetDefaultVoiceForBook();
-end
-
-
 function TTSUtil:OnUpdate_PauseThenReadNextBookLine(elapsed)
     self.t = self.t + elapsed;
-    if self.t > 0.5 then
+    if self.t > 0.25 then
         self.t = 0;
         self:SetScript("OnUpdate", nil);
         if addon.BookUI:ReadAndMoveToNextLine() then
@@ -566,7 +559,7 @@ do  --Voice List
     function TTSUtil:GetDefaultVoiceForBook()
         local voiceID = GetDBValue("BookTTSVoice");
         if (not voiceID) and TTS_USE_NARRATOR then
-            voiceID = GetDBValue("TTSUseNarrator");
+            voiceID = GetDBValue("TTSVoiceNarrator");
         end
         if (not voiceID) then
             voiceID = GetDBValue("TTSVoiceMale");
