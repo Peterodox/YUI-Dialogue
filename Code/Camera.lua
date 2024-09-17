@@ -46,6 +46,7 @@ local UIParent = UIParent;
 UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EXPERIMENTAL_CVAR_WARNING
 
 local FadeHelper = CreateFrame("Frame");
+addon.UIParentFadeHelper = FadeHelper;
 
 local OFFSET_INFO = {};
 
@@ -476,7 +477,8 @@ function CameraUtil:InitiateInteraction()
         self:UpdateShapeshiftForm();
     end
 
-    FadeHelper:FadeOutUI();
+    local caller = addon.DialogueUI;
+    FadeHelper:FadeOutUI(caller);
 
     if self.defaultCameraMode == 0 or (DISABLE_IN_INSTANCE and IsInInstance()) then
         self:Intro_None();
@@ -516,7 +518,8 @@ function CameraUtil:Restore()
         self.fovChanged = nil;
     end
 
-    FadeHelper:FadeInUI();
+    local caller = addon.DialogueUI;
+    FadeHelper:FadeInUI(caller);
 
     if self.oldZoom then
         self:ZoomTo(self.oldZoom);
@@ -655,8 +658,10 @@ function FadeHelper:FadeOut_OnUpdate(elapsed)
     end
 end
 
-function FadeHelper:FadeOutUI()
+function FadeHelper:FadeOutUI(caller)
     if not HIDE_UI then return end;
+
+    self.owner = caller;
 
     --UI: UIParent
     if self.fadeDelta == -1 or (not UIParent:IsShown()) then
@@ -678,7 +683,11 @@ function FadeHelper:FadeOutUI()
     end
 end
 
-function FadeHelper:FadeInUI()
+function FadeHelper:FadeInUI(caller)
+    if caller and caller ~= self.owner then
+        return
+    end
+
     if self.fadeDelta == 1 then
         return
     end
@@ -701,6 +710,10 @@ function FadeHelper:FadeInUI()
         self:RegisterEvent("CINEMATIC_START");
         self:SetScript("OnUpdate", self.FadeIn_OnUpdate);
     end
+end
+
+function FadeHelper:SetOwner(owner)
+    self.owner = owner;
 end
 
 

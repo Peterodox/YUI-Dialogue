@@ -2,11 +2,11 @@ local _, addon = ...
 local API = addon.API;
 local L = addon.L;
 local BookComponent = addon.BookComponent;
-local KeyboardControl = addon.KeyboardControl;
 local GetDBBool = addon.GetDBBool;
 local CallbackRegistry = addon.CallbackRegistry;
 local TTSUtil = addon.TTSUtil;
 local SwipeEmulator = addon.SwipeEmulator;
+local FadeHelper = addon.UIParentFadeHelper;
 local Round = API.Round;
 local FadeFrame = API.UIFrameFade;
 
@@ -562,11 +562,32 @@ do  --Background Calculation \ Theme
     function DUIBookUIMixin:Reposition()
         local viewportWidth, viewportHeight = API.GetBestViewportSize();
         local distanceToEdge = 48;
-        local defaultOffsetX = -0.5*viewportWidth + distanceToEdge;
-        defaultOffsetX = 0.5*viewportWidth - distanceToEdge;
+        local defaultOffsetX, anchor;
+        local vignetteOffset = viewportWidth * 128/896;
+        self.ScreenVignette:ClearAllPoints();
+
+        local isLeft = true;
+
+        if isLeft then
+            defaultOffsetX = -0.5*viewportWidth + distanceToEdge;
+            anchor = "LEFT";
+            self.ScreenVignette:SetTexCoord(0, 1, 0, 1);
+            self.ScreenVignette:SetPoint("TOPLEFT", nil, "TOP", -0.5*viewportWidth -vignetteOffset, 1);
+            self.ScreenVignette:SetPoint("BOTTOMRIGHT", nil, "BOTTOM", 0.5*viewportWidth, -1);
+        else
+            defaultOffsetX = 0.5*viewportWidth - distanceToEdge;
+            anchor = "RIGHT";
+            self.ScreenVignette:SetTexCoord(1, 0, 0, 1);
+            self.ScreenVignette:SetPoint("TOPLEFT", nil, "TOP", -0.5*viewportWidth, 1);
+            self.ScreenVignette:SetPoint("BOTTOMRIGHT", nil, "BOTTOM", 0.5*viewportWidth + vignetteOffset, -1);
+        end
+
         self.defaultOffsetX = defaultOffsetX;
+        self.defaultAnchor = anchor;
+
         self:ClearAllPoints();
-        self:SetPoint("RIGHT", nil, "CENTER", defaultOffsetX, 0);
+        self:SetPoint(anchor, nil, "CENTER", defaultOffsetX, 0);
+        
     end
 
     function DUIBookUIMixin:Resize()
@@ -1142,10 +1163,13 @@ do  --Main UI
         --UtilityFontString:SetIgnoreParentAlpha(true);
         Formatter.UtilityFontString = UtilityFontString;
 
-
         CalculateSizeData();
         Formatter:SetBaseFontSize(12);  --debug
         self:SetFrameHeight(480);
+
+        API.SetPlayCutsceneCallback(function()
+            self:Hide();
+        end);
     end
 
     function DUIBookUIMixin:Init()
@@ -1283,6 +1307,7 @@ do  --Main UI
         addon.SharedVignette:TryHide();
         self:StopReadingBook();
         CallbackRegistry:Trigger("BookUI.Hide");
+        FadeHelper:FadeInUI(self);
     end
 
     function DUIBookUIMixin:OnMouseUp(button)
@@ -1318,11 +1343,15 @@ do  --Main UI
             self.texturePool:ProcessActiveObjects(ShowOutOfBoundObjects);
         end
 
-        self:SetPoint("RIGHT", nil, "CENTER", self.defaultOffsetX, offsetY);
+        self:SetPoint(self.defaultAnchor, nil, "CENTER", self.defaultOffsetX, offsetY);
         self:SetAlpha(alpha);
     end
 
     function DUIBookUIMixin:ShowUI()
+        if API.IsPlayingCutscene() then
+            return
+        end
+
         SwipeEmulator:SetOwner(self.ScrollFrame);
         self:RebuildContentFromCache();
 
@@ -1331,6 +1360,7 @@ do  --Main UI
             self:SetAlpha(0);
             self:Show();
             self:SetScript("OnUpdate", AnimIntro_FlyIn_OnUpdate);
+            FadeHelper:FadeOutUI(self);
         end
     end
 end
@@ -1572,7 +1602,7 @@ do  --EventListener
 end
 
 
-do
+do  --Settings
     function DUIBookUIMixin:OnSettingsChanged()
         if not self:IsShown() then return end;
 
@@ -1594,7 +1624,7 @@ do
 end
 
 
-do
+do  --Hide Default UI
     local hideDefaultUI = true;    --false when we do debug
     if hideDefaultUI then
         if ItemTextFrame then   --Mute

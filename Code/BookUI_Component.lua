@@ -14,6 +14,11 @@ local Round = API.Round;
 local CreateFrame = CreateFrame;
 
 
+-- User Settings
+local SHOW_LOCATION = false;
+------------------
+
+
 local PageButtonMixin = {};
 do  --Pagination
     function PageButtonMixin:SetPage(page)
@@ -147,7 +152,7 @@ do  --Header / Book Title
     end
 
     function HeaderFrameMixin:UpdateLocation(isGameObject)
-        if isGameObject then
+        if SHOW_LOCATION and isGameObject then
             self.Location:SetText(BookComponent:GetPlayerLocation());
             self.Location:Show();
         else

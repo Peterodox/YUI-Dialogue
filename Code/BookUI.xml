@@ -46,6 +46,13 @@
         <Anchors>
             <Anchor point="LEFT" relativeTo="UIParent" relativePoint="LEFT" x="48"/>
         </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="-4">
+                <Texture parentKey="ScreenVignette" file="Interface\AddOns\DialogueUI\Art\Book\ScreenDarken.png" hidden="false">
+
+                </Texture>
+            </Layer>
+        </Layers>
         <Frames>
             <ScrollFrame parentKey="ScrollFrame">
                 <ScrollChild>
