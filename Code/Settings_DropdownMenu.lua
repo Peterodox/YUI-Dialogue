@@ -269,6 +269,14 @@ function DropdownMenuMixin:Release()
     self:HighlightButton(nil);
 end
 
+function DropdownMenuMixin:UpdateSelectedID()
+    if self.menuData and self.menuData.selectedIDGetter then
+        local selectedID = self.menuData.selectedIDGetter();
+        self.menuData.selectedID = selectedID;
+        return selectedID
+    end
+end
+
 function DropdownMenuMixin:SetMenuData(menuData)
     self:Release();
 
@@ -286,10 +294,10 @@ function DropdownMenuMixin:SetMenuData(menuData)
     self.buttonHeight = buttonHeight;
     self.menuWidth = menuWidth;
 
+    local selectedID = self:UpdateSelectedID();
     local bestPage = 1;
 
     if total > 0 then
-        local selectedID = menuData.selectedID;
         if selectedID ~= nil then
             for i, data in ipairs(menuData.buttons) do
                 if data.id == selectedID then
@@ -361,7 +369,7 @@ function DropdownMenuMixin:SetPage(page)
 
     local buttonWidth = self.buttonWidth;
     local buttonHeight = self.buttonHeight;
-    local selectedID = menuData.selectedID;
+    local selectedID = self:UpdateSelectedID();
     local fitWidth = menuData.fitWidth == true;
     local autoScaling = menuData.autoScaling == true;
     local matchFound = selectedID == nil;

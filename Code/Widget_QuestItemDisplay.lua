@@ -63,7 +63,15 @@ function QuestItemDisplay:Init()
 
     --Workaround for TextureSlice change in 10.2.7
     local bgShadowContainer = CreateFrame("Frame", nil, self);
-    bgShadowContainer:SetUsingParentLevel(true);
+    if bgShadowContainer.SetUsingParentLevel then
+        bgShadowContainer:SetUsingParentLevel(true);
+    else  --For Cata 4.4.0
+        local function UpdateFrameLevel()
+            bgShadowContainer:SetFrameLevel(self:GetFrameLevel());
+        end
+        bgShadowContainer:SetScript("OnShow", UpdateFrameLevel);
+        UpdateFrameLevel();
+    end
     bgShadowContainer:SetAllPoints(true);
     local bgShadow = bgShadowContainer:CreateTexture(nil, "BACKGROUND", nil, -1);
     self.BackgroundShadow = bgShadowContainer;

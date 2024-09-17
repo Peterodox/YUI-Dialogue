@@ -71,7 +71,11 @@ do  --Consume the Click if we just finished Swiping
 end
 
 do
-    function SwipeEmulator:StopWatching()
+    function SwipeEmulator:StopWatching(caller)
+        if caller and self.owner and caller ~= self.owner then
+            return
+        end
+
         self:SetScript("OnUpdate", nil);
         if not self.t then return end;
 
@@ -121,9 +125,10 @@ do
     end
 
     function SwipeEmulator:SetOwnerOffset(offset)
-        self.owner:SetOffset(offset);
-        self.owner.scrollTarget = offset;
-        self.owner.value = offset;
+        --self.owner:SetOffset(offset);
+        --self.owner.scrollTarget = offset;
+        --self.owner.value = offset;
+        self.owner:SnapTo(offset, true);
     end
 
     function SwipeEmulator:HandleDrag()
@@ -163,9 +168,9 @@ do
     function SwipeEmulator:PostDragging()
         --Reset to scroll bound if needed
         if self.owner.value < 0 then
-            addon.DialogueUI:ScrollTo(0);
+            self.owner:ScrollTo(0);
         elseif self.owner.range and self.owner.value > self.owner.range then
-            addon.DialogueUI:ScrollTo(self.owner.range);
+            self.owner:ScrollTo(self.owner.range);
         elseif self.sampleSpeed and self.sampleSpeed ~= 0 then
             --Handle Inertia
             local effectiveSpeed = self.sampleSpeed / 4;
@@ -223,7 +228,7 @@ do
             self.offsetDelta = newOffset  - self.owner:GetVerticalScroll();
             if (self.offsetDelta < 1 and self.offsetDelta > -1) then
                 self:SetScript("OnUpdate", nil);
-                addon.DialogueUI:ScrollTo(0);
+                self.owner:ScrollTo(0);
                 return
             end
         elseif offet > self.range then
@@ -231,7 +236,7 @@ do
             self.offsetDelta = newOffset  - self.owner:GetVerticalScroll();
             if (self.offsetDelta < 1 and self.offsetDelta > -1) then
                 self:SetScript("OnUpdate", nil);
-                addon.DialogueUI:ScrollTo(self.owner.range);
+                self.owner:ScrollTo(self.owner.range);
                 return
             end
         else
@@ -268,9 +273,9 @@ do
         self:SetParent(owner);
     end
 
-    function SwipeEmulator:SetScrollable(scrollable)
+    function SwipeEmulator:SetScrollable(scrollable, caller)
         self.scrollable = scrollable;
-        if scrollable and EMULATE_SWIPE then
+        if scrollable and EMULATE_SWIPE and caller == self.owner then
             self:RegisterEvent("GLOBAL_MOUSE_DOWN");
             self:RegisterEvent("GLOBAL_MOUSE_UP");
             self:SetScript("OnUpdate", nil);
@@ -285,8 +290,8 @@ do
     local function Settings_EmulateSwipe(dbValue)
         EMULATE_SWIPE = dbValue == true;
         if EMULATE_SWIPE then
-            if SwipeEmulator.owner and addon.DialogueUI:IsScrollable() then
-                SwipeEmulator:SetScrollable(true)
+            if SwipeEmulator.owner and SwipeEmulator.owner:IsScrollable() then
+                SwipeEmulator:SetScrollable(true, SwipeEmulator.owner)
             end
         else
             if SwipeEmulator.scrollable then

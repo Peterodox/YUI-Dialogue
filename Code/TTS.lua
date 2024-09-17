@@ -29,8 +29,15 @@ local UnitSex = UnitSex;
 local C_VoiceChat = C_VoiceChat;
 local C_TTSSettings = C_TTSSettings;
 local StopSpeakingText = C_VoiceChat.StopSpeakingText;
+local gsub = string.gsub;
 
 local TTSButton;
+
+local function AdjustTextForTTS(text)
+    text = gsub(text, "[<>]", "");      --any "<>" as TTS has problems reading it
+    text = gsub(text, "%-%-", ". ");    --"--" is used as an explanation but TTS treat them as a single word
+    return text
+end
 
 function TTSUtil:UpdateTTSSettings()
     self.voiceID = C_TTSSettings.GetVoiceOptionID(0);                       --Unused
@@ -70,7 +77,7 @@ function TTSUtil:ProcessQueue()
 end
 
 -- Added voice for the text to be read with and some identifier for dialog the text belong to as there could be more segments of text to be read from the same quest
-function TTSUtil:QueueText(text, voiceID, identifier)
+function TTSUtil:QueueText(text, voiceID, identifier, contentSource)
     --"identifier" determines which quest/gossip the queued text belongs to
     if not self.queue then
         self.queue = {};
@@ -88,8 +95,15 @@ function TTSUtil:QueueText(text, voiceID, identifier)
             StopSpeakingText();
         end
     end
+
     -- insert new entry into queue
-    local segment = { text = text, voiceID = voiceID, identifier = identifier };
+    for _, segment in ipairs(self.queue) do
+        if segment.text == text then
+            return
+        end
+    end
+
+    local segment = { text = text, voiceID = voiceID, identifier = identifier, contentSource = contentSource };
     table.insert(self.queue, segment);
     self.t = -0.75;
     self:SetScript("OnUpdate", self.OnUpdate_InitialDelay);
@@ -133,13 +147,15 @@ function TTSUtil:SpeakText(segment)
     if not segment then return end;
 
     self:UpdateTTSSettings();
+    self.contentSource = segment.contentSource;
     self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
 
     C_VoiceChat.SpeakText(segment.voiceID, segment.text, self.destination, self.rate, self.volume);
 end
 
 function TTSUtil:ReadCurrentDialogue()
-    self.contentSource = "dialogue";
+    local contentSource = "dialogue";
+    self.contentSource = contentSource;
 
     local content = addon.DialogueUI:GetContentForTTS();
     local voiceID = self:GetVoiceIDForNPC();
@@ -177,14 +193,14 @@ function TTSUtil:ReadCurrentDialogue()
         if TTS_CONTENT_QUEST_TITLE and content.title then   --Quest Title
             -- don't repeat quest title
             if not self.previousTitle or (self.previousTitle ~= content.title) then
-                self:QueueText(content.title.."\n", voiceIDNarrator, identifier);
+                self:QueueText(content.title.."\n", voiceIDNarrator, identifier, contentSource);
             end
             self.previousTitle = content.title;
         end
         if TTS_CONTENT_SPEAKER and content.speaker then     --NPC name
             -- don't repeat NPC name
             if not self.previousSpeaker or (self.previousSpeaker ~= content.speaker) then
-                self:QueueText(content.speaker.."\n", voiceIDNarrator, identifier);
+                self:QueueText(content.speaker.."\n", voiceIDNarrator, identifier, contentSource);
             end
             self.previousSpeaker = content.speaker;
         end
@@ -194,15 +210,15 @@ function TTSUtil:ReadCurrentDialogue()
             local narrate = text:sub(1, 1) == "<";
             for segment in string.gmatch(text, "([^<>]+)") do
                 if narrate then
-                    self:QueueText(segment, voiceIDNarrator, identifier);
+                    self:QueueText(segment, voiceIDNarrator, identifier, contentSource);
                 else
-                    self:QueueText(segment, voiceID, identifier);
+                    self:QueueText(segment, voiceID, identifier, contentSource);
                 end
                 narrate = not narrate;
             end
         end
         if TTS_CONTENT_OBJECTIVE and content.objective then --Objective
-            self:QueueText(content.objective, voiceIDNarrator, identifier);
+            self:QueueText(content.objective, voiceIDNarrator, identifier, contentSource);
         end
     else
         local text = content.body or "";
@@ -226,47 +242,14 @@ function TTSUtil:ReadCurrentDialogue()
         if TTS_CONTENT_OBJECTIVE and content.objective then --Objective
             text = text .. "\n" .. content.objective;
         end
-        --remove any "<>" as TTS has problems reading it
-        text = text:gsub("[<>]", "");
-        self:QueueText(text, voiceID, identifier);
+
+        text = AdjustTextForTTS(text);
+        self:QueueText(text, voiceID, identifier, contentSource);
     end
     -- force to read quest title when speaking to the same npc when returning from the quest
     if content.objective then
         self.previousTitle = nil;
     end
-end
-
-function TTSUtil:OnUpdate_PauseThenReadNextBookLine(elapsed)
-    self.t = self.t + elapsed;
-    if self.t > 0.25 then
-        self.t = 0;
-        self:SetScript("OnUpdate", nil);
-        if addon.BookUI:ReadAndMoveToNextLine() then
-            
-        else
-
-        end
-    end
-end
-
-function TTSUtil:RequestReadNextBookLine()
-    self.t = 0;
-    self:SetScript("OnUpdate", self.OnUpdate_PauseThenReadNextBookLine);
-end
-
-function TTSUtil:ReadBookLine(text, userInput)
-    self.contentSource = "book";
-    self.manullyStopped = userInput == true and self:IsSpeaking();
-
-    local segment = {
-        text = text,
-        voiceID = self:GetDefaultVoiceForBook(),
-    };
-
-    self.queue = nil;
-    self:SetScript("OnUpdate", nil);
-
-    self:StopThenPlay(segment)
 end
 
 function TTSUtil:IsSpeaking()
@@ -308,14 +291,8 @@ function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_FINISHED(numConsumers, utteranceID, des
         if self.contentSource == "dialogue" then
             self:ProcessQueue();
         elseif self.contentSource == "book" then
-            if not self.manullyStopped then
-                self:RequestReadNextBookLine();
-            end
+            self:RequestReadNextBookLine();
         end
-    end
-
-    if self.manullyStopped then
-        self.manullyStopped = nil;
     end
 end
 
@@ -341,6 +318,51 @@ function TTSUtil:EnableModule(state)
     end
 end
 
+do  --Book
+    function TTSUtil:OnUpdate_PauseThenReadNextBookLine(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.25 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            if addon.BookUI:ReadAndMoveToNextLine() then
+
+            else
+
+            end
+        end
+    end
+
+    function TTSUtil:RequestReadNextBookLine()
+        self.t = 0;
+        self:SetScript("OnUpdate", self.OnUpdate_PauseThenReadNextBookLine);
+    end
+
+    function TTSUtil:ReadBookLine(text, userInput)
+        if userInput then
+            self:StopReadingBook();
+        end
+
+        text = AdjustTextForTTS(text);
+
+        local segment = {
+            text = text,
+            voiceID = self:GetDefaultVoiceForBook(),
+            contentSource = "book",
+        };
+
+        self.queue = nil;
+        self:SetScript("OnUpdate", nil);
+
+        self:StopThenPlay(segment)
+    end
+
+    function TTSUtil:StopReadingBook()
+        if self.contentSource == "book" then
+            self.contentSource = nil;
+            TTSUtil:StopLastTTS();
+        end
+    end
+end
 
 do  --TTS Play Button
     local BUTTON_SIZE = 24;
@@ -739,7 +761,7 @@ do  --CallbackRegistry
 
     --Book
     local function BookUI_OnHide()
-        TTSUtil:StopLastTTS();
+        TTSUtil:StopReadingBook();
     end
     CallbackRegistry:Register("BookUI.Hide", BookUI_OnHide);
 end

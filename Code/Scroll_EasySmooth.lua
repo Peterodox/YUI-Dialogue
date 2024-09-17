@@ -81,10 +81,26 @@ do
         self:SetVerticalScroll(value);
     end
 
-    function ScrollFrameMixin:ResetScroll()
+    function ScrollFrameMixin:SnapTo(value, ignoreRange)
+        if not ignoreRange then
+            value = API.Clamp(value, 0, self.range);
+        end
+
         self:SetScript("OnUpdate", nil);
-        self:SetOffset(0);
-        self.scrollTarget = 0;
+        self:SetOffset(value);
+        self.scrollTarget = value;
+
+        if self.isRecyclable then
+            self:UpdateView(true);
+        end
+
+        if self.usePagination then
+            self:UpdatePagination();
+        end
+    end
+
+    function ScrollFrameMixin:ResetScroll()
+        self:SnapTo(0);
     end
 
     function ScrollFrameMixin:GetScrollTarget()
@@ -98,6 +114,14 @@ do
 
     function ScrollFrameMixin:SetScrollRange(range)
         self.range = range;
+    end
+
+    function ScrollFrameMixin:GetScrollRange()
+        return self.range or self:GetVerticalScrollRange()
+    end
+
+    function ScrollFrameMixin:IsScrollable()
+        return self:GetScrollRange() > 0
     end
 
     function ScrollFrameMixin:ScrollTo(value)

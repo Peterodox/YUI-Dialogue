@@ -327,7 +327,7 @@ local function ValueTextFormatter_PrimaryControlKey(arrowOptionButton, dbValue)
         arrowOptionButton.HotkeyFrame = f;
     end
 
-    f:SetBaseHeight(20);
+    f:UpdateBaseHeight();   --SetBaseHeight(20)
 
     local key, keyDesc, errorText;
 
@@ -432,6 +432,11 @@ local function TTSVoice_BuildMenuData(dropdownButton, dbKey)
         menuData.selectedID = GetDBValue(dbKey);
         menuData.fitWidth = true;
         menuData.autoScaling = true;
+
+        local function selectedIDGetter()
+            return GetDBValue(dbKey)
+        end
+        menuData.selectedIDGetter = selectedIDGetter;
 
         for i, data in ipairs(voices) do
             menuData.buttons[i] = {
@@ -825,7 +830,11 @@ function DUIDialogSettingsMixin:Init()
         f:SetParent(self);
     end
 
-    self.hotkeyFramePool = API.CreateObjectPool(CreateHotkeyFrame, RemoveHotkeyFrame);
+    local function OnAcquireHotkeyFrame(f)
+        f:UpdateBaseHeight();
+    end
+
+    self.hotkeyFramePool = API.CreateObjectPool(CreateHotkeyFrame, RemoveHotkeyFrame, OnAcquireHotkeyFrame);
 
     self.numTabs = #Schematic;
 

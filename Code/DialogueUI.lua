@@ -863,7 +863,7 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ScrollFrame:SetUseOverlapBorder(false, false);
     end
 
-    SwipeEmulator:SetScrollable(scrollable);
+    SwipeEmulator:SetScrollable(scrollable, self);
 end
 
 function DUIDialogBaseMixin:IsScrollable()
