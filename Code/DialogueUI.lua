@@ -1054,7 +1054,7 @@ function DUIDialogBaseMixin:HandleGossip()
         end
     end
 
-    if (not anyQuest) and autoSelectGossip then
+    if (not anyAvailableQuest) and autoSelectGossip then
         for i, data in ipairs(options) do
             if IsAutoSelectOption(data.gossipOptionID, onlyOption) then
                 C_GossipInfo.SelectOption(data.gossipOptionID);

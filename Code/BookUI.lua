@@ -1291,7 +1291,11 @@ do  --Main UI
     function DUIBookUIMixin:OnShow()
         EL:RegisterEvent("PLAYER_REGEN_ENABLED");
         EL:RegisterEvent("PLAYER_REGEN_DISABLED");
+        EL.inCombat = InCombatLockdown();
         self:SetScript("OnKeyDown", self.OnKeyDown);
+        self:EnableGamePadStick(true);
+        self:SetScript("OnGamePadStick", self.OnGamePadStick);
+        self:SetScript("OnGamePadButtonDown", self.OnGamePadButtonDown);
         addon.SharedVignette:TryShow();
     end
 
@@ -1299,9 +1303,13 @@ do  --Main UI
         EL:UnregisterEvent("PLAYER_REGEN_ENABLED");
         EL:UnregisterEvent("PLAYER_REGEN_DISABLED");
         self:SetScript("OnKeyDown", nil);
+        if not InCombatLockdown() then
+            self:EnableGamePadStick(false);
+        end
+        self:SetScript("OnGamePadStick", nil);
+        self:SetScript("OnGamePadButtonDown", nil);
         CloseItemText();
         self:ReleaseAllObjects();
-        --Cache:SavePagePosition();
         Cache:ClearObjectCache();
         self.ScrollFrame:ClearContent();
         addon.SharedVignette:TryHide();
@@ -1512,6 +1520,40 @@ do  --Keyboard Control, In Combat Behavior
             self:SetPropagateKeyboardInput(not valid);
         end
     end
+
+    function DUIBookUIMixin:OnGamePadStick(stick, x, y, len)
+        --SetPropagateKeyboardInput Also affect Joystick
+        if stick == "Right" then
+            if not EL.inCombat then
+                self:SetPropagateKeyboardInput(false);
+            end
+            self.ScrollFrame:SteadyScroll(-y);
+        elseif stick ~= "Camera" then
+            if not EL.inCombat then
+                self:SetPropagateKeyboardInput(true);
+            end
+        end
+    end
+
+    function DUIBookUIMixin:OnGamePadButtonDown(button)
+        local isValid = false;
+
+        if self.scrollable then
+            if button == "PADLSHOULDER" then
+                isValid = true;
+                self:ScrollToNearPrevPage();
+            elseif button == "PADRSHOULDER" then
+                isValid = true;
+                self:ScrollToNearNextPage();
+            else
+
+            end
+        end
+
+        if not EL.inCombat then
+            self:SetPropagateKeyboardInput(not isValid)
+        end
+    end
 end
 
 do  --EventListener
@@ -1590,10 +1632,18 @@ do  --EventListener
             local delay = ...
 
         elseif event == "PLAYER_REGEN_DISABLED" then
+            self.inCombat = true;
             self:SetPropagateKeyboardInput(true);
+            self:EnableGamePadStick(false);
+            self:SetScript("OnGamePadStick", nil);
+            self:SetScript("OnGamePadButtonDown", nil);
 
         elseif event == "PLAYER_REGEN_ENABLED" then
-
+            self.inCombat = false;
+            if MainFrame:IsVisible() then
+                self:SetScript("OnGamePadStick", self.OnGamePadStick);
+                self:SetScript("OnGamePadButtonDown", self.OnGamePadButtonDown);
+            end
         end
 
         --print(event, ..., GetTimePreciseSec()); --debug

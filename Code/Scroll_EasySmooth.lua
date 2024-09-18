@@ -3,6 +3,7 @@
 local _, addon = ...
 local API = addon.API;
 local DeltaLerp = API.DeltaLerp;
+local Clamp = API.Clamp;
 local SCROLL_BLEND_SPEED = 0.15;    --0.2
 
 
@@ -60,6 +61,57 @@ do
         self:SetOffset(self.value);
     end
 
+    function ScrollFrameMixin:OnUpdate_SteadyScroll(elapsed)
+        self.value = self.value + self.scrollSpeed * elapsed;
+        if self.value < 0 then
+            self.value = 0;
+            self.isSteadyScrolling = nil;
+        elseif self.value > self.range then
+            self.value = self.range;
+            self.isSteadyScrolling = nil;
+        elseif self.scrollSpeed < 4 and self.scrollSpeed > -4 then
+            self.isSteadyScrolling = nil;
+        else
+            self.isSteadyScrolling = true;
+        end
+        self.scrollTarget = self.value;
+
+        if not self.isSteadyScrolling then
+            self:SetScript("OnUpdate", nil);
+
+            if self.isRecyclable then
+                self.recycleTimer = -1;
+                self:UpdateView(true);
+            end
+
+            if self.usePagination then
+                self.paginationTimer = 1;
+            end
+
+            if self.onScrollFinishedCallback then
+                self.onScrollFinishedCallback();
+            end
+        end
+
+        if self.isRecyclable then
+            self.recycleTimer = self.recycleTimer + elapsed;
+            if self.recycleTimer > 0.033 then
+                self.recycleTimer = 0;
+                self:UpdateView();
+            end
+        end
+
+        if self.usePagination then
+            self.paginationTimer = self.paginationTimer + elapsed;
+            if self.paginationTimer > 0.2 then
+                self.paginationTimer = 0;
+                self:UpdatePagination();
+            end
+        end
+
+        self:SetOffset(self.value);
+    end
+
     function ScrollFrameMixin:SetOffset(value)
         self.topDividerAlpha = value/24;
         if self.topDividerAlpha > 1 then
@@ -83,12 +135,13 @@ do
 
     function ScrollFrameMixin:SnapTo(value, ignoreRange)
         if not ignoreRange then
-            value = API.Clamp(value, 0, self.range);
+            value = Clamp(value, 0, self.range);
         end
 
         self:SetScript("OnUpdate", nil);
         self:SetOffset(value);
         self.scrollTarget = value;
+        self.isSteadyScrolling = nil;
 
         if self.isRecyclable then
             self:UpdateView(true);
@@ -125,7 +178,8 @@ do
     end
 
     function ScrollFrameMixin:ScrollTo(value)
-        value = API.Clamp(value, 0, self.range);
+        value = Clamp(value, 0, self.range);
+        self.isSteadyScrolling = nil;
         if value ~= self.scrollTarget then
             self.scrollTarget = value;
             self:SetScript("OnUpdate", self.OnUpdate_Easing);
@@ -153,13 +207,31 @@ do
         end
     end
 
+    function ScrollFrameMixin:SteadyScroll(strengh)
+        --For Joystick: strengh -1 ~ +1
+
+        if strengh > 0.8 then
+            self.scrollSpeed = 80 + 600 * (strengh - 0.8);
+        elseif strengh < -0.8 then
+            self.scrollSpeed = -80 + 600 * (strengh + 0.8);
+        else
+            self.scrollSpeed = 100 * strengh
+        end
+
+        if not self.isSteadyScrolling then
+            self.recycleTimer = 0;
+            self.paginationTimer = 0;
+            self:SetScript("OnUpdate", self.OnUpdate_SteadyScroll);
+        end
+    end
+
     function ScrollFrameMixin:IsAtPageTop()
-        local offset = self:GetVerticalScroll();
+        --local offset = self:GetVerticalScroll();
         return self.value <= 0.1
     end
 
     function ScrollFrameMixin:IsAtPageBottom()
-        local offset = self:GetVerticalScroll();
+        --local offset = self:GetVerticalScroll();
         return self.value + 0.1 >= (self.range or 0)
     end
 
@@ -177,6 +249,14 @@ do
         self.borderTop:SetShown(self.useTop);
         self.borderBottom:SetShown(self.useBottom);
     end
+
+    function ScrollFrameMixin:OnHide()
+        self:SetScript("OnUpdate", nil);
+        self.isSteadyScrolling = nil;
+        if self.scrollTarget and self.scrollTarget ~= self.value then
+            self:SnapTo(self.scrollTarget);
+        end
+    end
 end
 
 local function InitEasyScrollFrame(scrollFrame, borderTop, borderBottom)
@@ -186,6 +266,7 @@ local function InitEasyScrollFrame(scrollFrame, borderTop, borderBottom)
     scrollFrame.borderBottom = borderBottom;
     scrollFrame.blendSpeed = SCROLL_BLEND_SPEED;
     API.Mixin(scrollFrame, ScrollFrameMixin);
+    scrollFrame:SetScript("OnHide", scrollFrame.OnHide);
     return scrollFrame
 end
 addon.InitEasyScrollFrame = InitEasyScrollFrame;
