@@ -1683,5 +1683,6 @@ do  --Hide Default UI
     else
         ItemTextFrame:SetParent(nil);
         ItemTextFrame:SetScale(0.65);
+        EL:SetScript("OnEvent", nil);
     end
 end

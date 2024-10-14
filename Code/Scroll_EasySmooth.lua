@@ -236,7 +236,7 @@ do
     end
 
     function ScrollFrameMixin:SetBlendSpeed(blendSpeed)
-        self.blendSpeed = blendSpeed or SCROLL_BLEND_SPEED
+        self.blendSpeed = blendSpeed or SCROLL_BLEND_SPEED;
     end
 
     function ScrollFrameMixin:SetUseOverlapBorder(useTop, useBottom)

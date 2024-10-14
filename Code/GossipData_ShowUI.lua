@@ -3,7 +3,7 @@
 
 local _, addon = ...
 local GossipDataProvider = addon.GossipDataProvider;
-local IsTargetAdventureMap = addon.API.IsTargetAdventureMap;
+--local IsTargetAdventureMap = addon.API.IsTargetAdventureMap;
 
 local ShowUIGossip = {
     [64058] = true,     --Iskaaran Fishing Gear

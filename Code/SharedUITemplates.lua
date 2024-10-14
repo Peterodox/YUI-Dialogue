@@ -403,16 +403,16 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
         if data.overrideIconID then
             self.Icon:SetTexture(data.overrideIconID);
         else
+            local icon;
             if GOSSIP_ICONS[name] then
-                self.Icon:SetTexture( GOSSIP_ICONS[name] );
+                icon = GOSSIP_ICONS[name];
             else
-                local icon = data.icon or 132053;
+                icon = data.icon or 132053;
                 if GOSSIP_ICONS[icon] then
-                    self.Icon:SetTexture( GOSSIP_ICONS[icon] );
-                else
-                    self.Icon:SetTexture(icon);
+                    icon = GOSSIP_ICONS[icon];
                 end
             end
+            self.Icon:SetTexture(icon);
         end
     end
 
@@ -433,6 +433,30 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
 
     --Classic
     self.isTrainer = data.icon == 132058;
+end
+
+function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
+    self.gossipOptionID = data.gossipOptionID;
+
+    local name = L["Show Answer"];
+    --self.correctAnswer = data.name;
+    self.Icon:SetTexture(ICON_PATH.."Hint.png");
+
+    self.showIcon = true;
+    self.id = data.orderIndex or 0;
+    self.type = "gossip";
+    self.onClickFunc = OnClickFunc_SelectOption;
+
+    self:SetHotkey(false);  --Put Key in name (1. Options 1)
+    if hotkey then
+        name = hotkey..". "..name;
+    end
+
+    self:RemoveQuestTypeText();
+    self:SetButtonText(name, false);
+    self:SetButtonArt(0);
+    self:Enable();
+    self.isTrainer = false;
 end
 
 function DUIDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
@@ -2224,6 +2248,29 @@ do
         self.campaignID = campaignID;
         self.hasScripts = true;
         self:SetScript("OnEnter", CampaignName_OnEnter);
+        self:SetScript("OnLeave", CampaignName_OnLeave);
+    end
+
+
+    local function RemainingTime_OnEnter(self)
+        local tooltip = TooltipFrame;
+        tooltip:Hide();
+
+        if self.seconds then
+            tooltip:SetOwner(self, "ANCHOR_NONE");
+            tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 0);
+            tooltip:AddLeftLine(L["Format Time Left"]:format(API.SecondsToTime(self.seconds, true)), 1, 1, 1);
+            tooltip:Show();
+        end
+    end
+
+    function DUIDialogQuestTypeFrameMixin:SetRemainingTime(seconds)
+        self.hasIcon = false;
+        self.seconds = seconds;
+        local text = API.SecondsToTime(seconds, true, true);
+        self:SetLeftText(text);
+        self.hasScripts = true;
+        self:SetScript("OnEnter", RemainingTime_OnEnter);
         self:SetScript("OnLeave", CampaignName_OnLeave);
     end
 end

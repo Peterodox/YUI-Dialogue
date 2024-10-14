@@ -327,8 +327,12 @@ do  -- String
         local tbl = {};
 
         if text then
+            local n = 0;
             for v in gmatch(text, "[%C]+") do
-                tinsert(tbl, v)
+                if v ~= " " then
+                    n = n + 1;
+                    tbl[n] = v;
+                end
             end
         end
 
@@ -759,6 +763,7 @@ do  -- Quest
     local GetQuestLogQuestText = GetQuestLogQuestText;
     local GetNumQuestLeaderBoards = GetNumQuestLeaderBoards;
     local GetQuestLogLeaderBoard = GetQuestLogLeaderBoard;
+    local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysFalse;
 
     API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
 
@@ -1246,6 +1251,18 @@ do  -- Quest
     end
     API.GetQuestTimeLeft = GetQuestTimeLeft;
 
+
+    local function GetRecurringQuestTimeLeft(questID, formatedToText)
+        if GetQuestClassification(questID) then
+            local seconds = GetQuestTimeLeft(questID, formatedToText);
+            return true, seconds
+        else
+            return false
+        end
+    end
+    API.GetRecurringQuestTimeLeft = GetRecurringQuestTimeLeft;
+
+
     do
         --Replace player name with RP name:
         --Handled by addon when installed: Total RP 3: RP Name in Quest Text
@@ -1404,7 +1421,14 @@ do  -- Currency
     API.GenerateMoneyText = GenerateMoneyText;
 
 
+    local IGNORED_OVERFLOW_ID = {
+        [3068] = true,      --Delver's Journey
+        [3143] = true,      --Delver's Journey
+    };
+
     local function WillCurrencyRewardOverflow(currencyID, rewardQuantity)
+        if IGNORED_OVERFLOW_ID[currencyID] then return false end;
+
         local currencyInfo = GetCurrencyInfo(currencyID);
         local quantity = currencyInfo and (currencyInfo.useTotalEarnedForMaxQty and currencyInfo.totalEarned or currencyInfo.quantity);
         return quantity and currencyInfo.maxQuantity > 0 and rewardQuantity + quantity > currencyInfo.maxQuantity;
@@ -1811,12 +1835,19 @@ do  -- Faction -- Reputation
 
     local function GetFactionStatusText(factionID)
         --Derived from Blizzard ReputationFrame_InitReputationRow in ReputationFrame.lua
+        if not factionID then return end;
+        local p1, description, standingID, barMin, barMax, barValue = GetFactionInfoByID(factionID);
 
-        local name, description, standingID, barMin, barMax, barValue = GetFactionInfoByID(factionID);
+        if type(p1) == "table" then     --Return table after TWW
+            standingID = p1.reaction;
+            barMin = p1.currentReactionThreshold;
+            barMax = p1.nextReactionThreshold;
+            barValue = p1.currentStanding;
+        end
 
         local isParagon = C_Reputation.IsFactionParagon(factionID);
-        local isMajorFaction = factionID and C_Reputation.IsMajorFaction(factionID);
-        local repInfo = factionID and C_GossipInfo.GetFriendshipReputation(factionID);
+        local isMajorFaction = C_Reputation.IsMajorFaction(factionID);
+        local repInfo = C_GossipInfo.GetFriendshipReputation(factionID);
 
         local isCapped;
         local factionStandingtext;  --Revered/Junior/Renown 1

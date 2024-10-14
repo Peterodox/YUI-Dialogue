@@ -305,7 +305,6 @@ end
 function TTSUtil:EnableModule(state)
     if state then
         self.isEnabled = true;
-        self:SetScript("OnEvent", self.OnEvent);
     elseif self.isEnabled then
         self.isEnabled = false;
         self.previousSpeaker = nil;
@@ -316,6 +315,8 @@ function TTSUtil:EnableModule(state)
         self:UnregisterEvent("VOICE_CHAT_TTS_PLAYBACK_FINISHED");
         self:SetScript("OnEvent", nil);
     end
+
+    self:SetScript("OnEvent", self.OnEvent);
 end
 
 do  --Book

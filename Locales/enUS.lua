@@ -55,6 +55,7 @@ L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
 L["New Quest Available"] = "New Quest Available";
+L["Show Answer"] = "Show answer.";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -76,6 +77,7 @@ L["Format Replace Item"] = "Replace %s";
 L["Format Item Level"] = "Item Level %d";   --_G.ITEM_LEVEL in Classic is different
 L["Format Breadcrumb Quests Available"] = "Available Breadcrumb Quests: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 L["Format Functionality Handled By"] = "This functionality is handled by %s";      --A functionality is provided by [another addon name] (Used in Settings.lua)
+L["Format Time Left"] = BONUS_OBJECTIVE_TIME_LEFT or "Time Left: %s";
 
 --Settings
 L["UI"] = "UI";

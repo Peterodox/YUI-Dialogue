@@ -15,6 +15,7 @@ local PlaySound = addon.PlaySound;
 local IsAutoSelectOption = addon.IsAutoSelectOption;
 local GetDBBool = addon.GetDBBool;
 local SwipeEmulator = addon.SwipeEmulator;
+local GossipDataProvider = addon.GossipDataProvider;
 local IS_MODERN_WOW = not addon.IS_CLASSIC;
 
 local FadeFrame = API.UIFrameFade;
@@ -24,7 +25,6 @@ local IsPlayingCutscene = API.IsPlayingCutscene;
 -- User Settings
 local FRAME_SIZE_MULTIPLIER = 1.1;  --Default: 1.1
 local SCROLLDOWN_THEN_ACCEPT_QUEST = false;
-local AUTO_SELECT_GOSSIP = false;
 local INPUT_DEVICE_GAME_PAD = false;
 --local ALWAYS_GOSSIP = false;
 --local SHOW_NPC_NAME = false;
@@ -789,6 +789,8 @@ function DUIDialogBaseMixin:UpdateQuestTitle()
         end
     else
         local questTagID = API.GetQuestTag(questID);
+        local leftObject;
+
         if questTagID then
             --print("questTagID", questTagID) --debug
             local tagName, tagIcon = API.GetQuestTagNameIcon(questTagID);
@@ -797,7 +799,21 @@ function DUIDialogBaseMixin:UpdateQuestTitle()
                 questTypeFrame:SetPoint("BOTTOMLEFT", title, "TOPLEFT", 0, 0);
                 questTypeFrame:SetParent(headerFrame);
                 questTypeFrame:SetQuestTagNameAndIcon(tagName, tagIcon);
+                leftObject = questTypeFrame;
             end
+        end
+
+        local isRecurring, seconds = API.GetRecurringQuestTimeLeft(questID);
+        if isRecurring and seconds then
+            local questTypeFrame = self.questTypeFramePool:Acquire();
+            if leftObject then
+                questTypeFrame:SetPoint("LEFT", leftObject, "RIGHT", 16, 0);
+            else
+                questTypeFrame:SetPoint("BOTTOMLEFT", title, "TOPLEFT", 0, 0);
+            end
+            questTypeFrame:SetParent(headerFrame);
+            questTypeFrame:SetRemainingTime(seconds);
+            leftObject = questTypeFrame;
         end
     end
 
@@ -863,7 +879,7 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ScrollFrame:SetUseOverlapBorder(false, false);
     end
 
-    SwipeEmulator:SetScrollable(scrollable, self);
+    SwipeEmulator:SetScrollable(scrollable, self.ScrollFrame);
 end
 
 function DUIDialogBaseMixin:IsScrollable()
@@ -956,7 +972,6 @@ end
 function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
     local paragraphs = API.SplitParagraph(text);
 	local firstObject, lastObject;
-
     if paragraphs and #paragraphs > 0 then
         for i, paragraphText in ipairs(paragraphs) do
             local fs = self:AcquireLeftFontString();
@@ -1107,6 +1122,8 @@ function DUIDialogBaseMixin:HandleGossip()
 
     if showGossipFirst then
         --Show gossip first if there is a (Quest) Gossip
+        local hintGossipData;
+
         for i, data in ipairs(options) do
             hotkeyIndex = hotkeyIndex + 1;
             button = self:AcquireOptionButton();
@@ -1123,6 +1140,21 @@ function DUIDialogBaseMixin:HandleGossip()
             lastObject = button;
 
             self:IndexGamePadObject(button);
+
+            if not hintGossipData then
+                if GossipDataProvider:DoesOptionHaveHint(data.gossipOptionID) then
+                    hintGossipData = data;
+                end
+            end
+        end
+
+        if hintGossipData then
+            hotkeyIndex = hotkeyIndex + 1;
+            button = self:AcquireOptionButton();
+            hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+            button:SetGossipHint(hintGossipData, hotkey);
+            button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, 0);
+            lastObject = button;
         end
     end
 
@@ -1186,6 +1218,8 @@ function DUIDialogBaseMixin:HandleGossip()
 
     --Options
     if not showGossipFirst then
+        local hintGossipData;
+
         for i, data in ipairs(options) do
             hotkeyIndex = hotkeyIndex + 1;
             button = self:AcquireOptionButton();
@@ -1202,6 +1236,21 @@ function DUIDialogBaseMixin:HandleGossip()
             lastObject = button;
 
             self:IndexGamePadObject(button);
+
+            if not hintGossipData then
+                if GossipDataProvider:DoesOptionHaveHint(data.gossipOptionID) then
+                    hintGossipData = data;
+                end
+            end
+        end
+
+        if hintGossipData then
+            hotkeyIndex = hotkeyIndex + 1;
+            button = self:AcquireOptionButton();
+            hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+            button:SetGossipHint(hintGossipData, hotkey);
+            button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, 0);
+            lastObject = button;
         end
     end
 
