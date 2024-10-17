@@ -49,6 +49,7 @@ local DefaultValues = {
     AutoSelectGossip = false,
     ForceGossip = false,
     NameplateDialogEnabled = false,
+    DisableDUIInInstance = false,
 
     TTSEnabled = false,
         TTSUseHotkey = true,    --Default key R

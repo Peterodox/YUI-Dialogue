@@ -8,13 +8,17 @@ local GossipDataProvider = addon.GossipDataProvider;
 local QuestGetAutoAccept = API.QuestGetAutoAccept;
 local CloseQuest = CloseQuest;
 local InCombatLockdown = InCombatLockdown;
+local IsInInstance = IsInInstance;
 
 
 local EVENT_PROCESS_DELAY = 0.017;  --Affected by CameraMovement
 local MAINTAIN_CAMERA_POSITION = false;
 local USE_AUTO_QUEST_POPUP = true;
+local DISABLE_DUI_IN_INSTANCE = false;
+
 
 local EL = CreateFrame("Frame");
+local Muter = {};
 
 local GossipEvents = {
     "GOSSIP_SHOW", "GOSSIP_CLOSED",
@@ -148,6 +152,11 @@ function EL:OnEvent(event, ...)
         self.lastEvent = event;
         MainFrame:ShowUI(event);
 
+    elseif event == "PLAYER_ENTERING_WORLD" then
+        if DISABLE_DUI_IN_INSTANCE then
+            Muter:UpdateForInstance();
+        end
+
     elseif CloseDialogEvents[event] then
         self.lastEvent = event;
         self.timeSinceQuestFinish = nil;
@@ -238,8 +247,6 @@ function EL:ProcessEventNextUpdate(customDelay)
 end
 
 
-EL:ListenEvent(true);
-
 do
     local DEFAULT_CAMERA_MODE = 1;
 
@@ -278,7 +285,7 @@ do
     addon.CallbackRegistry:Register("TriggerQuestFinished", ManualTriggerQuestFinished);
 
     local function Settings_AutoQuestPopup(dbValue)
-        USE_AUTO_QUEST_POPUP = dbValue ~= false
+        USE_AUTO_QUEST_POPUP = dbValue ~= false;
     end
     addon.CallbackRegistry:Register("SettingChanged.AutoQuestPopup", Settings_AutoQuestPopup);
 end
@@ -288,29 +295,107 @@ do  --Unlisten events from default UI
     --We need to mute this so HideUI doesn't trigger CloseGossip
     --It handle NPE (Be A Guide) and Torghast Floor Selection
 
-    local function MuteDefaultQuestUI()
-        if CustomGossipFrameManager then    --CustomGossipFrameBase.lua (Retail)
-            CustomGossipFrameManager:UnregisterEvent("GOSSIP_SHOW");
-            CustomGossipFrameManager:UnregisterEvent("GOSSIP_CLOSED");
-        end
 
-        if GossipFrame then --Classic
-            GossipFrame:UnregisterEvent("GOSSIP_SHOW");
-            GossipFrame:UnregisterEvent("GOSSIP_CLOSED");
-            GossipFrame:UnregisterEvent("QUEST_LOG_UPDATE");
-        end
+    Muter.questEvents = {
+        QUEST_GREETING = true,
+        QUEST_DETAIL = true,
+        QUEST_PROGRESS = true,
+        QUEST_COMPLETE = true,
+        QUEST_FINISHED = true,
+        QUEST_ITEM_UPDATE = true,
+        QUEST_LOG_UPDATE = true,
+        UNIT_PORTRAIT_UPDATE = true,
+        PORTRAITS_UPDATED = true,
+    };
 
-        local hideQuestFrame = true;    --false when we do debug
-        if hideQuestFrame then
-            QuestFrame:UnregisterAllEvents();
-        else
-            QuestFrame:SetParent(nil);
-            QuestFrame:SetScale(2/3);
+    if addon.IsToCVersionEqualOrNewerThan(50000) then
+        Muter.questEvents.LEARNED_SPELL_IN_SKILL_LINE = true;
+    else
+        Muter.questEvents.LEARNED_SPELL_IN_TAB = true;            --Classic
+    end
+
+    local function MuteDefaultQuestUI(state)
+        if state == nil then state = true end;
+
+        if state then
+            if Muter.muted then return end;
+            Muter.muted = true;
+            EL:ListenEvent(true);
+
+            if CustomGossipFrameManager then    --CustomGossipFrameBase.lua (Retail)
+                CustomGossipFrameManager:UnregisterEvent("GOSSIP_SHOW");
+                CustomGossipFrameManager:UnregisterEvent("GOSSIP_CLOSED");
+            end
+
+            if GossipFrame then --Classic
+                GossipFrame:UnregisterEvent("GOSSIP_SHOW");
+                GossipFrame:UnregisterEvent("GOSSIP_CLOSED");
+                GossipFrame:UnregisterEvent("QUEST_LOG_UPDATE");
+            end
+
+            local hideQuestFrame = true;    --false when we do debug
+            if hideQuestFrame then
+                QuestFrame:UnregisterAllEvents();
+            else
+                QuestFrame:SetParent(nil);
+                QuestFrame:SetScale(2/3);
+            end
+
+        elseif Muter.muted then
+            Muter.muted = false;
+            EL:ListenEvent(false);
+
+            if CustomGossipFrameManager then    --CustomGossipFrameBase.lua (Retail)
+                CustomGossipFrameManager:RegisterEvent("GOSSIP_SHOW");
+                CustomGossipFrameManager:RegisterEvent("GOSSIP_CLOSED");
+            end
+
+            if GossipFrame then --Classic
+                GossipFrame:RegisterEvent("GOSSIP_SHOW");
+                GossipFrame:RegisterEvent("GOSSIP_CLOSED");
+                GossipFrame:RegisterEvent("QUEST_LOG_UPDATE");
+            end
+
+            local hideQuestFrame = true;    --false when we do debug
+            if hideQuestFrame then
+                local qf = QuestFrame;
+                for event, valid in pairs(Muter.questEvents) do
+                    if valid then
+                        qf:RegisterEvent(event);
+                    end
+                end
+            else
+                QuestFrame:SetParent(UIParent);
+                QuestFrame:SetScale(1);
+            end
         end
     end
     addon.MuteDefaultQuestUI = MuteDefaultQuestUI;
 
-    MuteDefaultQuestUI();
+    MuteDefaultQuestUI(true);
+
+    function Muter:UpdateForInstance()
+        if IsInInstance() then
+            MuteDefaultQuestUI(false);
+        else
+            MuteDefaultQuestUI(true);
+        end
+    end
+
+    local function Settings_DisableDUIInInstance(dbValue, userInput)
+        DISABLE_DUI_IN_INSTANCE = dbValue ~= false;
+        if DISABLE_DUI_IN_INSTANCE then
+            EL:RegisterEvent("PLAYER_ENTERING_WORLD");
+            Muter:UpdateForInstance();
+            if userInput and IsInInstance() and MainFrame:IsShown() then
+                MainFrame:Hide();
+            end
+        else
+            EL:UnregisterEvent("PLAYER_ENTERING_WORLD");
+            MuteDefaultQuestUI(true);
+        end
+    end
+    addon.CallbackRegistry:Register("SettingChanged.DisableDUIInInstance", Settings_DisableDUIInInstance);
 end
 
 do

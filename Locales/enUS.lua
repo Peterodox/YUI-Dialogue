@@ -195,6 +195,9 @@ L["Force Gossip"] = "Force Gossip";
 L["Force Gossip Desc"] = "By default, the game sometimes automatically selects the first option without showing the dialog. By enabling Force Gossip, the dialogue will become visible.";
 L["Nameplate Dialog"] = "Display Dialogue On Nameplate";
 L["Nameplate Dialog Desc"] = "Display the dialogue on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
+L["Compatibility"] = "Compatibility";
+L["Disable DUI In Instance"] = "Disable Dialogue UI In Instance";
+L["Disable DUI In Instance Desc"] = "Disable Dialogue UI when you are in dungeon or raid.\n\nEnable this option if you cannot interact with the NPC that allows you to skip bosses.";
 
 L["TTS"] = TEXT_TO_SPEECH or "Text To Speech";
 L["TTS Desc"] = "Read dialogue text out loud by clicking the button on the top left of the UI.";

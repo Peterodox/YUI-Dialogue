@@ -55,6 +55,7 @@ L["Item Is An Upgrade"] = "这件装备对你有提升";
 L["Identical Stats"] = "这两件装备的属性相同";
 L["Quest Completed On Account"] = "你的战团此前已经完成了这个任务。";
 L["New Quest Available"] = "发现新任务";
+L["Show Answer"] = "选择正确答案。";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";
@@ -76,6 +77,7 @@ L["Format Replace Item"] = "替换 %s";
 L["Format Item Level"] = "物品等级 %d";
 L["Format Breadcrumb Quests Available"] = "可接受引导性任务：";
 L["Format Functionality Handled By"] = "此功能由以下插件处理：%s";
+L["Format Time Left"] = "剩余时间：%s";
 
 --Settings
 L["UI"] = "界面";
@@ -193,6 +195,9 @@ L["Force Gossip"] = "强制显示对话";
 L["Force Gossip Desc"] = "在游戏默认状态下，系统有时会自动选择第一个选项且不显示对话界面。勾选强制显示对话将显示这些被隐藏的内容。";
 L["Nameplate Dialog"] = "在姓名版上显示对话";
 L["Nameplate Dialog Desc"] = "将不提供任何选项的对话显示在目标姓名版上。\n\n此选项将修改CVar \"SoftTarget Nameplate Interact\"";
+L["Compatibility"] = "兼容性";
+L["Disable DUI In Instance"] = "副本内禁用Dialogue UI";
+L["Disable DUI In Instance Desc"] = "当你进入地下城或团本时禁用Dialogue UI。\n\n推荐勾选此选项如果你无法与跳Boss的NPC交互。";
 
 L["TTS"] = TEXT_TO_SPEECH or "文字转语音";
 L["TTS Desc"] = "点击位于任务界面左上角的按钮来朗读文本。\n\n语音，音量大小和速度将跟随魔兽自带的文字转语音设置。";

@@ -30,6 +30,7 @@ local AutoSelectGossip = {
     [120541] = 1,           --Earthcrawl Mines, 2nd Phase, Lamplighter Rathling
     [121526] = 1,           --The Dread Pit, Vanathia
     [121508] = 1,           --The Dread Pit, Vant
+    [120767] = 1,           --Nightfall Sanctum, Great Kyron
 };
 
 local function IsAutoSelectOption(gossipOptionID, onlyOption)
