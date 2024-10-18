@@ -76,14 +76,7 @@
                     <Anchor point="TOP"/>
                 </Anchors>
                 <Layers>
-                    <Layer level="OVERLAY" textureSubLevel="3">
-                        <Texture parentKey="HeaderScrollOverlap" hidden="true">
-                            <Size x="768" y="32"/>
-                            <Anchors>
-                                <Anchor point="CENTER" relativeKey="$parent.$parent.ScrollFrame" relativePoint="TOP" y="0"/>
-                            </Anchors>
-                        </Texture>
-
+                    <Layer level="OVERLAY" textureSubLevel="4">
                         <Texture parentKey="HeaderDivider" hidden="false">
                             <Size x="768" y="64"/>
                             <Anchors>
@@ -100,6 +93,14 @@
                                 <MaskedTexture childKey="HeaderDivider"/>
                             </MaskedTextures>
                         </MaskTexture>
+                    </Layer>
+                    <Layer level="OVERLAY" textureSubLevel="3">
+                        <Texture parentKey="HeaderScrollOverlap" hidden="true">
+                            <Size x="768" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER" relativeKey="$parent.$parent.ScrollFrame" relativePoint="TOP" y="0"/>
+                            </Anchors>
+                        </Texture>
                     </Layer>
                 </Layers>
             </Frame>

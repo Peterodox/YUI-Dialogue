@@ -44,6 +44,14 @@ local WOW_PAGE_WIDTH = 412; --ParchmentLarge
 local OTHER_CONTENT_ALPHA = 0.4;
 
 
+local TagFonts = {
+    ["p"] = "DUIFont_Book_Paragraph",
+    ["h1"] = "DUIFont_Book_H1",
+    ["h2"] = "DUIFont_Book_H2",
+    ["h3"] = "DUIFont_Book_H3",
+    ["title"] = "DUIFont_Book_Title",
+};
+
 local RawSize = {   --Unit: Pixel
     FRAME_WIDTH = 768,
     FRAME_HEIGHT_MAX = 896,
@@ -469,13 +477,15 @@ DUIBookUIMixin = {};
 
 do  --Background Calculation \ Theme
     local TextureKit = {
-        [1] = "Parchment.png";
+        [1] = {file = "Parchment.png", textColor = {0.19, 0.17, 0.13}, pageSelectedColor = "Ivory", pageNormalColor = "LightBrown", shadow = false},
+        [2] = {file = "Metal.png", textColor = {0.9, 0.9, 0.9}, pageSelectedColor = "DarkModeGrey90", pageNormalColor = "DarkModeGrey70", shadow = true},
     };
 
     function DUIBookUIMixin:SetTextureKit(textureKitID)
         if textureKitID and TextureKit[textureKitID] and textureKitID ~= self.textureKitID then
             self.textureKitID = textureKitID;
-            local file = string.format("Interface/AddOns/DialogueUI/Art/Book/TextureKit-"..TextureKit[textureKitID]);
+            local info = TextureKit[textureKitID];
+            local file = string.format("Interface/AddOns/DialogueUI/Art/Book/TextureKit-"..info.file);
 
             if self.BackgroundPieces then
                 for _, obj in pairs(self.BackgroundPieces) do
@@ -488,7 +498,6 @@ do  --Background Calculation \ Theme
             end
 
             self.Header:SetUITexture(file);
-
             self.Header.HeaderScrollOverlap:SetTexture(file);
             self.Header.HeaderScrollOverlap:SetTexCoord(128/1024, 896/1024, 1408/2048, 1488/2048);
 
@@ -497,6 +506,23 @@ do  --Background Calculation \ Theme
 
             self.Header.HeaderDivider:SetTexture(file);
             self.Header.HeaderDivider:SetTexCoord(0, 768/1024, 1520/2048, 1552/2048);
+
+            local r, g, b = unpack(info.textColor);
+            local useShadow = info.shadow;
+            local fontObject;
+
+            for _, fontObjectName in pairs(TagFonts) do
+                fontObject = _G[fontObjectName];
+                fontObject:SetTextColor(r, g, b);
+                if useShadow then
+                    fontObject:SetShadowOffset(0, 2);
+                    fontObject:SetShadowColor(0, 0, 0);
+                else
+                    fontObject:SetShadowOffset(0, 0);
+                end
+            end
+
+            self.Header:SetPageTextColor(info.pageSelectedColor, info.pageNormalColor);
         end
     end
 
@@ -851,13 +877,6 @@ do  --Scroll Anim
 end
 
 do  --Formatter
-    local TagFonts = {
-        ["p"] = "DUIFont_Quest_Paragraph",
-        ["h1"] = "DUIFont_Quest_Title_18",
-        ["h2"] = "DUIFont_Quest_Title_16",
-        ["h3"] = "DUIFont_Quest_Title_16",
-    };
-
     local IgnoredTags = {
         ["<br/>"] = true,
         ["</p>"] = true;
@@ -1156,7 +1175,7 @@ do  --Main UI
         addon.SharedVignette:AddOwner(self);    --"SharedVignette" defined in DialogueUI.lua
 
         --UtilityFontString is used to evaluate text height
-        local UtilityFontString = self.ContentFrame:CreateFontString(nil, "ARTWORK", "DUIFont_Quest_Paragraph");
+        local UtilityFontString = self.ContentFrame:CreateFontString(nil, "ARTWORK", "DUIFont_Book_Paragraph");
         UtilityFontString:SetJustifyV("TOP");
         --UtilityFontString:SetPoint("TOP", nil, "BOTTOM", 0, -64);
         UtilityFontString:SetPoint("TOP", MainFrame.ContentFrame, "TOP", 0, 0);
@@ -1562,6 +1581,17 @@ do  --EventListener
     EL:RegisterEvent("ITEM_TEXT_READY");
     EL:RegisterEvent("ITEM_TEXT_CLOSED");
 
+    local MaterialTextureKitID = {
+        ["Default"] = 1,
+        ["Stone"] = 2,
+        ["Parchment"] = 1,
+        ["Marble"] = 2,
+        ["Silver"] = 2,
+        ["Bronze"] = 2,
+        ["ParchmentLarge"] = 1,
+        ["Progenitor"] = 2,
+    };
+
     function EL:OnUpdate(elapsed)
         self.t = self.t + elapsed;
         if self.t > 0.03 then
@@ -1587,7 +1617,10 @@ do  --EventListener
             end
 
             local title = ItemTextGetItem();
-            local material = ItemTextGetMaterial();
+            local material = ItemTextGetMaterial() or "Parchment";
+            local textureKitID = MaterialTextureKitID[material] or 1;
+            MainFrame:SetTextureKit(textureKitID);
+
             --if QuestUtil.QuestTextContrastUseLightText() then
 
             local guid = UnitGUID("npc");

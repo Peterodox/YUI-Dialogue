@@ -18,6 +18,9 @@ local CreateFrame = CreateFrame;
 local SHOW_LOCATION = false;
 ------------------
 
+local PAGE_SELECTED_COLOR = "Ivory";
+local PAGE_NORMAL_COLOR = "LightBrown";
+
 
 local PageButtonMixin = {};
 do  --Pagination
@@ -31,10 +34,10 @@ do  --Pagination
         self.selected = state;
 
         if state then
-            ThemeUtil:SetFontColor(self.PageText, "Ivory");
+            ThemeUtil:SetFontColor(self.PageText, PAGE_SELECTED_COLOR);
             self.Background:SetTexCoord(780/1024, 820/1024, 1564/2048, 1604/2048);
         else
-            ThemeUtil:SetFontColor(self.PageText, "LightBrown");
+            ThemeUtil:SetFontColor(self.PageText, PAGE_NORMAL_COLOR);
             self.Background:SetTexCoord(844/1024, 884/1024, 1564/2048, 1604/2048);
         end
     end
@@ -265,6 +268,22 @@ do  --Header / Book Title
                 pageButton:SetUITexture(file);
             end
             self.pageButtonPool:ProcessAllObjects(SetBackGround);
+        end
+    end
+
+    function HeaderFrameMixin:SetPageTextColor(selectedColor, nomralColor)
+        PAGE_SELECTED_COLOR = selectedColor;
+        PAGE_NORMAL_COLOR = nomralColor;
+
+        if self.pageButtonPool then
+            local function SetPageButtonSelected(pageButton)
+                if pageButton.selected then
+                    ThemeUtil:SetFontColor(pageButton.PageText, PAGE_SELECTED_COLOR);
+                else
+                    ThemeUtil:SetFontColor(pageButton.PageText, PAGE_NORMAL_COLOR);
+                end
+            end
+            self.pageButtonPool:ProcessActiveObjects(SetPageButtonSelected);
         end
     end
 

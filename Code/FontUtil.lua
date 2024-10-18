@@ -65,6 +65,11 @@ local FONT_OBJECT_HEIGHT = {
     DUIFont_AlertHeader = {8, 9, 10, 12, 12},
 };
 
+FONT_OBJECT_HEIGHT.DUIFont_Book_H1 = FONT_OBJECT_HEIGHT.DUIFont_Quest_Title_18;
+FONT_OBJECT_HEIGHT.DUIFont_Book_H2 = FONT_OBJECT_HEIGHT.DUIFont_Quest_Title_16;
+FONT_OBJECT_HEIGHT.DUIFont_Book_H3 = FONT_OBJECT_HEIGHT.DUIFont_Quest_Title_16;
+FONT_OBJECT_HEIGHT.DUIFont_Book_Paragraph = FONT_OBJECT_HEIGHT.DUIFont_Quest_Paragraph;
+
 local IS_NUMBER_FONT = {
     DUIFont_ItemCount = true,
 };
