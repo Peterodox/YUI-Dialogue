@@ -193,6 +193,8 @@ L["Auto Select Gossip"] = "Auto Select Option";
 L["Auto Select Gossip Desc"] = "Automatically select the best dialogue option when interacting with certain NPC.";
 L["Force Gossip"] = "Force Gossip";
 L["Force Gossip Desc"] = "By default, the game sometimes automatically selects the first option without showing the dialog. By enabling Force Gossip, the dialogue will become visible.";
+L["Show Hint"] = "Show Hint";
+L["Show Hint Desc"] = "Add a button that selects the correct answer if possible.\n\nCurrently only supports the quiz during Timewalking.";
 L["Nameplate Dialog"] = "Display Dialogue On Nameplate";
 L["Nameplate Dialog Desc"] = "Display the dialogue on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
 L["Compatibility"] = "Compatibility";
@@ -231,6 +233,22 @@ L["TTS Include Content"] = "Include Content";
 L["TTS Content NPC Name"] = "NPC Name";
 L["TTS Content Quest Name"] = "Quest Title";
 L["TTS Content Objective"] = "Quest Objectives";
+
+--Asking for Directions-- (match the name to replace gossip icon)
+L["Pin Mailbox"] = MINIMAP_TRACKING_MAILBOX or "Mailbox";
+L["Pin Class Trainer"] = MINIMAP_TRACKING_TRAINER_CLASS or "Class Trainer";
+L["Pin Stable Master"] = MINIMAP_TRACKING_STABLEMASTER or "Stable Master";
+L["Pin Trading Post"] = BATTLE_PET_SOURCE_12 or "Trading Post";
+L["Pin Transmogrification"] = TRANSMOGRIFICATION or "Transmogrification";
+L["Pin Void Storage"] = VOID_STORAGE or "Void Storage";
+L["Pin Auction House"] = BUTTON_LAG_AUCTIONHOUSE or "Auction House";
+L["Pin Bank"] = BANK or "Bank";
+L["Pin Barber"] = MINIMAP_TRACKING_BARBER or "Barber";
+L["Pin Flight Master"] = MINIMAP_TRACKING_FLIGHTMASTER or "Flight Master";
+L["Pin Vendor"] = BATTLE_PET_SOURCE_3 or "Vendor";
+L["Pin Inn"] = "Inn";
+L["Pin Profession Trainer"] = "Profession Trainer";
+L["Pin Battle Pet Trainer"] = "Battle Pet Trainer";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";     --Shown when interacting with an NPC with this addon for the first time

@@ -67,40 +67,6 @@ local MAJOR_FACTION_REPUTATION_REWARD_ICON_FORMAT = [[Interface\Icons\UI_MajorFa
 local ICON_PATH = "Interface/AddOns/DialogueUI/Art/Icons/";
 local FORMAT_COUNT_OWNED_REQUIRED = "|cffaaaaaa%s/|r%s";
 
-local GOSSIP_ICONS = {
-    [132053] = ICON_PATH.."Gossip.png",
-    ["Gossip Red"] = ICON_PATH.."Gossip-Red.png",       --<Skip Chaptor>
-    ["Gossip Quest"] = ICON_PATH.."Gossip-Quest.png",   --(Quest) flags == 1
-
-    [132058] = ICON_PATH.."Trainer.png",                --Trainer
-    [132060] = ICON_PATH.."Buy.png",                    --Merchant
-    ["Inn"] = ICON_PATH.."Innkeeper.png",
-    [1019848] = ICON_PATH.."Gossip.png",                --Tavio in Iskaara (likely meant to use Fishing icon)
-    ["Profession Trainer"] = ICON_PATH.."Mine.png",
-    ["Class Trainer"] = ICON_PATH.."Trainer.png",
-    ["Stable Master"] = ICON_PATH.."Stablemaster.png",
-    [1673939] = "interface/minimap/tracking/transmogrifier.blp",
-
-    ["Trading Post"] = ICON_PATH.."TradingPost.png",
-    ["Battle Pet Trainer"] = ICON_PATH.."BattlePet.png",
-
-    ["Transmogrification"] = "interface/minimap/tracking/transmogrifier.blp",
-    ["Void Storage"] = "interface/cursor/crosshair/voidstorage.blp",
-    ["Auction House"] = "interface/minimap/tracking/auctioneer.blp",
-    ["Bank"] = "interface/minimap/tracking/banker.blp",
-    ["Barber"] = "interface/minimap/tracking/barbershop.blp",
-    ["Flight Master"] = "interface/minimap/tracking/flightmaster.blp",
-
-    ["Mailbox"] = "interface/minimap/tracking/mailbox.blp",
-    --["Points of Interest"] = "",
-    --["Other Continents"] = "Interface/AddOns/DialogueUI/Art/Icons/Continent.png",
-    ["Vendor"] = "interface/cursor/crosshair/buy.blp",
-
-    [1130518] = "interface/cursor/crosshair/workorders.blp",                            --Work Orders (Class Hall)
-    [132050] = "interface/minimap/tracking/banker.blp",
-};
-
-GOSSIP_ICONS[132052] = GOSSIP_ICONS["Inn"];
 
 local CUSTOM_ICONS = {
     [1121020] = "trophy_of_strife.png",
@@ -396,22 +362,14 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     name, hasColor = ThemeUtil:AdjustTextColor(name);
 
     if hasColor then
-        self.Icon:SetTexture( GOSSIP_ICONS["Gossip Red"] );
+        self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Red"));
     elseif data.flags == 1 then
-        self.Icon:SetTexture( GOSSIP_ICONS["Gossip Quest"] );
+        self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Quest"));
     else
         if data.overrideIconID then
             self.Icon:SetTexture(data.overrideIconID);
         else
-            local icon;
-            if GOSSIP_ICONS[name] then
-                icon = GOSSIP_ICONS[name];
-            else
-                icon = data.icon or 132053;
-                if GOSSIP_ICONS[icon] then
-                    icon = GOSSIP_ICONS[icon];
-                end
-            end
+            local icon = GossipDataProvider:GetGossipIcon(data.icon, name, data.gossipOptionID);
             self.Icon:SetTexture(icon);
         end
     end
@@ -439,7 +397,6 @@ function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
     self.gossipOptionID = data.gossipOptionID;
 
     local name = L["Show Answer"];
-    --self.correctAnswer = data.name;
     self.Icon:SetTexture(ICON_PATH.."Hint.png");
 
     self.showIcon = true;
@@ -487,18 +444,25 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo, requery)
         if SHOW_QUEST_TYPE_TEXT then
             if questInfo.repeatable then
                 typeText = L["Quest Type Repeatable"];
-            elseif questInfo.frequency == 1 then
-                typeText = L["Quest Frequency Daily"];
-            elseif questInfo.frequency == 2 then
-                typeText = L["Quest Frequency Weekly"];
-            elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
-                typeText = API.GetQuestTimeLeft(questInfo.questID, true);
-                if (not requery) and (not typeText) then
-                    After(0.5, function()
-                        if self:IsVisible() and self.questID and self.questID == questInfo.questID then
-                            self:SetQuestTypeText(questInfo, true)
-                        end
-                    end);
+            else
+                local isRecurring, seconds = API.GetRecurringQuestTimeLeft(questInfo.questID);
+                if isRecurring and seconds then
+                    typeText = API.SecondsToTime(seconds, true, true);
+                elseif questInfo.frequency == 1 then
+                    typeText = L["Quest Frequency Daily"];
+                elseif questInfo.frequency == 2 then
+                    typeText = L["Quest Frequency Weekly"];
+                elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
+                    --[[
+                    typeText = API.GetQuestTimeLeft(questInfo.questID, true);
+                    if (not requery) and (not typeText) then
+                        After(0.5, function()
+                            if self:IsVisible() and self.questID and self.questID == questInfo.questID then
+                                self:SetQuestTypeText(questInfo, true)
+                            end
+                        end);
+                    end
+                    --]]
                 end
             end
         end

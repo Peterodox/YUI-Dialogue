@@ -606,6 +606,7 @@ local Schematic = { --Scheme
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
             {type = "Checkbox", name = L["Force Gossip"], description = L["Force Gossip Desc"], dbKey = "ForceGossip"},
+            {type = "Checkbox", name = L["Show Hint"], description = L["Show Hint Desc"], dbKey = "ShowDialogHint"},
             --{type = "Checkbox", name = L["Nameplate Dialog"], description = L["Nameplate Dialog Desc"], dbKey = "NameplateDialogEnabled", preview = "NameplateDialogEnabled", ratio = 1},
 
             {type = "Subheader", name = L["Compatibility"]},

@@ -23,6 +23,8 @@ local FONTSTRING_MIN_GAP = 24;  --Betweeb the left and the right text of the sam
 local FORMAT_ICON_TEXT = "|T%s:0:0:0:-"..SPACING_NEW_LINE.."|t %s";
 
 
+local CursorFollower = CreateFrame("Frame");
+
 local TooltipBaseMixin = {};
 
 function TooltipBaseMixin:UpdatePixel(scale)
@@ -434,9 +436,12 @@ function TooltipBaseMixin:SetOwner(owner, anchor, offsetX, offsetY)
     offsetY = offsetY or 0;
 
     self:ClearAllPoints();
+    CursorFollower:SetCursorObject(nil);
 
     if anchor == "ANCHOR_NONE" then
         return
+    elseif anchor == "ANCHOR_CURSOR" then
+        CursorFollower:SetCursorObject(self, 0, 8);
     else
         self:SetPoint("BOTTOMLEFT", owner, "TOPRIGHT", offsetX, offsetY);
     end
@@ -676,6 +681,50 @@ function TooltipBaseMixin:OverwriteLeftLineText(row, text)
     if self.grid[row] and self.grid[row][1] then
         return self.grid[row][1]:SetText(text)
     end
+end
+
+
+do
+    CursorFollower.GetCursorPosition = GetCursorPosition;
+    CursorFollower.DeltaLerp = API.DeltaLerp;
+
+    function CursorFollower:SetCursorObject(obj, offsetX, offsetY)
+        self.obj = obj;
+        if obj and obj:IsVisible() then
+            self:SetParent(obj);
+            obj:ClearAllPoints();
+            self.isUpdating = true;
+            self.offsetX = offsetX or 0;
+            self.offsetY = offsetY or 0;
+            self.x, self.y = self.GetCursorPosition();
+            self.t = 1;
+            self:SetScript("OnUpdate", self.OnUpdate);
+            self:Show();
+        else
+            self:Hide();
+        end
+    end
+
+    function CursorFollower:OnUpdate(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.05 then
+            self.t = 0;
+            self.targetX, self.targetY = self.GetCursorPosition();
+        end
+        self.x = self.DeltaLerp(self.x, self.targetX, 0.15, elapsed);
+        self.y = self.DeltaLerp(self.y, self.targetY, 0.15, elapsed);
+        self.obj:SetPoint("BOTTOM", nil, "BOTTOMLEFT", self.x + self.offsetY, self.y + self.offsetY);
+    end
+
+    function CursorFollower:OnHide()
+        if self.isUpdating then
+            self.isUpdating = nil;
+            self:SetScript("OnUpdate", nil);
+            self:Hide();
+            self.x, self.y, self.targetX, self.targetY = nil, nil, nil, nil;
+        end
+    end
+    CursorFollower:SetScript("OnHide", CursorFollower.OnHide);
 end
 
 

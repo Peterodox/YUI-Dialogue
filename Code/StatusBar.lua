@@ -415,8 +415,6 @@ end
 
 function PlayerXPDataProvider:OnEnter()
     TooltipFrame:Hide();
-    TooltipFrame:SetOwner(self, "ANCHOR_NONE");
-    TooltipFrame:SetPoint("BOTTOMLEFT", self.Fill, "TOPRIGHT", 0, 4);
 
     local level, currentXP, maxXP = GetPlayerLevelXP();
     local percentage = API.GetXPPercentage(currentXP);
@@ -428,6 +426,8 @@ function PlayerXPDataProvider:OnEnter()
         TooltipFrame:AddLeftLine(L["To Next Level Label"]..": |cffffffff"..BreakUpLargeNumbers(diff).."|r", 1, 0.82, 0);
     end
     TooltipFrame:Show();
+
+    TooltipFrame:SetOwner(self, "ANCHOR_CURSOR");
 end
 
 function PlayerXPDataProvider:getRangeFunc()

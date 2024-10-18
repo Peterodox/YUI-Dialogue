@@ -1118,32 +1118,27 @@ function DUIDialogBaseMixin:HandleGossip()
     local hotkeyIndex = 0;
     local hotkey;
 
-    local showGossipFirst = options[1] and options[1].flags == 1;
+    local anyNewOrCompleteQuest = anyAvailableQuest;
+    for i, questInfo in ipairs(activeQuests) do
+        if questInfo.isComplete then
+            anyNewOrCompleteQuest = true;
+            break
+        end
+    end
+
+    local showGossipFirst = (options[1] and options[1].flags == 1) or (not anyNewOrCompleteQuest);
 
     if showGossipFirst then
         --Show gossip first if there is a (Quest) Gossip
         local hintGossipData;
 
-        for i, data in ipairs(options) do
-            hotkeyIndex = hotkeyIndex + 1;
-            button = self:AcquireOptionButton();
-            hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
-            button:SetGossip(data, hotkey);
-
-            if i == 1 then
-                local spacing = -PARAGRAPH_SPACING;
-                button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, spacing);
-            else
-                button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, 0);
-            end
-
-            lastObject = button;
-
-            self:IndexGamePadObject(button);
-
-            if not hintGossipData then
-                if GossipDataProvider:DoesOptionHaveHint(data.gossipOptionID) then
-                    hintGossipData = data;
+        if GetDBBool("ShowDialogHint") then
+            for i, data in ipairs(options) do
+                if not hintGossipData then
+                    if GossipDataProvider:DoesOptionHaveHint(data.gossipOptionID) then
+                        hintGossipData = data;
+                        break
+                    end
                 end
             end
         end
@@ -1153,8 +1148,27 @@ function DUIDialogBaseMixin:HandleGossip()
             button = self:AcquireOptionButton();
             hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
             button:SetGossipHint(hintGossipData, hotkey);
-            button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, 0);
+            local spacing = -PARAGRAPH_SPACING;
+            button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, spacing);
             lastObject = button;
+        end
+
+        for i, data in ipairs(options) do
+            hotkeyIndex = hotkeyIndex + 1;
+            button = self:AcquireOptionButton();
+            hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+            button:SetGossip(data, hotkey);
+
+            if i == 1 and not hintGossipData then
+                local spacing = -PARAGRAPH_SPACING;
+                button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, spacing);
+            else
+                button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, 0);
+            end
+
+            lastObject = button;
+
+            self:IndexGamePadObject(button);
         end
     end
 
@@ -1180,6 +1194,8 @@ function DUIDialogBaseMixin:HandleGossip()
         questInfo.isAvailableQuest = false;
         if questInfo.isComplete == nil then
             questInfo.isComplete = false;
+        elseif questInfo.isComplete then
+            anyNewOrCompleteQuest = true;
         end
         questInfo.originalOrder = questIndex;
         questInfo.index = i;
@@ -1220,26 +1236,13 @@ function DUIDialogBaseMixin:HandleGossip()
     if not showGossipFirst then
         local hintGossipData;
 
-        for i, data in ipairs(options) do
-            hotkeyIndex = hotkeyIndex + 1;
-            button = self:AcquireOptionButton();
-            hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
-            button:SetGossip(data, hotkey);
-
-            if i == 1 then
-                local spacing = (anyQuest and -PARAGRAPH_BUTTON_SPACING) or -PARAGRAPH_SPACING;
-                button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, spacing);
-            else
-                button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, 0);
-            end
-
-            lastObject = button;
-
-            self:IndexGamePadObject(button);
-
-            if not hintGossipData then
-                if GossipDataProvider:DoesOptionHaveHint(data.gossipOptionID) then
-                    hintGossipData = data;
+        if GetDBBool("ShowDialogHint") then
+            for i, data in ipairs(options) do
+                if not hintGossipData then
+                    if GossipDataProvider:DoesOptionHaveHint(data.gossipOptionID) then
+                        hintGossipData = data;
+                        break
+                    end
                 end
             end
         end
@@ -1249,8 +1252,27 @@ function DUIDialogBaseMixin:HandleGossip()
             button = self:AcquireOptionButton();
             hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
             button:SetGossipHint(hintGossipData, hotkey);
-            button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, 0);
+            local spacing = (anyQuest and -PARAGRAPH_BUTTON_SPACING) or -PARAGRAPH_SPACING;
+            button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, spacing);
             lastObject = button;
+        end
+
+        for i, data in ipairs(options) do
+            hotkeyIndex = hotkeyIndex + 1;
+            button = self:AcquireOptionButton();
+            hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+            button:SetGossip(data, hotkey);
+
+            if i == 1 and not hintGossipData then
+                local spacing = (anyQuest and -PARAGRAPH_BUTTON_SPACING) or -PARAGRAPH_SPACING;
+                button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, spacing);
+            else
+                button:SetPoint("TOPLEFT", lastObject, "BOTTOMLEFT", 0, 0);
+            end
+
+            lastObject = button;
+
+            self:IndexGamePadObject(button);
         end
     end
 
@@ -3108,6 +3130,7 @@ do
     CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.ForceGossip", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.AutoSelectGossip", GenericOnSettingsChanged);
+    CallbackRegistry:Register("SettingChanged.ShowDialogHint", GenericOnSettingsChanged);
 
 
     local function SettingsUI_Show()

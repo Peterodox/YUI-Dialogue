@@ -48,8 +48,10 @@ local DefaultValues = {
         QuestItemDisplayDynamicFrameStrata = false,
     AutoSelectGossip = false,
     ForceGossip = false,
-    NameplateDialogEnabled = false,
+    ShowDialogHint = true,
     DisableDUIInInstance = false,
+
+    NameplateDialogEnabled = false,             --Experimental. Not in the settings
 
     TTSEnabled = false,
         TTSUseHotkey = true,    --Default key R
