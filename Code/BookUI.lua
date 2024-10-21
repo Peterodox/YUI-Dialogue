@@ -37,10 +37,15 @@ local ItemTextNextPage = ItemTextNextPage;
 local ItemTextIsFullPage = ItemTextIsFullPage;  --Retail? material == "ParchmentLarge"
 
 
+
+-- User Settings
+
+------------------
+
+
 local PIXEL_SCALE = 0.53333;
 local FRAME_SIZE_MULTIPLIER = 1.0;  --(See DialogueUI.lua) 1.1 / 1.25
 local WOW_PAGE_WIDTH = 412; --ParchmentLarge
-
 local OTHER_CONTENT_ALPHA = 0.4;
 
 
@@ -50,6 +55,7 @@ local TagFonts = {
     ["h2"] = "DUIFont_Book_H2",
     ["h3"] = "DUIFont_Book_H3",
     ["title"] = "DUIFont_Book_Title",
+    ["smallprint"] = "DUIFont_Book_10",
 };
 
 local RawSize = {   --Unit: Pixel
@@ -127,6 +133,7 @@ do  --Cache
     function Cache:ClearObjectCache()
         self.activeData = nil;
         self.fullyCached = false;
+        self:SetScript("OnUpdate", nil);
     end
 
     function Cache:SetActiveObject(objectType, objectID)
@@ -136,11 +143,15 @@ do  --Cache
 
         local isObjectChanged;
         local identifier;
+        local objectLocation;
 
         if objectType and objectID then
             identifier = objectType..objectID;
             isObjectChanged = identifier ~= self.identifier;
             self.identifier = identifier;
+            if objectType == "GameObject" then
+                objectLocation = BookComponent:GetPlayerLocation();
+            end
         else
             identifier = "unknown";
             isObjectChanged = true;
@@ -153,6 +164,8 @@ do  --Cache
             maxPage = 1,
             pageStartOffset = {},   --[page] = offsetY,
             maxContentIndex = 0,
+            location = objectLocation,
+            title = ItemTextGetItem(),
             formattedContent = {
                 --[index] = {
                 --  text = text,
@@ -203,6 +216,10 @@ do  --Cache
 
     function Cache:GetMaxPage()
         return self.activeData and self.activeData.maxPage or 1
+    end
+
+    function Cache:GetBookLocation()
+        return self.activeData and self.activeData.location
     end
 
     function Cache:OnUpdate_TurnNextPage(elapsed)
@@ -337,7 +354,7 @@ do  --Cache
     end
 
     function Cache:BeginCalculateTextHeight()
-        local title = ItemTextGetItem();   --"The Dark Portal and the Fall of Stormwind"
+        local title = self.activeData.title;   --"The Dark Portal and the Fall of Stormwind"
         MainFrame.Header:SetTitle(title);
         Formatter.titleText = title;
 
@@ -390,6 +407,13 @@ do  --Cache
             spacingAbove = spacingAbove,
             isPageStart = isPageStart,
         };
+    end
+
+    function Cache:RemoveLastTextSpacingBelow()
+        local index = self.activeData and self.activeData.maxContentIndex;
+        if index and self.activeData.formattedContent[index] then
+            self.activeData.formattedContent[index].spacingBelow = 0;
+        end
     end
 
     function Cache:StoreImage(file, width, height, left, right, top, bottom)
@@ -511,9 +535,13 @@ do  --Background Calculation \ Theme
             local useShadow = info.shadow;
             local fontObject;
 
-            for _, fontObjectName in pairs(TagFonts) do
+            for tag, fontObjectName in pairs(TagFonts) do
                 fontObject = _G[fontObjectName];
-                fontObject:SetTextColor(r, g, b);
+                if tag == "smallprint" then
+                    addon.ThemeUtil:SetFontColor(fontObject, info.pageNormalColor);
+                else
+                    fontObject:SetTextColor(r, g, b);
+                end
                 if useShadow then
                     fontObject:SetShadowOffset(0, 2);
                     fontObject:SetShadowColor(0, 0, 0);
@@ -824,6 +852,10 @@ do  --Scroll Anim
 
         local pageOffset;
 
+        if self.ScrollFrame:IsAtPageBottom() then
+            return maxPage
+        end
+
         for page = maxPage, 1, -1 do
             pageOffset = Cache:GetPageStartOffset(page);
             if offset > pageOffset then
@@ -980,22 +1012,24 @@ do  --Formatter
         local align = "LEFT";
         local paragraphSpacing = self.PARAGRAPH_SPACING;
         local numParagraphs = paragraphs and #paragraphs or 0;
+        local anyAdded = false;
 
         if numParagraphs > 0 then
             for i, paragraphText in ipairs(paragraphs) do
-                if paragraphText ~= " " then
-                    if i == numParagraphs then
-                        Cache:StoreText(fontTag, paragraphText, align, 0);
-                    else
-                        Cache:StoreText(fontTag, paragraphText, align, paragraphSpacing);
-                    end
+                if paragraphText ~= "" then
+                    anyAdded = true;
+                    Cache:StoreText(fontTag, paragraphText, align, paragraphSpacing);
                 end
             end
         else
 
         end
 
-        PP = paragraphs;    --debug
+        if anyAdded then
+            Cache:RemoveLastTextSpacingBelow();
+        end
+
+        --PP = paragraphs;    --debug
     end
 
     local function CleanUpTags(text)
@@ -1016,6 +1050,7 @@ do  --Formatter
         local numImages = 0;
         local paragraphSpacing = self.PARAGRAPH_SPACING
         local numParagraphs = paragraphs and #paragraphs or 0;
+        local anyAdded = false;
 
         if numParagraphs > 0 then
             for i, paragraphText in ipairs(paragraphs) do
@@ -1094,11 +1129,8 @@ do  --Formatter
                                     if not (tag and TagFonts[tag]) then
                                         tag = "p";
                                     end
-                                    if i == numParagraphs then
-                                        Cache:StoreText(tag, paragraphText, align, 0);
-                                    else
-                                        Cache:StoreText(tag, paragraphText, align, paragraphSpacing);
-                                    end
+                                    anyAdded = true;
+                                    Cache:StoreText(tag, paragraphText, align, paragraphSpacing);
                                 end
                             end
                         end
@@ -1108,11 +1140,8 @@ do  --Formatter
                             numTexts = numTexts + 1;
                             align = "LEFT";
                             tag = "p";
-                            if i == numParagraphs then
-                                Cache:StoreText(tag, paragraphText, align, 0);
-                            else
-                                Cache:StoreText(tag, paragraphText, align, paragraphSpacing);
-                            end
+                            anyAdded = true;
+                            Cache:StoreText(tag, paragraphText, align, paragraphSpacing);
                         end
                     end
                 end
@@ -1121,7 +1150,11 @@ do  --Formatter
 
         end
 
-        PP = paragraphs;    --debug
+        if anyAdded then
+            Cache:RemoveLastTextSpacingBelow();
+        end
+
+        --PP = paragraphs;    --debug
     end
 
     function DUIBookUIMixin:GetContentFromOffsetY(scrollable)
@@ -1339,7 +1372,7 @@ do  --Main UI
 
     function DUIBookUIMixin:OnMouseUp(button)
         if button == "LeftButton" then
-            if not SwipeEmulator:ShouldConsumeClick() then
+            if GetDBBool("TTSEnabled") and GetDBBool("BookTTSClickToRead") and (not SwipeEmulator:ShouldConsumeClick()) then
                 self:SpeakCursorFocusContent();
             end
         elseif button == "RightButton" and GetDBBool("RightClickToCloseUI") and self:IsMouseMotionFocus() then
@@ -1390,6 +1423,17 @@ do  --Main UI
             FadeHelper:FadeOutUI(self);
         end
     end
+
+    function DUIBookUIMixin:HideUI()
+        Cache:ClearObjectCache();
+        self:Hide();
+    end
+
+    CallbackRegistry:Register("DialogueUI.HandleEvent", function()
+        --Close book UI when dialogue UI is showing
+        --Interact with NPC trigger ITEM_TEXT_CLOSED but we have an option to keep the book UI open
+        MainFrame:HideUI();
+    end);
 end
 
 do  --TTS
@@ -1531,6 +1575,9 @@ do  --Keyboard Control, In Combat Behavior
         if key == "ESCAPE" then
             self:Hide();
             valid = true;
+        elseif key == "F1" then
+            valid = true;
+            addon.SettingsUI:ToggleUI();
         end
 
         if InCombatLockdown() then
@@ -1555,31 +1602,39 @@ do  --Keyboard Control, In Combat Behavior
     end
 
     function DUIBookUIMixin:OnGamePadButtonDown(button)
-        local isValid = false;
+        local valid = false;
 
-        if self.scrollable then
-            if button == "PADLSHOULDER" then
-                isValid = true;
+        if button == "PADLSHOULDER" then
+            if self.scrollable then
+                valid = true;
                 self:ScrollToNearPrevPage();
-            elseif button == "PADRSHOULDER" then
-                isValid = true;
-                self:ScrollToNearNextPage();
-            else
-
             end
+        elseif button == "PADRSHOULDER" then
+            if self.scrollable then
+                valid = true;
+                self:ScrollToNearNextPage();
+            end
+        elseif button == "PADMENU" or button == "PADFORWARD" then
+            valid = true;
+            addon.SettingsUI:ToggleUI();
+        elseif button == "PADBACK" then
+            valid = true;
+            self:Hide();
         end
 
         if not EL.inCombat then
-            self:SetPropagateKeyboardInput(not isValid)
+            self:SetPropagateKeyboardInput(not valid);
         end
     end
 end
 
 do  --EventListener
-    EL:RegisterEvent("ITEM_TEXT_BEGIN");
-    EL:RegisterEvent("ITEM_TEXT_TRANSLATION");
-    EL:RegisterEvent("ITEM_TEXT_READY");
-    EL:RegisterEvent("ITEM_TEXT_CLOSED");
+    local BOOK_EVENTS = {
+        "ITEM_TEXT_BEGIN",
+        "ITEM_TEXT_READY",
+        "ITEM_TEXT_CLOSED",
+        "ITEM_TEXT_TRANSLATION",
+    };
 
     local MaterialTextureKitID = {
         ["Default"] = 1,
@@ -1596,7 +1651,7 @@ do  --EventListener
         self.t = self.t + elapsed;
         if self.t > 0.03 then
             self:SetScript("OnUpdate", nil);
-            if (not self.showItemText) and MainFrame:IsShown() then
+            if (not self.showItemText) and MainFrame:IsShown() and (not GetDBBool("BookKeepUIOpen")) then
                 MainFrame:Hide();
             end
         end
@@ -1616,8 +1671,8 @@ do  --EventListener
                 MainFrame:Init();
             end
 
-            local title = ItemTextGetItem();
             local material = ItemTextGetMaterial() or "Parchment";
+            --material = "Stone"; --debug
             local textureKitID = MaterialTextureKitID[material] or 1;
             MainFrame:SetTextureKit(textureKitID);
 
@@ -1630,10 +1685,8 @@ do  --EventListener
                 objectType, objectID = GetObjectTypeAndID(guid);
             end
 
-            MainFrame.Header:UpdateLocation(objectType == "GameObject");
-
-
             local isObjectChanged = Cache:SetActiveObject(objectType, objectID);
+            MainFrame.Header:SetLocation(objectType == "GameObject", Cache:GetBookLocation());
             self.itemTextBegun = true;
 
         elseif event == "ITEM_TEXT_READY" then
@@ -1681,11 +1734,41 @@ do  --EventListener
 
         --print(event, ..., GetTimePreciseSec()); --debug
     end
-    EL:SetScript("OnEvent", EL.OnEvent);
+
+    function EL:EnableModule(state)
+        local f = ItemTextFrame;
+        if state then
+            self.enabled = true;
+            self:SetScript("OnEvent", self.OnEvent);
+            for _, event in ipairs(BOOK_EVENTS) do
+                self:RegisterEvent(event);
+            end
+            if f then
+                f:UnregisterAllEvents();
+            end
+        elseif self.enabled then
+            self.enabled = false;
+            self:SetScript("OnEvent", nil);
+            self:UnregisterAllEvents();
+            for _, event in ipairs(BOOK_EVENTS) do
+                if f then
+                    f:RegisterEvent(event);
+                end
+            end
+        end
+    end
 end
 
 
 do  --Settings
+    local FrameSizeIndexScale = {
+        [0] = 0.9,
+        [1] = 1.0,
+        [2] = 1.1,
+        [3] = 1.25,
+        [4] = 1.4,
+    };
+
     function DUIBookUIMixin:OnSettingsChanged()
         if not self:IsShown() then return end;
 
@@ -1699,15 +1782,57 @@ do  --Settings
         end
     end
 
+    local function Settings_FrameSize(dbValue)
+        --Image size doesn't get recalculated until cache is wiped (close and repoen book to take effect)
+        if GetDBBool("MobileDeviceMode") then
+            dbValue = 4;
+        end
+
+        local newScale = dbValue and FrameSizeIndexScale[dbValue];
+        if newScale then
+            if newScale ~= FRAME_SIZE_MULTIPLIER then
+                MainFrame:OnSettingsChanged();
+            end
+            FRAME_SIZE_MULTIPLIER = newScale;
+            CalculateSizeData();
+            if not MainFrame.Init then
+                MainFrame:Resize();
+            end
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.BookUISize", Settings_FrameSize);
+
     local function OnFontSizeChanged(baseFontSize, fontSizeID)
         Formatter:SetBaseFontSize(baseFontSize);
         MainFrame:OnSettingsChanged();
     end
     CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
+
+    local function Settings_BookUIEnabled(state)
+        EL:EnableModule(state);
+    end
+    CallbackRegistry:Register("SettingChanged.BookUIEnabled", Settings_BookUIEnabled);
+
+    local function Settings_BookDarkenScreen(state)
+        MainFrame.ScreenVignette:SetShown(state);
+    end
+    CallbackRegistry:Register("SettingChanged.BookDarkenScreen", Settings_BookDarkenScreen);
+
+    local function Settings_BookShowLocation(state)
+        if MainFrame:IsShown() then
+            if state then
+                MainFrame.Header:SetLocation(true, Cache:GetBookLocation());
+            else
+                MainFrame.Header:SetLocation(false);
+            end
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.BookShowLocation", Settings_BookShowLocation);
 end
 
 
 do  --Hide Default UI
+    --[[
     local hideDefaultUI = true;    --false when we do debug
     if hideDefaultUI then
         if ItemTextFrame then   --Mute
@@ -1718,4 +1843,5 @@ do  --Hide Default UI
         ItemTextFrame:SetScale(0.65);
         EL:SetScript("OnEvent", nil);
     end
+    --]]
 end

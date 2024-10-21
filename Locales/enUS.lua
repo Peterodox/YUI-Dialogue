@@ -55,7 +55,6 @@ L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
 L["New Quest Available"] = "New Quest Available";
-L["Show Answer"] = "Show answer.";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -198,8 +197,8 @@ L["Show Hint Desc"] = "Add a button that selects the correct answer if possible.
 L["Nameplate Dialog"] = "Display Dialogue On Nameplate";
 L["Nameplate Dialog Desc"] = "Display the dialogue on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
 L["Compatibility"] = "Compatibility";
-L["Disable DUI In Instance"] = "Disable Dialogue UI In Instance";
-L["Disable DUI In Instance Desc"] = "Disable Dialogue UI when you are in dungeon or raid.\n\nEnable this option if you cannot interact with the NPC that allows you to skip bosses.";
+L["Disable DUI In Instance"] = "Use WoW's Default UI In Instance";
+L["Disable DUI In Instance Desc"] = "Disable Dialogue UI and use WoW's default one when you are in dungeon or raid.\n\nEnable this option if you cannot interact with an NPC that allows you to start or skip boss encounters.";
 
 L["TTS"] = TEXT_TO_SPEECH or "Text To Speech";
 L["TTS Desc"] = "Read dialogue text out loud by clicking the button on the top left of the UI.";
@@ -234,21 +233,22 @@ L["TTS Content NPC Name"] = "NPC Name";
 L["TTS Content Quest Name"] = "Quest Title";
 L["TTS Content Objective"] = "Quest Objectives";
 
---Asking for Directions-- (match the name to replace gossip icon)
-L["Pin Mailbox"] = MINIMAP_TRACKING_MAILBOX or "Mailbox";
-L["Pin Class Trainer"] = MINIMAP_TRACKING_TRAINER_CLASS or "Class Trainer";
-L["Pin Stable Master"] = MINIMAP_TRACKING_STABLEMASTER or "Stable Master";
-L["Pin Trading Post"] = BATTLE_PET_SOURCE_12 or "Trading Post";
-L["Pin Transmogrification"] = TRANSMOGRIFICATION or "Transmogrification";
-L["Pin Void Storage"] = VOID_STORAGE or "Void Storage";
-L["Pin Auction House"] = BUTTON_LAG_AUCTIONHOUSE or "Auction House";
-L["Pin Bank"] = BANK or "Bank";
-L["Pin Barber"] = MINIMAP_TRACKING_BARBER or "Barber";
-L["Pin Flight Master"] = MINIMAP_TRACKING_FLIGHTMASTER or "Flight Master";
-L["Pin Vendor"] = BATTLE_PET_SOURCE_3 or "Vendor";
-L["Pin Inn"] = "Inn";
-L["Pin Profession Trainer"] = "Profession Trainer";
-L["Pin Battle Pet Trainer"] = "Battle Pet Trainer";
+--Book UI and Settings
+L["Readables"] = "Readables";   --Readable Objects
+L["Readable Objects"] = "Readable Objects";     --Used as a label for a setting in Accessibility-TTS
+L["BookUI Enable"] = "Use New UI For Readable Objects";
+L["BookUI Enable Desc"] = "Use new UI for readable objects such as books, letters and notes.";
+L["BookUI Frame Size Desc"] = "Set the size of the Book UI.";
+L["BookUI Keep UI Open"] = "Keep Window Open";
+L["BookUI Keep UI Open Desc"] = "Keep the window open when you move away from the object. Press Escape or right-click on the UI to close it.";
+L["BookUI Show Location"] = "Show Location";
+L["BookUI Show Location Desc"] = "Show the item's location in the header. Only works for game objects, not items in your bags.";
+L["BookUI Darken Screen"] = "Darken Screen";
+L["BookUI Darken Screen Desc"] = "Darken the area below the UI to help you concentrate on the content.";
+L["BookUI TTS Voice"] = "Voice";
+L["BookUI TTS Voice Desc"] = "Use this voice for readable objects:";
+L["BookUI TTS Click To Read"] = "Click Paragraph To Read";
+L["BookUI TTS Click To Read Desc"] = "Click on a paragraph to read it.\n\nClick on a paragraph currently being read to stop reading.";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";     --Shown when interacting with an NPC with this addon for the first time
@@ -266,3 +266,28 @@ L["Match Stat Agility"] = "([,%d%.]+) Agility";
 L["Match Stat Intellect"] = "([,%d%.]+) Intellect";
 L["Match Stat Spirit"] = "([,%d%.]+) Spirit";
 L["Match Stat DPS"] = "([,%d%.]+) damage per second";
+
+L["Show Answer"] = "Show answer.";
+
+--Asking for Directions-- (match the name to replace gossip icon)
+L["Pin Auction House"] = BUTTON_LAG_AUCTIONHOUSE or "Auction House";
+L["Pin Bank"] = BANK or "Bank";
+L["Pin Barber"] = MINIMAP_TRACKING_BARBER or "Barber";
+L["Pin Battle Pet Trainer"] = "Battle Pet Trainer";
+L["Pin Crafting Orders"] = PROFESSIONS_CRAFTING_ORDERS_TAB_NAME or "Crafting Orders";
+L["Pin Flight Master"] = MINIMAP_TRACKING_FLIGHTMASTER or "Flight Master";
+L["Pin Great Vault"] = DELVES_GREAT_VAULT_LABEL or "Great Vault";
+L["Pin Inn"] = "Inn";
+L["Pin Item Upgrades"] = "Item Upgrades";
+L["Pin Mailbox"] = MINIMAP_TRACKING_MAILBOX or "Mailbox";
+L["Pin Other Continents"] = "Other Continents";
+L["Pin POI"] = MINIMAP_TRACKING_POI or "Points of Interest";
+L["Pin Profession Trainer"] = "Profession Trainer";
+L["Pin Rostrum"] = "Rostrum of Transformation";
+L["Pin Stable Master"] = MINIMAP_TRACKING_STABLEMASTER or "Stable Master";
+L["Pin Trading Post"] = BATTLE_PET_SOURCE_12 or "Trading Post";
+L["Pin Transmogrifier"] = MINIMAP_TRACKING_TRANSMOGRIFIER or "Transmogrifier";
+L["Pin Class Trainer"] = MINIMAP_TRACKING_TRAINER_CLASS or "Class Trainer";
+L["Pin Transmogrification"] = TRANSMOGRIFICATION or "Transmogrification";
+L["Pin Void Storage"] = VOID_STORAGE or "Void Storage";
+L["Pin Vendor"] = BATTLE_PET_SOURCE_3 or "Vendor";

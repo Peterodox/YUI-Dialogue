@@ -193,11 +193,13 @@ L["Auto Select Gossip"] = "自动选择对话选项";
 L["Auto Select Gossip Desc"] = "当你与特定NPC交互时自动选择最合适的选项。";
 L["Force Gossip"] = "强制显示对话";
 L["Force Gossip Desc"] = "在游戏默认状态下，系统有时会自动选择第一个选项且不显示对话界面。勾选强制显示对话将显示这些被隐藏的内容。";
+L["Show Hint"] = "显示正确答案";
+L["Show Hint Desc"] = "增加一个选项来自动选择正确的对话答案。\n\n目前仅支持时空漫游期间的问答日常。";
 L["Nameplate Dialog"] = "在姓名版上显示对话";
 L["Nameplate Dialog Desc"] = "将不提供任何选项的对话显示在目标姓名版上。\n\n此选项将修改CVar \"SoftTarget Nameplate Interact\"";
 L["Compatibility"] = "兼容性";
-L["Disable DUI In Instance"] = "副本内禁用Dialogue UI";
-L["Disable DUI In Instance Desc"] = "当你进入地下城或团本时禁用Dialogue UI。\n\n推荐勾选此选项如果你无法与跳Boss的NPC交互。";
+L["Disable DUI In Instance"] = "在副本内使用游戏原始对话界面";
+L["Disable DUI In Instance Desc"] = "当你进入地下城或团本时使用游戏原始对话界面。\n\n推荐勾选此选项如果你无法与开始或跳过Boss战的NPC交互。";
 
 L["TTS"] = TEXT_TO_SPEECH or "文字转语音";
 L["TTS Desc"] = "点击位于任务界面左上角的按钮来朗读文本。\n\n语音，音量大小和速度将跟随魔兽自带的文字转语音设置。";
@@ -232,6 +234,23 @@ L["TTS Content NPC Name"] = "NPC名字";
 L["TTS Content Quest Name"] = "任务名称";
 L["TTS Content Objective"] = "任务目标";
 
+--Book UI and Settings
+L["Readables"] = "可阅读物品";   --Readable Objects
+L["Readable Objects"] = "可阅读物品";     --Used as a label for a setting in Accessibility-TTS
+L["BookUI Enable"] = "使用新UI";
+L["BookUI Enable Desc"] = "使用新UI显示可阅读物品如书籍和信件。";
+L["BookUI Frame Size Desc"] = "改变书籍界面的大小。";
+L["BookUI Keep UI Open"] = "保持窗口打开";
+L["BookUI Keep UI Open Desc"] = "当你远离物体时不自动关闭窗口。按Esc或在界面上按右键来关闭它。";
+L["BookUI Show Location"] = "显示地点";
+L["BookUI Show Location Desc"] = "在标题上方显示物体的地点。仅限于环境中的物体，不适用于背包内的物品。";
+L["BookUI Darken Screen"] = "屏幕变暗";
+L["BookUI Darken Screen Desc"] = "让界面后方区域变暗来帮助你将注意力集中在内容上。";
+L["BookUI TTS Voice"] = "声音";
+L["BookUI TTS Voice Desc"] = "使用此声音朗读书籍：";
+L["BookUI TTS Click To Read"] = "点击以朗读段落";
+L["BookUI TTS Click To Read Desc"] = "左键点击某个段落来朗读它。\n\n左键点击正在被朗读的段落即可停止。";
+
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开或关闭设置";   --Use this if gamepad enabled
@@ -248,3 +267,23 @@ L["Match Stat Agility"] = "([,%d%.]+) 敏捷";
 L["Match Stat Intellect"] = "([,%d%.]+) 智力";
 L["Match Stat Spirit"] = "([,%d%.]+) 精神";
 L["Match Stat DPS"] = "每秒伤害([,%d%.]+)";
+
+L["Show Answer"] = "显示正确答案。";
+
+--Asking for Directions-- (match the name to replace gossip icon)
+L["Pin Auction House"] = "拍卖行";
+L["Pin Bank"] = "银行";
+L["Pin Barber"] = "理发师";
+L["Pin Battle Pet Trainer"] = "战斗宠物训练师";
+L["Pin Crafting Orders"] = "制造订单";
+L["Pin Flight Master"] = "飞行管理员";
+L["Pin Great Vault"] = "宏伟宝库";
+L["Pin Inn"] = "旅店";
+L["Pin Item Upgrades"] = "物品升级";
+L["Pin Mailbox"] = "邮箱";
+L["Pin Other Continents"] = "其他大陆";
+L["Pin POI"] = "名胜地";
+L["Pin Profession Trainer"] = "专业训练师";
+L["Pin Rostrum"] = "幻形讲坛";
+L["Pin Stable Master"] = "兽栏管理员";
+L["Pin Trading Post"] = "商栈";

@@ -69,12 +69,14 @@ local DefaultValues = {
             TTSContentQuestTitle = true,
             TTSContentObjective = false,
 
-
     --Book Settings
-        --BookShowLocation = false,
-        --BookAlwaysDarkMode = false,
-        --BookTTSVoice = 0,
-        --BookTTSClickToPlay,
+    BookUIEnabled = true,
+        BookUISize = 1,
+        BookKeepUIOpen = false,
+        BookShowLocation = false,
+        BookDarkenScreen = true,
+        BookTTSVoice = 0,
+        BookTTSClickToRead = true,
 
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
@@ -85,6 +87,15 @@ local DefaultValues = {
 
     --Deprecated:
     --WarbandCompletedQuest = true,         --Always ON
+};
+
+local InheritExistingValues = {
+    --Newly added systems may copy the the dbValue of similar system: BookUI/DialogueUI frame size, Book/Dialogue voice
+    --If the new dbValue doesn't exisit and the existing dbValue isn't the default value, use the new default value
+    {"BookUISize", "FrameSize"},
+    {"BookTTSVoice", "TTSVoiceNarrator"},
+    {"BookTTSVoice", "TTSVoiceMale"},
+    {"BookTTSVoice", "TTSVoiceFemale"},
 };
 
 local TutorialFlags = {
@@ -124,6 +135,13 @@ local function LoadDatabase()
 
     local type = type;
 
+    for _, v in ipairs(InheritExistingValues) do
+        if DB[v[1]] == nil then
+            if DB[v[2]] ~= nil and DB[v[2]] ~= DefaultValues[v[2]] then
+                DB[v[1]] = DB[v[2]];
+            end
+        end
+    end
 
     for dbKey, defaultValue in pairs(DefaultValues) do
         --Some settings are inter-connected so we load all values first
@@ -141,6 +159,7 @@ local function LoadDatabase()
     end
 
     DefaultValues = nil;
+    InheritExistingValues = nil;
 
     LoadTutorials();
 end

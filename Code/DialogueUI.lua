@@ -3071,7 +3071,7 @@ do
         [1] = 1.0,
         [2] = 1.1,
         [3] = 1.25,
-        [4] = 1.4;
+        [4] = 1.4,
     };
 
     local function Settings_FrameOrientation()

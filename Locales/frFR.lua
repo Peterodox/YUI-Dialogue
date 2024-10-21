@@ -243,3 +243,23 @@ L["Match Stat Agility"] = "([,%d%.%-]+) Agilité";
 L["Match Stat Intellect"] = "([,%d%.%-]+) Intelligence";
 L["Match Stat Spirit"] = "([,%d%.%-]+) Esprit";
 L["Match Stat DPS"] = "([,%d%.%-]+) dégâts par seconde";
+
+L["Show Answer"] = "Voir la solution.";
+
+--Asking for Directions-- (match the name to replace gossip icon)
+L["Pin Auction House"] = "Hôtel des ventes";
+L["Pin Bank"] = "Banque";
+L["Pin Barber"] = "Salon de coiffure";
+L["Pin Battle Pet Trainer"] = "Dresseuse de mascottes de combat";
+L["Pin Crafting Orders"] = "Commandes d’artisanat";
+L["Pin Flight Master"] = "Maître de vol";
+L["Pin Great Vault"] = "Grande chambre forte";
+L["Pin Inn"] = "Auberge";
+L["Pin Item Upgrades"] = "Améliorations d’objets";
+L["Pin Mailbox"] = "Boîte aux lettres";
+L["Pin Other Continents"] = "Autres continents";
+L["Pin POI"] = "Points d’intérêt";
+L["Pin Profession Trainer"] = "Maître de métier";
+L["Pin Rostrum"] = "Tribune de transformation";
+L["Pin Stable Master"] = "Maître des écuries";
+L["Pin Trading Post"] = "Comptoir";

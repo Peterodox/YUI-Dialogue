@@ -9,14 +9,16 @@ local API = addon.API;
 local L = addon.L;
 local FontUtil = addon.FontUtil;
 local ThemeUtil = addon.ThemeUtil;
+local GetDBBool = addon.GetDBBool;
 local Mixin = API.Mixin;
 local Round = API.Round;
 local CreateFrame = CreateFrame;
 
 
 -- User Settings
-local SHOW_LOCATION = false;
+
 ------------------
+
 
 local PAGE_SELECTED_COLOR = "Ivory";
 local PAGE_NORMAL_COLOR = "LightBrown";
@@ -154,9 +156,9 @@ do  --Header / Book Title
         return baseLineHeight * scale
     end
 
-    function HeaderFrameMixin:UpdateLocation(isGameObject)
-        if SHOW_LOCATION and isGameObject then
-            self.Location:SetText(BookComponent:GetPlayerLocation());
+    function HeaderFrameMixin:SetLocation(isGameObject, locationText)
+        if  isGameObject and GetDBBool("BookShowLocation") then
+            self.Location:SetText(locationText);
             self.Location:Show();
         else
             self.Location:Hide();
@@ -297,13 +299,11 @@ do  --Header / Book Title
         Title:SetSpacing(TITLE_SPACING);
         Title:SetPoint("TOP", headerFrame, "TOP", 0, 0);
 
-        local Location = headerFrame:CreateFontString(nil, "OVERLAY", "DUIFontFamily_Serif_10");
+        local Location = headerFrame:CreateFontString(nil, "OVERLAY", "DUIFont_Book_10");
         headerFrame.Location = Location;
         Location:SetJustifyH("CENTER");
         Location:SetJustifyV("TOP");
         Location:SetPoint("BOTTOM", Title, "TOP", 0, 9);
-
-        ThemeUtil:SetFontColor(Location, "LightBrown");
 
         Mixin(headerFrame, HeaderFrameMixin);
 

@@ -244,3 +244,23 @@ L["Match Stat Agility"] = "민첩성 %+([,%d%.]+)";
 L["Match Stat Intellect"] = "지능 %+([,%d%.]+)";
 L["Match Stat Spirit"] = "정신력 %+([,%d%.]+)";
 L["Match Stat DPS"] = "초당 공격력 ([,%d%.]+)";
+
+L["Show Answer"] = "정답을 표시합니다.";
+
+--Asking for Directions-- (match the name to replace gossip icon)
+L["Pin Auction House"] = "경매장";
+L["Pin Bank"] = "은행";
+L["Pin Barber"] = "미용실";
+L["Pin Battle Pet Trainer"] = "전투 애완동물 전문가";
+L["Pin Crafting Orders"] = "주문 제작";
+L["Pin Flight Master"] = "비행 조련사";
+L["Pin Great Vault"] = "위대한 금고";
+L["Pin Inn"] = "여관";
+L["Pin Item Upgrades"] = "아이템 강화";
+L["Pin Mailbox"] = "우체통";
+L["Pin Other Continents"] = "다른 대륙";
+L["Pin POI"] = "주요 관심 지점";
+L["Pin Profession Trainer"] = "기술 전문가";
+L["Pin Rostrum"] = "변신 강단";
+L["Pin Stable Master"] = "야수 관리인";
+L["Pin Trading Post"] = "교역소";

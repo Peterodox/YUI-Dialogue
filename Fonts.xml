@@ -314,6 +314,10 @@
         <Color r="0.19" g="0.17" b="0.13"/>
     </Font>
 
+    <Font name="DUIFont_Book_10" inherits="DUIFontFamily_Serif_10" virtual="true" justifyV="TOP" justifyH="CENTER">
+        <Color r="0.19" g="0.17" b="0.13"/>
+    </Font>
+
 
     <!--AutoFit FontString-->
     <Font name="DUIFont_Constant_10" inherits="DUIFontFamily_Serif_10" virtual="true" justifyV="MIDDLE" justifyH="CENTER">

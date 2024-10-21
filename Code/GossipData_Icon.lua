@@ -18,6 +18,7 @@ local GossipIcon = {
 
 
     --Ask guard for directions
+    ["Inn"] = ICON_PATH.."Innkeeper.png",
     [L["Pin Inn"]] = ICON_PATH.."Innkeeper.png",
     [L["Pin Profession Trainer"]] = ICON_PATH.."Mine.png",
     [L["Pin Class Trainer"]] = ICON_PATH.."Trainer.png",
@@ -25,6 +26,7 @@ local GossipIcon = {
     [L["Pin Trading Post"]] = ICON_PATH.."TradingPost.png",
     [L["Pin Battle Pet Trainer"]] = ICON_PATH.."BattlePet.png",
     [L["Pin Transmogrification"]] = "interface/minimap/tracking/transmogrifier.blp",
+    [L["Pin Transmogrifier"]] = "interface/minimap/tracking/transmogrifier.blp",
     [L["Pin Void Storage"]] = "interface/cursor/crosshair/voidstorage.blp",
     [L["Pin Auction House"]] = "interface/minimap/tracking/auctioneer.blp",
     [L["Pin Bank"]] = "interface/minimap/tracking/banker.blp",
@@ -40,6 +42,7 @@ local GossipIcon = {
     ["LFG"] = ICON_PATH.."LFG.png",
 };
 GossipIcon[132052] = GossipIcon["Inn"];
+
 
 do
     local ids = {

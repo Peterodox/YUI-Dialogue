@@ -33,7 +33,7 @@
                 </Texture>
             </Layer>
             <Layer level="OVERLAY">
-                <FontString parentKey="PageText" inherits="DUIFontFamily_Serif_10" justifyH="CENTER" justifyV="MIDDLE" text="1">
+                <FontString parentKey="PageText" inherits="DUIFont_Book_10" justifyH="CENTER" justifyV="MIDDLE" text="1">
                     <Anchors>
                         <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
                     </Anchors>
