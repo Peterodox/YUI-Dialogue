@@ -379,3 +379,150 @@ do  --Location (Show location for GameObject)
         end
     end
 end
+
+
+do  --ItemButton (Show item's description lore "")
+    local match = string.match;
+    local GetItemByID = addon.TooltipAPI.GetItemByID;
+    local SourceItemButtonMixin = {};
+
+    function SourceItemButtonMixin:SetItem(itemID)
+        self.queryTimes = 0;
+        self.itemID = itemID;
+
+        if itemID then
+            local tooltipData = GetItemByID(itemID);
+            if tooltipData then
+               self:ProcessTooltipData(tooltipData);
+            else
+                self:ClearAll();
+            end
+        else
+            self:ClearAll();
+        end
+    end
+
+    function SourceItemButtonMixin:ProcessTooltipData(tooltipData)
+        self:SetScript("OnUpdate", nil);
+        self.t = nil;
+
+        if not (tooltipData and tooltipData.lines) then
+            self:ClearAll();
+            return
+        end
+
+        local line, description;
+        local numLines = #tooltipData.lines;
+
+        for i = numLines, 2, -1 do
+            line = tooltipData.lines[i];
+            if line.leftText and line.type ~= 20 then
+                if match(line.leftText, "^[\"“]") then
+                    description = line.leftText;
+                    break
+                end
+            end
+        end
+
+        if description then
+            self:DisplayItemDescription(self.itemID, description);
+        else
+            if self.queryTimes > 2 then
+                self:ClearAll();
+            else
+                self.queryTimes = self.queryTimes + 1;
+                self.t = 0;
+                self:SetScript("OnUpdate", self.OnUpdate);
+            end
+        end
+    end
+
+    function SourceItemButtonMixin:OnUpdate(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.2 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            local tooltipData = self.itemID and GetItemByID(self.itemID);
+            self:ProcessTooltipData(tooltipData);
+        end
+    end
+
+    function SourceItemButtonMixin:DisplayItemDescription(itemID, description)
+        local icon = C_Item.GetItemIconByID(itemID);
+        self.ItemIcon:SetTexture(icon);
+        self.ItemText:SetText(description);
+        self.ItemBorder:Show();
+        self.ItemIcon:Show();
+        self.ItemText:Show();
+        self.TextBackground:Show();
+        self:Layout();
+        ThemeUtil:SetFontColor(self.ItemText, "DarkModeGrey70");
+        self.ItemText:SetShadowOffset(1, -1);
+        self.ItemText:SetShadowColor(0, 0, 0);
+    end
+
+    function SourceItemButtonMixin:SetWidgetSize(borderSize, iconSize, borderEffectiveSize, fontSize, maxTextWidth)
+        self.ItemBorder:SetSize(borderSize, borderSize);
+        self.ItemIcon:SetSize(iconSize, iconSize);
+        self.borderEffectiveSize = borderEffectiveSize;
+        self.fontSize = fontSize;
+        self.ItemText:SetWidth(maxTextWidth);
+        if self:IsShown() then
+            self:Layout();
+        end
+    end
+    
+    function SourceItemButtonMixin:SetTextSpacing(spacing)
+        self.ItemText:SetSpacing(spacing);
+    end
+
+    function SourceItemButtonMixin:Layout()
+        local borderSize = self.borderEffectiveSize;
+        local gap = self.fontSize;
+        self.ItemBorder:ClearAllPoints();
+        self.ItemBorder:SetPoint("CENTER", self, "LEFT", 0.5*borderSize, 0);
+        self.ItemText:ClearAllPoints();
+        self.ItemText:SetPoint("LEFT", self.ItemBorder, "RIGHT", gap, 0);
+        local textWidth = self.ItemText:GetWrappedWidth();
+        local textHeight = self.ItemText:GetHeight();
+        self.TextBackground:SetSize(textWidth + 2*gap, textHeight + 2*gap);
+        self.TextBackground:ClearAllPoints();
+        self.TextBackground:SetPoint("LEFT", self.ItemText, "LEFT", -gap, 0);
+        self:SetSize(API.Round(borderSize + 2 * gap + textWidth), API.Round(math.max(textHeight, borderSize)));
+    end
+
+    function SourceItemButtonMixin:ClearDisplay()
+        self.ItemBorder:Hide();
+        self.ItemIcon:Hide();
+        self.ItemText:Hide();
+        self.TextBackground:Hide();
+    end
+
+    function SourceItemButtonMixin:ClearAll()
+        self:SetScript("OnUpdate", nil);
+        self.t = nil;
+        self:ClearDisplay();
+    end
+
+    function SourceItemButtonMixin:OnHide()
+        if self.t then
+            self:ClearAll();
+        end
+    end
+
+    function SourceItemButtonMixin:SetTexture(file)
+        self.ItemBorder:SetTexture(file);
+    end
+
+    function BookComponent:CreateSourceItemButton(parent)
+        local f = CreateFrame("Frame", nil, parent, "DUIBookItemButtonTemplate");
+        f.TextBackground:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Shared/NameplateDialogShadow.png");
+        f.ItemIcon:SetTexCoord(0.0625, 0.9275, 0.0625, 0.9275);
+        f.ItemBorder:SetTexCoord(768/1024, 864/1024, 1616/2048, 1712/2048);
+        f.fontSize = 14;
+        f.borderEffectiveSize = 64;
+        API.Mixin(f, SourceItemButtonMixin);
+        f:SetScript("OnHide", f.OnHide);
+        return f
+    end
+end

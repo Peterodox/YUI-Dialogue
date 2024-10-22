@@ -151,8 +151,7 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
     if key == "ESCAPE" then
         valid = true;
 
-        if Clipboard:IsShown() then
-            Clipboard:Hide();
+        if Clipboard:CloseIfShown() then
             processed = true;
         elseif addon.SettingsUI:IsShown() then
             addon.SettingsUI:Hide();

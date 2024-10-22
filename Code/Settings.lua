@@ -553,6 +553,7 @@ local Schematic = { --Scheme
             },
             {type = "Checkbox", name = L["BookUI Keep UI Open"], description = L["BookUI Keep UI Open Desc"], dbKey = "BookKeepUIOpen", requireSameParentValue = true},
             {type = "Checkbox", name = L["BookUI Show Location"], description = L["BookUI Show Location Desc"], dbKey = "BookShowLocation", requireSameParentValue = true},
+            {type = "Checkbox", name = L["BookUI Show Item Description"], description = L["BookUI Show Item Description Desc"], dbKey = "BookUIItemDescription", requireSameParentValue = true},
             {type = "Checkbox", name = L["BookUI Darken Screen"], description = L["BookUI Darken Screen Desc"], dbKey = "BookDarkenScreen", requireSameParentValue = true},
         },
     },

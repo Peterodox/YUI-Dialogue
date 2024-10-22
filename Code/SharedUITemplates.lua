@@ -128,6 +128,11 @@ local function OnClickFunc_SelectOption(gossipButton)
     C_GossipInfo.SelectOptionByIndex(gossipButton.id);
 end
 
+local function OnClickFunc_SelectHint(gossipButton)
+    gossipButton.owner:SetHintText(gossipButton.hintText);
+    OnClickFunc_SelectOption(gossipButton);
+end
+
 local function OnClickFunc_SelectAvailableQuest(questButton)
     questButton.owner:SetConsumeGossipClose(true);
     questButton.owner:MarkQuestIsFromGossip(true);
@@ -402,7 +407,8 @@ function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
     self.showIcon = true;
     self.id = data.orderIndex or 0;
     self.type = "gossip";
-    self.onClickFunc = OnClickFunc_SelectOption;
+    self.hintText = data.name;
+    self.onClickFunc = OnClickFunc_SelectHint;
 
     self:SetHotkey(false);  --Put Key in name (1. Options 1)
     if hotkey then

@@ -20,6 +20,7 @@ local Cache = CreateFrame("Frame"); --Cache the whole book when opened
 local InCombatLockdown = InCombatLockdown;
 local UnitGUID = UnitGUID;
 local IsShiftKeyDown = IsShiftKeyDown;
+local GetBindingAction = GetBindingAction;
 local match = string.match;
 local find = string.find;
 local gsub = string.gsub;
@@ -87,6 +88,10 @@ local RawSize = {   --Unit: Pixel
 
     PAGE_BUTTON_SIZE = 40,
     PAGE_BUTTON_GAP = 2,
+
+    ITEM_BORDER_SIZE = 96,
+    ITEM_BORDER_EFFECTIVE_SIZE = 80,
+    ITEM_ICON_SIZE = 64,
 };
 
 local ConvertedSize = {};
@@ -113,9 +118,10 @@ local function GetObjectTypeAndID(guid)
         end
     elseif type == "Item" then
         if GetItemIDByGUID then
-            return type, GetItemIDByGUID(guid);
+            local itemID = GetItemIDByGUID(guid);
+            return type, itemID, itemID
         else
-            return type, guid;
+            return type, guid
         end
     end
 end
@@ -136,9 +142,11 @@ do  --Cache
         self:SetScript("OnUpdate", nil);
     end
 
-    function Cache:SetActiveObject(objectType, objectID)
+    function Cache:SetActiveObject(objectType, objectID, itemID)
         --objectType: item, npc
         --objectID: itemID, creatureID
+        --itemID: Nilable, retail only
+
         self:SetScript("OnUpdate", nil);
 
         local isObjectChanged;
@@ -166,6 +174,7 @@ do  --Cache
             maxContentIndex = 0,
             location = objectLocation,
             title = ItemTextGetItem(),
+            itemID = itemID,
             formattedContent = {
                 --[index] = {
                 --  text = text,
@@ -220,6 +229,10 @@ do  --Cache
 
     function Cache:GetBookLocation()
         return self.activeData and self.activeData.location
+    end
+
+    function Cache:GetCurrentItemID()
+        return self.activeData and self.activeData.itemID
     end
 
     function Cache:OnUpdate_TurnNextPage(elapsed)
@@ -494,6 +507,35 @@ do  --Cache
             return {}
         end
     end
+
+    function Cache:GetRawContent(concatnate)
+        --For clipboard
+        if self.activeData then
+            if concatnate then
+                local text = self.activeData.title or "";
+                local itemID = self:GetCurrentItemID();
+                if itemID then
+                    text = text.."\n[itemID:"..itemID.."]";
+                else
+                    local location = self:GetBookLocation();
+                    if location then
+                        text = text.."\n"..location;
+                    end
+                end
+                local addPager = #self.activeData.pageTexts > 1;
+                for page, rawText in ipairs(self.activeData.pageTexts) do
+                    if addPager then
+                        text = text.."\n\n"..page.."\n"..rawText;
+                    else    --one page
+                        text = text.."\n\n"..rawText;
+                    end
+                end
+                return text
+            else
+                return self.activeData.pageTexts
+            end
+        end
+    end
 end
 
 
@@ -501,15 +543,18 @@ DUIBookUIMixin = {};
 
 do  --Background Calculation \ Theme
     local TextureKit = {
-        [1] = {file = "Parchment.png", textColor = {0.19, 0.17, 0.13}, pageSelectedColor = "Ivory", pageNormalColor = "LightBrown", shadow = false},
-        [2] = {file = "Metal.png", textColor = {0.9, 0.9, 0.9}, pageSelectedColor = "DarkModeGrey90", pageNormalColor = "DarkModeGrey70", shadow = true},
+        [1] = {file = "Parchment.png", textColor = {0.19, 0.17, 0.13}, pageSelectedColor = "Ivory", pageNormalColor = "LightBrown", shadow = false, widgetTheme = 3},
+        [2] = {file = "Metal.png", textColor = {0.8, 0.8, 0.8}, pageSelectedColor = "DarkModeGrey90", pageNormalColor = "DarkModeGrey70", shadow = true, widgetTheme = 4},
     };
 
     function DUIBookUIMixin:SetTextureKit(textureKitID)
         if textureKitID and TextureKit[textureKitID] and textureKitID ~= self.textureKitID then
-            self.textureKitID = textureKitID;
             local info = TextureKit[textureKitID];
             local file = string.format("Interface/AddOns/DialogueUI/Art/Book/TextureKit-"..info.file);
+
+            self.textureKitID = textureKitID;
+            self.textureFile = file;
+            self.widgetTheme = info.widgetTheme;
 
             if self.BackgroundPieces then
                 for _, obj in pairs(self.BackgroundPieces) do
@@ -551,6 +596,18 @@ do  --Background Calculation \ Theme
             end
 
             self.Header:SetPageTextColor(info.pageSelectedColor, info.pageNormalColor);
+
+            if self.TTSButton then
+                self.TTSButton:SetTheme(info.widgetTheme);
+            end
+
+            if self.CopyTextButton then
+                self.CopyTextButton:SetTheme(info.widgetTheme);
+            end
+
+            if self.SourceItemButton then
+                self.SourceItemButton:SetTexture(file);
+            end
         end
     end
 
@@ -641,7 +698,6 @@ do  --Background Calculation \ Theme
 
         self:ClearAllPoints();
         self:SetPoint(anchor, nil, "CENTER", defaultOffsetX, 0);
-        
     end
 
     function DUIBookUIMixin:Resize()
@@ -655,7 +711,7 @@ do  --Background Calculation \ Theme
             self.CloseButton:SetSize(cs.CLOSE_BUTTON_SIZE, cs.CLOSE_BUTTON_SIZE);
         end
 
-        self.Header.Title:SetWidth(ConvertedSize.CONTENT_WIDTH);
+        self.Header.Title:SetWidth(cs.CONTENT_WIDTH);
         self.Header.Title:SetPoint("TOP", self, "TOP", 0, -cs.PADDING_V);
 
         self.Header.HeaderScrollOverlap:SetSize(cs.FRAME_WIDTH, cs.HEADER_OVERLAP_HEIGHT);
@@ -663,7 +719,14 @@ do  --Background Calculation \ Theme
         self.Header.HeaderDivider:SetSize(cs.FRAME_WIDTH, cs.HEADER_DIVIDER_HEIGHT);
         self.Header:SetPageButtonSize(cs.PAGE_BUTTON_SIZE, cs.PAGE_BUTTON_GAP);
 
-        self.Header:SetWidth(ConvertedSize.CONTENT_WIDTH);
+        self.Header:SetWidth(cs.CONTENT_WIDTH);
+        self:LayoutWidgets();
+
+        if self.SourceItemButton then
+            self.SourceItemButton:SetTextSpacing(Formatter.TEXT_SPACING);
+            local maxTextWidth = cs.CONTENT_WIDTH - cs.ITEM_BORDER_EFFECTIVE_SIZE;
+            self.SourceItemButton:SetWidgetSize(cs.ITEM_BORDER_SIZE, cs.ITEM_ICON_SIZE, cs.ITEM_BORDER_EFFECTIVE_SIZE, Formatter.FONT_SIZE, maxTextWidth);
+        end
     end
 
     function DUIBookUIMixin:SetScrollContentHeight(contentHeight, maxPage)
@@ -1190,6 +1253,9 @@ do  --Formatter
             self:ResetScroll();
         end
 
+        if self.SourceItemButton and GetDBBool("BookUIItemDescription") then
+            self.SourceItemButton:SetItem(Cache:GetCurrentItemID());
+        end
         --print("MAX INDEX", Cache:GetMaxContentIndex());
     end
 
@@ -1422,6 +1488,8 @@ do  --Main UI
             self:SetScript("OnUpdate", AnimIntro_FlyIn_OnUpdate);
             FadeHelper:FadeOutUI(self);
         end
+
+        CallbackRegistry:Trigger("BookUI.BookCached");
     end
 
     function DUIBookUIMixin:HideUI()
@@ -1555,6 +1623,48 @@ do  --TTS
         end
     end
 
+    function DUIBookUIMixin:SpeakTopContent()
+        --For TTSButton, speak the top paragrah
+        if not self:IsVisible() then return end;
+
+        local contentIndex = 1;
+        local data = Cache:GetContentDataByIndex(contentIndex);
+
+        if data then
+            local viewSize = self.ScrollFrame:GetViewSize();
+            local fromOffset = self.ScrollFrame:GetVerticalScroll();
+            local toOffset = fromOffset + viewSize;
+            local foundIndex;
+            while data do
+                if data.text and ((data.offsetY <= fromOffset and data.endingOffsetY >= fromOffset) or (data.offsetY >= fromOffset))  then
+                    local offsetY = data.offsetY;
+                    offsetY = offsetY - self.scrollFromOffetY;
+                    SwipeEmulator:StopWatching(self.ScrollFrame);
+                    self:ScrollTo(offsetY);
+                    foundIndex = contentIndex;
+                    break
+                end
+                contentIndex = contentIndex + 1;
+                data = Cache:GetContentDataByIndex(contentIndex);
+            end
+
+            if foundIndex then
+                if self.focusedContentIndex == foundIndex then
+                    self:StopReadingBook();
+                    return
+                end
+                data = Cache:GetContentDataByIndex(foundIndex);
+                if data and data.text then
+                    self.focusedContentIndex = foundIndex;
+                    self.isReadingContent = true;
+                    local userInput = true;
+                    TTSUtil:ReadBookLine(data.text, userInput);
+                    self:FadeOtherContent();
+                end
+            end
+        end
+    end
+
     function DUIBookUIMixin:GetAndScrollToNextText()
         local contentIndex = self.focusedContentIndex or self:GetCursorFocusContent();
         if contentIndex then
@@ -1569,15 +1679,30 @@ do  --TTS
 end
 
 do  --Keyboard Control, In Combat Behavior
+    local IsModifierKeyDown = IsModifierKeyDown;
+
     function DUIBookUIMixin:OnKeyDown(key)
         local valid = false;
 
         if key == "ESCAPE" then
-            self:Hide();
             valid = true;
+            if addon.Clipboard:CloseIfShown() then
+
+            else
+                self:Hide();
+            end
         elseif key == "F1" then
             valid = true;
             addon.SettingsUI:ToggleUI();
+        elseif key == "R" and (not IsModifierKeyDown()) and GetDBBool("TTSEnabled") and GetDBBool("TTSUseHotkey") then
+            valid = true;
+            addon.TTSUtil:ToggleSpeaking("book");
+        else
+            local action = GetBindingAction(key);
+            if action == "OPENALLBAGS" or action == "TOGGLEBACKPACK" then
+                valid = true;
+                self:Hide();
+            end
         end
 
         if InCombatLockdown() then
@@ -1617,9 +1742,16 @@ do  --Keyboard Control, In Combat Behavior
         elseif button == "PADMENU" or button == "PADFORWARD" then
             valid = true;
             addon.SettingsUI:ToggleUI();
-        elseif button == "PADBACK" then
+        elseif button == "PADBACK" or button == "PAD2" then
             valid = true;
-            self:Hide();
+            if addon.Clipboard:CloseIfShown() then
+
+            else
+                self:Hide();
+            end
+        elseif button == "PADLTRIGGER" and (not IsModifierKeyDown()) and GetDBBool("TTSEnabled") and GetDBBool("TTSUseHotkey") then
+            valid = true;
+            addon.TTSUtil:ToggleSpeaking("book");
         end
 
         if not EL.inCombat then
@@ -1672,20 +1804,20 @@ do  --EventListener
             end
 
             local material = ItemTextGetMaterial() or "Parchment";
-            --material = "Stone"; --debug
+            --material = "Stone"; --debug  Parchment Stone
             local textureKitID = MaterialTextureKitID[material] or 1;
             MainFrame:SetTextureKit(textureKitID);
 
             --if QuestUtil.QuestTextContrastUseLightText() then
 
             local guid = UnitGUID("npc");
-            local objectType, objectID;
+            local objectType, objectID, itemID;
 
             if guid then
-                objectType, objectID = GetObjectTypeAndID(guid);
+                objectType, objectID, itemID = GetObjectTypeAndID(guid);
             end
 
-            local isObjectChanged = Cache:SetActiveObject(objectType, objectID);
+            local isObjectChanged = Cache:SetActiveObject(objectType, objectID, itemID);
             MainFrame.Header:SetLocation(objectType == "GameObject", Cache:GetBookLocation());
             self.itemTextBegun = true;
 
@@ -1828,6 +1960,116 @@ do  --Settings
         end
     end
     CallbackRegistry:Register("SettingChanged.BookShowLocation", Settings_BookShowLocation);
+
+
+    --TTS and Copy Buttons
+    local TTSButton;
+
+    local function Settings_TTSEnabled(dbValue)
+        if dbValue == true then
+            if not TTSButton then
+                local themeID = 3;
+                TTSButton = addon.CreateTTSButton(MainFrame, themeID);
+                TTSButton:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 8, -8);
+                TTSButton.system = "book";
+                MainFrame.TTSButton = TTSButton;
+            end
+            TTSButton:Show();
+            if MainFrame.widgetTheme then
+                TTSButton:SetTheme(MainFrame.widgetTheme);
+            end
+        else
+            if TTSButton then
+                TTSButton:Hide();
+            end
+        end
+        MainFrame:LayoutWidgets();
+    end
+    CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
+
+    --Clipboard
+    local CopyTextButton;
+
+    local function CopyTextButton_OnClick(self)
+        if addon.Clipboard:CloseIfFromSameSender(self) then
+            return
+        end
+        local str = Cache:GetRawContent(true);
+        addon.Clipboard:ShowContent(str, self);
+    end
+
+    local function Settings_ShowCopyTextButton(dbValue)
+        if dbValue == true then
+            if not CopyTextButton then
+                local themeID = 1;  --Brown
+                CopyTextButton = addon.CreateCopyTextButton(MainFrame, CopyTextButton_OnClick, themeID);
+                CopyTextButton:SetPoint("TOPRIGHT", MainFrame, "TOPRIGHT", -8, -8);
+                MainFrame.CopyTextButton = CopyTextButton;
+                CopyTextButton:SetWidth(16);    --down from 24
+            end
+            CopyTextButton:Show();
+            if MainFrame.widgetTheme then
+                CopyTextButton:SetTheme(MainFrame.widgetTheme);
+            end
+        else
+            if CopyTextButton then
+                CopyTextButton:Hide();
+            end
+        end
+        MainFrame:LayoutWidgets();
+    end
+    CallbackRegistry:Register("SettingChanged.ShowCopyTextButton", Settings_ShowCopyTextButton);
+
+    function DUIBookUIMixin:LayoutWidgets()
+        local object1, object2;
+
+        if GetDBBool("TTSEnabled") and TTSButton then
+            object1 = TTSButton;
+        end
+
+        if GetDBBool("ShowCopyTextButton") and CopyTextButton then
+            if object1 then
+                object2 = CopyTextButton;
+            else
+                object1 = CopyTextButton;
+            end
+        end
+
+        if object1 then
+            local offset = ConvertedSize.CLOSE_BUTTON_OFFSET;
+            object1:ClearAllPoints();
+            object1:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", offset, -offset);
+            if object2 then
+                object2:ClearAllPoints();
+                object2:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", offset + 32, -offset);
+            end
+        end
+    end
+
+
+    --Source Item Button
+    local SourceItemButton;
+
+    local function Settings_BookUIItemDescription(state, userInput)
+        if state then
+            if not SourceItemButton then
+                SourceItemButton = BookComponent:CreateSourceItemButton(MainFrame);
+                SourceItemButton:SetPoint("BOTTOM", MainFrame, "TOP", 0, 16);
+                MainFrame.SourceItemButton = SourceItemButton;
+            end
+            SourceItemButton:Show();
+            SourceItemButton:SetTexture(MainFrame.textureFile);
+            if MainFrame:IsShown() then
+                MainFrame:Resize();
+                SourceItemButton:SetItem(Cache:GetCurrentItemID());
+            end
+        else
+            if SourceItemButton then
+                SourceItemButton:Hide();
+            end
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.BookUIItemDescription", Settings_BookUIItemDescription);
 end
 
 

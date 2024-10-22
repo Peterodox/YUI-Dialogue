@@ -55,7 +55,6 @@ L["Item Is An Upgrade"] = "这件装备对你有提升";
 L["Identical Stats"] = "这两件装备的属性相同";
 L["Quest Completed On Account"] = "你的战团此前已经完成了这个任务。";
 L["New Quest Available"] = "发现新任务";
-L["Show Answer"] = "选择正确答案。";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";
@@ -244,6 +243,8 @@ L["BookUI Keep UI Open"] = "保持窗口打开";
 L["BookUI Keep UI Open Desc"] = "当你远离物体时不自动关闭窗口。按Esc或在界面上按右键来关闭它。";
 L["BookUI Show Location"] = "显示地点";
 L["BookUI Show Location Desc"] = "在标题上方显示物体的地点。仅限于环境中的物体，不适用于背包内的物品。";
+L["BookUI Show Item Description"] = "显示物品描述";
+L["BookUI Show Item Description Desc"] = "若物品有描述，则在书籍界面上方显示它。";
 L["BookUI Darken Screen"] = "屏幕变暗";
 L["BookUI Darken Screen Desc"] = "让界面后方区域变暗来帮助你将注意力集中在内容上。";
 L["BookUI TTS Voice"] = "声音";

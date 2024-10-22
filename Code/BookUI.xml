@@ -42,6 +42,54 @@
         </Layers>
     </Button>
 
+    <Frame name="DUIBookItemButtonTemplate" hidden="false" virtual="true">
+        <Size x="64" y="64"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="ItemText" inherits="DUIFont_Book_10" justifyH="LEFT" justifyV="MIDDLE" hidden="true">
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="ItemBorder" hidden="true">
+                    <Size x="64" y="64"/>
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="ItemIcon" hidden="true">
+                    <Size x="64" y="64"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.ItemBorder" relativePoint="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="IconMask" file="Interface/AddOns/DialogueUI/Art/BasicShapes/Mask-Circle" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="ItemIcon"/>
+                    </MaskedTextures>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.ItemIcon" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.ItemIcon" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </MaskTexture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="TextBackground" hidden="true" alpha="0.4">
+                    <TextureSliceMode mode="Stretched"/>
+                    <TextureSliceMargins left="16" right="16" top="16" bottom="16"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.ItemText" relativePoint="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+
     <Frame name="DUIBookFrame" mixin="DUIBookUIMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">
         <Anchors>
             <Anchor point="LEFT" relativeTo="UIParent" relativePoint="LEFT" x="48"/>
@@ -61,13 +109,13 @@
                     </Frame>
                 </ScrollChild>
                 <Frames>
-                    <Frame inherits="DUIDebugAreaTemplate">
+                    <!--Frame inherits="DUIDebugAreaTemplate">
                         <KeyValues>
                             <KeyValue key="r" value="0.0" type="number"/>
                             <KeyValue key="g" value="0.0" type="number"/>
                             <KeyValue key="b" value="1.0" type="number"/>
                         </KeyValues>
-                    </Frame>
+                    </Frame-->
                 </Frames>
             </ScrollFrame>
 
@@ -130,7 +178,7 @@
                 </Frames>
             </Frame>
 
-            <Frame parentKey="DebugArea" inherits="DUIDebugAreaTemplate"/>
+            <!--Frame parentKey="DebugArea" inherits="DUIDebugAreaTemplate"/-->
         </Frames>
         <KeyValues>
             <KeyValue key="nodeignore" value="true" type="boolean"/>

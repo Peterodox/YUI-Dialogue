@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.4.6";
-local VERSION_DATE = 1725700000;
+local VERSION_TEXT = "v0.4.7";
+local VERSION_DATE = 1729500000;
 
 
 local addonName, addon = ...
@@ -74,6 +74,7 @@ local DefaultValues = {
         BookUISize = 1,
         BookKeepUIOpen = false,
         BookShowLocation = false,
+        BookUIItemDescription = false,      --Show source item's description on top of the UI
         BookDarkenScreen = true,
         BookTTSVoice = 0,
         BookTTSClickToRead = true,

@@ -68,6 +68,7 @@ local GossipData = {
     [46166] = true,    --Aedelas Blackmoore
     [46168] = true,    --Ner'zhul
     [46206] = true,    --Auberdine
+    [46036] = true,    --A Luckydo
 
     [111323] = true,   --The Fourth War
     [111300] = true,   --Silithus, Sargeras
@@ -89,7 +90,6 @@ local GossipData = {
     [111355] = true,   --Khan
     [111287] = true,   --Kairozdormu
     [111311] = true,    --Magni Bronzebeard
-
 };
 
 function GossipDataProvider:DoesOptionHaveHint(gossipOptionID)

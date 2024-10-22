@@ -233,6 +233,15 @@ function Clipboard:CloseIfFromSameSender(sender)
     end
 end
 
+function Clipboard:CloseIfShown()
+    if self:IsShown() then
+        self:Hide();
+        return true
+    else
+        return false
+    end
+end
+
 function Clipboard:OnShow()
     self:RegisterEvent("GLOBAL_MOUSE_DOWN");
     self:RegisterEvent("GLOBAL_MOUSE_UP");
@@ -288,11 +297,9 @@ do  --Copy Text Button
     end
 
     function CopyTextButtonMixin:SetTheme(themeID)
-        if themeID == 1 then
-            self.Icon:SetTexCoord(0, 0.5, 0, 1);    --Brown, white stroke
-        else
-            self.Icon:SetTexCoord(0.5, 1, 0, 1);    --Grey, black stroke
-        end
+        themeID = themeID or 1;
+        local x = 0.125 * (themeID - 1);
+        self.Icon:SetTexCoord(x, x + 0.125, 0, 1);
     end
 
     local function CreateCopyTextButton(parent, onClickFunc, themeID)

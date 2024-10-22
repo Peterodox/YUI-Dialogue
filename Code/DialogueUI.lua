@@ -1111,9 +1111,13 @@ function DUIDialogBaseMixin:HandleGossip()
     local button;
 
     --Welcome text
-    local gossipText = ConcatenateNPCName(GetGossipText());
+    local gossipText = GetGossipText();
+    if self.hintText then
+        gossipText = self.hintText.."\n\n"..gossipText;
+        self.hintText = nil;
+    end
+    gossipText = ConcatenateNPCName(gossipText);
     offsetY, firstObject, lastObject = self:FormatParagraph(offsetY, gossipText);
-
 
     local hotkeyIndex = 0;
     local hotkey;
@@ -2135,6 +2139,7 @@ function DUIDialogBaseMixin:OnHide()
     self.handler = nil;
     self.handlerArgs = nil;
     self.questID = nil;
+    self.hintText = nil;
     self.contentHeight = 0;
 
     self:UnregisterEvent("GOSSIP_SHOW");
@@ -2334,6 +2339,11 @@ function DUIDialogBaseMixin:ScrollDownOrAcceptQuest(fromMouseClick)
     end
 end
 
+function DUIDialogBaseMixin:SetHintText(hintText)
+    --After clicking "Show Answer" button
+    --We add the answer to the next GOSSIP_SHOW
+    self.hintText = hintText;
+end
 
 do  --Clipboard
     local strjoin = strjoin;
@@ -2928,6 +2938,7 @@ do  --TTS
                 local themeID = 1;
                 TTSButton = addon.CreateTTSButton(MainFrame, themeID);
                 TTSButton:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 8, -8);
+                TTSButton.system = "dialogue";
                 MainFrame.TTSButton = TTSButton;
             end
             TTSButton:Show();
