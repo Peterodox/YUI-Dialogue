@@ -76,6 +76,7 @@ L["Format Replace Item"] = "Заменить %s";
 L["Format Item Level"] = "Уровень предмета %d"; --_G.ITEM_LEVEL in Classic is different
 L["Format Breadcrumb Quests Available"] = "Доступные направляющие задания: %s"; --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 L["Format Functionality Handled By"] = "За эту функциональность отвечает %s"; --A functionality is provided by [another addon name] (Used in Settings.lua)
+L["Format Time Left"] = "Осталось: %s";
 
 --Settings
 L["UI"] = "Интерфейс";
@@ -191,8 +192,13 @@ L["Auto Select Gossip"] = "Автовыбор варианта";
 L["Auto Select Gossip Desc"] = "Автоматически выбирать наилучший вариант диалога при взаимодействии с определенным NPC.";
 L["Force Gossip"] = "Принудительный разговор";
 L["Force Gossip Desc"] = "По умолчанию игра иногда автоматически выбирает первый вариант, не показывая диалоговое окно. Если включить принудительный просмотр разговора, диалоговое окно станет видимым.";
+L["Show Hint"] = "Показать подсказку";
+L["Show Hint Desc"] = "Добавить кнопку, которая выбирает правильный ответ, если это возможно.\n\nВ настоящее время поддерживается только викторина путешествия во времени.";
 L["Nameplate Dialog"] = "Отображать диалог на неймплейте";
 L["Nameplate Dialog Desc"] = "Отображать диалог на неймплейте NPC, если они не предлагают выбора.\n\nЭтот параметр изменяет CVar \"SoftTarget Nameplate Interact\".";
+L["Compatibility"] = "Совместимость";
+L["Disable DUI In Instance"] = "Использовать стандартный интерфейс в подземельях";
+L["Disable DUI In Instance Desc"] = "Отключить Dialogue и использовать стандартный интерфейс игры, когда вы находитесь в подземелье или рейде.\n\nВключите эту опцию, если вы не можете взаимодействовать с NPC, который позволяет вам начинать или пропускать бои с боссами.";
 
 L["TTS"] = "Текст в речь";
 L["TTS Desc"] = "Озвучивать текст диалога, нажав на кнопку в левом верхнем углу.";
@@ -226,6 +232,25 @@ L["TTS Include Content"] = "Включать содержимое";
 L["TTS Content NPC Name"] = "Имя NPC";
 L["TTS Content Quest Name"] = "Название задания";
 L["TTS Content Objective"] = "Цели задания";
+
+--Book UI and Settings
+L["Readables"] = "Читаемые";   --Readable Objects
+L["Readable Objects"] = "Читаемые объекты";     --Used as a label for a setting in Accessibility-TTS
+L["BookUI Enable"] = "Использовать улучшенный интерфейс для читаемых объектов";
+L["BookUI Enable Desc"] = "Использовать улучшенный интерфейс для читаемых объектов, таких как книги, письма и заметки.";
+L["BookUI Frame Size Desc"] = "Установить размер.";
+L["BookUI Keep UI Open"] = "Держать открытым";
+L["BookUI Keep UI Open Desc"] = "Держать окно открытым, когда вы отходите от объекта.\n\nНажмите Escape или щелкните правой кнопкой мыши по окну, чтобы закрыть его.";
+L["BookUI Show Location"] = "Показать местоположение";
+L["BookUI Show Location Desc"] = "Показывать местоположение объекта в заголовке.\n\nРаботает только с игровыми объектами, а не с предметами в ваших сумках.";
+L["BookUI Show Item Description"] = "Показать описание предмета";
+L["BookUI Show Item Description Desc"] = "Если у предмета есть какое-либо описание во всплывающей подсказке, отобразить его в верхней части.";
+L["BookUI Darken Screen"] = "Затемнить экран";
+L["BookUI Darken Screen Desc"] = "Затемнить область вокруг, чтобы помочь вам сосредоточиться на содержимом.";
+L["BookUI TTS Voice"] = "Голос";
+L["BookUI TTS Voice Desc"] = "Использовать этот голос для чтения объектов:";
+L["BookUI TTS Click To Read"] = "Нажать на параграф для чтения";
+L["BookUI TTS Click To Read Desc"] = "Нажмите на параграф, чтобы прочитать его.\n\nНажмите на читаемый в данный момент параграф, чтобы остановить чтение.";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Нажмите [KEY:PC:F1] для открытия настроек";   --Shown when interacting with an NPC with this addon for the first time
@@ -263,3 +288,8 @@ L["Pin Profession Trainer"] = "Учитель профессии";
 L["Pin Rostrum"] = "Постамент трансформации";
 L["Pin Stable Master"] = "Смотритель стойл";
 L["Pin Trading Post"] = "Торговая лавка";
+L["Pin Transmogrifier"] = "Трансмогрификатор";
+L["Pin Class Trainer"] = "Учитель классовых навыков";
+L["Pin Transmogrification"] = "Трансмогрификация";
+L["Pin Void Storage"] = "Хранилище Бездны";
+L["Pin Vendor"] = "Торговец";
