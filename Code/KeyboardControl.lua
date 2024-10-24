@@ -10,6 +10,7 @@ local DEFAULT_CONTROL_KEY = "SPACE";
 local GAMEPAD_CONFIRM = "PAD1";
 local GAMEPAD_CANCEL = "PAD2";
 local GAMEPAD_ALT = "PAD4";
+local IS_KBM = true;
 
 
 -- Custom Settings
@@ -17,6 +18,7 @@ local ENABLE_KEYCONTROL_IN_COMBAT = true;
 local PRIMARY_CONTROL_KEY = DEFAULT_CONTROL_KEY;
 local USE_INTERACT_KEY = false;
 local DISABLE_CONTROL_KEY = false;          --If true, pressing the key (Space) will not continue quest
+local CYCLE_REWARD_ENABLED = false;         --Press Tab to cycle through choosable rewards
 local TTS_ENABLED = false;
 local TTS_HOTKEY_ENABLED = false;
 local DEBUG_SHOW_GAMEPAD_BUTTON = false;    --[TEMP] Console user
@@ -127,6 +129,7 @@ KeyboardControl:SetScript("OnShow", KeyboardControl.OnShow);
 function KeyboardControl:OnKeyDown(key, fromGamePad)
     local valid = false;
     local processed = false;
+    local inCombat = InCombatLockdown();
 
     if key == GAMEPAD_CONFIRM then
         valid = KeyboardControl.parent:ClickFocusedObject();
@@ -191,6 +194,11 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
             processed = true;
             addon.TTSUtil:ToggleSpeaking();
         end
+    elseif (CYCLE_REWARD_ENABLED and IS_KBM) and key == "TAB" and not inCombat then
+        local delta = IsModifierKeyDown() and -1 or 1;
+        if addon.DialogueUI:CycleRewardChoice(delta) then
+            valid = true;
+        end
     end
 
     if (not processed) and KeyboardControl.keyActions[key] then
@@ -211,7 +219,7 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
         end
     end
 
-    if not InCombatLockdown() then
+    if not inCombat then
         KeyboardControl:SetPropagateKeyboardInput(not valid);
     end
 end
@@ -363,6 +371,8 @@ do  --GamePad/Controller
 
 
     local function PostInputDeviceChanged(dbValue)
+        IS_KBM = dbValue == 1;
+
         --Switch ABXY is reversed
         local isSwitch = dbValue == 4;
 
@@ -412,6 +422,10 @@ do  --Settings
     end
     addon.CallbackRegistry:Register("SettingChanged.PrimaryControlKey", Settings_PrimaryControlKey);
 
+    local function Settings_CycleRewardHotkeyEnabled(dbValue)
+        CYCLE_REWARD_ENABLED = dbValue == true
+    end
+    addon.CallbackRegistry:Register("SettingChanged.CycleRewardHotkeyEnabled", Settings_CycleRewardHotkeyEnabled);
 
     local function Settings_TTSEnabled(dbValue)
         TTS_ENABLED = dbValue == true

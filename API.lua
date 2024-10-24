@@ -760,7 +760,7 @@ do  -- Quest
     local GetQuestObjectives = C_QuestLog.GetQuestObjectives;
     local GetQuestTimeLeftSeconds = C_TaskQuest and C_TaskQuest.GetQuestTimeLeftSeconds or AlwaysNil;
     local IsQuestFlaggedCompletedOnAccount = C_QuestLog.IsQuestFlaggedCompletedOnAccount or AlwaysFalse;
-    local GetQuestLogQuestText = GetQuestLogQuestText;
+    local GetLogIndexForQuestID = C_QuestLog.GetLogIndexForQuestID or GetQuestLogIndexByID or AlwaysNil;
     local GetNumQuestLeaderBoards = GetNumQuestLeaderBoards;
     local GetQuestLogLeaderBoard = GetQuestLogLeaderBoard;
     local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysFalse;
@@ -830,33 +830,24 @@ do  -- Quest
     API.GetQuestCurrency = GetQuestCurrency;
 
     local function GetQuestLogProgress(questID)
-        local questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID);
+        local questLogIndex = GetLogIndexForQuestID(questID);
         if questLogIndex then
-            --local detailText, objectiveText = GetQuestLogQuestText(questLogIndex);
             local numObjectives = GetNumQuestLeaderBoards(questLogIndex);
             if numObjectives > 0 then
-                local tbl;
+                local str;
                 local text, objectiveType, finished;
                 local n = 0;
                 for i = 1, numObjectives do
                     text, objectiveType, finished = GetQuestLogLeaderBoard(i, questLogIndex);
                     if text then
-                        --[[
-                        if not tbl then
-                            tbl = {};
-                        end
-                        n = n + 1;
-                        tbl[n] = text;
-                        --]]
-                        
-                        if tbl then
-                            tbl = tbl.."\n".."- "..text;
+                        if str then
+                            str = str.."\n".."- "..text;
                         else
-                            tbl = "- "..text;
+                            str = "- "..text;
                         end
                     end
                 end
-                return tbl
+                return str
             end
         end
     end

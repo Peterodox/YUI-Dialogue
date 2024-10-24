@@ -85,9 +85,6 @@
                 </Texture>
             </Layer>
         </Layers>
-        <Scripts>
-            <OnLoad method="OnLoad"/>
-        </Scripts>
     </Frame>
 
     <Frame name="DUIBookFrame" mixin="DUIBookUIMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">

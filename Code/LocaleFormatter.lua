@@ -5,10 +5,13 @@
 local _, addon = ...
 local L = addon.L;
 
-local HOTKEY_PATH = "Interface/AddOns/DialogueUI/Art/Keys/";
-
 local match = string.match;
 local gsub = string.gsub;
+
+local HOTKEY_PATH = "Interface/AddOns/DialogueUI/Art/Keys/";
+local BUTTON_FORMAT = {
+    TAB = "|TInterface/AddOns/DialogueUI/Art/Keys/PC-TAB.png:16:29:0:-4:64:32:0:58:0:32:|t";
+}
 
 local ProcessedString = {
 
@@ -17,7 +20,7 @@ local ProcessedString = {
 local ReplaceStringWithKey;
 do
     local count = 0;    --Limit the number of loops in case of localization error
-
+    
     local function ReplaceStringWithKey_Recursive(text, offsetY)
         count = count + 1;
         if count > 4 then
@@ -33,7 +36,11 @@ do
 
             device = arg1;
             button = arg2;
-            texture = ("|T%s%s-%s.png:%s:%s:0:%s|t"):format(HOTKEY_PATH, device, button, iconSize, iconSize, offsetY);
+
+            texture = BUTTON_FORMAT[button];
+            if not texture then
+                texture = ("|T%s%s-%s.png:%s:%s:0:%s|t"):format(HOTKEY_PATH, device, button, iconSize, iconSize, offsetY);
+            end
 
             text = gsub(text, "%[[%w:]+%]", texture, 1);
             return ReplaceStringWithKey_Recursive(text, offsetY);
@@ -86,6 +93,7 @@ do
         ["TTS Use Hotkey Tooltip Xbox"] = SETTINGS_DESC_SPACING,
         ["TTS Use Hotkey Tooltip PlayStation"] = SETTINGS_DESC_SPACING,
         ["TTS Use Hotkey Tooltip Switch"] = SETTINGS_DESC_SPACING,
+        ["Press Tab To Select Reward Desc"] = SETTINGS_DESC_SPACING,
 
         ["Tutorial Settings Hotkey"] = BANNER_TEXT_SPACING,
         ["Tutorial Settings Hotkey Console"] = BANNER_TEXT_SPACING,

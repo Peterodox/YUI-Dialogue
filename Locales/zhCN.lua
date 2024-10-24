@@ -55,6 +55,7 @@ L["Item Is An Upgrade"] = "这件装备对你有提升";
 L["Identical Stats"] = "这两件装备的属性相同";
 L["Quest Completed On Account"] = "你的战团此前已经完成了这个任务。";
 L["New Quest Available"] = "发现新任务";
+L["Campaign Quest"] =  "战役";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";
@@ -160,6 +161,8 @@ L["Press Button To Scroll Down"] = "按确认键来向下滚屏";
 L["Press Button To Scroll Down Desc"] = "如果当前页面盛不下所有任务文本，按下确认键会向下滚屏而不是接受任务。";
 L["Right Click To Close UI"] = "右键关闭界面";
 L["Right Click To Close UI Desc"] = "在对话界面上按右键即可关闭窗口。";
+L["Press Tab To Select Reward"] = "按Tab键选择任务奖励";
+L["Press Tab To Select Reward Desc"] = "在你交任务时，按[KEY:PC:TAB]在可选奖励之间循环。";
 L["Experimental Features"] = "实验性";
 L["Emulate Swipe"] = "模拟滑动手势";
 L["Emulate Swipe Desc"] = "在对话界面上点击并拖拽来滚动页面。";

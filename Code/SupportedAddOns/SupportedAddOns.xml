@@ -6,5 +6,5 @@
     <Script file="Pawn.lua"/>
     <Script file="InteractiveWormholes.lua"/>
     <Script file="Rematch.lua"/>
-    <!--Script file="BtWQuests.lua"/-->
+    <Script file="BtWQuests.lua"/>
 </Ui>

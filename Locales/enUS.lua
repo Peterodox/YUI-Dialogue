@@ -55,6 +55,7 @@ L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
 L["New Quest Available"] = "New Quest Available";
+L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "Campaign";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -160,6 +161,8 @@ L["Press Button To Scroll Down"] = "Press Button To Scroll Down";
 L["Press Button To Scroll Down Desc"] = "If the content is taller than the viewport, pressing the Confirm Button will scroll the page down instead of accepting quest.";
 L["Right Click To Close UI"] = "Right Click To Close UI";
 L["Right Click To Close UI Desc"] = "Right click on the dialogue UI to close it.";
+L["Press Tab To Select Reward"] = "Press Tab To Select Reward";
+L["Press Tab To Select Reward Desc"] = "Press [KEY:PC:TAB] to cycle through choosable rewards when you turn in the quest.";
 L["Experimental Features"] = "Experimental";
 L["Emulate Swipe"] = "Emulate Swipe Gesture";
 L["Emulate Swipe Desc"] = "Scroll the dialogue UI up/down by clicking and dragging on the window.";

@@ -595,6 +595,7 @@ local Schematic = { --Scheme
                 },
             },
             {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI", requiredParentValue = {InputDevice = 1}},
+            {type = "Checkbox", name = L["Press Tab To Select Reward"], description = L["Press Tab To Select Reward Desc"], dbKey = "CycleRewardHotkeyEnabled", requiredParentValue = {InputDevice = 1}},
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},

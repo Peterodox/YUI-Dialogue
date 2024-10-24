@@ -420,6 +420,7 @@ function PlayerXPDataProvider:OnEnter()
     local percentage = API.GetXPPercentage(currentXP);
     local diff = maxXP - currentXP;
     local xpText = L["Format Player XP"]:format(BreakUpLargeNumbers(currentXP), BreakUpLargeNumbers(maxXP), percentage);
+    TooltipFrame:SetOwner(self, "ANCHOR_RIGHT");
     TooltipFrame:AddLeftLine(L["Format Unit Level"]:format(level), 1, 1, 1);
     TooltipFrame:AddLeftLine(xpText, 1, 1, 1);
     if diff > 0 then

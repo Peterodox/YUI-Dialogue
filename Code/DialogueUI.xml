@@ -4,6 +4,7 @@
     <Script file="ActionButton.lua"/>
     <Script file="RewardTooltipCode.lua"/>
     <Script file="SharedUITemplates.lua"/>
+    <Script file="QuestHeaderWidget.lua"/>
     <Script file="Banner.lua"/>
     <Script file="QuestRewards.lua"/>
     <Script file="AlertFrame.lua"/>     <!--Quest/Criteria Complete-->
@@ -301,6 +302,31 @@
             <OnLeave method="OnLeave"/>
         </Scripts>
     </Frame>
+
+    <Button name="DUIDialogHeaderWidgetTemplate" virtual="true">
+        <Size x="256" y="18"/>
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="Background" setAllPoints="true" hidden="true">
+                    <TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="16" right="16" top="8" bottom="8"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Icon">
+                    <Size x="14" y="14"/>
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="ButtonText" inherits="DUIFont_Item" justifyH="LEFT" justifyV="MIDDLE">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="22" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Button>
 
     <Frame name="DUIQuestFrame" mixin="DUIDialogBaseMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">
         <size x="300" y="400"/>

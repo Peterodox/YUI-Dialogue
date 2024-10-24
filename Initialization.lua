@@ -38,6 +38,7 @@ local DefaultValues = {
     PrimaryControlKey = 1,                      --1: Space  2:Interact Key
     ScrollDownThenAcceptQuest = false,
     RightClickToCloseUI = true,
+    CycleRewardHotkeyEnabled = false,           --Press Tab to cycle through choosable rewards
     EmulateSwipe = true,
     MobileDeviceMode = false,
 

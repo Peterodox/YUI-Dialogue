@@ -2368,6 +2368,7 @@ do
     end
 
     function DUIDialogQuestPortraitMixin:SetPortrait(creatureDisplayID, creatureName)
+        --For some reason OnModelLoaded didn't trigger in CTM
         self:Hide();
         self:Show();
         self.Model:SetDisplayInfo(creatureDisplayID);
