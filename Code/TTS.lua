@@ -1,10 +1,8 @@
 -- Narrator (Use VoiceC for Quest objective, <Enclosed Text>) is contributed by https://github.com/BelegCufea
 
-
-
-
 local _, addon = ...
 local CallbackRegistry = addon.CallbackRegistry;
+local GetDBBool = addon.GetDBBool;
 
 local TTSUtil = CreateFrame("Frame");
 addon.TTSUtil = TTSUtil;
@@ -29,6 +27,7 @@ local UnitSex = UnitSex;
 local C_VoiceChat = C_VoiceChat;
 local C_TTSSettings = C_TTSSettings;
 local StopSpeakingText = C_VoiceChat.StopSpeakingText;
+local After = C_Timer.After;
 local gsub = string.gsub;
 
 local TTSButtons = {};      --DialogueUI, BookUI
@@ -71,6 +70,9 @@ function TTSUtil:ProcessQueue()
         end
         local segment = table.remove(self.queue, 1);
         self:StopThenPlay(segment);
+        if TTS_AUTO_PLAY and GetDBBool("TTSAutoPlayDelay") then
+            self.t = -2;
+        end
     else
         self:Clear();
     end
@@ -134,11 +136,15 @@ function TTSUtil:GetVoiceIDForNPC()
             voiceID = self:GetDefaultVoiceA();
         elseif unitSex == 3 then
             voiceID = self:GetDefaultVoiceB();
-        else
-            voiceID = self:GetDefaultVoiceC();
         end
-    else
-        voiceID = self:GetDefaultVoiceC();
+    end
+
+    if not voiceID then
+        if TTS_USE_NARRATOR then
+            voiceID = self:GetDefaultVoiceC();
+        else
+            voiceID = self:GetDefaultVoiceB();
+        end
     end
     return voiceID or 0
 end
@@ -365,8 +371,8 @@ do  --Book
 
         self.queue = nil;
         self:SetScript("OnUpdate", nil);
-
         self:StopThenPlay(segment)
+        self.t = -0.1;
     end
 
     function TTSUtil:StopReadingBook()
@@ -647,7 +653,7 @@ do  --CallbackRegistry
     local function OnBookCached()
         if TTSUtil.isEnabled then
             if TTS_AUTO_PLAY then
-                C_Timer.After(0.5, function()
+                After(0.5, function()
                     addon.BookUI:SpeakTopContent();
                 end);
             end

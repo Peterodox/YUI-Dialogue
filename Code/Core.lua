@@ -6,6 +6,7 @@ local CancelClosingGossipInteraction = API.CancelClosingGossipInteraction;
 local QuestIsFromAreaTrigger = API.QuestIsFromAreaTrigger;
 local GossipDataProvider = addon.GossipDataProvider;
 local QuestGetAutoAccept = API.QuestGetAutoAccept;
+local ShouldMuteQuestDetail = API.ShouldMuteQuestDetail;
 local CloseQuest = CloseQuest;
 local InCombatLockdown = InCombatLockdown;
 local IsInInstance = IsInInstance;
@@ -46,6 +47,18 @@ if not addon.IsToCVersionEqualOrNewerThan(50000) then
     end
 end
 
+local ShouldMuteQuest;
+if addon.IsToCVersionEqualOrNewerThan(110005) then
+    local GetQuestID = GetQuestID;
+    function ShouldMuteQuest()
+        local questID = GetQuestID();
+        return ShouldMuteQuestDetail(questID)
+    end
+else
+    function ShouldMuteQuest()
+        return false
+    end
+end
 
 function EL:OnManualEvent(event, ...)
     self:SetScript("OnUpdate", nil);
@@ -128,6 +141,14 @@ function EL:OnEvent(event, ...)
         end
 
     elseif event == "QUEST_DETAIL" then
+        if ShouldMuteQuest() then
+            if API.IsQuestAutoAccepted() then
+                API.AcknowledgeAutoAcceptQuest();
+            end
+            CloseQuest();
+            return
+        end
+
         self.lastEvent = event;
 
         local questStartItemID = ...
@@ -383,7 +404,7 @@ do  --Unlisten events from default UI
     end
 
     local function Settings_DisableDUIInInstance(dbValue, userInput)
-        DISABLE_DUI_IN_INSTANCE = dbValue ~= false;
+        DISABLE_DUI_IN_INSTANCE = dbValue == true;
         if DISABLE_DUI_IN_INSTANCE then
             EL:RegisterEvent("PLAYER_ENTERING_WORLD");
             Muter:UpdateForInstance();

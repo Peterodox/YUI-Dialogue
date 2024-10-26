@@ -309,7 +309,7 @@ function DUIDialogBaseMixin:OnLoad()
 
     local headerFrame = self.FrontFrame.Header;
 
-    HeaderWidgetManger:SetParent(headerFrame);
+    HeaderWidgetManger:SetOwner(headerFrame);
     HeaderWidgetManger:SetAnchorTo(headerFrame.Title);
 
     --Warband Completed Alert
@@ -794,8 +794,6 @@ function DUIDialogBaseMixin:UpdateQuestTitle(method)
         end
     else
         local questTagID = API.GetQuestTag(questID);
-        local leftObject;
-
         if questTagID then
             --print("questTagID", questTagID) --debug
             local tagName, tagIcon = API.GetQuestTagNameIcon(questTagID);
@@ -805,11 +803,11 @@ function DUIDialogBaseMixin:UpdateQuestTitle(method)
         end
 
         local isRecurring, seconds = API.GetRecurringQuestTimeLeft(questID);
-        isRecurring = true;
-        seconds = 84000
         if isRecurring and seconds then
             HeaderWidgetManger:AddQuestRemainingTime(seconds);
         end
+
+        HeaderWidgetManger:RequestQuestLineQuest(questID, 0);
     end
 
     local decor = API.GetQuestBackgroundDecor(questID);
@@ -878,6 +876,7 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ScrollFrame:SetUseOverlapBorder(false, false);
     end
 
+    SwipeEmulator:SetOwner(self.ScrollFrame);
     SwipeEmulator:SetScrollable(scrollable, self.ScrollFrame);
 end
 
@@ -1410,6 +1409,7 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
     if API.IsQuestAutoAccepted() or API.IsPlayerOnQuest(self.questID) then
         AcceptButton:SetButtonAlreadyOnQuest();
         ExitButton:SetButtonCloseAutoAcceptQuest();
+        KeyboardControl:SetKeyButton("PRIMARY", ExitButton);
         self.acknowledgeAutoAcceptQuest = true;
     else
         AcceptButton:SetButtonAcceptQuest();
@@ -2115,7 +2115,6 @@ end
 
 function DUIDialogBaseMixin:OnShow()
     KeyboardControl:SetParentFrame(self);
-    SwipeEmulator:SetOwner(self.ScrollFrame);
 
     self:RegisterEvent("GOSSIP_SHOW");
     self:RegisterEvent("GOSSIP_CLOSED");

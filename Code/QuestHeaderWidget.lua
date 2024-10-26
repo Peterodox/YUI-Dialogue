@@ -9,7 +9,7 @@ local CreateFrame = CreateFrame;
 local time = time;
 
 local ButtonMixin = {};
-local HeaderWidgetManger = {};
+local HeaderWidgetManger = CreateFrame("Frame");
 addon.HeaderWidgetManger = HeaderWidgetManger;
 
 local BASE_TEXTURE = "Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestWidgetButton.png";
@@ -21,9 +21,10 @@ local ICON_SIZE = 14;
 local ICON_TEXT_GAP = 2;
 
 do  --HeaderWidgetManger
-    function HeaderWidgetManger:SetParent(parent)
+    function HeaderWidgetManger:SetOwner(parent)
         --DialogueUI Quest Header
         self.parent = parent;
+        self:SetParent(parent);
     end
 
     function HeaderWidgetManger:SetAnchorTo(anchorTo)
@@ -49,9 +50,11 @@ do  --HeaderWidgetManger
         button.onEnterFunc = nil;
         button.onClickFunc = nil;
         button.iconTextGap = nil;
+        button.args = nil;
     end
 
     local function OnAcquireButton(button)
+        button.ButtonText:SetWidth(0);
         table.insert(HeaderWidgetManger.widgets, button);
         API.UpdateTextureSliceScale(button.Background);
     end
@@ -121,9 +124,15 @@ do  --HeaderWidgetManger
         f:SetRemainingTime(seconds);
     end
 
+    function HeaderWidgetManger:AddQuestLineQuest(questLineName, questLineID, questID, uiMapID, achievementID)
+        local f = self.buttonPool:Acquire();
+        f:SetQuestLineQuest(questLineName, questLineID, questID, uiMapID, achievementID);
+    end
+
     function HeaderWidgetManger:AddBtWQuestChain(chainName, onEnterFunc, onClickFunc)
         local f = self.buttonPool:Acquire();
         f:SetBtWQuestChain(chainName, onEnterFunc, onClickFunc);
+        self:RemoveWidgetByType("QuestLine");
     end
 
     function HeaderWidgetManger:OnFontSizeChanged()
@@ -137,6 +146,69 @@ do  --HeaderWidgetManger
             end
         end
     end
+
+    function HeaderWidgetManger:RemoveWidgetByType(widgetType)
+        local i = 1;
+        local widget = self.widgets[i];
+        local anyChange;
+
+        while widget do
+            if widget.type == widgetType then
+                local f = table.remove(self.widgets, i);
+                self.buttonPool.Remove(f);
+                anyChange = true;
+            else
+                i = i + 1;
+            end
+            widget = self.widgets[i];
+        end
+
+        if anyChange then
+            self:LayoutWidgets();
+        end
+    end
+
+    function HeaderWidgetManger:DoesWidgetExist(widgetType)
+        for _, widget in ipairs(self.widgets) do
+            if widget.type == widgetType then
+                return true
+            end
+        end
+    end
+
+    function HeaderWidgetManger:RequestQuestLineQuest(questID, queryTimes)
+        self:OnHide();
+        self.questID = questID;
+        self.queryTimes = queryTimes or 0;
+        local isQuestLineQuest, questLineName, questLineID, uiMapID, achievementID = API.GetQuestLineInfo(questID);
+        if isQuestLineQuest then
+            if questLineName then
+                if not self:DoesWidgetExist("BTW") then
+                    self:AddQuestLineQuest(questLineName, questLineID, questID, uiMapID, achievementID);
+                    self:LayoutWidgets();
+                end
+            elseif queryTimes <= 2 then
+                self.t = 0;
+                self:SetScript("OnUpdate", self.OnUpdate_LoadQuestLine);
+            end
+        end
+    end
+
+    function HeaderWidgetManger:OnUpdate_LoadQuestLine(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.2 then
+            self.queryTimes = self.queryTimes + 1;
+            self:RequestQuestLineQuest(self.questID, self.queryTimes);
+        end
+    end
+
+    function HeaderWidgetManger:OnHide()
+        if self.t then
+            self:SetScript("OnUpdate", nil);
+            self.t = nil;
+        end
+    end
+    HeaderWidgetManger:SetScript("OnHide", HeaderWidgetManger.OnHide);
 end
 
 
@@ -146,6 +218,10 @@ do  --ButtonMixin
         local minButtonWidth = 4 * buttonHeight;
 
         local textWidth = self.ButtonText:GetWrappedWidth();
+        if self.ButtonText:IsTruncated() then
+            textWidth = self.ButtonText:GetWidth();
+        end
+
         local buttonWidth;
         local iconTextGap = self.iconTextGap or ICON_TEXT_GAP;
         self.ButtonText:ClearAllPoints();
@@ -250,6 +326,7 @@ do  --ButtonMixin
     end
 
     function ButtonMixin:SetCampaign(campaignName, campaignID)
+        self.type = "Campaign";
         self.uiOrder = 2;
         self.ButtonText:SetFontObject("DUIFont_Item");
         self:SetIcon(nil);
@@ -277,6 +354,7 @@ do  --ButtonMixin
 
     function ButtonMixin:SetRemainingTime(seconds)
         --QuestRemainingTime
+        self.type = "Time";
         self.uiOrder = 1;
         self.ButtonText:SetFontObject("DUIFont_Item");
         --self:SetIcon(nil);
@@ -293,6 +371,7 @@ do  --ButtonMixin
     end
 
     function ButtonMixin:SetQuestTagNameAndIcon(name, icon)
+        self.type = "Tag";
         self.ButtonText:SetFontObject("DUIFont_Item");
         self.iconTextGap = 2;
         self:SetIcon(icon);
@@ -300,12 +379,71 @@ do  --ButtonMixin
         self:SetClickable(false);
     end
 
+    local function QuestLineQuest_OnEnter(self)
+        if not self.args then return end;
+
+        TooltipFrame:SetOwner(self, "ANCHOR_NONE");
+        TooltipFrame:SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0, 0);
+        TooltipFrame:AddLeftLine(L["Story Progress"], 1, 0.82, 0, true);
+
+        local achievementID = self.args.achievementID;
+        local numCriteria = GetAchievementNumCriteria(achievementID);
+		local numCompleted = 0;
+        local GetAchievementCriteriaInfo = GetAchievementCriteriaInfo;
+        local _, completed;
+
+		for i = 1, numCriteria do
+			_, _, completed = GetAchievementCriteriaInfo(achievementID, i);
+			if completed then
+				numCompleted = numCompleted + 1;
+			end
+		end
+
+        TooltipFrame:AddLeftLine(L["Format Chapter Progress"]:format(numCompleted, numCriteria));
+
+        local quests = C_QuestLine.GetQuestLineQuests(self.args.questLineID);
+        if quests then
+            local IsQuestFlaggedCompleted = C_QuestLog.IsQuestFlaggedCompleted;
+            local numQuests = #quests;
+            numCompleted = 0;
+            for _, questID in ipairs(quests) do
+                if IsQuestFlaggedCompleted(questID) then
+                    numCompleted = numCompleted + 1;
+                end
+            end
+            TooltipFrame:AddLeftLine(L["Format Quest Progress"]:format(numCompleted, numQuests));
+        end
+
+        TooltipFrame:Show();
+    end
+
+    function ButtonMixin:SetQuestLineQuest(questLineName, questLineID, questID, uiMapID, achievementID)
+        self.type = "QuestLine";
+        self.uiOrder = 3;
+        self.args = {
+            questLineID = questLineID,
+            questID = questID,
+            uiMapID = uiMapID,
+            achievementID = achievementID,
+        };
+        self:SetIcon(nil);
+        self.Icon:SetTexture(BASE_TEXTURE);
+        self.Icon:SetTexCoord(132/512, 164/512, 0, 32/512);
+        self.ButtonText:SetWidth(160);
+        self.ButtonText:SetFontObject("DUIFont_ItemSelect");
+        self:SetText(questLineName);
+        self:SetClickable(true);
+        self.onEnterFunc = QuestLineQuest_OnEnter;
+    end
+
     function ButtonMixin:SetBtWQuestChain(chainName, onEnterFunc, onclickFunc)
+        self.type = "BTW";
         self.uiOrder = 0;
         self.useIcon = true;
         self.iconTextGap = 2;
         self.Icon:SetTexture(BASE_TEXTURE);
         self.Icon:SetTexCoord(132/512, 164/512, 0, 32/512);
+        self.ButtonText:SetWidth(160);
         self.ButtonText:SetFontObject("DUIFont_ItemSelect");
         self:SetText(chainName);
         self:SetClickable(true);

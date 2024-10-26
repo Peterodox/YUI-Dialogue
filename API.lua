@@ -763,7 +763,7 @@ do  -- Quest
     local GetLogIndexForQuestID = C_QuestLog.GetLogIndexForQuestID or GetQuestLogIndexByID or AlwaysNil;
     local GetNumQuestLeaderBoards = GetNumQuestLeaderBoards;
     local GetQuestLogLeaderBoard = GetQuestLogLeaderBoard;
-    local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysFalse;
+    local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysNil;
 
     API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
 
@@ -1183,7 +1183,6 @@ do  -- Quest
 
 
     --QuestTag
-    
     local GetQuestTagInfo = C_QuestLog.GetQuestTagInfo or AlwaysFalse;
     local QUEST_TAG_NAME = {
         --Also: Enum.QuestTagType
@@ -1253,6 +1252,16 @@ do  -- Quest
     end
     API.GetRecurringQuestTimeLeft = GetRecurringQuestTimeLeft;
 
+    local function ShouldMuteQuestDetail(questID)
+        --Temp Blizzard bug fix for weekly quest appearing repeatedly issue
+        local class = GetQuestClassification(questID);
+        if (class == 4 or class == 5) and IsOnQuest(questID) then
+            return true
+        else
+            return false
+        end
+    end
+    API.ShouldMuteQuestDetail = ShouldMuteQuestDetail;
 
     do
         --Replace player name with RP name:
@@ -1279,6 +1288,32 @@ do  -- Quest
             TextModifier = modifierFunc or TextModifier_None;
         end
         addon.SetDialogueTextModifier = SetDialogueTextModifier;
+    end
+
+
+    --QuestLine
+    if C_QuestLog.GetZoneStoryInfo and C_QuestLine and C_QuestLine.GetQuestLineInfo then
+        local GetBestMapForUnit = C_Map.GetBestMapForUnit;
+        function API.GetQuestLineInfo(questID)
+            local uiMapID = GetBestMapForUnit("player");
+            local isQuestLineQuest, questLineName, questLineID, achievementID;
+            if uiMapID then
+                achievementID = C_QuestLog.GetZoneStoryInfo(uiMapID);
+                if achievementID then
+                    isQuestLineQuest = true;
+                    local questLineInfo = C_QuestLine.GetQuestLineInfo(questID, uiMapID);
+                    if questLineInfo then
+                        questLineName = questLineInfo.questLineName;
+                        questLineID = questLineInfo.questLineID;
+                    end
+                end
+            end
+            return isQuestLineQuest, questLineName, questLineID, uiMapID, achievementID
+        end
+    else
+        function API.GetQuestLineInfo(questID)
+
+        end
     end
 end
 

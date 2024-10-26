@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.4.7";
-local VERSION_DATE = 1729500000;
+local VERSION_TEXT = "v0.4.8";
+local VERSION_DATE = 1729900000;
 
 
 local addonName, addon = ...
@@ -57,7 +57,8 @@ local DefaultValues = {
     TTSEnabled = false,
         TTSUseHotkey = true,    --Default key R
         TTSAutoPlay = false,
-        TTSSkipRecent = false,  --Skip recently read texts
+            TTSSkipRecent = false,              --Skip recently read texts
+            TTSAutoPlayDelay = false,           --Add a delay before starting auto play in case the NPC is speaking
         TTSAutoStop = true,     --Stop when leaving
         TTSStopOnNew = true,    --Stop when reading new quest
         TTSVoiceMale = 0,       --0: System default

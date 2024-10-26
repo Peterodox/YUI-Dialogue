@@ -319,7 +319,7 @@
                         <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="4" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentKey="ButtonText" inherits="DUIFont_Item" justifyH="LEFT" justifyV="MIDDLE">
+                <FontString parentKey="ButtonText" inherits="DUIFont_Item" justifyH="LEFT" justifyV="MIDDLE" maxLines="1">
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="22" y="0"/>
                     </Anchors>

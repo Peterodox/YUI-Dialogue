@@ -54,12 +54,12 @@ function KeyboardControl:CanSetKey(key)
     return false
 end
 
-function KeyboardControl:SetKeyFunction(key, func)
+function KeyboardControl:SetKeyFunction(key, func, override)
     if not self:CanSetKey(key) then return end;
 
     key = tostring(key);
 
-    if not self.keyActions[key] then
+    if (not self.keyActions[key]) or override then
         self.keyActions[key] = {
             obj = func,
             type = "function",
@@ -68,7 +68,7 @@ function KeyboardControl:SetKeyFunction(key, func)
     end
 end
 
-function KeyboardControl:SetKeyButton(key, buttonToClick)
+function KeyboardControl:SetKeyButton(key, buttonToClick, override)
     if key == "PRIMARY" then
         key = PRIMARY_CONTROL_KEY;
     end
@@ -77,7 +77,7 @@ function KeyboardControl:SetKeyButton(key, buttonToClick)
 
     key = tostring(key)
 
-    if not self.keyActions[key] then
+    if (not self.keyActions[key]) or override then
         self.keyActions[key] = {
             obj = buttonToClick,
             type = "button",
