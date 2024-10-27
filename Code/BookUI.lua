@@ -1889,6 +1889,22 @@ do  --EventListener
             end
         end
     end
+
+    local function EnableBookUI(state)
+        --Used in Core.lua, related settings ("Use WoW's Default UI In Instance")
+        state = state and GetDBBool("BookUIEnabled");
+        if state then
+            if not EL.enabled then
+                EL:EnableModule(true);
+            end
+        else
+            if EL.enabled then
+                EL:EnableModule(false);
+                MainFrame:Hide();
+            end
+        end
+    end
+    addon.EnableBookUI = EnableBookUI;
 end
 
 

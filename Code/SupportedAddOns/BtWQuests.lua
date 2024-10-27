@@ -36,6 +36,49 @@ local Updater = {};
 function Updater:Init()
     self.Init = nil;
     self.f = CreateFrame("Frame");
+
+    --Add quests from other BtW Modules (older expansions)
+    --"You should be fine using AddQuestItemsForChain yourself" -- Breeni
+
+    self.addedChains = {};
+
+    hooksecurefunc(BtWQuestsDatabase, "AddChain", function(database, chainID, item)
+        if chainID and not self.addedChains[chainID] then
+            if database:GetChainByID(chainID) ~= nil then
+                self.addedChains[chainID] = true;
+                local replace = false;
+                database:AddQuestItemsForChain(chainID, replace);
+            end
+        end
+    end);
+
+    if BtWQuests.Constant.Chain then
+        local type = type;
+        local infoType, chainID;
+        local database = BtWQuestsDatabase;
+        local replace = false;
+        for expansionName, expansionInfo in pairs(BtWQuests.Constant.Chain) do
+            if expansionName ~= "TheWarWithin" and type(expansionInfo) == "table" then
+                for name, chainInfo in pairs(expansionInfo) do
+                    infoType = type(chainInfo);
+                    if infoType == "table" then
+                        for k, v in pairs(chainInfo) do
+                            if database:GetChainByID(v) ~= nil then
+                                self.addedChains[v] = true;
+                                database:AddQuestItemsForChain(v, replace);
+                            end
+                        end
+                    elseif infoType == "number" then
+                        chainID = chainInfo;
+                        if database:GetChainByID(chainID) ~= nil then
+                            self.addedChains[chainID] = true;
+                            database:AddQuestItemsForChain(chainID, replace);
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 local function OnUpdate_LoadQuest(self, elapsed)
@@ -172,6 +215,8 @@ do
         "BtWQuestsDatabase.GetQuestItem";
         "BtWQuestsDatabase.GetChainByID",
         "BtWQuestsCharacters.GetPlayer",
+        "BtWQuestsDatabase.AddChain",
+        "BtWQuestsDatabase.AddQuestItemsForChain",
     };
 
     local function OnAddOnLoaded()
