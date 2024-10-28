@@ -33,6 +33,30 @@ end
 
 local Updater = {};
 
+function Updater:ProcessChain(database, chainID)
+    local Chain = database:GetChainByID(chainID);
+    if Chain and Chain:GetName() ~= "Unnamed" then
+        self.addedChains[chainID] = true;
+        database:AddQuestItemsForChain(chainID, false); --arg2 replace
+        if Chain.items then
+            for _, v in ipairs(Chain.items) do
+                if v.type == "chain" and v.embed and v.id then
+                    self.addedChains[v.id] = true;
+                    local embedChain = database:GetChainByID(v.id);
+                    if embedChain and embedChain.items then
+                        for _, q in ipairs(embedChain.items) do
+                            if q.type == "quest" and q.id ~= nil then
+                                self.questXChain[q.id] = chainID;
+                                self.questXEmbedChain[q.id] = v.id;
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 function Updater:Init()
     self.Init = nil;
     self.f = CreateFrame("Frame");
@@ -41,14 +65,12 @@ function Updater:Init()
     --"You should be fine using AddQuestItemsForChain yourself" -- Breeni
 
     self.addedChains = {};
+    self.questXChain = {};
+    self.questXEmbedChain = {};
 
     hooksecurefunc(BtWQuestsDatabase, "AddChain", function(database, chainID, item)
         if chainID and not self.addedChains[chainID] then
-            if database:GetChainByID(chainID) ~= nil then
-                self.addedChains[chainID] = true;
-                local replace = false;
-                database:AddQuestItemsForChain(chainID, replace);
-            end
+            self:ProcessChain(database, chainID);
         end
     end);
 
@@ -56,24 +78,17 @@ function Updater:Init()
         local type = type;
         local infoType, chainID;
         local database = BtWQuestsDatabase;
-        local replace = false;
         for expansionName, expansionInfo in pairs(BtWQuests.Constant.Chain) do
             if expansionName ~= "TheWarWithin" and type(expansionInfo) == "table" then
                 for name, chainInfo in pairs(expansionInfo) do
                     infoType = type(chainInfo);
                     if infoType == "table" then
-                        for k, v in pairs(chainInfo) do
-                            if database:GetChainByID(v) ~= nil then
-                                self.addedChains[v] = true;
-                                database:AddQuestItemsForChain(v, replace);
-                            end
+                        for k, chainID in pairs(chainInfo) do
+                            self:ProcessChain(database, chainID);
                         end
                     elseif infoType == "number" then
                         chainID = chainInfo;
-                        if database:GetChainByID(chainID) ~= nil then
-                            self.addedChains[chainID] = true;
-                            database:AddQuestItemsForChain(chainID, replace);
-                        end
+                        self:ProcessChain(database, chainID);
                     end
                 end
             end
@@ -101,11 +116,21 @@ function Updater:LoadQuest()
     self.isLoading = nil;
     local questID = self.questID;
     local chainID, link;
+    local isEmbed, embedChainID;
+
     if questID then
+        chainID = self.questXChain[questID];
+        if chainID ~= nil then
+            isEmbed = true;
+        end
         local Quest = BtWQuestsDatabase:GetQuestItem(questID, BtWQuestsCharacters:GetPlayer());
         if Quest then
             if Quest.item and type(Quest.item) == "table" and Quest.item.type == "chain" then
-                chainID = Quest.item.id;
+                if isEmbed then
+                    embedChainID = Quest.item.id;
+                else
+                    chainID = Quest.item.id;
+                end
             end
             link = Quest.GetLink and Quest:GetLink();
         end
@@ -114,10 +139,21 @@ function Updater:LoadQuest()
     if chainID then
         local Chain = BtWQuestsDatabase:GetChainByID(chainID);
         if Chain then
+            if not link then
+                link = Chain:GetLink();
+            end
             local chainName = Chain:GetName();
             local onEnterFunc, onClickFunc;
+            if not link then
+                print("NO LINK")
+            end
             if link then
+                local embedChainID = self.questXEmbedChain[questID];
                 function onEnterFunc(self)
+                    if isEmbed then
+                        Chain = BtWQuestsDatabase:GetChainByID(embedChainID);
+                    end
+
                     local character = BtWQuestsCharacters:GetPlayer();
                     local item, text;
                     local totalQuest = 0;
@@ -130,6 +166,7 @@ function Updater:LoadQuest()
                     if hideSpoilers then
                         local IsQuestFlaggedCompleted = C_QuestLog.IsQuestFlaggedCompleted;
                         local numCompleted = 0;
+                        local n = 0;
                         for i = 1, numItems do
                             item = Chain:GetItem(i, character);
                             if item and item:GetType() == "quest" then
@@ -143,7 +180,7 @@ function Updater:LoadQuest()
                         TooltipFrame:AddLeftLine(L["Format Your Progress"]:format(numCompleted, n), 1, 0.82, 0, true);
                     else
                         local maxVisible = 10;
-                        local fromIndex;
+                        local fromIndex = 1;
                         local numEntries = 0;
 
                         for i = 1, numItems do

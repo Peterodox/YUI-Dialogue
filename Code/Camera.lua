@@ -18,9 +18,11 @@ local FOCUS_SHOULDER_OFFSET_DEFAULT = 1.5;
 local FOCUS_SHOULDER_OFFSET = FOCUS_SHOULDER_OFFSET_DEFAULT;
 local MOUNTED_CAMERA_ENABLED = true;
 local MOUNTED_CAMERA_MULTIPLIER = 4.8;  --1.85 (Netherwing)     1.25(Renewed Proto)   (update 5.725)
+local HIDE_SPARKLES = false;
 ------------------
 local PAN_MULTIPLIER = 1.0;
 local PLAYER_IS_SHAPESHIFTER = false;
+local NO_CHANGE_FLAG = 255;
 
 local DeltaLerp = API.DeltaLerp;
 local Esaing_OutSine = addon.EasingFunctions.outSine;
@@ -82,7 +84,7 @@ local function BackupAndSetCVar(cvar, value)
     if CVar_Backup[cvar] == nil then
         CVar_Backup[cvar] = GetCVar(cvar);
     end
-    if value ~= nil then
+    if (value ~= nil) and (value ~= NO_CHANGE_FLAG) then
         SetCVar(cvar, value);
     end
 end
@@ -122,6 +124,10 @@ function CameraUtil:ChangeCVars()
         FOV_DEFAULT = GetCVar("cameraFov") or 90;
         BackupAndSetCVar("cameraFov", nil);
     end
+
+    local outline = (HIDE_UI and HIDE_SPARKLES and 0) or nil;
+    BackupAndSetCVar("graphicsOutlineMode", outline);   --This hides the outline immediately. But the sparkle effects when UI is hidden is controlled by "Outline"
+    BackupAndSetCVar("Outline", outline);           --This fails to hide the outline when the UI is fading
 
     self:ListenEvent(true);
 end
@@ -167,6 +173,25 @@ function CameraUtil:SetHideUnitNames(state)
         end
     else
         self:RestoreCombatCVar();
+    end
+end
+
+function CameraUtil:SetHideOutlineSparkles(state)
+    local cvars = {
+        "graphicsOutlineMode",
+        "Outline",
+    };
+
+    if state then
+        for _, cvar in pairs(cvars) do
+            BackupAndSetCVar(cvar, 0);
+        end
+    else
+        for _, cvar in pairs(cvars) do
+            if CVar_Backup[cvar] ~= nil then
+                SetCVar(cvar, CVar_Backup[cvar]);
+            end
+        end
     end
 end
 
@@ -477,9 +502,6 @@ function CameraUtil:InitiateInteraction()
         self:UpdateShapeshiftForm();
     end
 
-    local caller = addon.DialogueUI;
-    FadeHelper:FadeOutUI(caller);
-
     if self.defaultCameraMode == 0 or (DISABLE_IN_INSTANCE and IsInInstance()) then
         self:Intro_None();
     else
@@ -495,6 +517,9 @@ function CameraUtil:InitiateInteraction()
 
     self:OnInteractionStart();
     self:ChangeCVars();
+
+    local caller = addon.DialogueUI;
+    FadeHelper:FadeOutUI(caller);
 
     if self.cameraMode == 1 then
         local offset = self.offsetMultiplier * FOCUS_SHOULDER_OFFSET;
@@ -580,7 +605,7 @@ local function ShowUIParent(state)
             MovieFrame.uiParentShown = true;
         end
     else
-        SetUIVisibility(false);
+        FadeHelper:HideUIParentInstantly();
     end
 end
 
@@ -588,6 +613,7 @@ function FadeHelper:ShowUIParentInstantly()
     self:SnapToFadeResult();
     ShowUIParent(true);
 end
+addon.CallbackRegistry:Register("PlayerInteraction.ShowUI", "ShowUIParentInstantly", FadeHelper);  --For Classic
 
 function FadeHelper:HideUIParentInstantly()
     self:SetScript("OnUpdate", nil);
@@ -598,10 +624,23 @@ function FadeHelper:HideUIParentInstantly()
         self.fadeDelta = -1;
         UIParent:SetAlpha(1);
         SetUIVisibility(false);
+        if HIDE_UI and HIDE_SPARKLES then
+            self.t = 2;
+            self:SetScript("OnUpdate", self.HideSparkles_OnUpdate);
+        end
     end
 end
 
-addon.CallbackRegistry:Register("PlayerInteraction.ShowUI", "ShowUIParentInstantly", FadeHelper);  --For Classic
+function FadeHelper:HideSparkles_OnUpdate(elapsed)
+    --The game turns unit outline into sparkles when Alt+Z
+    --We have to /console Outline 0 constantly to remove this effect
+    self.t = self.t + elapsed;
+    if self.t >= 1 then
+        self.t = 0;
+        SetCVar("Outline", 0);
+    end
+end
+
 
 
 local ALPHA_UPDATE_INTERVAL = 1/30;
@@ -778,6 +817,19 @@ do
         CameraUtil:OnUIOrientationChanged();
     end
     CallbackRegistry:Register("SettingChanged.FrameOrientation", Settings_FrameOrientation);
+
+    local function Settings_HideOutlineSparkles(dbValue, userInput)
+        HIDE_SPARKLES = (dbValue == true) and addon.IsToCVersionEqualOrNewerThan(110000);
+        if userInput and CameraUtil.isActive then
+            Settings_HideUI(HIDE_UI, userInput);
+            if HIDE_UI then
+                if not HIDE_SPARKLES then
+                    CameraUtil:SetHideOutlineSparkles(HIDE_SPARKLES);
+                end
+            end
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.HideOutlineSparkles", Settings_HideOutlineSparkles);
 end
 
 

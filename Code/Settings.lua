@@ -496,6 +496,10 @@ local function OptionHasNoEffectDueToMobile()
     end
 end
 
+local function OutlineSparklesSupported_Validation()
+    return addon.IsToCVersionEqualOrNewerThan(110000)
+end
+
 local Schematic = { --Scheme
     {
         tabName = L["UI"],  --Cate1
@@ -529,6 +533,7 @@ local Schematic = { --Scheme
                 },
             },
             {type = "Checkbox", name = L["Hide UI"], description = L["Hide UI Desc"], dbKey = "HideUI"},
+            {type = "Checkbox", name = L["Hide Sparkles"], description = L["Hide Sparkles Desc"], preview = "HideOutlineSparkles.jpg", ratio = 2, dbKey = "HideOutlineSparkles", requiredParentValue = {HideUI = true}, validationFunc = OutlineSparklesSupported_Validation},
             {type = "Checkbox", name = L["Hide Unit Names"], description = L["Hide Unit Names Desc"], dbKey = "HideUnitNames", requiredParentValue = {HideUI = true}},
             {type = "Checkbox", name = L["Show Copy Text Button"], description = L["Show Copy Text Button Desc"], preview = "CopyTextButton", ratio = 1, dbKey = "ShowCopyTextButton"},
             {type = "Checkbox", name = L["Show NPC Name On Page"], description = L["Show NPC Name On Page Desc"], dbKey = "ShowNPCNameOnPage"},
@@ -656,6 +661,10 @@ local Schematic = { --Scheme
             },
             {type = "ArrowOption", name = L["TTS Volume"], dbKey = "TTSVolume", description = L["TTS Volume Desc"], requireSameParentValue = true,
                 choices = {
+                    {dbValue = 1, valueText = "10%"},
+                    {dbValue = 2, valueText = "20%"},
+                    {dbValue = 3, valueText = "30%"},
+                    {dbValue = 4, valueText = "40%"},
                     {dbValue = 5, valueText = "50%"},
                     {dbValue = 6, valueText = "60%"},
                     {dbValue = 7, valueText = "70%"},

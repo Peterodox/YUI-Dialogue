@@ -714,8 +714,8 @@ do  --CallbackRegistry
 
     local function Settings_TTSVolume(dbValue, userInput)
         local volume = dbValue and tonumber(dbValue) or 10;
-        if volume < 5 then
-            volume = 5;
+        if volume < 1 then
+            volume = 1;
         elseif volume > 10 then
             volume = 10;
         end
