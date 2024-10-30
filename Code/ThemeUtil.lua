@@ -153,6 +153,14 @@ function ThemeUtil:GetItemSelectColor()
     end
 end
 
+function ThemeUtil:GetMenuButtonColor()
+    if self:IsDarkMode() then
+        return unpack(COLORS.DarkModeGrey90)
+    else
+        return unpack(COLORS.DarkBrown)
+    end
+end
+
 function ThemeUtil:AdjustTextColor(text)
     return AdjustTextColor(text);
 end

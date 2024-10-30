@@ -5,9 +5,12 @@
 
 local _, addon = ...
 local API = addon.API;
+local L = addon.L;
 local GetDBValue = addon.GetDBValue;
 local FontUtil = {};
 addon.FontUtil = FontUtil;
+
+FontUtil.TestFont = UIParent:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
 
 
 local AUTO_SCALING_MIN_HEIGHT = 9;
@@ -63,6 +66,8 @@ local FONT_OBJECT_HEIGHT = {
     DUIFont_MenuButton_Highlight = HEIGHT_1,
 
     DUIFont_AlertHeader = {8, 9, 10, 12, 12},
+
+    DUIFont_Book_10 = {10, 10, 10, 10, 12},
 };
 
 FONT_OBJECT_HEIGHT.DUIFont_Book_H1 = FONT_OBJECT_HEIGHT.DUIFont_Quest_Title_18;
@@ -116,8 +121,10 @@ function FontUtil:GetDefaultFont()
 end
 
 function FontUtil:GetUserFont()
-    if true then
+    if GetDBValue("FontText") == "default" then
         return self:GetDefaultFont();
+    else
+        return self:GetFontFromDB();
     end
 end
 
@@ -132,6 +139,61 @@ function FontUtil:GetInstalledFont()
         return fontData
     end
 end
+
+function FontUtil:GetFontFromDB(dbValue)
+    local font = dbValue or GetDBValue("FontText") or "default";
+    local fontFile, fontName;
+    local exist = false;
+
+    if font == "default" then
+        fontFile = self:GetDefaultFont();
+        fontName = L["Default Font"];
+        exist = true;
+    elseif font == "system" then
+        fontFile = GameFontNormal:GetFont();
+        fontName = L["System Font"];
+        exist = true;
+    else
+        local fontList = self:GetInstalledFont();
+        if fontList then
+            for _, data in ipairs(fontList) do
+                if data[2] == font then
+                    fontFile = font;
+                    fontName = data[1];
+                    exist = true;
+                    break
+                end
+            end
+        end
+        fontFile = fontFile or self:GetDefaultFont();
+        fontName = fontName or L["Default Font"];
+    end
+
+    return fontFile, fontName, exist
+end
+
+function FontUtil:SetCustomFont(dbValue)
+    --font = DBValue "FontText"
+    local fontFile = self:GetFontFromDB(dbValue);
+    self:SetFontByFile(fontFile);
+end
+
+function FontUtil:GetFontNameByFile(fontFile)
+    fontFile = fontFile or "default";
+    local fontName;
+
+    if fontFile == "default" then
+        fontName = L["Default Font"];
+    elseif fontFile == "system" then
+        fontName = L["System Font"];
+    else
+        local fontList = FontUtil:GetInstalledFont();
+        fontName = (self.fontToName and self.fontToName[fontFile]) or L["Default Font"];
+    end
+
+    return fontName
+end
+
 
 do  --Auto Downsize Font To Fit Into Region (Derivative of AutoScalingFontStringMixin, Blizzard_SharedXML/SecureUtil)
     local Round = API.Round;
@@ -246,6 +308,11 @@ do
     end
 
     function FontUtil:SetFontByFile(textFontFile)
+        local success = self.TestFont:SetFont(textFontFile, 12, "");
+        if not success then
+            return
+        end
+
         local k = FONT_DATA_ID;
         local _G = _G;
 
@@ -262,7 +329,17 @@ do
             _G[fontName]:SetFont(fontFile, v[k], flags);
         end
 
+        if GetDBValue("FontText") == "default" then
+            _G.DUIFont_Book_Title:SetFont("Interface/AddOns/DialogueUI/Fonts/TrajanPro3SemiBold.ttf", 18, "");
+        else
+            _G.DUIFont_Book_Title:SetFont(textFontFile, 18, "");
+        end
+
         addon.CallbackRegistry:Trigger("FontSizeChanged", DEFAULT_FONT_SIZE, FONT_SIZE_ID);
+    end
+
+    function FontUtil:GetDefaultFontSize()
+        return DEFAULT_FONT_SIZE
     end
 end
 
@@ -282,15 +359,23 @@ do
         end
     end
     addon.CallbackRegistry:Register("SettingChanged.MobileDeviceMode", Settings_MobileDeviceMode);
+
+
+    local function Settings_FontText(dbValue, userInput)
+        if userInput then
+            FontUtil:SetCustomFont(dbValue);
+        end
+    end
+    addon.CallbackRegistry:Register("SettingChanged.FontText", Settings_FontText);
 end
 
 
 do  --Check LibSharedMedia
 
-    local DropDownMenu;
-
     local function CheckLib()
         local libName = "LibSharedMedia-3.0";
+        C_AddOns.LoadAddOn(libName);
+
         local silent = true;
         local lib = LibStub and LibStub.GetLibrary and LibStub:GetLibrary(libName, silent);
 
@@ -299,27 +384,28 @@ do  --Check LibSharedMedia
                 local data = lib:HashTable("font");
                 local list = lib:List("font");
 
-                local fontData = {};
+                local fontList = {};
                 local n = 0;
+                local file;
+
+                FontUtil.fontToName = {};
 
                 for _, fontName in ipairs(list) do
                     if data[fontName] then
                         n = n + 1;
-                        fontData[n] = {fontName, data[fontName]};
+                        file = data[fontName];
+                        fontList[n] = {fontName, file};
+                        FontUtil.fontToName[file] = fontName;
                     end
                 end
 
-                return fontData
-            end
-
-            local fontList = FontUtil:GetInstalledFont();
-            if fontList and #fontList > 1 then
-                DropDownMenu = addon.GetDropDownMenu();
-                DropDownMenu:SetContent(fontList)
+                return fontList
             end
         else
 
         end
+
+        FontUtil:SetCustomFont();
     end
-    --addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckLib);
+    addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckLib);
 end

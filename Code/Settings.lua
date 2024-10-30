@@ -1,6 +1,7 @@
 local _, addon = ...
 local L = addon.L;
 local API = addon.API;
+local SettingsDefinitions = addon.SettingsDefinitions;
 local Clamp = API.Clamp;
 local ThemeUtil = addon.ThemeUtil;
 local TTSUtil = addon.TTSUtil;
@@ -217,6 +218,10 @@ function DUIDialogSettingsMixin:LoadTheme()
         button.isSelected = true;
         button:SetSelected(isSelected);
     end
+
+    if self:IsShown() and self.tabID then
+        self:UpdateCurrentTab();
+    end
 end
 
 function DUIDialogSettingsMixin:UpdatePixel(scale)
@@ -343,14 +348,17 @@ local function ValueTextFormatter_PrimaryControlKey(arrowOptionButton, dbValue)
     end
 
     local fontString = arrowOptionButton.ValueText;
+    local hotkeyWidth = f:GetWidth();
     f:SetKey(key or "ERROR");
     fontString:SetText(keyDesc);
 
-    local widgetWidth = f:GetWidth() + HOTKEYFRAME_VALUETEXT_GAP;
+    local widgetWidth = hotkeyWidth + HOTKEYFRAME_VALUETEXT_GAP;
     fontString:ClearAllPoints();
     fontString:SetPoint("TOP", arrowOptionButton, "TOP", widgetWidth*0.5, ARROWOPTION_VALUETEXT_OFFSET_Y);
     f:ClearAllPoints();
-    f:SetPoint("RIGHT", fontString, "LEFT", -HOTKEYFRAME_VALUETEXT_GAP, 0);
+
+    local textWidth = fontString:GetWrappedWidth();
+    f:SetPoint("RIGHT", fontString, "CENTER", -0.5*textWidth -HOTKEYFRAME_VALUETEXT_GAP, 0);
 end
 
 local function PrimaryControlKey_Interact_Tooltip()
@@ -526,6 +534,7 @@ local Schematic = { --Scheme
                     {dbValue = 3, valueText = "16"},
                 },
             },
+            SettingsDefinitions.FontOptionData,     --type = "DropdownButton", dbValue = "Font"
             {type = "ArrowOption", name = L["Frame Orientation"], description = L["Frame Orientation Desc"], dbKey = "FrameOrientation",
                 choices = {
                     {dbValue = 1, valueText = L["Orientation Left"]},
@@ -645,10 +654,10 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["TTS Auto Play Delay"], description = L["TTS Auto Play Delay Desc"], dbKey = "TTSAutoPlayDelay", branchLevel = 2, requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Auto Stop"], description = L["TTS Auto Stop Desc"], dbKey = "TTSAutoStop", requiredParentValue = {TTSEnabled = true}},
             {type = "Checkbox", name = L["TTS Stop On New"], description = L["TTS Stop On New Desc"], dbKey = "TTSStopOnNew", requireSameParentValue = true},
-            {type = "DropdownButton", name = L["TTS Voice Male"], description = L["TTS Voice Male Desc"], tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceMale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, requireSameParentValue = true},
-            {type = "DropdownButton", name = L["TTS Voice Female"], description = L["TTS Voice Female Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceFemale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, requireSameParentValue = true},
+            {type = "DropdownButton", name = L["TTS Voice Male"], description = L["TTS Voice Male Desc"], tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceMale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, requireSameParentValue = true},
+            {type = "DropdownButton", name = L["TTS Voice Female"], description = L["TTS Voice Female Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceFemale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Use Narrator"], description = L["TTS Use Narrator Desc"], dbKey = "TTSUseNarrator", requiredParentValue = {TTSEnabled = true}},
-            {type = "DropdownButton", name = L["TTS Voice Narrator"], description = L["TTS Voice Narrator Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceNarrator", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, branchLevel = 2, requiredParentValue = {TTSEnabled = true, TTSUseNarrator = true}},
+            {type = "DropdownButton", name = L["TTS Voice Narrator"], description = L["TTS Voice Narrator Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceNarrator", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, branchLevel = 2, requiredParentValue = {TTSEnabled = true, TTSUseNarrator = true}},
             {type = "ArrowOption", name = L["TTS Rate"], dbKey = "TTSRate", description = L["TTS Rate Desc"], requiredParentValue = {TTSEnabled = true},
                 choices = {
                     {dbValue = 1, valueText = "1"},
@@ -679,7 +688,7 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["TTS Content Objective"], dbKey = "TTSContentObjective", branchLevel = 2, requireSameParentValue = true},
 
             {type = "Subheader", name = L["Readable Objects"], requiredParentValue = {TTSEnabled = true, BookUIEnabled = true}},
-            {type = "DropdownButton", name = L["BookUI TTS Voice"], description = L["BookUI TTS Voice Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="BookTTSVoice", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, branchLevel = 2, requireSameParentValue = true},
+            {type = "DropdownButton", name = L["BookUI TTS Voice"], description = L["BookUI TTS Voice Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="BookTTSVoice", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, branchLevel = 2, requireSameParentValue = true},
             {type = "Checkbox", name = L["BookUI TTS Click To Read"], description = L["BookUI TTS Click To Read Desc"], dbKey = "BookTTSClickToRead", branchLevel = 2, requireSameParentValue = true},
         },
     },
@@ -1185,6 +1194,7 @@ function DUIDialogSettingsMixin:UpdateOptionButtonByDBKey(dbKey)
     local optionButton = self:GetOptionButtonByDBKey(dbKey);
     if optionButton and optionButton:IsVisible() and optionButton.optionData and optionButton.widget then
         optionButton.widget:SetData(optionButton.optionData);
+        optionButton:OnEnter();
     end
 end
 
@@ -1493,7 +1503,7 @@ do  --ArrowOption
 
     function DUIDialogSettingsArrowOptionMixin:SetValueTextByID(id)
         if self.valueTextFormatter then
-            self.valueTextFormatter(self, self.choices[id].dbValue);
+            self.valueTextFormatter(self, self.choices[id].dbValue, INPUT_DEVICE_GAME_PAD);
         else
             local valueText = self.choices[id].valueText;
             self.ValueText:SetText(valueText);
@@ -1774,7 +1784,7 @@ do  --DropdownButton
             local menu = addon.GetDropdownMenu(self);
             menu:SetOwner(self, MainFrame);
             menu:Show();
-            menu:SetMenuData(TTSVoice_BuildMenuData(self, self.dbKey));
+            menu:SetMenuData(self.menuDataBuilder(self, self.dbKey));
         end
     end
 
@@ -1802,7 +1812,7 @@ do  --DropdownButton
 
     function DUIDialogSettingsDropdownButtonMixin:SetValueTextByID(id)
         if self.valueTextFormatter then
-            self.valueTextFormatter(self, self.choices[id].dbValue);
+            self.valueTextFormatter(self, self.choices[id].dbValue, INPUT_DEVICE_GAME_PAD);
         else
             self.ValueText:SetText(id);
         end
@@ -1844,6 +1854,7 @@ do  --DropdownButton
     function DUIDialogSettingsDropdownButtonMixin:SetData(optionData)
         self.dbKey = optionData.dbKey;
         self.valueTextFormatter = optionData.valueTextFormatter;
+        self.menuDataBuilder = optionData.menuDataBuilder;
 
         local choices = optionData.choices;
 

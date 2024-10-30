@@ -1,5 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
-    <Script file="Settings_DropDown.lua"/>
+    <Script file="Settings_Definitions.lua"/>
+    <Script file="Settings_Font.lua"/>
+
     <Script file="Settings_DropdownMenu.lua"/>
     <Script file="Settings.lua"/>
 
@@ -63,7 +65,8 @@
         <Size x="168" y="24"/>
         <Layers>
             <Layer level="OVERLAY">
-                <FontString parentKey="ValueText" inherits="DUIFont_Quest_SubHeader" justifyH="CENTER" justifyV="MIDDLE" text="Value">
+                <FontString parentKey="ValueText" inherits="DUIFont_Quest_SubHeader" justifyH="CENTER" justifyV="MIDDLE" text="Value" maxLines="1">
+                    <Size x="120"/>
                     <Anchors>
                         <Anchor point="TOP" relativeKey="$parent" relativePoint="TOP" x="0" y="0"/>
                     </Anchors>

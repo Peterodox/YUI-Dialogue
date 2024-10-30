@@ -634,10 +634,14 @@ end
 function FadeHelper:HideSparkles_OnUpdate(elapsed)
     --The game turns unit outline into sparkles when Alt+Z
     --We have to /console Outline 0 constantly to remove this effect
+    --Frequency is affected by FPS
+
     self.t = self.t + elapsed;
-    if self.t >= 1 then
+    if self.t >= 1.0 then
         self.t = 0;
-        SetCVar("Outline", 0);
+        if CameraUtil.cvarStored then   --Avoid changing this CVar during AKF Logout
+            SetCVar("Outline", 0);
+        end
     end
 end
 

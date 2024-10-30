@@ -1,4 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Font name="DUIFont_Test" inherits="GameFontNormal" virtual="true" justifyV="MIDDLE" justifyH="CENTER">
+    </Font>
+
     <FontFamily name="DUIFontFamily_Serif_18" virtual="true"> <!--Quest Title Header-->
         <Member alphabet="roman">
             <Font font="Interface\AddOns\DialogueUI\Fonts\frizqt__.ttf" height="18">

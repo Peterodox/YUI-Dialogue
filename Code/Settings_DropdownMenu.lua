@@ -58,7 +58,7 @@ function MenuButtonMixin:SetButtonText(text, autoScaling, getTextWidth)
     end
 
     if getTextWidth then
-        return (self.ButtonText:GetUnboundedStringWidth()) + 0.25;
+        return self.ButtonText:GetUnboundedStringWidth()
     end
 end
 
@@ -248,6 +248,7 @@ function DropdownMenuMixin:OnHide()
     self:ClearAllPoints();
     self:SetParent(nil);
     self:UnregisterEvent("GLOBAL_MOUSE_DOWN");
+    self:SetScript("OnUpdate", nil);
 
     self.OwnerScrollArea:Hide();
     self.OwnerScrollArea:ClearAllPoints();
@@ -293,6 +294,7 @@ function DropdownMenuMixin:SetMenuData(menuData)
     self.buttonWidth = buttonWidth;
     self.buttonHeight = buttonHeight;
     self.menuWidth = menuWidth;
+    self.reloadPage = menuData.reloadPage or false;
 
     local selectedID = self:UpdateSelectedID();
     local bestPage = 1;
@@ -315,6 +317,21 @@ function DropdownMenuMixin:SetMenuData(menuData)
     self.totalButtons = total;
     self:SetMaxPage(maxPage);
     self:SetPage(bestPage);
+end
+
+function DropdownMenuMixin:OnUpdate(elapsed)
+    self.viewTime = self.viewTime + elapsed;
+    if self.viewTime > 0.2 then
+        self.viewTime = 0;
+        if self.pageReloaded and false then
+            self:SetScript("OnUpdate", nil);
+        else
+            self.pageReloaded = true;
+            if self:IsShown() then
+                self:SetPage(self.page, true);
+            end
+        end
+    end
 end
 
 function DropdownMenuMixin:SetMaxPage(maxPage)
@@ -350,7 +367,7 @@ local function EnableArrowButton(arrowButton, enable)
     end
 end
 
-function DropdownMenuMixin:SetPage(page)
+function DropdownMenuMixin:SetPage(page, fromReload)
     if page < 0 or page > self.maxPage then
         page = 1;
     end
@@ -387,11 +404,16 @@ function DropdownMenuMixin:SetPage(page)
             button:SetParent(self);
             button:SetPoint("TOP", self, "TOP", 0, -MENU_BUTTON_PADDING + (1- i) * buttonHeight);
             button:SetSize(buttonWidth, buttonHeight);
-            textWidth = button:SetButtonText(data.name, autoScaling, fitWidth);
             button.id = data.id;
             button.data = data;
             button.onClickFunc = data.onClickFunc;
             button.keptOpen = data.keptOpen;
+
+            if data.setupFunc then
+                textWidth = data.setupFunc(button, data.name);
+            else
+                textWidth = button:SetButtonText(data.name, autoScaling, fitWidth);
+            end
 
             if (not matchFound) and (selectedID == data.id) then
                 matchFound = true;
@@ -407,7 +429,7 @@ function DropdownMenuMixin:SetPage(page)
     end
 
     if fitWidth then
-        menuWidth = math.max(menuWidth, maxTextWidth + 2*BUTTON_TEXT_OFFSET_X);
+        menuWidth = math.max(menuWidth, maxTextWidth + 0.25 + 2*BUTTON_TEXT_OFFSET_X);
         self.buttonPool:ProcessActiveObjects(
             function(menuButton)
                 menuButton:SetWidth(menuWidth);
@@ -425,6 +447,16 @@ function DropdownMenuMixin:SetPage(page)
     end
 
     self:SetSize(menuWidth, numButtons * buttonHeight + footerHeight + MENU_BUTTON_PADDING);
+
+
+    self.viewTime = 0;
+    self.pageReloaded = fromReload or false;
+    if self.reloadPage and not self.pageReloaded then
+        --For Settings_Font. Some font needs to be loaded twice
+        self:SetScript("OnUpdate", self.OnUpdate);
+    else
+        self:SetScript("OnUpdate", nil);
+    end
 end
 
 function DropdownMenuMixin:OnMouseWheel(delta)
