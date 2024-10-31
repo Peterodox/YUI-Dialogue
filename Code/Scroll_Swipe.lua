@@ -247,9 +247,9 @@ do
         self:SetOwnerOffset(newOffset);
     end
 
-    function SwipeEmulator:OnEvent(event, ...)
+    function SwipeEmulator:OnEvent(event, button)
         if event == "GLOBAL_MOUSE_DOWN" then
-            if self.owner:IsMouseOver() then
+            if button == "LeftButton" and self.owner:IsMouseOver() then
                 self:StartWatching();
             end
         elseif event == "GLOBAL_MOUSE_UP" then

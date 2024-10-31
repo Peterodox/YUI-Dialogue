@@ -6,21 +6,26 @@ do
     local ADDON_NAME = "Pawn";
 
     local requiredMethods = {
-        "PawnShouldItemLinkHaveUpgradeArrow";
+        "PawnIsItemAnUpgrade";
+        "PawnAddValuesToTooltip",
     };
 
     local function OnAddOnLoaded()
-        local shouldShowUpgrade = PawnShouldItemLinkHaveUpgradeArrow;
-
+        local ShouldShowUpgrade = PawnShouldItemLinkHaveUpgradeArrow;
+        local AddValuesToTooltip = PawnAddValuesToTooltip;
         local tooltip = addon.SharedTooltip;
-        local ICON = "Interface/AddOns/DialogueUI/Art/Icons/UpgradeArrow.png";
-        local TEXT = addon.L["Item Is An Upgrade"];
+        local TooltipCapture = addon.TooltipCapture;
 
-        function tooltip:ProcessItemExternal(item)
-            if shouldShowUpgrade(item, true) then
-                self:AddBlankLine();
-                local size = nil;   --follow font size
-                self:AddSimpleIconText(ICON, size, TEXT, 0, 1, 0, true);
+        function tooltip:ProcessItemExternal(itemLink)
+            TooltipCapture:ClearLines();
+            if ShouldShowUpgrade(itemLink, true) then
+                local Item = PawnGetItemData(itemLink)
+                if Item then
+                    self:AddBlankLine();
+                    local UpgradeInfo, ItemLevelIncrease, BestItemFor, SecondBestItemFor, NeedsEnhancements = PawnIsItemAnUpgrade(Item);
+                    AddValuesToTooltip(TooltipCapture, Item.Values, UpgradeInfo, BestItemFor, SecondBestItemFor, NeedsEnhancements, Item.InvType);
+                    TooltipCapture:SendToProcess(self);
+                end
             end
         end
     end

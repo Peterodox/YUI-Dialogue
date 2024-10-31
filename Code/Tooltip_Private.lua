@@ -606,22 +606,12 @@ local OVERRIDE_COLORS = {
     ["ff0070dd"] = 3,
 };
 
-function SharedTooltip:ProcessTooltipData(tooltipData)
-    if not (tooltipData and tooltipData.lines) then
-        self.tooltipData = nil;
-        return false
-    end
-
-    self.tooltipData = tooltipData;
-    self.dataInstanceID = tooltipData.dataInstanceID;
-    self.hyperlink = tooltipData.hyperlink;
-
-    self:RegisterEvent("TOOLTIP_DATA_UPDATE");
-
+function SharedTooltip:ProcessTooltipDataLines(tooltipDataLines, startingIndex)
     local leftText, leftColor, wrapText, rightText, rightColor;
     local r, g, b;
+    startingIndex = startingIndex or self:NumLines() or 1;
 
-    for i, lineData in ipairs(tooltipData.lines) do
+    for i, lineData in ipairs(tooltipDataLines) do
         leftText = lineData.leftText;
         leftColor = lineData.leftColor or NORMAL_FONT_COLOR;
         rightText = lineData.rightText;
@@ -632,7 +622,7 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
                 --A whole blank line is too tall, so we change its height
                 self:AddBlankLine();
             else
-                if i == 1 then
+                if i == startingIndex then
                     local hex = leftColor:GenerateHexColor();
                     if OVERRIDE_COLORS[hex] then
                         leftColor = GetItemQualityColor( OVERRIDE_COLORS[hex] );
@@ -649,7 +639,7 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
                     end
                 else    --lineData.type ~= LINE_TYPE_PRICE
                     r, g, b = leftColor:GetRGB();
-                    self:AddLeftLine(leftText, r, g, b, wrapText, nil, (i == 1 and 1) or 2);
+                    self:AddLeftLine(leftText, r, g, b, wrapText, nil, (startingIndex == 1 and 1) or 2);
                 end
 
                 if rightText then
@@ -660,6 +650,20 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
             end
         end
 	end
+end
+
+function SharedTooltip:ProcessTooltipData(tooltipData)
+    if not (tooltipData and tooltipData.lines) then
+        self.tooltipData = nil;
+        return false
+    end
+
+    self.tooltipData = tooltipData;
+    self.dataInstanceID = tooltipData.dataInstanceID;
+    self.hyperlink = tooltipData.hyperlink;
+
+    self:RegisterEvent("TOOLTIP_DATA_UPDATE");
+    self:ProcessTooltipDataLines(tooltipData.lines, 1);
 
     if tooltipData.isItem then
         self:ShowItemComparison();

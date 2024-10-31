@@ -1,4 +1,5 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Tooltip_Capture.lua"/>
     <Script file="Tooltip_Base.lua"/>
     <Script file="Tooltip_Private.lua"/>
     <Script file="Tooltip_Public.lua"/>
