@@ -1600,6 +1600,11 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     local CompleteButton = self:AcquireAcceptButton(true);
     CompleteButton:SetButtonCompleteQuest();
 
+    if GetDBBool("AutoCompleteQuest") and GossipDataProvider:ShouldAutoCompleteQuest(self.questID, GetQuestTitle()) then
+        CompleteButton.onClickFunc(self, true);
+        return false
+    end
+
     local CancelButton = self:AcquireExitButton();
     CancelButton:SetButtonCancelQuestProgress();
 

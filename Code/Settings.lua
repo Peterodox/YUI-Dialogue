@@ -633,6 +633,9 @@ local Schematic = { --Scheme
             {type = "Custom", name = L["Move Position"], icon = "Settings-Move.png", onClickFunc = QuestItemDisplay_Move_OnClick, requireSameParentValue = true},
             {type = "Custom", name = L["Reset Position"], icon = "Settings-Reset.png", description = L["Quest Item Display Reset Position Desc"], validationFunc = QuestItemDisplayPosition_Validation, onClickFunc = QuestItemDisplay_Reset_OnClick, requireSameParentValue = true},
 
+            {type = "Subheader", name = L["Quest"]},
+            {type = "Checkbox", name = L["Auto Complete Quest"], description = L["Auto Complete Quest Desc"], dbKey = "AutoCompleteQuest"},
+
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
             {type = "Checkbox", name = L["Force Gossip"], description = L["Force Gossip Desc"], dbKey = "ForceGossip"},

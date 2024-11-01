@@ -205,6 +205,8 @@ L["Quest Item Display Hide Seen Desc"] = "Ignore items that have been discovered
 L["Quest Item Display Await World Map"] = " Await World Map";
 L["Quest Item Display Await World Map Desc"] = "When you open the World Map, temporarily hide the Quest Item Display and pause the auto close timer.";
 L["Quest Item Display Reset Position Desc"] = "Reset the window's position.";
+L["Auto Complete Quest"] = "Auto Complete Quest";
+L["Auto Complete Quest Desc"] = "Auto complete the following quest then display the dialogue and rewards on a separate window. If the rewards contain a chest, you can click to open it.\n\n- Candy Bucket (Hallow's End)";
 L["Auto Select"] = "Auto Select";
 L["Auto Select Gossip"] = "Auto Select Option";
 L["Auto Select Gossip Desc"] = "Automatically select the best dialogue option when interacting with certain NPC.";
@@ -290,6 +292,7 @@ L["Match Stat Spirit"] = "([,%d%.]+) Spirit";
 L["Match Stat DPS"] = "([,%d%.]+) damage per second";
 
 L["Show Answer"] = "Show answer.";
+L["AutoCompleteQuest HallowsEnd"] = "Candy Bucket";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = BUTTON_LAG_AUCTIONHOUSE or "Auction House";

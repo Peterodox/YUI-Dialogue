@@ -50,6 +50,7 @@ local DefaultValues = {
     QuestItemDisplay = false,
         QuestItemDisplayHideSeen = false,
         QuestItemDisplayDynamicFrameStrata = false,
+    AutoCompleteQuest = false,
     AutoSelectGossip = false,
     ForceGossip = false,
     ShowDialogHint = true,

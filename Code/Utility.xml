@@ -8,7 +8,7 @@
     <Script file="DevTool.lua"/>
 
 
-    <Frame name="DUIPseudoSliceTextureTemplate" mixin="PseudoSliceTextureMixin" useParentLevel="true" virtual="true">
+    <Frame name="DUIPseudoSliceTextureTemplate" useParentLevel="true" virtual="true">
         <KeyValues>
             <KeyValue key="drawLayer" value="BACKGROUND" type="string"/>
             <KeyValue key="textureSubLevel" value="0" type="number"/>

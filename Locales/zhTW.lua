@@ -18,6 +18,7 @@ L["Match Stat Spirit"] = "([,%d%.]+)精神";
 L["Match Stat DPS"] = "每秒傷害([,%d%.]+)";
 
 L["Show Answer"] = "顯示正確答案。";
+L["AutoCompleteQuest HallowsEnd"] = "糖果桶";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "拍賣場";

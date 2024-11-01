@@ -208,6 +208,7 @@ L["Match Stat Spirit"] = "([,%d%.]+) Espíritu";
 L["Match Stat DPS"] = "([,%d%.]+) p. de daño por segundo";
 
 L["Show Answer"] = "Mostrar solución.";
+L["AutoCompleteQuest HallowsEnd"] = "Cubo de caramelos";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "Casa de Subastas";

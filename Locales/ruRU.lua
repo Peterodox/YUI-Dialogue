@@ -283,6 +283,7 @@ L["Match Stat Spirit"] = "([,%d%.]+) к духу";
 L["Match Stat DPS"] = "([,%d%.]+) ед. урона в секунду";
 
 L["Show Answer"] = "Показать решение.";
+L["AutoCompleteQuest HallowsEnd"] = "Кулек конфет";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "Аукционный дом";
