@@ -34,7 +34,7 @@ local COLOR_YELLOW = 1;
 local COLOR_GREEN = 3;
 local COLOR_RED = 4;
 
-local ACCEPTED_TYPES = {
+local SUPPORTED_TYPES = {
     --https://warcraft.wiki.gg/wiki/API_GetGameMessageInfo
     --1: Ivory  3:Green  4:Red
     -- [LE_GAME_ or ] = 1,
@@ -52,26 +52,33 @@ local ACCEPTED_TYPES = {
     [LE_GAME_ERR_QUEST_ADD_FOUND_SII or 306] = COLOR_YELLOW,
     [LE_GAME_ERR_QUEST_ADD_ITEM_SII or 307] = COLOR_YELLOW,
     [LE_GAME_ERR_QUEST_ADD_PLAYER_KILL_SII or 308] = COLOR_YELLOW,
-
-
-    [LE_GAME_ERR_QUEST_FAILED_S or 181] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_FAILED_BAG_FULL_S or 182] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_FAILED_MAX_COUNT_S or 183] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_FAILED_MISSING_ITEMS or 185] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_FAILED_NOT_ENOUGH_MONEY or 187] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_FAILED_EXPANSION or 188] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_ONLY_ONE_TIMED or 189] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_NEED_PREREQS or 190] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_NEED_PREREQS_CUSTOM or 191] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_ALREADY_ON or 192] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_ALREADY_DONE or 193] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_ALREADY_DONE_DAILY or 194] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_LOG_FULL or 199] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_FAILED_TOO_MANY_DAILY_QUESTS_I or 629] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_FORCE_REMOVED_S or 844] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_FAILED_SPELL or 858] = COLOR_RED,
-    [LE_GAME_ERR_QUEST_TURN_IN_FAIL_REASON or 1040] = COLOR_RED,
 };
+
+local QUEST_ERROR_TYPES = {
+    [LE_GAME_ERR_QUEST_FAILED_S or 181] = true,
+    [LE_GAME_ERR_QUEST_FAILED_BAG_FULL_S or 182] = true,
+    [LE_GAME_ERR_QUEST_FAILED_MAX_COUNT_S or 183] = true,
+    [LE_GAME_ERR_QUEST_FAILED_MISSING_ITEMS or 185] = true,
+    [LE_GAME_ERR_QUEST_FAILED_NOT_ENOUGH_MONEY or 187] = true,
+    [LE_GAME_ERR_QUEST_FAILED_EXPANSION or 188] = true,
+    [LE_GAME_ERR_QUEST_ONLY_ONE_TIMED or 189] = true,
+    [LE_GAME_ERR_QUEST_NEED_PREREQS or 190] = true,
+    [LE_GAME_ERR_QUEST_NEED_PREREQS_CUSTOM or 191] = true,
+    [LE_GAME_ERR_QUEST_ALREADY_ON or 192] = true,
+    [LE_GAME_ERR_QUEST_ALREADY_DONE or 193] = true,
+    [LE_GAME_ERR_QUEST_ALREADY_DONE_DAILY or 194] = true,
+    [LE_GAME_ERR_QUEST_LOG_FULL or 199] = true,
+    [LE_GAME_ERR_QUEST_FAILED_TOO_MANY_DAILY_QUESTS_I or 629] = true,
+    [LE_GAME_ERR_QUEST_FORCE_REMOVED_S or 844] = true,
+    [LE_GAME_ERR_QUEST_FAILED_SPELL or 858] = true,
+    [LE_GAME_ERR_QUEST_TURN_IN_FAIL_REASON or 1040] = true,
+};
+addon.QUEST_ERROR_TYPES = QUEST_ERROR_TYPES;
+
+for k in pairs(QUEST_ERROR_TYPES) do
+    SUPPORTED_TYPES[k] = COLOR_RED;
+end
+
 
 function AlertFrame:OnShow()
     self:RegisterEvent("UI_ERROR_MESSAGE");
@@ -124,7 +131,7 @@ AlertFrame:SetScript("OnHide", AlertFrame.OnHide);
 AlertFrame:SetScript("OnEvent", AlertFrame.OnEvent);
 
 function AlertFrame:TryDisplayMessage(messageType, message, r, g, b)
-    local colorIndex = messageType and ACCEPTED_TYPES[messageType];
+    local colorIndex = messageType and SUPPORTED_TYPES[messageType];
     if colorIndex then
         self:QueueMessage(message, colorIndex);
     end

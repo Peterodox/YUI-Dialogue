@@ -2104,7 +2104,7 @@ end
 
 
 
-do
+do  --Quest Type Text On Quest Button
     local ICON_TEXT_GAP = 0;
     local ICON_SIZE = 12.0;
 
@@ -2132,12 +2132,6 @@ do
     function DUIDialogQuestTypeFrameMixin:SetLeftText(text)
         self.Name:SetFontObject("DUIFont_QuestType_Left");
         self:SetNameAndIcon(text);
-        self:SetAlignment("LEFT");
-    end
-
-    function DUIDialogQuestTypeFrameMixin:SetQuestTagNameAndIcon(tagName, tagIcon)
-        self.Name:SetFontObject("DUIFont_QuestType_Left");
-        self:SetNameAndIcon(tagName, tagIcon);
         self:SetAlignment("LEFT");
     end
 
@@ -2190,62 +2184,9 @@ do
         end
         return width
     end
-
-    local function CampaignName_OnEnter(self)
-        local tooltip = TooltipFrame;
-        tooltip:Hide();
-
-        if self.campaignID then
-            tooltip:SetOwner(self, "ANCHOR_NONE");
-            tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 0);
-
-            local campaignInfo = C_CampaignInfo.GetCampaignInfo(self.campaignID);
-            tooltip:SetTitle(campaignInfo.name);
-            tooltip:AddLeftLine(TRACKER_HEADER_CAMPAIGN_QUESTS or "Campaign", 1, 1, 1);
-            if campaignInfo.description then
-                tooltip:AddLeftLine(campaignInfo.description, 1, 0.82, 0);
-            end
-            tooltip:Show();
-        end
-    end
-
-    local function CampaignName_OnLeave(self)
-        TooltipFrame:Hide();
-    end
-
-    function DUIDialogQuestTypeFrameMixin:SetCampaignNameID(name, campaignID)
-        self:SetLeftText(name);
-        self.campaignID = campaignID;
-        self.hasScripts = true;
-        self:SetScript("OnEnter", CampaignName_OnEnter);
-        self:SetScript("OnLeave", CampaignName_OnLeave);
-    end
-
-
-    local function RemainingTime_OnEnter(self)
-        local tooltip = TooltipFrame;
-        tooltip:Hide();
-
-        if self.seconds then
-            tooltip:SetOwner(self, "ANCHOR_NONE");
-            tooltip:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 0);
-            tooltip:AddLeftLine(L["Format Time Left"]:format(API.SecondsToTime(self.seconds, true)), 1, 1, 1);
-            tooltip:Show();
-        end
-    end
-
-    function DUIDialogQuestTypeFrameMixin:SetRemainingTime(seconds)
-        self.hasIcon = false;
-        self.seconds = seconds;
-        local text = API.SecondsToTime(seconds, true, true);
-        self:SetLeftText(text);
-        self.hasScripts = true;
-        self:SetScript("OnEnter", RemainingTime_OnEnter);
-        self:SetScript("OnLeave", CampaignName_OnLeave);
-    end
 end
 
-do
+do  --Icon Frame Overlay
     DUIDialogIconFrameMixin = {};
 
     local inOutSine = addon.EasingFunctions.outSine;
@@ -2332,7 +2273,7 @@ do
     end
 end
 
-do
+do  --Quest Portrait
     DUIDialogQuestPortraitMixin = {};
 
     function DUIDialogQuestPortraitMixin:OnLoad()
@@ -2428,7 +2369,139 @@ do
     end
 end
 
-do
+do  --Resizable Background Frame
+    --Create a Stroke&Brush-Styled background using two L-shaped masks
+    local BackgroundMixin = {};
+
+    function BackgroundMixin:SetBackgroundSize(width, height)
+        local bgWidth = width + 2*self.bgExtrude;
+        local bgHeight = height + 2*self.bgExtrude;
+
+        local maxSize = (bgWidth > bgHeight and bgWidth) or bgHeight;
+
+        if maxSize > self.maskSize then
+            local bgScale = maxSize / self.maskSize;
+            self.Mask1:SetSize(maxSize, maxSize);
+            self.Mask2:SetSize(maxSize, maxSize);
+        else
+            self.Mask1:SetSize(self.maskSize, self.maskSize);
+            self.Mask2:SetSize(self.maskSize, self.maskSize);
+        end
+
+        self.Background:SetSize(bgWidth, bgHeight);
+        self:SetSize(width, height);
+        self.width = width;
+        self.height = height;
+    end
+
+    function BackgroundMixin:SetBackgroundAlpha(alpha)
+        self.Background:SetAlpha(alpha);
+    end
+
+    function BackgroundMixin:SetBackgroundColor(r, g, b, a)
+        self.Background:SetColorTexture(r, g, b, a);
+    end
+
+    function BackgroundMixin:UpdatePixel()
+        local scale = 1;
+        local px = API.GetPixelForScale(scale, 1);
+        self.maskSize = 512 * px;
+    end
+
+    function BackgroundMixin:SetBackgroundExtrude(bgExtrude)
+        self.bgExtrude = bgExtrude;
+        self.Mask1:ClearAllPoints();
+        self.Mask1:SetPoint("TOPLEFT", self, "TOPLEFT", -bgExtrude, bgExtrude);
+        self.Mask2:ClearAllPoints();
+        self.Mask2:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", bgExtrude, -bgExtrude);
+    end
+
+    function BackgroundMixin:OnUpdate(elapsed)
+        if self.toWidth then
+            self.deltaValue = (self.toWidth - self.width) * 4 * elapsed;
+            if self.deltaValue > -0.12 and self.deltaValue < 0.12 then
+                if self.deltaValue < 0 then
+                    self.deltaValue = -0.12;
+                else
+                    self.deltaValue = 0.12;
+                end
+            end
+            self.width = self.width + self.deltaValue;
+            if self.widthDelta > 0 then
+                if self.width + 0.5 >= self.toWidth then
+                    self.width = self.toWidth;
+                    self.toWidth = nil;
+                end
+            else
+                if self.width - 0.5 <= self.toWidth then
+                    self.width = self.toWidth;
+                    self.toWidth = nil;
+                end
+            end
+        end
+
+        if self.toHeight then
+            self.deltaValue = (self.toHeight - self.height) * 4 * elapsed
+            if self.deltaValue > -0.12 and self.deltaValue < 0.12 then
+                if self.deltaValue < 0 then
+                    self.deltaValue = -0.12;
+                else
+                    self.deltaValue = 0.12;
+                end
+            end
+            self.height = self.height + self.deltaValue;
+            if self.heightDelta > 0 then
+                if self.height + 0.5 >= self.toHeight then
+                    self.height = self.toHeight;
+                    self.toHeight = nil;
+                end
+            else
+                if self.height - 0.5 <= self.toHeight then
+                    self.height = self.toHeight;
+                    self.toHeight = nil;
+                end
+            end
+        end
+
+        if not (self.toWidth or self.toHeight) then
+            self:SetScript("OnUpdate", nil);
+        end
+
+        self:SetBackgroundSize(self.width, self.height);
+    end
+
+    function BackgroundMixin:AnimateSize(width, height)
+        if width > self.width then
+            self.widthDelta = 1;
+            self.toWidth = width;
+        elseif width < self.width then
+            self.widthDelta = -1;
+            self.toWidth = width;
+        end
+
+        if height > self.height then
+            self.heightDelta = 1;
+            self.toHeight = height;
+        elseif height < self.height then
+            self.heightDelta = -1;
+            self.toHeight = height;
+        end
+
+        self:SetScript("OnUpdate", self.OnUpdate);
+    end
+
+    local function CreateResizableBackground(parent, objectMixin)
+        local f = CreateFrame("Frame", nil, parent, "DUIResizableBackgroundTemplate");
+        API.Mixin(f, BackgroundMixin);
+        if objectMixin then
+            API.Mixin(f, objectMixin);
+        end
+        return f
+    end
+    addon.CreateResizableBackground = CreateResizableBackground;
+end
+
+do  --Settings, CallbackRegistry
     local function Settings_QuestTypeText(dbValue)
         SHOW_QUEST_TYPE_TEXT = dbValue == true;
         addon.DialogueUI:OnSettingsChanged();
@@ -2472,10 +2545,8 @@ do
         CallbackRegistry:Trigger("PostInputDeviceChanged", dbValue);
     end
     CallbackRegistry:Register("SettingChanged.InputDevice", Settings_InputDevice);
-end
 
 
-do
     local DEFAULT_FONT_SIZE_ID = 1;
 
     local FONT_SIZE_INDEX = {

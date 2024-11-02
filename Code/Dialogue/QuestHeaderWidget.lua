@@ -214,6 +214,8 @@ end
 
 do  --ButtonMixin
     function ButtonMixin:Layout()
+        self.ButtonText:SetJustifyH("LEFT");
+
         local buttonHeight = self.ButtonText:GetHeight() + 2 * PADDING_TEXT_BUTTON_V;
         local minButtonWidth = 4 * buttonHeight;
 
@@ -229,17 +231,25 @@ do  --ButtonMixin
 
         if self.clickable then
             --Clickable button has background
-            local iconLeftOffset = ICON_TEXT_GAP;
+            local iconLeftOffset = 2*ICON_TEXT_GAP;
             if self.useIcon then
-                self.Icon:SetPoint("LEFT", self, "LEFT", iconLeftOffset, 0);
-                self.ButtonText:SetPoint("LEFT", self, "LEFT", iconLeftOffset + ICON_SIZE + iconTextGap, 0);
+                self.Icon:SetSize(ICON_SIZE, ICON_SIZE);
+                self.ButtonText:SetPoint("LEFT", self.Icon, "RIGHT", iconTextGap, 0);
                 buttonWidth = iconLeftOffset + ICON_SIZE + iconTextGap + textWidth + PADDING_TEXT_BUTTON_H;
             else
-                self.ButtonText:SetPoint("LEFT", self, "LEFT", PADDING_TEXT_BUTTON_H, 0);
                 buttonWidth = PADDING_TEXT_BUTTON_H + textWidth + PADDING_TEXT_BUTTON_H;
             end
+
+            local extraOffset = 0;
             if buttonWidth < minButtonWidth then
+                extraOffset = 0.5 * (minButtonWidth - buttonWidth);
                 buttonWidth = minButtonWidth;
+            end
+
+            if self.useIcon then
+                self.Icon:SetPoint("LEFT", self, "LEFT", iconLeftOffset + extraOffset, 0);
+            else
+                self.ButtonText:SetPoint("LEFT", self, "LEFT", PADDING_TEXT_BUTTON_H + extraOffset, 0);
             end
         else
             if self.useIcon then

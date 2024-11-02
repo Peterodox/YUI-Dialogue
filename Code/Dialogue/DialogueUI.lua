@@ -1567,6 +1567,31 @@ end
 
 function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     self:ReleaseAllObjects();
+
+    --Rewards
+    self.rewardChoiceID = nil;
+    local questComplete = true;
+    local rewardList;
+    rewardList, self.chooseItems = addon.BuildRewardList(questComplete);
+
+    if GetDBBool("AutoCompleteQuest") and (not self.chooseItems) then
+        local title = GetQuestTitle();
+        if GossipDataProvider:ShouldAutoCompleteQuest(self.questID, title) then
+            local questData = {
+                questID = GetQuestID(),
+                title = title,
+                paragraphs = API.SplitParagraph(GetQuestText("Complete") or L["Quest Complete Alert"]);
+                rewards = rewardList,
+            };
+
+            CallbackRegistry:Trigger("TriggerQuestFinished");   --In some cases game doesn't fire QUEST_FINISHED after completing a quest?
+            addon.QuestFlyout:SetQuestData(questData);
+            GetQuestReward(0);
+
+            return false
+        end
+    end
+
     self:UseQuestLayout(true);
 
     --Title
@@ -1578,13 +1603,6 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
         offsetY = offsetY + PARAGRAPH_SPACING;
         offsetY = self:FormatParagraph(offsetY, text);
     end
-
-    --Rewards
-    self.rewardChoiceID = nil;
-
-    local questComplete = true;
-    local rewardList;
-    rewardList, self.chooseItems = addon.BuildRewardList(questComplete);
 
     if rewardList and #rewardList > 0 then
         self:RegisterEvent("QUEST_ITEM_UPDATE");
@@ -1599,11 +1617,6 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
 
     local CompleteButton = self:AcquireAcceptButton(true);
     CompleteButton:SetButtonCompleteQuest();
-
-    if GetDBBool("AutoCompleteQuest") and GossipDataProvider:ShouldAutoCompleteQuest(self.questID, GetQuestTitle()) then
-        CompleteButton.onClickFunc(self, true);
-        return false
-    end
 
     local CancelButton = self:AcquireExitButton();
     CancelButton:SetButtonCancelQuestProgress();
@@ -3092,6 +3105,8 @@ do
         PARAGRAPH_BUTTON_SPACING = 2 * FONT_SIZE;         --Font Size * 2
 
         f:OnSettingsChanged();
+
+        CallbackRegistry:Trigger("TextSpacingChanged", TEXT_SPACING, PARAGRAPH_SPACING, FONT_SIZE);
     end
     CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 

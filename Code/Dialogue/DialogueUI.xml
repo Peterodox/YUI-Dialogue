@@ -11,6 +11,7 @@
     <Script file="StatusBar.lua"/>
     <Script file="ChatFrame.lua"/>
     <Script file="FriendshipBar.lua"/>
+    <Script file="QuestFlyout.lua"/>
     <Script file="DialogueUI.lua"/>
     <Script file="Tutorial.lua"/>
 
@@ -327,6 +328,38 @@
             </Layer>
         </Layers>
     </Button>
+
+    <Frame name="DUIResizableBackgroundTemplate" virtual="true">
+        <Size x="128" y="128"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="Background">
+                    <Size x="128" y="128"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="Mask1" file="Interface/AddOns/DialogueUI/Art/Theme_Shared/BrushFrame-Mask-TopLeft" hWrapMode="CLAMP" vWrapMode="CLAMP">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Background"/>
+                    </MaskedTextures>
+                    <Size x="128" y="128"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+                    </Anchors>
+                </MaskTexture>
+                <MaskTexture parentKey="Mask2" file="Interface/AddOns/DialogueUI/Art/Theme_Shared/BrushFrame-Mask-BottomRight" hWrapMode="CLAMP" vWrapMode="CLAMP">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Background"/>
+                    </MaskedTextures>
+                    <Size x="128" y="128"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </MaskTexture>
+            </Layer>
+        </Layers>
+    </Frame>
 
     <Frame name="DUIQuestFrame" mixin="DUIDialogBaseMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">
         <size x="300" y="400"/>

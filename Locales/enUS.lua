@@ -58,6 +58,7 @@ L["New Quest Available"] = "New Quest Available";
 L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "Campaign";
 L["Click To Open BtWQuests"] = "Click to view this quest in BtWQuests window.";
 L["Story Progress"] = STORY_PROGRESS or "Story Progress";
+L["Quest Complete Alert"] = QUEST_WATCH_POPUP_QUEST_COMPLETE or "Quest Complete!";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -206,7 +207,7 @@ L["Quest Item Display Await World Map"] = " Await World Map";
 L["Quest Item Display Await World Map Desc"] = "When you open the World Map, temporarily hide the Quest Item Display and pause the auto close timer.";
 L["Quest Item Display Reset Position Desc"] = "Reset the window's position.";
 L["Auto Complete Quest"] = "Auto Complete Quest";
-L["Auto Complete Quest Desc"] = "Auto complete the following quest then display the dialogue and rewards on a separate window. If the rewards contain a chest, you can click to open it.\n\n- Candy Bucket (Hallow's End)";
+L["Auto Complete Quest Desc"] = "Auto complete the following quest then display the dialogue and rewards in a separate window. If the rewards contain a chest, you can click to open it.\n\n- Candy Bucket (Hallow's End)";
 L["Auto Select"] = "Auto Select";
 L["Auto Select Gossip"] = "Auto Select Option";
 L["Auto Select Gossip Desc"] = "Automatically select the best dialogue option when interacting with certain NPC.";
@@ -292,6 +293,7 @@ L["Match Stat Spirit"] = "([,%d%.]+) Spirit";
 L["Match Stat DPS"] = "([,%d%.]+) damage per second";
 
 L["Show Answer"] = "Show answer.";
+L["Quest Failed Pattern"] = "^Turn in for";
 L["AutoCompleteQuest HallowsEnd"] = "Candy Bucket";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)
