@@ -1190,6 +1190,8 @@ function DUIDialogBaseMixin:HandleGossip()
         quests[questIndex] = questInfo;
     end
 
+    local autoCompleteQuest = GetDBBool("AutoCompleteQuest");
+
     for i, questInfo in ipairs(activeQuests) do
         questIndex = questIndex + 1;
         questInfo.isOnQuest = true;     --there is a delay between C_Gossip and C_QuestLog.IsOnQuest
@@ -1198,6 +1200,12 @@ function DUIDialogBaseMixin:HandleGossip()
             questInfo.isComplete = false;
         elseif questInfo.isComplete then
             anyNewOrCompleteQuest = true;
+            if autoCompleteQuest then
+                if GossipDataProvider:ShouldAutoCompleteQuest(questInfo.questID) then
+                    C_GossipInfo.SelectActiveQuest(questInfo.questID);
+                    return false
+                end
+            end
         end
         questInfo.originalOrder = questIndex;
         questInfo.index = i;
@@ -1464,6 +1472,16 @@ function DUIDialogBaseMixin:HandleQuestProgress(playFadeIn)
     self:ReleaseAllObjects();
     self:UseQuestLayout(true);
 
+    local canComplete = IsQuestCompletable();
+    if canComplete and GetDBBool("AutoCompleteQuest") then
+        local questID = GetQuestID();
+        local title = GetQuestTitle();
+        if GossipDataProvider:ShouldAutoCompleteQuest(questID, title) and CompleteQuest then
+            CompleteQuest();
+            return false
+        end
+    end
+
     --Title
     local offsetY = self:UpdateQuestTitle("Progress");
 
@@ -1526,8 +1544,6 @@ function DUIDialogBaseMixin:HandleQuestProgress(playFadeIn)
         offsetY = self:FormatRewards(offsetY, itemList);
     end
 
-    local canComplete = IsQuestCompletable();
-
     if not canComplete then
         local objcetiveProgress = API.GetQuestLogProgress(self.questID);
         if objcetiveProgress then
@@ -1575,10 +1591,11 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     rewardList, self.chooseItems = addon.BuildRewardList(questComplete);
 
     if GetDBBool("AutoCompleteQuest") and (not self.chooseItems) then
+        local questID = GetQuestID();
         local title = GetQuestTitle();
-        if GossipDataProvider:ShouldAutoCompleteQuest(self.questID, title) then
+        if GossipDataProvider:ShouldAutoCompleteQuest(questID, title) and GetQuestReward then
             local questData = {
-                questID = GetQuestID(),
+                questID = questID,
                 title = title,
                 paragraphs = API.SplitParagraph(GetQuestText("Complete") or L["Quest Complete Alert"]);
                 rewards = rewardList,
@@ -1630,14 +1647,6 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     return true
 end
 
-local function SortFunc_QuestGreetingActiveQuests(a, b)
-    if a.isComplete == b.isComplete then
-        return a.index < b.index
-    else
-        return a.isComplete
-    end
-end
-
 function DUIDialogBaseMixin:HandleQuestGreeting()
     self:ReleaseAllObjects();
     self:UseQuestLayout(false);
@@ -1683,12 +1692,20 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
 
 
     local numActiveQuests = GetNumActiveQuests();
+    local autoCompleteQuest = GetDBBool("AutoCompleteQuest");
 
     for i = 1, numActiveQuests do
         questIndex = questIndex + 1;
 
         local title, isComplete = GetActiveTitle(i);
         local questID = GetActiveQuestID(i);
+
+        if autoCompleteQuest then
+            if GossipDataProvider:ShouldAutoCompleteQuest(questID) and SelectActiveQuest then
+                SelectActiveQuest(i);
+                return false
+            end
+        end
 
         local questInfo = {
             index = i,

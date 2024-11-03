@@ -28,6 +28,7 @@ local IsCharacterNewlyBoosted = IsCharacterNewlyBoosted;
 
 
 local tinsert = table.insert;
+local tsort = table.sort;
 local ipairs = ipairs;
 
 --MirageDialogBaseMixin Declared in SharedUITemplates.lua
@@ -327,7 +328,7 @@ local function BuildRewardList(questComplete)
         end
 	end
 
-	table.sort(rewardList, SortRewardList);
+	tsort(rewardList, SortRewardList);
 
 	-- Setup choosable rewards
 	local chooseItems;

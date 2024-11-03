@@ -980,6 +980,14 @@ function DUIDialogHotkeyFrameMixin:LoadTheme()
     self:ReloadKey();
 end
 
+function DUIDialogHotkeyFrameMixin:SetTheme(themeID)
+    if themeID == 2 then
+        self.Background:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Dark/HotkeyBackground.png");
+    else
+        self.Background:SetTexture("Interface/AddOns/DialogueUI/Art/Theme_Brown/HotkeyBackground.png");
+    end
+end
+
 function DUIDialogHotkeyFrameMixin:SetBaseHeight(height)
     self.baseHeight = height;
     self:SetSize(height, height);
@@ -2499,6 +2507,95 @@ do  --Resizable Background Frame
         return f
     end
     addon.CreateResizableBackground = CreateResizableBackground;
+end
+
+do  --Loading Indicator
+    local LoadingIndicatorMixin = {};
+
+    function LoadingIndicatorMixin:OnShow()
+        self.AnimRotate:Play();
+    end
+
+    function LoadingIndicatorMixin:OnUpdate_FadeIn(elapsed)
+        self.alpha = self.alpha + 8*elapsed;
+        if self.alpha >= 1 then
+            self.alpha = 1;
+            self:SetScript("OnUpdate", nil);
+            if self.maxShownTime then
+                self:FadeOut(self.maxShownTime);
+            end
+        end
+        self:SetAlpha(self.alpha);
+    end
+
+    function LoadingIndicatorMixin:Show()
+        self.alpha = self:GetAlpha();
+        self:SetScript("OnUpdate", self.OnUpdate_FadeIn);
+        self:ShowFrame();
+    end
+
+    function LoadingIndicatorMixin:OnUpdate_FadeOut(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0 then
+            self.alpha = self.alpha - 4*elapsed;
+            if self.alpha <= 0 then
+                self.alpha = 0;
+                self:SetScript("OnUpdate", nil);
+                self:Hide();
+            end
+            self:SetAlpha(self.alpha);
+        end
+    end
+
+    function LoadingIndicatorMixin:FadeOut(delay)
+        delay = delay or 0;
+        self.t = -delay;
+        self.alpha = self:GetAlpha();
+        self:SetScript("OnUpdate", self.OnUpdate_FadeOut);
+    end
+
+    function LoadingIndicatorMixin:SetMaxShownTime(maxShownTime)
+        self.maxShownTime = maxShownTime;
+    end
+
+    local function CreateLoadingIndicator(parent)
+        local f = CreateFrame("Frame", parent);
+
+        f:SetFrameStrata("FULLSCREEN_DIALOG");
+        f.ShowFrame = f.Show;
+
+        local texture = "Interface/AddOns/DialogueUI/Art/Theme_Shared/LoadingIndicator-Radial.png";
+
+        f.Background = f:CreateTexture(nil, "BORDER");
+        f.Background:SetAllPoints(true);
+        f.Background:SetTexture(texture);
+        f.Background:SetTexCoord(0.5, 1, 0, 1);
+
+        f.Ring = f:CreateTexture(nil, "OVERLAY");
+        f.Ring:SetAllPoints(true);
+        f.Ring:SetTexture(texture);
+        f.Ring:SetTexCoord(0, 0.5, 0, 1);
+
+        local ag = f:CreateAnimationGroup();
+        f.AnimRotate = ag;
+        ag:SetLooping("REPEAT");
+        local a1 = ag:CreateAnimation("Rotation");
+        a1:SetChildKey("Ring");
+        a1:SetOrder(1);
+        a1:SetDuration(2);
+        a1:SetDegrees(-360);
+
+        local a = 68;   --API.GetPixelForScale(1, 128);
+        f:SetSize(a, a);
+
+        API.Mixin(f, LoadingIndicatorMixin);
+        f:Hide();
+        f:SetAlpha(0);
+        f:SetScript("OnShow", f.OnShow);
+
+        return f
+    end
+    addon.CreateLoadingIndicator = CreateLoadingIndicator;
 end
 
 do  --Settings, CallbackRegistry

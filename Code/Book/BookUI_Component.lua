@@ -471,7 +471,7 @@ do  --ItemButton (Show item's description lore "")
             self:Layout();
         end
     end
-    
+
     function SourceItemButtonMixin:SetTextSpacing(spacing)
         self.ItemText:SetSpacing(spacing);
     end

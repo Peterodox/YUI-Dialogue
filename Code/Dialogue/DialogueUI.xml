@@ -361,6 +361,68 @@
         </Layers>
     </Frame>
 
+    <Button name="DUIQuestFlyoutButtonTemplate" virtual="true">
+        <Size x="64" y="64"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="ButtonText" inherits="DUIFont_Item" justifyH="LEFT" justifyV="MIDDLE" maxLines="1">
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </FontString>
+                <Texture parentKey="IconBorder">
+                    <Size x="64" y="64"/>
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon">
+                    <Size x="64" y="64"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent.IconBorder" relativePoint="CENTER"/>
+                    </Anchors>
+                </Texture>
+                <MaskTexture parentKey="IconMask" file="Interface/AddOns/DialogueUI/Art/BasicShapes/Mask-Circle" hWrapMode="CLAMPTOBLACKADDITIVE" vWrapMode="CLAMPTOBLACKADDITIVE">
+                    <MaskedTextures>
+                        <MaskedTexture childKey="Icon"/>
+                    </MaskedTextures>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </MaskTexture>
+            </Layer>
+
+            <Layer level="BACKGROUND">
+                <Texture parentKey="TextBackground">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+
+            <Layer level="BACKGROUND" textureSubLevel="1">
+                <Texture parentKey="TextHighlight" alphaMode="ADD"  hidden="true" alpha="0.4">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.TextBackground" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.TextBackground" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+
+            <Layer level="OVERLAY" textureSubLevel="1">
+                <Texture parentKey="BorderHighlight" alphaMode="ADD" hidden="true" alpha="0.25">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.IconBorder" relativePoint="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.IconBorder" relativePoint="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Button>
+
     <Frame name="DUIQuestFrame" mixin="DUIDialogBaseMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">
         <size x="300" y="400"/>
         <Frames>
@@ -584,5 +646,24 @@
                 <ControlPoint offsetY="32" offsetX="0"/>
             </ControlPoints>
         </Path>
+    </AnimationGroup>
+
+    <AnimationGroup name="DUIQuestFlyoutAnimationTemplate" setToFinalAlpha="true" virtual="true">
+        <Translation duration="0" order="1" offsetX="0" offsetY="-16"/>
+        <Translation duration="0.2" order="1" offsetX="0" offsetY="16" smoothing="OUT"/>
+        <Translation childKey="ContentFrame" duration="0" order="1" offsetX="-12" offsetY="0" smoothing="IN"/>
+        <Alpha childKey="ContentFrame" duration="0" order="1" fromAlpha="0" toAlpha="0"/>
+        <Alpha childKey="Alert" duration="0" order="1" fromAlpha="1" toAlpha="1"/>
+        <VertexColor childKey="Alert" duration="0.5" order="1">
+            <StartColor r="0.5" g="1" b="0.5"/>
+            <EndColor r="0.42" g="0.75" b="0.48"/>
+        </VertexColor>
+
+        <Translation duration="1.5" order="2" offsetX="0" offsetY="0"/>
+
+        <Translation childKey="Alert" duration="0.25" order="3" offsetX="12" offsetY="0" smoothing="IN"/>
+        <Alpha childKey="Alert" duration="0.15" order="3" fromAlpha="1" toAlpha="0"/>
+        <Translation childKey="ContentFrame" duration="0.25" order="3" offsetX="12" offsetY="0" smoothing="OUT"/>
+        <Alpha childKey="ContentFrame" duration="0.25" order="3" fromAlpha="0" toAlpha="1"/>
     </AnimationGroup>
 </Ui>

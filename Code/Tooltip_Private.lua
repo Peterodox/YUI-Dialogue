@@ -639,7 +639,7 @@ function SharedTooltip:ProcessTooltipDataLines(tooltipDataLines, startingIndex)
                     end
                 else    --lineData.type ~= LINE_TYPE_PRICE
                     r, g, b = leftColor:GetRGB();
-                    self:AddLeftLine(leftText, r, g, b, wrapText, nil, (startingIndex == 1 and 1) or 2);
+                    self:AddLeftLine(leftText, r, g, b, wrapText, nil, (i == 1 and i == startingIndex and 1) or 2);
                 end
 
                 if rightText then

@@ -189,10 +189,16 @@ function Updater:LoadQuest()
                                 totalQuest = totalQuest + 1;
                                 if item:GetID() == questID then
                                     fromIndex = i;
+                                    break
                                 end
                             end
                         end
-                        fromIndex = math.max(1, fromIndex - 1);
+
+                        if totalQuest > maxVisible then
+                            fromIndex = math.max(1, fromIndex - 1);
+                        else
+                            fromIndex = 1;
+                        end
 
                         local n = 0;
                         for i = fromIndex, numItems do

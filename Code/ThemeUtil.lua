@@ -43,7 +43,7 @@ local COLORS = {
     DarkModeGold = {1, 0.98, 0.8},
     DarkModeGoldDim = {0.796, 0.784, 0.584},
 
-    WarningRed = {1.000, 0.282, 0.000},
+    WarningRed = {1.000, 0.125, 0.125},
 };
 
 local FONT_OBJECT_COLOR = {

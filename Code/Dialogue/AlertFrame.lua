@@ -3,7 +3,7 @@ local L = addon.L;
 local API = addon.API;
 
 local GetTextReadingTime = API.GetTextReadingTime;
-local GetTextColorByIndex = API.GetTextColorByIndex;
+local SetTextColorByIndex = API.SetTextColorByIndex;
 local GetTitleForQuestID = API.GetTitleForQuestID;
 
 local GetLFGProposal = GetLFGProposal;
@@ -194,12 +194,7 @@ end
 
 function AlertFrame:DisplayMessage(message, colorIndex)
     FontString:SetText(message);
-    local color = GetTextColorByIndex(colorIndex);
-    local r, g, b = color:GetRGB();
-    FontString:SetTextColor(r, g, b);
-
-    --print(color:WrapTextInColorCode(message)); --debug
-
+    SetTextColorByIndex(FontString, colorIndex);
     return (message and GetTextReadingTime(message)) or 0
 end
 

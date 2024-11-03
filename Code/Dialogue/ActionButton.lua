@@ -1,9 +1,13 @@
 local _, addon = ...
 
 local InCombatLockdown = InCombatLockdown;
+local SetOverrideBindingClick = SetOverrideBindingClick;
+local SetOverrideBindingItem = SetOverrideBindingItem;
+local ClearOverrideBindings = ClearOverrideBindings;
 
 local SecureButtons = {};               --All SecureButton that were created. Recycle/Share unused buttons unless it was specified not to
 local PrivateSecureButtons = {};        --These are the buttons that are not shared with other modules
+
 
 local SecureButtonContainer = CreateFrame("Frame");
 SecureButtonContainer:Hide();
@@ -16,11 +20,43 @@ function SecureButtonContainer:CollectButton(button)
         button:ClearActions();
         button:ClearScripts();
         button.isActive = false;
+        if self.hasOverrideBinding and self.ownerActionButton == button then
+            self:ClearOverrideBinding();
+        end
     end
+end
+
+function SecureButtonContainer:ClearOverrideBinding()
+    if InCombatLockdown() then
+        return
+    end
+
+    if self.hasOverrideBinding then
+        self.hasOverrideBinding = nil;
+        ClearOverrideBindings(self);
+    end
+end
+
+function SecureButtonContainer:SetPressToUseItem(key, item, ownerActionButton)
+    if InCombatLockdown() then
+        return
+    end
+    self:ClearOverrideBinding();
+
+    if not item then return false end;
+
+    self.hasOverrideBinding = true;
+    self.ownerActionButton = ownerActionButton;
+    key = key or "SPACE";
+    SetOverrideBindingItem(self, true, key, item);
+
+    return true
 end
 
 SecureButtonContainer:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_REGEN_DISABLED" then
+        self:ClearOverrideBinding();
+
         local anyActive = false;
         for i, button in ipairs(SecureButtons) do
             if button.isActive then
@@ -34,6 +70,7 @@ SecureButtonContainer:SetScript("OnEvent", function(self, event, ...)
         end
     end
 end);
+
 
 local function SecureActionButton_OnHide(self)
     if self.isActive then
@@ -95,10 +132,16 @@ function SecureButtonMixin:SetUseItemByName(itemName, mouseButton)
     end
 end
 
-function SecureButtonMixin:SetUseItemByID(itemID, mouseButton)
+function SecureButtonMixin:SetUseItemByID(itemID, mouseButton, allowPressKeyToUse, itemName)
     if itemID then
         self:SetTriggerMouseButton(mouseButton);
         self:SetMacroText("/use item:"..itemID);
+        if allowPressKeyToUse then
+            if (not itemName) or itemName == "" then
+                itemName = C_Item.GetItemNameByID(itemID);
+            end
+            return SecureButtonContainer:SetPressToUseItem(nil, itemName, self);
+        end
     end
 end
 
@@ -189,8 +232,9 @@ addon.AcquireSecureActionButton = AcquireSecureActionButton;
 
 
 
-if addon.IsToCVersionEqualOrNewerThan(110000) then
+if false and addon.IsToCVersionEqualOrNewerThan(110000) then
     --TWW: MacroText is banned
+    --Update: Unbanned
 
     function SecureButtonMixin:SetUseItemByName(itemName, mouseButton)
         if itemName then
@@ -199,10 +243,12 @@ if addon.IsToCVersionEqualOrNewerThan(110000) then
         end
     end
 
-    function SecureButtonMixin:SetUseItemByID(itemID, mouseButton)
+    function SecureButtonMixin:SetUseItemByID(itemID, mouseButton, itemName)
         if itemID then
-            local name = C_Item.GetItemNameByID(itemID);
-            self:SetUseItemByName(name, mouseButton);
+            if (not itemName) or itemName == "" then
+                itemName = C_Item.GetItemNameByID(itemID);
+            end
+            self:SetUseItemByName(itemName, mouseButton);
         end
     end
 end

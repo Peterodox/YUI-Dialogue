@@ -18,6 +18,7 @@ L["Match Stat DPS"] = "([,%d%.]+) damage per second";
 --]]
 
 L["Show Answer"] = "Mostra soluzione.";
+L["Quest Failed Pattern"] = "^Impossibile completare";
 L["AutoCompleteQuest HallowsEnd"] = "Secchio delle Caramelle";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)

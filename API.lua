@@ -1365,6 +1365,15 @@ do  -- Color
     end
     API.GetTextColorByIndex = GetTextColorByIndex;
 
+    local function SetTextColorByIndex(fontString, colorIndex)
+        local color = GetTextColorByIndex(colorIndex);
+        if color then
+            local r, g, b = color:GetRGB();
+            fontString:SetTextColor(r, g, b);
+        end
+    end
+    API.SetTextColorByIndex = SetTextColorByIndex;
+
     local function SetTextColorByGlobal(fontString, colorMixin)
         local r, g, b;
         if colorMixin then

@@ -89,6 +89,7 @@ do
         ["Input Device Switch Tooltip"] = SETTINGS_DESC_SPACING,
         ["Interact Key Not Set"] = SETTINGS_DESC_SPACING,
         ["Use Default Control Key Alert"] = SETTINGS_DESC_SPACING,
+        ["Press Key To Open Container Desc"] = SETTINGS_DESC_SPACING,
         ["TTS Use Hotkey Tooltip PC"] = SETTINGS_DESC_SPACING,
         ["TTS Use Hotkey Tooltip Xbox"] = SETTINGS_DESC_SPACING,
         ["TTS Use Hotkey Tooltip PlayStation"] = SETTINGS_DESC_SPACING,

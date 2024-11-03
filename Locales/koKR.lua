@@ -246,6 +246,7 @@ L["Match Stat Spirit"] = "정신력 %+([,%d%.]+)";
 L["Match Stat DPS"] = "초당 공격력 ([,%d%.]+)";
 
 L["Show Answer"] = "정답을 표시합니다.";
+L["Quest Failed Pattern"] = "제거하십시오.$";
 L["AutoCompleteQuest HallowsEnd"] = "사탕 바구니";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)

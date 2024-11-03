@@ -11,7 +11,7 @@ local FontUtil = {};
 addon.FontUtil = FontUtil;
 
 FontUtil.TestFont = UIParent:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
-
+FontUtil.TestFont:SetPoint("TOP", UIParent, "BOTTOM", 0, -64);
 
 local AUTO_SCALING_MIN_HEIGHT = 9;
 
@@ -174,8 +174,10 @@ end
 
 function FontUtil:SetCustomFont(dbValue)
     --font = DBValue "FontText"
-    local fontFile = self:GetFontFromDB(dbValue);
-    self:SetFontByFile(fontFile);
+    local fontFile, fontName, exist = self:GetFontFromDB(dbValue);
+    if exist then
+        self:SetFontByFile(fontFile);
+    end
 end
 
 function FontUtil:GetFontNameByFile(fontFile)
@@ -307,9 +309,15 @@ do
         addon.CallbackRegistry:Trigger("FontSizeChanged", fontSize, id);
     end
 
-    function FontUtil:SetFontByFile(textFontFile)
+    function FontUtil:SetFontByFile(textFontFile, isRequery)
+        self.TestFont:SetFont("Fonts\\FRIZQT__.TTF", 10, "");
         local success = self.TestFont:SetFont(textFontFile, 12, "");
         if not success then
+            if not isRequery then
+                C_Timer.After(0.2, function()  --Wait until "PostFontSizeChanged" tiggered in SharedUITemplate.lua
+                    FontUtil:SetFontByFile(textFontFile, true);
+                end);
+            end
             return
         end
 

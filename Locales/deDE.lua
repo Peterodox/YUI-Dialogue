@@ -145,6 +145,7 @@ L["Match Stat Spirit"] = "([,%d%.]+) Willenskraft";
 L["Match Stat DPS"] = "([,%d%.]+) Schaden pro Sekunde";
 
 L["Show Answer"] = "Lösung anzeigen.";
+L["Quest Failed Pattern"] = "^Abgabe von";
 L["AutoCompleteQuest HallowsEnd"] = "Eimer mit Süßigkeiten";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)

@@ -206,7 +206,9 @@ L["Quest Item Display Await World Map"] = " 等待世界地图";
 L["Quest Item Display Await World Map Desc"] = "当你打开世界地图时，将正在显示的任务物品说明隐藏并暂停自动关闭倒计时。";
 L["Quest Item Display Reset Position Desc"] = "重置窗口位置。";
 L["Auto Complete Quest"] = "自动完成任务";
-L["Auto Complete Quest Desc"] = "自动完成以下任务，然后将任务文本和奖励显示在一个独立的窗口中。如果任务奖励中有宝箱，你可以鼠标点击来打开它。\n\n- 糖罐 (万圣节)";
+L["Auto Complete Quest Desc"] = "自动完成以下任务，然后将任务文本和奖励显示在一个独立的窗口中。如果任务奖励中有宝箱，你可以鼠标点击来打开它。\n\n- 糖罐 (万圣节)\n- 地心之战周常任务";
+L["Press Key To Open Container"] = "按空格打开宝箱";
+L["Press Key To Open Container Desc"] = "非战斗时按 [KEY:PC:SPACE] 打开宝箱。";
 L["Auto Select"] = "自动选择";
 L["Auto Select Gossip"] = "自动选择对话选项";
 L["Auto Select Gossip Desc"] = "当你与特定NPC交互时自动选择最合适的选项。";
@@ -292,6 +294,7 @@ L["Match Stat Spirit"] = "([,%d%.]+) 精神";
 L["Match Stat DPS"] = "每秒伤害([,%d%.]+)";
 
 L["Show Answer"] = "显示正确答案。";
+L["Quest Failed Pattern"] = "^上交任务";
 L["AutoCompleteQuest HallowsEnd"] = "糖罐";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)

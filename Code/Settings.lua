@@ -583,10 +583,10 @@ local Schematic = { --Scheme
                 },
             },
             {type = "Checkbox", name = L["Change FOV"], description = L["Change FOV Desc"], dbKey = "CameraChangeFov", requiredParentValue = {CameraMovement = 1}, preview = "CameraChangeFov", ratio = 2},
-            {type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement1MaintainPosition", {CameraMovement = 1}},
+            {type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement1MaintainPosition", requiredParentValue = {CameraMovement = 1}},
             --{type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement2MaintainPosition", {CameraMovement = 2}},
-            {type = "Checkbox", name = L["Maintain Offset While Mounted"], description = L["Maintain Offset While Mounted Desc"], dbKey = "CameraMovementMountedCamera", {CameraMovement = {1, 2}}},
-            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", parentKey = "CameraMovement", {CameraMovement = {1, 2}}},
+            {type = "Checkbox", name = L["Maintain Offset While Mounted"], description = L["Maintain Offset While Mounted Desc"], dbKey = "CameraMovementMountedCamera", requiredParentValue = {CameraMovement = {1, 2}}},
+            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", requiredParentValue = {CameraMovement = {1, 2}}},
         },
     },
 
@@ -629,12 +629,13 @@ local Schematic = { --Scheme
 
             {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay", ratio = 2},
             {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", requiredParentValue = {QuestItemDisplay = true}},
-            {type = "Checkbox", name = L["Quest Item Display Await World Map"], description = L["Quest Item Display Await World Map Desc"], dbKey = "QuestItemDisplayDynamicFrameStrata", parentKey = "QuestItemDisplay", requireSameParentValue = true},
+            {type = "Checkbox", name = L["Quest Item Display Await World Map"], description = L["Quest Item Display Await World Map Desc"], dbKey = "QuestItemDisplayDynamicFrameStrata", requireSameParentValue = true},
             {type = "Custom", name = L["Move Position"], icon = "Settings-Move.png", onClickFunc = QuestItemDisplay_Move_OnClick, requireSameParentValue = true},
             {type = "Custom", name = L["Reset Position"], icon = "Settings-Reset.png", description = L["Quest Item Display Reset Position Desc"], validationFunc = QuestItemDisplayPosition_Validation, onClickFunc = QuestItemDisplay_Reset_OnClick, requireSameParentValue = true},
 
             {type = "Subheader", name = L["Quest"]},
-            {type = "Checkbox", name = L["Auto Complete Quest"], description = L["Auto Complete Quest Desc"], dbKey = "AutoCompleteQuest"},
+            {type = "Checkbox", name = L["Auto Complete Quest"], description = L["Auto Complete Quest Desc"], dbKey = "AutoCompleteQuest", preview = "QuestAutoComplete", ratio = 2},
+            {type = "Checkbox", name = L["Press Key To Open Container"], description = L["Press Key To Open Container Desc"], dbKey = "PressKeyToOpenContainer", requiredParentValue = {AutoCompleteQuest = true}},
 
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
@@ -1101,8 +1102,22 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
                 isOptionValid = true;
                 for parentKey, requiredValue in pairs(optionData.requiredParentValue) do
                     local dbValue = GetDBValue(parentKey);
-                    if dbValue ~= requiredValue then
-                        isOptionValid = false;
+                    if type(requiredValue) == "table" then
+                        local isCurrentRequirementMet = false;
+                        for _, value in ipairs(requiredValue) do
+                            if value == dbValue then
+                                isCurrentRequirementMet = true;
+                            end
+                        end
+                        if isCurrentRequirementMet then
+                            isOptionValid = true;
+                        else
+                            isOptionValid = false
+                        end
+                    else
+                        if dbValue ~= requiredValue then
+                            isOptionValid = false;
+                        end
                     end
                     if dbKeyToWidget[parentKey] then
                         dbKeyToWidget[parentKey].isParentOption = true;
