@@ -18,6 +18,7 @@ local GetCursorPosition = GetCursorPosition;
 local GetQuestItemInfo = GetQuestItemInfo;
 local GetQuestItemLink = GetQuestItemLink;
 local GetItemCount = C_Item.GetItemCount;
+local GetItemCooldown = C_Container.GetItemCooldown;
 
 
 local MainFrame, LoadingIndicator, PrimaryItemButton;
@@ -418,8 +419,7 @@ do  --Quest Flyout ItemButton
     function ItemButtonMixin:Layout()
         local textPaddingV = 12;
         local textPaddingH = 12;
-        local hotkeyFramePadding = 6;
-
+        local hotkeyFramePadding = 4;
         local buttonWidth = self.textLeftOffset + self.ButtonText:GetWrappedWidth() + textPaddingH;
 
         self.ButtonText:ClearAllPoints();
@@ -494,16 +494,21 @@ do  --Quest Flyout ItemButton
             self.TextBackground:SetDesaturated(false);
             self.IconBorder:SetDesaturated(false);
             self.Icon:SetDesaturated(false);
+            self.TextBackground:SetVertexColor(1, 1, 1);
+            self.IconBorder:SetVertexColor(1, 1, 1);
             self.Icon:SetVertexColor(1, 1, 1);
             self:EnableMouse(true);
             self:EnableMouseMotion(true);
         else
-            colorKey = "DarkModeGrey70";
+            colorKey = "DarkModeGrey50";
             self:ShowHighlight(false);
             self.TextBackground:SetDesaturated(true);
             self.IconBorder:SetDesaturated(true);
             self.Icon:SetDesaturated(true);
-            self.Icon:SetVertexColor(0.6, 0.6, 0.6);
+            local g = 0.6;
+            self.TextBackground:SetVertexColor(g, g, g);
+            self.IconBorder:SetVertexColor(g, g, g);
+            self.Icon:SetVertexColor(g, g, g);
             self:EnableMouse(false);
             self:EnableMouseMotion(false);
         end
@@ -544,7 +549,7 @@ do  --Quest Flyout ItemButton
     end
 
     function ItemButtonMixin:SetUsableItem(itemID, name, icon)
-        local allowPressKeyToUse = addon.GetDBBool("PressKeyToOpenContainer") and (addon.GetDBValue("InputDevice") == 1);
+        local allowPressKeyToUse = addon.GetDBBool("PressKeyToOpenContainer");
         local ActionButton = self:GetActionButton();
         local nameReady;
 
@@ -558,10 +563,10 @@ do  --Quest Flyout ItemButton
                 local f = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
                 self.HotkeyFrame = f;
                 f:SetTheme(2);
-                f:SetKey("SPACE");
+                f:SetKey("Action");
             end
             self.HotkeyFrame:Show();
-            self.HotkeyFrame:UpdateBaseHeight();
+            self.HotkeyFrame:UseCompactMode();
 
             if not nameReady then
                 self:RequestUpdateItem(0.2);
@@ -577,6 +582,7 @@ do  --Quest Flyout ItemButton
         self:RegisterEvent("BAG_UPDATE_DELAYED");
         self:RegisterEvent("LOOT_OPENED");
         self:RegisterEvent("LOOT_CLOSED");
+        self:RegisterEvent("BAG_UPDATE_COOLDOWN");
         self:SetScript("OnEvent", self.OnEvent);
 
         local count = GetItemCount(self.itemID);
@@ -596,6 +602,7 @@ do  --Quest Flyout ItemButton
             self:UnregisterEvent("BAG_UPDATE_DELAYED");
             self:UnregisterEvent("LOOT_OPENED");
             self:UnregisterEvent("LOOT_CLOSED");
+            self:UnregisterEvent("BAG_UPDATE_COOLDOWN");
             self:ReleaseActionButton();
         end
     end
@@ -638,6 +645,14 @@ do  --Quest Flyout ItemButton
             MainFrame:SetFrameStrata("MEDIUM");
         elseif event == "LOOT_CLOSED" then
             MainFrame:SetFrameStrata("FULLSCREEN_DIALOG");
+        elseif event == "BAG_UPDATE_COOLDOWN" then
+            if self.itemID then
+                local startTime, duration, enable = GetItemCooldown(self.itemID);
+                if startTime and duration and duration > 0 and enable == 1 then
+                    self.Cooldown:SetCooldownDuration(duration);
+                    self.Cooldown:Show();
+                end
+            end
         end
     end
 
@@ -793,7 +808,7 @@ do  --debug
     --[[
     C_Timer.After(0, function()
         local ib = QuestFlyout:CreateItemButton();
-        ib:SetUsableItem(37582);
+        ib:SetUsableItem(33226);    --37582
         ib:SetPoint("CENTER", UIParent, "CENTER", 0, 32);
     end)
 

@@ -926,18 +926,21 @@ local HotkeyIcons = {
     XBOX_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "RB", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     XBOX_PAD1 = {file = "XBOX-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     XBOX_PAD2 = {file = "XBOX-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    XBOX_PAD3 = {file = "XBOX-PAD3.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     XBOX_PAD4 = {file = "XBOX-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
 
     PS_PADLSHOULDER = {file = "HotkeyBackground-LB.png", themed = true, text = "L1", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "R1", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD1 = {file = "PS-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD2 = {file = "PS-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    PS_PAD3 = {file = "PS-PAD3.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD4 = {file = "PS-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
 
     SWITCH_PADLSHOULDER = {file = "HotkeyBackground-LB.png", themed = true, text = "L", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     SWITCH_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "R", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     SWITCH_PAD1 = {file = "SWITCH-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     SWITCH_PAD2 = {file = "SWITCH-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PAD3 = {file = "SWITCH-PAD3.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     SWITCH_PAD4 = {file = "SWITCH-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
 };
 
@@ -1091,6 +1094,16 @@ function DUIDialogHotkeyFrameMixin:SetShowDisabledKey(showDisabledKey)
     self.showDisabledKey = showDisabledKey == true or nil;
 end
 
+function DUIDialogHotkeyFrameMixin:UseCompactMode()
+    --Font Size + 8
+    local fontSize = addon.FontUtil:GetDefaultFontSize();
+    local frameHeight = fontSize + 2;
+    self:SetBaseHeight(frameHeight);
+    local iconSize = frameHeight - 4;
+    self.defaultIconSize = iconSize;
+    self.Icon:SetSize(iconSize, iconSize);
+    self:ReloadKey();
+end
 
 
 local ItemButtonSharedMixin = {};
@@ -2632,11 +2645,19 @@ do  --Settings, CallbackRegistry
             end
 
             GAME_PAD_CONFIRM_KEY = prefix.."PAD1";
+            HotkeyIcons.Confirm = HotkeyIcons[prefix.."PAD1"];
+            HotkeyIcons.Cancel = HotkeyIcons[prefix.."PAD2"];
+            HotkeyIcons.Action = HotkeyIcons[prefix.."PAD3"];
+            HotkeyIcons.Mod = HotkeyIcons[prefix.."PAD4"];
         else
             ANIM_OFFSET_H_BUTTON_HOVER = 8;
             HotkeyIcons.Esc = nil;
             HotkeyIcons.Shift = nil;
             GAME_PAD_CONFIRM_KEY = nil;
+            HotkeyIcons.Confirm = HotkeyIcons["SPACE"];
+            HotkeyIcons.Cancel = nil;
+            HotkeyIcons.Action = HotkeyIcons["SPACE"];
+            HotkeyIcons.Mod = nil;
         end
 
         CallbackRegistry:Trigger("PostInputDeviceChanged", dbValue);

@@ -1,6 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="FontUtil.lua"/>
     <Script file="ThemeUtil.lua"/>
+    <Script file="DeviceUtil.lua"/>
     <Script file="TextureSlice.lua"/>
     <Script file="LocaleFormatter.lua"/>
     <Script file="TTS.lua"/>

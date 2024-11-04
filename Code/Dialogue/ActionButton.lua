@@ -1,9 +1,12 @@
 local _, addon = ...
+local DeviceUtil = addon.DeviceUtil;
 
+local CreateFrame = CreateFrame;
 local InCombatLockdown = InCombatLockdown;
 local SetOverrideBindingClick = SetOverrideBindingClick;
 local SetOverrideBindingItem = SetOverrideBindingItem;
 local ClearOverrideBindings = ClearOverrideBindings;
+local GetItemNameByID = C_Item.GetItemNameByID;
 
 local SecureButtons = {};               --All SecureButton that were created. Recycle/Share unused buttons unless it was specified not to
 local PrivateSecureButtons = {};        --These are the buttons that are not shared with other modules
@@ -45,10 +48,12 @@ function SecureButtonContainer:SetPressToUseItem(key, item, ownerActionButton)
 
     if not item then return false end;
 
-    self.hasOverrideBinding = true;
-    self.ownerActionButton = ownerActionButton;
-    key = key or "SPACE";
-    SetOverrideBindingItem(self, true, key, item);
+    key = key or DeviceUtil:GetActionKey();
+    if key then
+        self.hasOverrideBinding = true;
+        self.ownerActionButton = ownerActionButton;
+        SetOverrideBindingItem(self, true, key, item);
+    end
 
     return true
 end
@@ -138,7 +143,7 @@ function SecureButtonMixin:SetUseItemByID(itemID, mouseButton, allowPressKeyToUs
         self:SetMacroText("/use item:"..itemID);
         if allowPressKeyToUse then
             if (not itemName) or itemName == "" then
-                itemName = C_Item.GetItemNameByID(itemID);
+                itemName = GetItemNameByID(itemID);
             end
             return SecureButtonContainer:SetPressToUseItem(nil, itemName, self);
         end
@@ -246,7 +251,7 @@ if false and addon.IsToCVersionEqualOrNewerThan(110000) then
     function SecureButtonMixin:SetUseItemByID(itemID, mouseButton, itemName)
         if itemID then
             if (not itemName) or itemName == "" then
-                itemName = C_Item.GetItemNameByID(itemID);
+                itemName = GetItemNameByID(itemID);
             end
             self:SetUseItemByName(itemName, mouseButton);
         end

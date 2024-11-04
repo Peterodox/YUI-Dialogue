@@ -364,7 +364,7 @@
     <Button name="DUIQuestFlyoutButtonTemplate" virtual="true">
         <Size x="64" y="64"/>
         <Layers>
-            <Layer level="OVERLAY">
+            <Layer level="OVERLAY" textureSubLevel="4">
                 <FontString parentKey="ButtonText" inherits="DUIFont_Item" justifyH="LEFT" justifyV="MIDDLE" maxLines="1">
                     <Anchors>
                         <Anchor point="LEFT"/>
@@ -412,7 +412,7 @@
                 </Texture>
             </Layer>
 
-            <Layer level="OVERLAY" textureSubLevel="1">
+            <Layer level="OVERLAY" textureSubLevel="5">
                 <Texture parentKey="BorderHighlight" alphaMode="ADD" hidden="true" alpha="0.25">
                     <Anchors>
                         <Anchor point="TOPLEFT" relativeKey="$parent.IconBorder" relativePoint="TOPLEFT"/>
@@ -421,6 +421,30 @@
                 </Texture>
             </Layer>
         </Layers>
+        <Frames>
+            <Cooldown parentKey="Cooldown" hideCountdownNumbers="false" reverse="false" hidden="true">
+                <Size x="64" y="64"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.IconBorder" relativePoint="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeKey="$parent.IconBorder" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+                <Layers>
+                    <!--Layer level="BACKGROUND">
+                        <Texture parentKey="Background" file="Interface\AddOns\Plumber\Art\Button\GenericCooldown-Background">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>	
+                        </Texture>
+                    </Layer-->
+                </Layers>
+                <SwipeTexture file="Interface\AddOns\DialogueUI\Art\Theme_Shared\QuestFlyoutButton-Cooldown-Swipe"/>
+                <!--EdgeTexture file="Interface\AddOns\Plumber\Art\Button\GenericCooldown-Edge"/-->
+                <KeyValues>
+                    <KeyValue key="noCooldownCount" value="true" type="boolean"/> <!--OmniCC-->
+                </KeyValues>
+            </Cooldown>
+        </Frames>
     </Button>
 
     <Frame name="DUIQuestFrame" mixin="DUIDialogBaseMixin" hidden="true" frameStrata="DIALOG" flattenRenderLayers="true" topLevel="true">

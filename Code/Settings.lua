@@ -316,10 +316,16 @@ function DUIDialogSettingsMixin:DisplayOptionInfo(optionData, choiceTooltip)
         end
     end
 
-    if choiceTooltip and optionData.description then
-        self.Description:SetText(optionData.description.."\n\n"..choiceTooltip);
+    if optionData.description then
+        if choiceTooltip then
+            self.Description:SetText(optionData.description.."\n\n"..choiceTooltip);
+        else
+            self.Description:SetText(optionData.description);
+        end
+    elseif choiceTooltip then
+        self.Description:SetText(choiceTooltip);
     else
-        self.Description:SetText(optionData.description);
+        self.Description:SetText(nil);
     end
 end
 
@@ -508,6 +514,19 @@ local function OutlineSparklesSupported_Validation()
     return addon.IsToCVersionEqualOrNewerThan(110000)
 end
 
+local function OpenContainerKey_TooltipFunc()
+    local deviceID = GetDBValue("InputDevice");
+    if deviceID == 2 then
+        return L["Press Key To Open Container Desc Xbox"]
+    elseif deviceID == 3 then
+        return L["Press Key To Open Container Desc PlayStation"]
+    elseif deviceID == 4 then
+        return L["Press Key To Open Container Desc Switch"]
+    else
+        return L["Press Key To Open Container Desc PC"]
+    end
+end
+
 local Schematic = { --Scheme
     {
         tabName = L["UI"],  --Cate1
@@ -635,7 +654,7 @@ local Schematic = { --Scheme
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Auto Complete Quest"], description = L["Auto Complete Quest Desc"], dbKey = "AutoCompleteQuest", preview = "QuestAutoComplete", ratio = 2},
-            {type = "Checkbox", name = L["Press Key To Open Container"], description = L["Press Key To Open Container Desc"], dbKey = "PressKeyToOpenContainer", requiredParentValue = {AutoCompleteQuest = true}},
+            {type = "Checkbox", name = L["Press Key To Open Container"], tooltip = OpenContainerKey_TooltipFunc, dbKey = "PressKeyToOpenContainer", requiredParentValue = {AutoCompleteQuest = true}},
 
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
