@@ -146,6 +146,8 @@ function EL:OnEvent(event, ...)
         end
 
     elseif event == "QUEST_DETAIL" then
+        --Can fire multiple times in rare occasions, possibly due to cross-character progress
+
         if ShouldMuteQuest() then
             if API.IsQuestAutoAccepted() then
                 API.AcknowledgeAutoAcceptQuest();

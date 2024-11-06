@@ -700,6 +700,15 @@ do  --Background Calculation \ Theme
         self:SetPoint(anchor, nil, "CENTER", defaultOffsetX, 0);
     end
 
+    function DUIBookUIMixin:UpdateSourceItemButton()
+        if self.SourceItemButton then
+            local cs = ConvertedSize;
+            self.SourceItemButton:SetTextSpacing(Formatter.TEXT_SPACING);
+            local maxTextWidth = cs.CONTENT_WIDTH - cs.ITEM_BORDER_EFFECTIVE_SIZE;
+            self.SourceItemButton:SetWidgetSize(cs.ITEM_BORDER_SIZE, cs.ITEM_ICON_SIZE, cs.ITEM_BORDER_EFFECTIVE_SIZE, Formatter.FONT_SIZE, maxTextWidth);
+        end
+    end
+
     function DUIBookUIMixin:Resize()
         --Resize after base frame/font size change (Small/Medium/Large)
         local cs = ConvertedSize;
@@ -721,12 +730,7 @@ do  --Background Calculation \ Theme
 
         self.Header:SetWidth(cs.CONTENT_WIDTH);
         self:LayoutWidgets();
-
-        if self.SourceItemButton then
-            self.SourceItemButton:SetTextSpacing(Formatter.TEXT_SPACING);
-            local maxTextWidth = cs.CONTENT_WIDTH - cs.ITEM_BORDER_EFFECTIVE_SIZE;
-            self.SourceItemButton:SetWidgetSize(cs.ITEM_BORDER_SIZE, cs.ITEM_ICON_SIZE, cs.ITEM_BORDER_EFFECTIVE_SIZE, Formatter.FONT_SIZE, maxTextWidth);
-        end
+        self:UpdateSourceItemButton();
     end
 
     function DUIBookUIMixin:SetScrollContentHeight(contentHeight, maxPage)
@@ -1254,6 +1258,7 @@ do  --Formatter
         end
 
         if self.SourceItemButton and GetDBBool("BookUIItemDescription") then
+            self:UpdateSourceItemButton();
             self.SourceItemButton:SetItem(Cache:GetCurrentItemID());
         end
         --print("MAX INDEX", Cache:GetMaxContentIndex());
@@ -1820,6 +1825,10 @@ do  --EventListener
             local isObjectChanged = Cache:SetActiveObject(objectType, objectID, itemID);
             MainFrame.Header:SetLocation(objectType == "GameObject", Cache:GetBookLocation());
             self.itemTextBegun = true;
+
+            if MainFrame.SourceItemButton then
+                MainFrame.SourceItemButton:SetItem(nil);
+            end
 
         elseif event == "ITEM_TEXT_READY" then
             self.showItemText = true;
