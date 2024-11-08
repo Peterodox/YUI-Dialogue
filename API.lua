@@ -25,6 +25,16 @@ local function AlwaysZero(arg)
     return 0
 end
 
+local function CopyEnum(name)
+    local tbl = {};
+    if Enum and Enum[name] then
+        for k, v in pairs(Enum[name]) do
+            tbl[k] = v;
+        end
+    end
+    return tbl
+end
+
 do  -- Math
     local function GetPointsDistance2D(x1, y1, x2, y2)
         return sqrt( (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))
@@ -748,6 +758,7 @@ do  -- Quest
     local FREQUENCY_WEELY = 2;      --Enum.QuestFrequency.Weekly
     local FREQUENCY_SCHEDULER = 3;  --Enum.ResetByScheduler --Includes Meta Quest: Time-gated quests that give good rewards (TWW)
     local ICON_PATH = "Interface/AddOns/DialogueUI/Art/Icons/";
+    local Enum_QuestClassification = CopyEnum("QuestClassification");
 
     local QuestGetAutoAccept = QuestGetAutoAccept or AlwaysFalse;
     local C_QuestLog = C_QuestLog;
@@ -756,12 +767,9 @@ do  -- Quest
     local QuestIsFromAreaTrigger = QuestIsFromAreaTrigger or AlwaysFalse;
     local GetSuggestedGroupSize = GetSuggestedGroupSize or AlwaysZero;
     local IsQuestTrivial = C_QuestLog.IsQuestTrivial or AlwaysFalse;
-    local IsLegendaryQuest = C_QuestLog.IsLegendaryQuest or AlwaysFalse;
-    local IsImportantQuest = C_QuestLog.IsImportantQuest or AlwaysFalse;
     local IsCampaignQuest = (C_CampaignInfo and C_CampaignInfo.IsCampaignQuest) or AlwaysFalse;
     local IsQuestTask = C_QuestLog.IsQuestTask or AlwaysFalse;
     local IsWorldQuest = C_QuestLog.IsWorldQuest or AlwaysFalse;
-    local IsMetaQuest = C_QuestLog.IsMetaQuest or AlwaysFalse;
     local GetRewardSkillPoints = GetRewardSkillPoints or AlwaysFalse;
     local GetRewardArtifactXP = GetRewardArtifactXP or AlwaysZero;
     local QuestCanHaveWarModeBonus = C_QuestLog.QuestCanHaveWarModeBonus or AlwaysFalse;
@@ -892,7 +900,20 @@ do  -- Quest
     end
 
 
-    local function CompleteQuestInfo(questInfo)
+    local QuestMixin = {};
+    do
+        function QuestMixin:Refresh()
+            self.classification = GetQuestClassification(self.questID) or -1;
+            self.isTrivial = IsQuestTrivial(self.questID);
+        end
+    end
+
+    local function BuildQuestInfo(questInfo)
+        questInfo.Refresh = QuestMixin.Refresh;
+
+        local class = GetQuestClassification(questInfo.questID) or -1;
+        questInfo.classification = class;
+
         if questInfo.isOnQuest == nil then
             questInfo.isOnQuest = IsOnQuest(questInfo.questID);
         end
@@ -906,15 +927,15 @@ do  -- Quest
         end
 
         if questInfo.isLegendary == nil then
-            questInfo.isLegendary = IsLegendaryQuest(questInfo.questID);
+            questInfo.isLegendary = class == Enum_QuestClassification.Legendary;
         end
 
         if questInfo.isImportant == nil then
-            questInfo.isImportant = IsImportantQuest(questInfo.questID);
+            questInfo.isImportant = class == Enum_QuestClassification.Important;
         end
 
         if questInfo.isTrivial == nil then
-            questInfo.isTrivial  = IsQuestTrivial(questInfo.questID);
+            questInfo.isTrivial  = IsQuestTrivial(questInfo.questID);   --May not get the correct value during the first call
         end
 
         if questInfo.frequency == nil then
@@ -922,13 +943,13 @@ do  -- Quest
             questInfo.frequency = 0;
         end
 
-        if questInfo.isMeta == nil then
-            questInfo.isMeta = IsMetaQuest(questInfo.questID);
+        if not questInfo.isMeta then
+            questInfo.isMeta = class == Enum_QuestClassification.Meta;
         end
 
         return questInfo
     end
-    API.CompleteQuestInfo = CompleteQuestInfo;
+    API.BuildQuestInfo = BuildQuestInfo;
 
     local function GetQuestIcon(questInfo)
         --QuestMapLogTitleButton_OnEnter
@@ -936,8 +957,6 @@ do  -- Quest
         if not questInfo then
             return ICON_PATH.."IncompleteQuest.png";
         end
-
-        CompleteQuestInfo(questInfo);
 
         local file;
 
@@ -947,6 +966,8 @@ do  -- Quest
                     file = "CompleteCampaignQuest.png";
                 elseif questInfo.isLegendary then
                     file = "CompleteLegendaryQuest.png";
+                elseif questInfo.isImportant then
+                    file = "CompleteImportantQuest.png";
                 else
                     file = "CompleteQuest.png";
                 end
@@ -955,6 +976,8 @@ do  -- Quest
                     file = "IncompleteCampaignQuest.png";
                 elseif questInfo.isLegendary then
                     file = "IncompleteLegendaryQuest.png";
+                elseif questInfo.isImportant then
+                    file = "IncompleteImportantQuest.png";
                 elseif questInfo.isMeta then
                     file = "IncompleteMetaQuest.png";
                 else
@@ -967,6 +990,8 @@ do  -- Quest
                 file = "DailyQuest.png";
             elseif questInfo.frequency == FREQUENCY_WEELY then
                 file = "WeeklyQuest.png";
+            elseif questInfo.frequency == FREQUENCY_SCHEDULER and not questInfo.isMeta then
+                file = "RepeatableScheduler.png";    --TWW
             elseif  questInfo.repeatable then
                 file = "RepeatableQuest.png";
             else
@@ -974,10 +999,10 @@ do  -- Quest
                     file = "AvailableCampaignQuest.png";
                 elseif questInfo.isLegendary then
                     file = "AvailableLegendaryQuest.png";
+                elseif questInfo.isImportant then
+                    file = "AvailableImportantQuest.png";
                 elseif questInfo.isMeta then
                     file = "AvailableMetaQuest.png";
-                elseif questInfo.frequency == FREQUENCY_SCHEDULER then
-                    file = "RepeatableScheduler.png";    --TWW
                 else
                     file = "AvailableQuest.png";
                 end
@@ -1307,11 +1332,11 @@ do  -- Quest
         local GetBestMapForUnit = C_Map.GetBestMapForUnit;
         function API.GetQuestLineInfo(questID)
             local uiMapID = GetBestMapForUnit("player");
-            local isQuestLineQuest, questLineName, questLineID, achievementID;
+            local hasQuestLineOnMap, questLineName, questLineID, achievementID;
             if uiMapID then
                 achievementID = C_QuestLog.GetZoneStoryInfo(uiMapID);
                 if achievementID then
-                    isQuestLineQuest = true;
+                    hasQuestLineOnMap = true;
                     local questLineInfo = C_QuestLine.GetQuestLineInfo(questID, uiMapID);
                     if questLineInfo then
                         questLineName = questLineInfo.questLineName;
@@ -1319,7 +1344,7 @@ do  -- Quest
                     end
                 end
             end
-            return isQuestLineQuest, questLineName, questLineID, uiMapID, achievementID
+            return hasQuestLineOnMap, questLineName, questLineID, uiMapID, achievementID
         end
     else
         function API.GetQuestLineInfo(questID)

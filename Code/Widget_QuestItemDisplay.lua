@@ -2,6 +2,7 @@ local _, addon = ...
 
 local L = addon.L;
 local API = addon.API;
+local CallbackRegistry = addon.CallbackRegistry;
 local C_TooltipInfo = addon.TooltipAPI;
 local ThemeUtil = addon.ThemeUtil;
 local WidgetManager = addon.WidgetManager;
@@ -10,8 +11,9 @@ local GetNumLetters = strlenutf8 or string.len;
 local Round = API.Round;
 local IsQuestLoreItem = API.IsQuestLoreItem;
 local GetBagQuestItemInfo = API.GetBagQuestItemInfo;
-local PI = math.pi;
 local After = C_Timer.After;
+
+local MerchantFrame = MerchantFrame;
 
 -- User Settings
 local IGNORE_SEEN_ITEM = false;
@@ -37,7 +39,7 @@ local PLAYER_NAME;
 
 local SEEN_ITEMS_SESSION = {};  --Items seen in this game session
 local SEEN_ITEMS_ALL = {};      --Items discovered by any of the characters
-local ALWAYS_IGNORED = {};      --Some World Quest Items
+local ONE_TIME_ITEM = {};       --Some quest items drop repeatedly. We only show it once regardless of IGNORE_SEEN_ITEM choice
 
 local READABLE_ITEM = ITEM_CAN_BE_READ or "<This item can be read>";
 local START_QUEST_ITEM = ITEM_STARTS_QUEST or "This Item Begins a Quest";
@@ -339,6 +341,17 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     if self:IsShown() then
         self:QueueItem(itemID);
         return
+    else
+        if MerchantFrame and MerchantFrame:IsShown() then
+            self:RegisterEvent("MERCHANT_SHOW");
+            self:RegisterEvent("MERCHANT_CLOSED");
+            self.atMerchant = true;
+            self:QueueItem(itemID);
+            self.anyDeferred = true;
+            return
+        else
+            self.atMerchant = nil;
+        end
     end
     self.isEditMode = false;
 
@@ -359,19 +372,22 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
                 if match(line.leftText, "^[\"“]") then
                     description = line.leftText;
                 elseif line.leftText == READABLE_ITEM or line.leftText == START_QUEST_ITEM then
-                    local color;
-                    if self.themeID == 1 then
-                        color = "700b0b";   --700b0b 9B2020
-                    else
-                        color = "b04a4a";
-                    end
-                    extraText = "|cff"..color..line.leftText.."|r";
-
                     if line.leftText == READABLE_ITEM then
                         isReadable = true;
                     else
                         isStartQuestItem = true;
                     end
+
+                    --We not longer put "extraText" like <This item can be read> into the descriptions since there is a click-to-read button in below
+                    --[[
+                    local color;
+                    if self.themeID == 1 then
+                        color = "700b0b";
+                    else
+                        color = "b04a4a";
+                    end
+                    extraText = "|cff"..color..line.leftText.."|r";
+                    --]]
                 end
             end
         end
@@ -391,10 +407,10 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
             isReadable = true;
             extraText = nil;
         end
-    else
-        if isReadable or isStartQuestItem then
-            --Event Order: item has not been pushed into bags
-            --clear name to force a requery
+    elseif isReadable or isStartQuestItem then
+        if not isRequery then
+            --In the case where the item hasn't been pushed into the bag
+            --Clear the name so we can requery it
             name = nil;
         end
     end
@@ -452,7 +468,6 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     local readTime = math.max(DURATION_MIN, 1 + (GetNumLetters(name) + (description and GetNumLetters(description) or 0) + (buttonText and GetNumLetters(buttonText) or 0)) / READING_SPEED_LETTER * 60);
     self:SetCountdown(readTime);
 
-
     if self:IsShown() then
         if WidgetManager:ChainContain(self) then
             WidgetManager:ChainLayout();
@@ -460,6 +475,9 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     else
         self:Show();
     end
+
+    self:RegisterEvent("MERCHANT_SHOW");
+    self:RegisterEvent("MERCHANT_CLOSED");
 end
 
 function QuestItemDisplay:ShowTextButton(state)
@@ -577,13 +595,15 @@ function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
     local questName = API.GetQuestName(startQuestID);
     if not (questName and questName ~= "") then
         questName = "Quest: "..startQuestID;
-        After(0.25, function()
+
+        local function OnQuestLoaded(id)
             if self:IsVisible() and self.itemID == itemID then
                 questName = API.GetQuestName(startQuestID);
                 self.ButtonText:SetText(questName);
                 self.ButtonText:Show();
             end
-        end);
+        end
+        addon.CallbackRegistry:LoadQuest(startQuestID, OnQuestLoaded)
     end
     self:SetUsableItem(itemID, questName);
 end
@@ -637,8 +657,11 @@ function QuestItemDisplay:Clear()
     self.itemType = nil;
     self.startQuestID = nil;
     self.anyDeferred = nil;
+    self.atMerchant = nil;
     self.queue = {};
     self:Hide();
+    self:UnregisterEvent("MERCHANT_SHOW");
+    self:UnregisterEvent("MERCHANT_CLOSED");
 end
 
 function QuestItemDisplay:OnDragStart()
@@ -701,6 +724,14 @@ function QuestItemDisplay:OnEvent(event, ...)
                 self:SetUsableItem(self.itemID, questName);
             end
         end
+    elseif event == "MERCHANT_SHOW" then
+        self.atMerchant = true;
+    elseif event == "MERCHANT_CLOSED" then
+        self.atMerchant = nil;
+        if self.anyDeferred then
+            self.anyDeferred = nil;
+            self:ProcessQueue();
+        end
     end
 end
 
@@ -723,7 +754,10 @@ function QuestItemDisplay:ProcessLootMessage(text)
         itemID = tonumber(itemID);
         if itemID and not SEEN_ITEMS_SESSION[itemID] then
             SEEN_ITEMS_SESSION[itemID] = true;
-            if (not ALWAYS_IGNORED[itemID]) and IsQuestLoreItem(itemID) then
+            if IsQuestLoreItem(itemID) then
+                if ONE_TIME_ITEM[itemID] and SEEN_ITEMS_ALL[itemID] then
+                    return
+                end
                 if (not IGNORE_SEEN_ITEM) or (not SEEN_ITEMS_ALL[itemID]) then
                     SEEN_ITEMS_ALL[itemID] = true;
                     self:TryDisplayItem(itemID);
@@ -853,8 +887,6 @@ end
 
 
 do
-    local CallbackRegistry = addon.CallbackRegistry;
-
     local function GetPlayerGUID()
         PLAYER_GUID = UnitGUID("player");
         PLAYER_NAME = UnitName("player");
@@ -903,6 +935,7 @@ end
 
 do
     local Items = {
+        29433,      --Grisly Trophy
         191140,     --Bronze Timepiece
         227450,     --Sky Racer's Purse
         212493,     --Odd Glob of Wax
@@ -910,16 +943,21 @@ do
         229899,     --Coffer Key Shard
         206350,     --Radiant Remnant
         224784,     --Pinnacle Cache
+        225950,     --Nerubian Chitin
+        226135,     --Nerubian Venom
+        226136,     --Nerubian Blood
+        219934,     --Spark of War
+        225741,     --Titan Disc Fragment
     };
 
     for _, itemID in ipairs(Items) do
-        ALWAYS_IGNORED[itemID] = true;
+        ONE_TIME_ITEM[itemID] = true;
     end
 
     Items = nil;
 end
 
---[[
+
 do
     function Debug_QuestItemDisplay(itemID)
         QuestItemDisplay:TryDisplayItem(itemID or 132120);

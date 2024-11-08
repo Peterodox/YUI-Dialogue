@@ -441,7 +441,7 @@ function DUIDialogOptionButtonMixin:RemoveQuestTypeText()
     end
 end
 
-function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo, requery)
+function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     local typeText;
 
     if questInfo.isTrivial then
@@ -459,29 +459,22 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo, requery)
                 elseif questInfo.frequency == 2 then
                     typeText = L["Quest Frequency Weekly"];
                 elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
-                    --[[
-                    typeText = API.GetQuestTimeLeft(questInfo.questID, true);
-                    if (not requery) and (not typeText) then
-                        After(0.5, function()
-                            if self:IsVisible() and self.questID and self.questID == questInfo.questID then
-                                self:SetQuestTypeText(questInfo, true)
-                            end
-                        end);
-                    end
-                    --]]
+
                 end
             end
         end
     end
 
     if typeText then
-        local questTypeFrame = addon.DialogueUI.questTypeFramePool:Acquire();
-        questTypeFrame:SetRightText(typeText);
-        questTypeFrame:SetPoint("RIGHT", self, "RIGHT", -HOTKEYFRAME_PADDING, 0);
-        questTypeFrame:SetParent(self);
-        local frameWidth = questTypeFrame:GetContentWidth();
-        self.hasQuestType = true;
-        self.rightFrameWidth = Round(frameWidth);
+        if not self.hasQuestType then
+            local questTypeFrame = addon.DialogueUI.questTypeFramePool:Acquire();
+            questTypeFrame:SetRightText(typeText);
+            questTypeFrame:SetPoint("RIGHT", self, "RIGHT", -HOTKEYFRAME_PADDING, 0);
+            questTypeFrame:SetParent(self);
+            local frameWidth = questTypeFrame:GetContentWidth();
+            self.hasQuestType = true;
+            self.rightFrameWidth = Round(frameWidth);
+        end
     else
         self:RemoveQuestTypeText();
     end
@@ -510,9 +503,25 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
 
     self.showIcon = true;
     self.questID = questInfo.questID;
+    self.rightFrameWidth = BUTTON_HEIGHT_LARGE;     --Reserved for displaying quest type on the right, such as Trivial, Weekly...
+    API.BuildQuestInfo(questInfo);
     self:SetQuestVisual(questInfo);
-    self:SetQuestTypeText(questInfo);
     self:SetButtonText(questInfo.title, true);
+
+    local function OnQuestLoaded(questID)
+        if self:IsQuestButton() and self.questID == questID and self:IsShown() then
+            questInfo:Refresh();
+            self:SetQuestTypeText(questInfo);
+        end
+    end
+    CallbackRegistry:LoadQuest(self.questID, OnQuestLoaded);
+end
+
+function DUIDialogOptionButtonMixin:IsQuestButton()
+    if self.type and self.type == "availableQuest" or self.type == "activeQuest" then
+        return true
+    end
+    return false
 end
 
 function DUIDialogOptionButtonMixin:SetAvailableQuest(questInfo, index, hotkey)

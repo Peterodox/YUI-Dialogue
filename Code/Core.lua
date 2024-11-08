@@ -191,7 +191,7 @@ function EL:OnEvent(event, ...)
         end
     end
 
-    --print(event, GetTimePreciseSec());    --debug
+    --print(event, GetTimePreciseSec(), ...);    --debug
 end
 
 
@@ -217,6 +217,9 @@ function EL:ListenEvent(state)
     for _, event in ipairs(QuestEvents) do
         self[method](self, event);
     end
+
+    --self[method](self, "PLAYER_INTERACTION_MANAGER_FRAME_SHOW");    --debug
+    --self[method](self, "PLAYER_INTERACTION_MANAGER_FRAME_HIDE");
 end
 
 function EL:OnUpdate(elapsed)

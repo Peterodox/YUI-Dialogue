@@ -176,29 +176,24 @@ do  --HeaderWidgetManger
         end
     end
 
-    function HeaderWidgetManger:RequestQuestLineQuest(questID, queryTimes)
+    function HeaderWidgetManger:RequestQuestLineQuest(questID, isRequery)
         self:OnHide();
         self.questID = questID;
-        self.queryTimes = queryTimes or 0;
-        local isQuestLineQuest, questLineName, questLineID, uiMapID, achievementID = API.GetQuestLineInfo(questID);
-        if isQuestLineQuest then
+        local hasQuestLineOnMap, questLineName, questLineID, uiMapID, achievementID = API.GetQuestLineInfo(questID);
+        if hasQuestLineOnMap then
             if questLineName then
                 if not self:DoesWidgetExist("BTW") then
                     self:AddQuestLineQuest(questLineName, questLineID, questID, uiMapID, achievementID);
                     self:LayoutWidgets();
                 end
-            elseif queryTimes <= 2 then
-                self.t = 0;
-                self:SetScript("OnUpdate", self.OnUpdate_LoadQuestLine);
+            elseif not isRequery then
+                local function OnQuestLoaded(id)
+                    if self.questID == id then
+                        self:RequestQuestLineQuest(questID, true);
+                    end
+                end
+                addon.CallbackRegistry:LoadQuest(questID, OnQuestLoaded);
             end
-        end
-    end
-
-    function HeaderWidgetManger:OnUpdate_LoadQuestLine(elapsed)
-        self.t = self.t + elapsed;
-        if self.t > 0.2 then
-            self.queryTimes = self.queryTimes + 1;
-            self:RequestQuestLineQuest(self.questID, self.queryTimes);
         end
     end
 

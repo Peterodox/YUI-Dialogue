@@ -392,6 +392,9 @@ function DUIDialogBaseMixin:OnLoad()
         button:Hide();
         button:ClearAllPoints();
         button.HotkeyFrame = nil;
+        button.type = nil;
+        button.hasQuestType = nil;
+        button.rightFrameWidth = nil;
     end
 
     local function OnAcquireOptionButton(button)
