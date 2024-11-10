@@ -161,6 +161,8 @@ L["Disable Camera Movement Instance"] = "Disable In Instance";
 L["Disable Camera Movement Instance Desc"] = "Disable camera movement while in dungeon or raid.";
 L["Maintain Offset While Mounted"] = "Maintain Offset While Mounted";
 L["Maintain Offset While Mounted Desc"] = "Attempt to maintain your character's position on the screen while mounted.\n\nEnabling this option may overcompensate the horizontal offset for large-sized mounts.";
+L["Camera Zoom Multiplier"] = "Zoom Multiplier";
+L["Camera Zoom Multiplier Desc"] = "The smaller the value, the closer the camera moves to the target.\n\nThe distance is also affected by the target's size.";
 
 L["Input Device"] = "Input Device";
 L["Input Device Desc"] = "Affects hotkey icons and UI layout.";

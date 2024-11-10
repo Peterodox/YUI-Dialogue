@@ -160,6 +160,8 @@ L["Disable Camera Movement Instance"] = "副本中关闭";
 L["Disable Camera Movement Instance Desc"] = "在副本中关闭镜头运动。";
 L["Maintain Offset While Mounted"] = "在骑乘时保持水平位移";
 L["Maintain Offset While Mounted Desc"] = "在你上坐骑后尝试保持你的角色在屏幕上的位置不变。\n\n勾选此选项可能会导致在你使用体形比较大的坐骑时镜头出现过度补偿。";
+L["Camera Zoom Multiplier"] = "缩放倍数";
+L["Camera Zoom Multiplier Desc"] = "数值越小摄像机与目标距离越近。\n\n目标模型大小也会影响摄像机的距离。";
 
 L["Input Device"] = "输入设备";
 L["Input Device Desc"] = "此选项影响快捷键图标和界面布局。";

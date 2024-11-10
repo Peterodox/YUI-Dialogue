@@ -19,6 +19,7 @@ local FOCUS_SHOULDER_OFFSET = FOCUS_SHOULDER_OFFSET_DEFAULT;
 local MOUNTED_CAMERA_ENABLED = true;
 local MOUNTED_CAMERA_MULTIPLIER = 4.8;  --1.85 (Netherwing)     1.25(Renewed Proto)   (update 5.725)
 local HIDE_SPARKLES = false;
+local ZOOM_MUTIPLIER = 1.0;
 ------------------
 local PAN_MULTIPLIER = 1.0;
 local PLAYER_IS_SHAPESHIFTER = false;
@@ -380,6 +381,7 @@ function CameraUtil:OnModelEvaluationComplete(modelHeight)
     if not (self.isActive and self.cameraMode == 1) then return end;
 
     local zoom;
+
     if modelHeight < 2 then
         zoom = 2.0
     elseif modelHeight < 2.6 then    --Pandaren, Elf
@@ -399,7 +401,10 @@ function CameraUtil:OnModelEvaluationComplete(modelHeight)
         end
     end
 
+    self.bestTargetZoom = zoom;
+
     if zoom then
+        zoom = zoom * ZOOM_MUTIPLIER;
         self:ZoomTo(zoom, true);
     end
 end
@@ -501,6 +506,8 @@ function CameraUtil:InitiateInteraction()
     if PLAYER_IS_SHAPESHIFTER then
         self:UpdateShapeshiftForm();
     end
+
+    self.bestTargetZoom = nil;
 
     if self.defaultCameraMode == 0 or (DISABLE_IN_INSTANCE and IsInInstance()) then
         self:Intro_None();
@@ -613,7 +620,7 @@ function FadeHelper:ShowUIParentInstantly()
     self:SnapToFadeResult();
     ShowUIParent(true);
 end
-addon.CallbackRegistry:Register("PlayerInteraction.ShowUI", "ShowUIParentInstantly", FadeHelper);  --For Classic
+CallbackRegistry:Register("PlayerInteraction.ShowUI", "ShowUIParentInstantly", FadeHelper);  --For Classic
 
 function FadeHelper:HideUIParentInstantly()
     self:SetScript("OnUpdate", nil);
@@ -772,18 +779,18 @@ do
     local function Settings_CameraMovement(dbValue)
         CameraUtil:SetDefaultCameraMode(dbValue)
     end
-    addon.CallbackRegistry:Register("SettingChanged.CameraMovement", Settings_CameraMovement);
+    CallbackRegistry:Register("SettingChanged.CameraMovement", Settings_CameraMovement);
 
     local function Settings_CameraChangeFov(dbValue)
         CHANGE_FOV = dbValue == true;
         CameraUtil:OnFovSettingsChanged()
     end
-    addon.CallbackRegistry:Register("SettingChanged.CameraChangeFov", Settings_CameraChangeFov);
+    CallbackRegistry:Register("SettingChanged.CameraChangeFov", Settings_CameraChangeFov);
 
     local function Settings_CameraMovementMountedCamera(dbValue)
         MOUNTED_CAMERA_ENABLED = dbValue == true;
     end
-    addon.CallbackRegistry:Register("SettingChanged.CameraMovementMountedCamera", Settings_CameraMovementMountedCamera);
+    CallbackRegistry:Register("SettingChanged.CameraMovementMountedCamera", Settings_CameraMovementMountedCamera);
 
     local function Settings_HideUI(dbValue, userInput)
         HIDE_UI = dbValue == true;
@@ -797,7 +804,7 @@ do
             end
         end
     end
-    addon.CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
+    CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
 
     local function Settings_HideUnitNames(dbValue, userInput)
         HIDE_UNIT_NAMES = dbValue == true;
@@ -805,12 +812,12 @@ do
             CameraUtil:SetHideUnitNames(HIDE_UNIT_NAMES);
         end
     end
-    addon.CallbackRegistry:Register("SettingChanged.HideUnitNames", Settings_HideUnitNames);
+    CallbackRegistry:Register("SettingChanged.HideUnitNames", Settings_HideUnitNames);
 
     local function Settings_CameraMovementDisableInstance(dbValue)
         DISABLE_IN_INSTANCE = dbValue == true;
     end
-    addon.CallbackRegistry:Register("SettingChanged.CameraMovementDisableInstance", Settings_CameraMovementDisableInstance);
+    CallbackRegistry:Register("SettingChanged.CameraMovementDisableInstance", Settings_CameraMovementDisableInstance);
 
     local function Settings_FrameOrientation(dbValue)
         if dbValue == 1 then
@@ -834,6 +841,24 @@ do
         end
     end
     CallbackRegistry:Register("SettingChanged.HideOutlineSparkles", Settings_HideOutlineSparkles);
+
+    local ZoomMultiplierValues = {
+        [1] = 1.0,
+        [2] = 1.5,
+        [3] = 2.0,
+        [4] = 2.5,
+        [5] = 3.0,
+    };
+    local function Settings_CameraZoomMultiplier(dbValue, userInput)
+        ZOOM_MUTIPLIER = ZoomMultiplierValues[dbValue] or 1.0;
+        if userInput and CameraUtil.isActive and CameraUtil.bestTargetZoom then
+            local oldZoom = CameraUtil.oldZoom;
+            local zoom = CameraUtil.bestTargetZoom * ZOOM_MUTIPLIER;
+            CameraUtil:ZoomTo(zoom);
+            CameraUtil.oldZoom = oldZoom;
+        end
+    end
+    addon.CallbackRegistry:Register("SettingChanged.CameraZoomMultiplier", Settings_CameraZoomMultiplier);
 end
 
 
@@ -892,7 +917,7 @@ do  --DynamicCam
         return true
     end
 
-    addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckRequiredMethods);
+    CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckRequiredMethods);
 end
 
 

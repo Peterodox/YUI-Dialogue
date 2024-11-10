@@ -348,7 +348,7 @@ end
 
 --]]
 
-local PlayerXPDataProvider = {};
+local PlayerXPDataProvider = {};    --EXP
 
 function PlayerXPDataProvider:OnLoad(bar)
     self.owner = bar;
