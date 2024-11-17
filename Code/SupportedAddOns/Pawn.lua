@@ -1,5 +1,6 @@
 -- Pawn Upgrade Arrow
 local _, addon = ...
+local API = addon.API;
 
 
 do
@@ -8,17 +9,23 @@ do
     local requiredMethods = {
         "PawnIsItemAnUpgrade";
         "PawnAddValuesToTooltip",
+        "PawnGetItemData",
     };
 
     local function OnAddOnLoaded()
-        local ShouldShowUpgrade = PawnShouldItemLinkHaveUpgradeArrow;
+        local ShouldShowUpgrade = PawnShouldItemLinkHaveUpgradeArrow;   --2nd arg: CheckLevel
         local AddValuesToTooltip = PawnAddValuesToTooltip;
         local tooltip = addon.SharedTooltip;
         local TooltipCapture = addon.TooltipCapture;
 
+        API.IsItemAnUpgrade_External = function(itemLink)
+            local result = ShouldShowUpgrade(itemLink, false);
+            return result, result ~= nil
+        end
+
         function tooltip:ProcessItemExternal(itemLink)
             TooltipCapture:ClearLines();
-            if ShouldShowUpgrade(itemLink, true) then
+            if ShouldShowUpgrade(itemLink, false) then
                 local Item = PawnGetItemData(itemLink)
                 if Item then
                     self:AddBlankLine();

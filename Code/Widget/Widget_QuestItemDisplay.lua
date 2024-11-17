@@ -32,10 +32,12 @@ local GAP_TITLE_DESC = 4;
 local CLOSE_BUTTON_SIZE = 34;
 local QUEUE_MARKER_SIZE = 17;
 local READING_SPEED_LETTER = 180 * 5;   --WPM * avg. word length
-local DURATION_MIN = 5;
+local AUTOHIDE_DELAY_MIN = 5;
+local REQUERY_DELAY = 0.5;              --Increased to 1.0 on Classic
 
-local PLAYER_GUID;
-local PLAYER_NAME;
+if not addon.IsToCVersionEqualOrNewerThan(110000) then
+    REQUERY_DELAY = 1.0;
+end
 
 local SEEN_ITEMS_SESSION = {};  --Items seen in this game session
 local SEEN_ITEMS_ALL = {};      --Items discovered by any of the characters
@@ -45,6 +47,7 @@ local READABLE_ITEM = ITEM_CAN_BE_READ or "<This item can be read>";
 local START_QUEST_ITEM = ITEM_STARTS_QUEST or "This Item Begins a Quest";
 
 local QuestItemDisplay = WidgetManager:CreateWidget(DBKEY_POSITION, WIDGET_NAME);
+WidgetManager:AddLootMessageProcessor(QuestItemDisplay, "ItemID");
 QuestItemDisplay:Hide();
 QuestItemDisplay.isChainable = true;
 addon.QuestItemDisplay = QuestItemDisplay;
@@ -365,6 +368,8 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     local isReadable, isStartQuestItem, startQuestID, isOnQuest;
 
     for i, line in ipairs(tooltipData.lines) do
+        --Classic: READABLE_ITEM isn't shown on the tooltip
+
         if line.leftText and line.type ~= 20 then
             if i == 1 then
                 name = line.leftText;
@@ -426,7 +431,7 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
         if not isRequery then
             if not self.pauseUpdate then
                 self.pauseUpdate = true;
-                After(0.5, function()
+                After(REQUERY_DELAY, function()
                     self.pauseUpdate = nil;
                     self:TryDisplayItem(itemID, true);
                 end);
@@ -465,7 +470,7 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     self.AnimIn:Stop();
     self.AnimIn:Play();
 
-    local readTime = math.max(DURATION_MIN, 1 + (GetNumLetters(name) + (description and GetNumLetters(description) or 0) + (buttonText and GetNumLetters(buttonText) or 0)) / READING_SPEED_LETTER * 60);
+    local readTime = math.max(AUTOHIDE_DELAY_MIN, 1 + (GetNumLetters(name) + (description and GetNumLetters(description) or 0) + (buttonText and GetNumLetters(buttonText) or 0)) / READING_SPEED_LETTER * 60);
     self:SetCountdown(readTime);
 
     if self:IsShown() then
@@ -544,7 +549,7 @@ function QuestItemDisplay:GetActionButton()
             self:OnLeave();
             self:SetTextBackgroundID(1);
         end);
-        ActionButton:SetScript("PostClick", function(f, button)
+        ActionButton:SetPostClickCallback(function(f, button)
             self:OnMouseUp(button);
             self:Clear();
         end);
@@ -735,34 +740,19 @@ function QuestItemDisplay:OnEvent(event, ...)
     end
 end
 
-function QuestItemDisplay:CHAT_MSG_LOOT_RETAIL(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid)
-    --Payloads are different on Classic!
-    if guid ~= PLAYER_GUID then return end;
-    self:ProcessLootMessage(text);
-end
-QuestItemDisplay.CHAT_MSG_LOOT = QuestItemDisplay.CHAT_MSG_LOOT_RETAIL;
+function QuestItemDisplay:OnItemLooted(itemID)
+    --Some readable items are not Quest Type (e.g. Secrets of Azeroth). We don't support these items
 
-function QuestItemDisplay:CHAT_MSG_LOOT_CLASSIC(text, _, _, _, playerName)
-    if playerName ~= PLAYER_NAME then return end;
-    self:ProcessLootMessage(text);
-end
+    if SEEN_ITEMS_SESSION[itemID] then return end;
 
-function QuestItemDisplay:ProcessLootMessage(text)
-    --Some readable items are not Quest Type (e.g. Secrets of Azeroth). We don't support these items.
-    local itemID = match(text, "item:(%d+)", 1);
-    if itemID then
-        itemID = tonumber(itemID);
-        if itemID and not SEEN_ITEMS_SESSION[itemID] then
-            SEEN_ITEMS_SESSION[itemID] = true;
-            if IsQuestLoreItem(itemID) then
-                if ONE_TIME_ITEM[itemID] and SEEN_ITEMS_ALL[itemID] then
-                    return
-                end
-                if (not IGNORE_SEEN_ITEM) or (not SEEN_ITEMS_ALL[itemID]) then
-                    SEEN_ITEMS_ALL[itemID] = true;
-                    self:TryDisplayItem(itemID);
-                end
-            end
+    SEEN_ITEMS_SESSION[itemID] = true;
+    if IsQuestLoreItem(itemID) then
+        if ONE_TIME_ITEM[itemID] and SEEN_ITEMS_ALL[itemID] then
+            return
+        end
+        if (not IGNORE_SEEN_ITEM) or (not SEEN_ITEMS_ALL[itemID]) then
+            SEEN_ITEMS_ALL[itemID] = true;
+            self:TryDisplayItem(itemID);
         end
     end
 end
@@ -878,21 +868,6 @@ end
 
 
 do
-    if addon.IsToCVersionEqualOrNewerThan(100000) then
-        QuestItemDisplay.CHAT_MSG_LOOT = QuestItemDisplay.CHAT_MSG_LOOT_RETAIL;
-    else
-        QuestItemDisplay.CHAT_MSG_LOOT = QuestItemDisplay.CHAT_MSG_LOOT_CLASSIC;
-    end
-end
-
-
-do
-    local function GetPlayerGUID()
-        PLAYER_GUID = UnitGUID("player");
-        PLAYER_NAME = UnitName("player");
-    end
-    CallbackRegistry:Register("PLAYER_ENTERING_WORLD", GetPlayerGUID);
-
     local function Settings_QuestItemDisplay(dbValue)
         QuestItemDisplay:EnableModule(dbValue == true);
     end

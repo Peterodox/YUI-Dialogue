@@ -61,6 +61,13 @@ local AutoCompleteQuestID = {
     [82711] = true,
     [82712] = true,
     [82746] = true,
+
+    [84222] = true,     --Secure the Perimeter
+    [84432] = true,     --Longship Landing
+    [84680] = true,     --Rock 'n Stone Revival
+    [84225] = true,     --Eggstinction
+    [84241] = true,     --Shoreline Stand
+    [85113] = true,     --Special Assignment: Storm's a Brewin
 };
 
 local ExampleQuest = {

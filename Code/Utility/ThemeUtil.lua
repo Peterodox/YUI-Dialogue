@@ -44,6 +44,7 @@ local COLORS = {
     DarkModeGoldDim = {0.796, 0.784, 0.584},
 
     WarningRed = {1.000, 0.125, 0.125},
+    BrightGreen = {0.5, 0.86, 0.5};
 };
 
 local FONT_OBJECT_COLOR = {

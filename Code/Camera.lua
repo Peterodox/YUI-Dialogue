@@ -798,6 +798,11 @@ do
             if HIDE_UI then
                 FadeHelper:HideUIParentInstantly();
                 CameraUtil:SetHideUnitNames(HIDE_UNIT_NAMES);
+                if addon.DialogueUI:IsShown() then
+                    FadeHelper.owner = addon.DialogueUI;
+                elseif addon.BookUI:IsShown() then
+                    FadeHelper.owner = addon.BookUI;
+                end
             else
                 FadeHelper:ShowUIParentInstantly();
                 CameraUtil:SetHideUnitNames(false);

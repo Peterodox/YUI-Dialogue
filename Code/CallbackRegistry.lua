@@ -68,14 +68,19 @@ end
 do  --AsyncCallback
     local EL = CreateFrame("Frame");
 
-    EL.LoadQuest = C_QuestLog.RequestLoadQuestByID;     --Not available in 60 Classic
+    --LoadQuestAPI is not available in 60 Classic
+    --In this case we will run all callbacks when the time is up
+    EL.LoadQuest = C_QuestLog.RequestLoadQuestByID;
     EL.LoadItem = C_Item.RequestLoadItemDataByID;
     EL.LoadSpell = C_Spell.RequestLoadSpellData;
 
     function EL:RunAllCallbacks(list)
         for id, callbacks in pairs(list) do
-            for _, callback in ipairs(callbacks) do
-                callback(id);
+            for _, callbackInfo in ipairs(callbacks) do
+                if (callbackInfo.oneTime and not callbackInfo.processed) or (callbackInfo.oneTime == false) then
+                    callbackInfo.processed = true;
+                    callbackInfo.func(id);
+                end
             end
         end
     end
@@ -94,8 +99,11 @@ do  --AsyncCallback
 
         if list and id and success then
             if list[id] then
-                for _, callback in ipairs(list[id]) do
-                    callback(id);
+                for _, callbackInfo in ipairs(list[id]) do
+                    if (callbackInfo.oneTime and not callbackInfo.processed) or (callbackInfo.oneTime == false) then
+                        callbackInfo.processed = true;
+                        callbackInfo.func(id);
+                    end
                 end
             end
         end
@@ -138,7 +146,7 @@ do  --AsyncCallback
         end
     end
 
-    function EL:AddCallback(key, id, callback)
+    function EL:AddCallback(key, id, callback, oneTime)
         if not self[key] then
             self[key] = {};
         end
@@ -147,12 +155,22 @@ do  --AsyncCallback
             self[key][id] = {};
         end
 
-        tinsert(self[key][id], callback);
+        if oneTime == nil then
+            oneTime = true;
+        end
+
+        local callbackInfo = {
+            func = callback,
+            oneTime = oneTime,
+            processed = false,
+        };
+
+        tinsert(self[key][id], callbackInfo);
     end
 
 
-    function CallbackRegistry:LoadQuest(id, callback)
-        EL:AddCallback("questCallbacks", id, callback);
+    function CallbackRegistry:LoadQuest(id, callback, oneTime)
+        EL:AddCallback("questCallbacks", id, callback, oneTime);
         if EL.LoadQuest then
             EL:RegisterEvent("QUEST_DATA_LOAD_RESULT");
             EL.LoadQuest(id);
@@ -163,8 +181,8 @@ do  --AsyncCallback
         EL:SetScript("OnUpdate", EL.OnUpdate);
     end
 
-    function CallbackRegistry:LoadItem(id, callback)
-        EL:AddCallback("itemCallbacks", id, callback);
+    function CallbackRegistry:LoadItem(id, callback, oneTime)
+        EL:AddCallback("itemCallbacks", id, callback, oneTime);
         if EL.LoadItem then
             EL:RegisterEvent("ITEM_DATA_LOAD_RESULT");
             EL.LoadItem(id);
@@ -175,8 +193,8 @@ do  --AsyncCallback
         EL:SetScript("OnUpdate", EL.OnUpdate);
     end
 
-    function CallbackRegistry:LoadSpell(id, callback)
-        EL:AddCallback("spellCallbacks", id, callback);
+    function CallbackRegistry:LoadSpell(id, callback, oneTime)
+        EL:AddCallback("spellCallbacks", id, callback, oneTime);
         if EL.LoadSpell then
             EL:RegisterEvent("SPELL_DATA_LOAD_RESULT");
             EL.LoadSpell(id);

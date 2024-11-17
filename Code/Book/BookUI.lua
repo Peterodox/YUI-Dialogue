@@ -1864,7 +1864,9 @@ do  --EventListener
             self:EnableGamePadStick(false);
             self:SetScript("OnGamePadStick", nil);
             self:SetScript("OnGamePadButtonDown", nil);
-
+            if self:IsShown() then
+                addon.CameraUtil:OnEnterCombatDuringInteraction();
+            end
         elseif event == "PLAYER_REGEN_ENABLED" then
             self.inCombat = false;
             if MainFrame:IsVisible() then

@@ -216,8 +216,8 @@ local function OnClickFunc_GetRewardAndCompleteQuest(completeButton)
         --if ( money and money > 0 ) then
         --    StaticPopup_Show("CONFIRM_COMPLETE_EXPENSIVE_QUEST");
         --end
-        CallbackRegistry:Trigger("TriggerQuestFinished");   --In some cases game doesn't fire QUEST_FINISHED after completing a quest?
-        GetQuestReward(choiceID);
+        local isAutoComplete = false;
+        API.CompleteCurrentQuest(choiceID, isAutoComplete);
     end
 end
 
@@ -1560,7 +1560,7 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
         --Equipment's count is always 1. No itemID in Classic
         --Inventory Itemlink may not be immediately available
         self.isEquippable = true;
-        if not self:DoesButtonHaveMarker("upgrade") then
+        if isUsable and (not self:DoesButtonHaveMarker("upgrade")) then
             local isUpgrade, isReady = API.IsRewardItemUpgrade(questInfoType, index);
             if isReady then
                 if isUpgrade then

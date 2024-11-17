@@ -265,6 +265,7 @@ do  --Auto Close Button
     end
 
     function AutoCloseButtonMixin:SetTheme(themeID)
+        self.themeID = themeID;
         if themeID == 1 then
             self.CloseButtonTexture:SetTexCoord(0, 0.25, 0, 0.25);
             self.Swipe1:SetTexCoord(0.125, 0.25, 0.25, 0.5)
@@ -293,6 +294,20 @@ do  --Auto Close Button
     function AutoCloseButtonMixin:OnClick()
         if self.owner.Close then
             self.owner:Close(true);
+        end
+    end
+
+    function AutoCloseButtonMixin:SetInteractable(state)
+        if state then
+            self:SetTheme(self.themeID);
+            self:EnableMouse(true);
+            self:EnableMouseMotion(true);
+        else
+            self.CloseButtonTexture:SetTexCoord(0, 0.25, 0.5, 0.75);
+            self.Swipe1:SetTexCoord(0.375, 0.5, 0.5, 0.75)
+            self.Swipe2:SetTexCoord(0.25, 0.375, 0.5, 0.75);
+            self:EnableMouse(false);
+            self:EnableMouseMotion(false);
         end
     end
 
@@ -683,4 +698,70 @@ do  --Event Handler
         end
     end
     WidgetManager:SetScript("OnEvent", WidgetManager.OnEvent);
+end
+
+do  --Loot Message Processor
+    local PLAYER_GUID, PLAYER_NAME;
+    local match = string.match;
+    local tonumber = tonumber;
+
+    local function GetPlayerGUID()
+        PLAYER_GUID = UnitGUID("player");
+        PLAYER_NAME = UnitName("player");
+    end
+    addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", GetPlayerGUID);
+
+
+    local LootMessageProcessorMixin = {};
+
+    function LootMessageProcessorMixin:CHAT_MSG_LOOT_RETAIL(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid)
+        --Payloads are different on Classic!
+        if guid ~= PLAYER_GUID then return end;
+        self:ProcessLootMessage(text);
+    end
+
+    function LootMessageProcessorMixin:CHAT_MSG_LOOT_CLASSIC(text, _, _, _, playerName)
+        if playerName ~= PLAYER_NAME then return end;
+        self:ProcessLootMessage(text);
+    end
+
+    function LootMessageProcessorMixin:OnItemLooted(item)
+        --Override
+    end
+
+    function LootMessageProcessorMixin:ProcessLootMessage_ItemID(text)
+        local itemID = match(text, "item:(%d+)", 1);
+        if itemID then
+            itemID = tonumber(itemID);
+            if itemID then
+                self:OnItemLooted(itemID);
+            end
+        end
+    end
+
+    function LootMessageProcessorMixin:ProcessLootMessage_ItemLink(text)
+        local link = match(text, "|H(item:[:%d]+)|h", 1);
+        if link then
+            self:OnItemLooted(link);
+        end
+    end
+
+    if addon.IsToCVersionEqualOrNewerThan(100000) then
+        LootMessageProcessorMixin.CHAT_MSG_LOOT = LootMessageProcessorMixin.CHAT_MSG_LOOT_RETAIL;
+    else
+        LootMessageProcessorMixin.CHAT_MSG_LOOT = LootMessageProcessorMixin.CHAT_MSG_LOOT_CLASSIC;
+    end
+
+    function WidgetManager:AddLootMessageProcessor(f, mode)
+        f.CHAT_MSG_LOOT = LootMessageProcessorMixin.CHAT_MSG_LOOT;
+        mode = mode or "ItemID";
+
+        if mode == "ItemID" then
+            f.ProcessLootMessage = LootMessageProcessorMixin.ProcessLootMessage_ItemID;
+        elseif mode == "ItemLink" then
+            f.ProcessLootMessage = LootMessageProcessorMixin.ProcessLootMessage_ItemLink;
+        end
+
+        return f
+    end
 end

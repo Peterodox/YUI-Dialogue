@@ -310,7 +310,7 @@ do
     end
     addon.CallbackRegistry:Register("SettingChanged.CameraMovement1MaintainPosition", Settings_CameraMovement1MaintainPosition);
 
-    local function ManualTriggerQuestFinished()
+    local function ManualTriggerQuestFinished(isAutoComplete)
         --print("TRIGGER FINISH", GetTimePreciseSec())      --debug
         if EL.lastEvent ~= "QUEST_FINISHED_FORCED" then
             EL.lastEvent = "QUEST_FINISHED_FORCED";

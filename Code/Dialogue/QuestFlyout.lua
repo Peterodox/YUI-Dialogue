@@ -17,18 +17,9 @@ local UIParent = UIParent;
 local GetCursorPosition = GetCursorPosition;
 local GetQuestItemInfo = GetQuestItemInfo;
 local GetQuestItemLink = GetQuestItemLink;
-local GetItemCount = C_Item.GetItemCount;
-local GetItemCooldown = C_Container.GetItemCooldown;
 
 
 local MainFrame, LoadingIndicator, PrimaryItemButton;
-
-local DEBUG_QUEST_DATA = {
-    questID = 1,
-    title = "Candy Bucket";
-    paragraphs = {"Candy buckets like this are located in inns throughout the realms. Go ahead... take some!"};
-    rewards = {},
-};
 
 local ContainerItemData = {};
 
@@ -89,6 +80,7 @@ do
             fontString:SetText(nil);
             fontString:Hide();
             fontString:ClearAllPoints();
+            fontString.width = 0;
         end
 
         local function OnAcquireFontString(fontString)
@@ -146,18 +138,42 @@ do
             colorKey = "DarkModeGrey70";
         end
 
+        local fs;
+        local numLines = 0;
+
         for i, text in ipairs(paragraphs) do
-            local fs = self.fontStringPool:Acquire();
-            fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -textHeight);
-            fs:SetText(text);
-            ThemeUtil:SetFontColor(fs, colorKey);
-            local width = fs:GetWrappedWidth();
-            if width > maxTextWidth then
-                maxTextWidth = width;
+            TPP = paragraphs;   --debug
+            if text and text ~= "" and text ~= " " then
+                numLines = numLines + 1;
+                fs = self.fontStringPool:Acquire();
+                fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", 0, -textHeight);
+                fs:SetText(text);
+                ThemeUtil:SetFontColor(fs, colorKey);
+                local width = fs:GetWrappedWidth();
+                if width > maxTextWidth then
+                    maxTextWidth = width;
+                end
+                fs.width = width;
+                textHeight = textHeight + Round(textHeight + fs:GetHeight() + PARAGRAPH_SPACING);
+                print(i, text)
             end
-            textHeight = textHeight + Round(textHeight + fs:GetHeight() + PARAGRAPH_SPACING);
         end
         textHeight = textHeight - PARAGRAPH_SPACING;
+
+        if numLines < 2 then
+            local reposition;
+            if textHeight < 24 then
+                reposition = true;
+                textHeight = 24;
+            end
+            if maxTextWidth < ITEM_TEXT_WIDTH then
+                maxTextWidth = ITEM_TEXT_WIDTH;
+            end
+            if fs and reposition then
+                fs:ClearAllPoints();
+                fs:SetPoint("LEFT", self.ContentFrame, "LEFT", 0.5*(maxTextWidth - fs.width), 0);
+            end
+        end
 
         self.bodyHeight = textHeight;
         self.bodyWidth = maxTextWidth;
@@ -180,7 +196,7 @@ do
                     itemButton:ClearAllPoints();
                     itemButton:SetParent(self);
                     itemButton:SetPoint("TOP", self, "BOTTOM", 0, -24);
-                    itemButton:Show();
+                    itemButton:ShowButton();
                     break
                 end
             end
@@ -281,7 +297,7 @@ do
                     self:Close();
                 end
             else
-                --QuestFlyout:SetQuestData(DEBUG_QUEST_DATA);
+
             end
         elseif event == "QUEST_TURNED_IN" then
             local questID, xpReward, moneyReward = ...
@@ -306,12 +322,18 @@ do
                 self:DisplayErrorMessage(message);
                 LoadingIndicator:FadeOut();
             end
+        elseif event == "LOOT_OPENED" then
+            self:SetFrameStrata("MEDIUM");
+        elseif event == "LOOT_CLOSED" then
+            self:SetFrameStrata("FULLSCREEN_DIALOG");
         end
     end
 
     function QuestFlyoutFrameMixin:OnShow()
         self:SetFrameStrata("FULLSCREEN_DIALOG");
         self:Raise();
+        self:RegisterEvent("LOOT_OPENED");
+        self:RegisterEvent("LOOT_CLOSED");
     end
 
     function QuestFlyoutFrameMixin:OnHide()
@@ -325,6 +347,8 @@ do
             if PrimaryItemButton then
                 PrimaryItemButton:Hide();
             end
+            self:UnregisterEvent("LOOT_OPENED");
+            self:UnregisterEvent("LOOT_CLOSED");
         end
     end
 
@@ -388,318 +412,6 @@ end
 addon.CallbackRegistry:Register("TextSpacingChanged", TextSpacingChanged);
 
 
-local ItemButtonMixin = {};
-do  --Quest Flyout ItemButton
-    function ItemButtonMixin:OnEnter()
-        if self.enabled then
-            self:ShowHighlight(true);
-        else
-            self:ShowHighlight(false);
-        end
-    end
-
-    function ItemButtonMixin:OnLeave()
-        self:ShowHighlight(false);
-    end
-
-    function ItemButtonMixin:SetButtonText(text)
-        self.ButtonText:SetWidth(ITEM_TEXT_WIDTH);
-        self.ButtonText:SetText(text);
-        self:Layout();
-    end
-
-    function ItemButtonMixin:OnMouseDown()
-
-    end
-
-    function ItemButtonMixin:OnMouseUp()
-
-    end
-
-    function ItemButtonMixin:Layout()
-        local textPaddingV = 12;
-        local textPaddingH = 12;
-        local hotkeyFramePadding = 4;
-        local buttonWidth = self.textLeftOffset + self.ButtonText:GetWrappedWidth() + textPaddingH;
-
-        self.ButtonText:ClearAllPoints();
-        if self.HotkeyFrame and self.HotkeyFrame:IsShown() then
-            self.HotkeyFrame:ClearAllPoints();
-            self.HotkeyFrame:SetPoint("LEFT", self.TextBackground, "LEFT", self.textLeftOffset, 0);
-            self.ButtonText:SetPoint("LEFT", self.HotkeyFrame, "RIGHT", hotkeyFramePadding, 0);
-            buttonWidth = buttonWidth + self.HotkeyFrame:GetWidth() + hotkeyFramePadding;
-        else
-            self.ButtonText:SetPoint("LEFT", self.TextBackground, "LEFT", self.textLeftOffset, 0);
-        end
-
-        local buttonHeight = Round(self.ButtonText:GetHeight() + 2 * textPaddingV);
-        local minButtonWidth = 3 * buttonHeight;
-
-        if buttonWidth < minButtonWidth then
-            buttonWidth = minButtonWidth;
-        end
-        buttonWidth = Round(buttonWidth);
-
-        local coordLeft = 1 - 0.125 * buttonWidth/buttonHeight;
-        if coordLeft < 0 then
-            coordLeft = 0;
-        end
-
-        self.TextBackground:SetSize(buttonWidth, buttonHeight);
-        self.TextBackground:SetTexCoord(coordLeft, 1, (self.colorIndex - 1) * 0.125, self.colorIndex * 0.125);
-        self.TextHighlight:SetTexCoord(coordLeft, 1, (self.colorIndex - 1) * 0.125, self.colorIndex * 0.125);
-
-        self:SetWidth(Round(self.iconEffectiveWidth + buttonWidth));
-    end
-
-    function ItemButtonMixin:SetItemByID(itemID, name, icon)
-        --debug
-        self.itemID = itemID;
-        icon = icon or C_Item.GetItemIconByID(itemID);
-        if (not name) or name == "" then
-            name = C_Item.GetItemNameByID(itemID);
-        end
-        self.Icon:SetTexture(icon);
-        self:SetButtonText(name);
-    end
-
-    function ItemButtonMixin:SetColorIndex(colorIndex)
-        colorIndex = colorIndex or 1;
-        colorIndex = (colorIndex > 5 and 1) or colorIndex;
-        self.colorIndex = colorIndex;
-        ThemeUtil:SetFontColor(self.ButtonText, "DarkModeGold");
-    end
-
-    function ItemButtonMixin:ShowHighlight(state)
-        if state then
-            self.TextHighlight:Show();
-            self.BorderHighlight:Show();
-        else
-            self.TextHighlight:Hide();
-            self.BorderHighlight:Hide();
-        end
-    end
-
-    function ItemButtonMixin:SetButtonEnabled(isEnabled)
-        self.enabled = isEnabled;
-        local colorKey;
-
-        if isEnabled then
-            colorKey = "DarkModeGold";
-            if self.ActionButton and self.ActionButton:IsFocused() then
-                self:ShowHighlight(true);
-            else
-                self:ShowHighlight(false);
-            end
-            self.TextBackground:SetDesaturated(false);
-            self.IconBorder:SetDesaturated(false);
-            self.Icon:SetDesaturated(false);
-            self.TextBackground:SetVertexColor(1, 1, 1);
-            self.IconBorder:SetVertexColor(1, 1, 1);
-            self.Icon:SetVertexColor(1, 1, 1);
-            self:EnableMouse(true);
-            self:EnableMouseMotion(true);
-        else
-            colorKey = "DarkModeGrey50";
-            self:ShowHighlight(false);
-            self.TextBackground:SetDesaturated(true);
-            self.IconBorder:SetDesaturated(true);
-            self.Icon:SetDesaturated(true);
-            local g = 0.6;
-            self.TextBackground:SetVertexColor(g, g, g);
-            self.IconBorder:SetVertexColor(g, g, g);
-            self.Icon:SetVertexColor(g, g, g);
-            self:EnableMouse(false);
-            self:EnableMouseMotion(false);
-        end
-
-        ThemeUtil:SetFontColor(self.ButtonText, colorKey);
-    end
-
-    function ItemButtonMixin:GetActionButton()
-        local ActionButton = addon.AcquireSecureActionButton("QuestAutoCompleteFlyout");
-        if ActionButton then
-            self.ActionButton = ActionButton;
-            ActionButton:SetScript("OnEnter", function()
-                self:OnEnter();
-            end);
-            ActionButton:SetScript("OnLeave", function()
-                self:OnLeave();
-            end);
-            ActionButton:SetScript("PostClick", function(f, button)
-                self:OnMouseUp(button);
-            end);
-            ActionButton:SetParent(self);
-            ActionButton:SetFrameStrata(self:GetFrameStrata());
-            ActionButton:SetFrameLevel(self:GetFrameLevel() + 5);
-            ActionButton.onEnterCombatCallback = function()
-                self:SetButtonEnabled(false);
-            end;
-            self:SetButtonEnabled(true);
-            return ActionButton
-        else
-            self:SetButtonEnabled(false);
-        end
-    end
-
-    function ItemButtonMixin:ReleaseActionButton()
-        if self.ActionButton then
-            self.ActionButton:Release();
-        end
-    end
-
-    function ItemButtonMixin:SetUsableItem(itemID, name, icon)
-        local allowPressKeyToUse = addon.GetDBBool("PressKeyToOpenContainer");
-        local ActionButton = self:GetActionButton();
-        local nameReady;
-
-        if ActionButton then
-            nameReady = ActionButton:SetUseItemByID(itemID, "AnyButton", allowPressKeyToUse, name);
-            ActionButton:CoverObject(self, 4);
-        end
-
-        if allowPressKeyToUse then
-            if not self.HotkeyFrame then
-                local f = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
-                self.HotkeyFrame = f;
-                f:SetTheme(2);
-                f:SetKey("Action");
-            end
-            self.HotkeyFrame:Show();
-            self.HotkeyFrame:UseCompactMode();
-
-            if not nameReady then
-                self:RequestUpdateItem(0.2);
-            end
-        else
-            if self.HotkeyFrame then
-                self.HotkeyFrame:Hide();
-            end
-        end
-
-        self:SetItemByID(itemID, name, icon);
-        self:RegisterEvent("PLAYER_REGEN_ENABLED");
-        self:RegisterEvent("BAG_UPDATE_DELAYED");
-        self:RegisterEvent("LOOT_OPENED");
-        self:RegisterEvent("LOOT_CLOSED");
-        self:RegisterEvent("BAG_UPDATE_COOLDOWN");
-        self:SetScript("OnEvent", self.OnEvent);
-
-        local count = GetItemCount(self.itemID);
-        if count > 0 then
-            self:SetButtonEnabled(true);
-        else
-            self:SetButtonEnabled(false);
-            self:ReleaseActionButton();
-        end
-    end
-
-    function ItemButtonMixin:OnHide()
-        if not self:IsShown() then
-            self.t = 0;
-            self:SetScript("OnUpdate", nil);
-            self:UnregisterEvent("PLAYER_REGEN_ENABLED");
-            self:UnregisterEvent("BAG_UPDATE_DELAYED");
-            self:UnregisterEvent("LOOT_OPENED");
-            self:UnregisterEvent("LOOT_CLOSED");
-            self:UnregisterEvent("BAG_UPDATE_COOLDOWN");
-            self:ReleaseActionButton();
-        end
-    end
-
-    function ItemButtonMixin:OnUpdate_BagUpdate(elapsed)
-        self.t = self.t + elapsed;
-        if self.t > self.delay then
-            self.t = 0;
-            self:SetScript("OnUpdate", nil);
-            self:UpdateItem();
-        end
-    end
-
-    function ItemButtonMixin:UpdateItem()
-        if self.itemID then
-            self:SetUsableItem(self.itemID);
-        else
-            self:SetButtonEnabled(false);
-            self:ReleaseActionButton();
-        end
-    end
-
-    function ItemButtonMixin:RequestUpdateItem(delay)
-        delay = delay or 0.033;
-        self.delay = delay;
-        self.t = 0;
-        self:SetScript("OnUpdate", self.OnUpdate_BagUpdate);
-    end
-
-    function ItemButtonMixin:OnEvent(event, ...)
-        if event == "PLAYER_REGEN_ENABLED" then
-            if self.itemID then
-                self:SetUsableItem(self.itemID);
-            end
-        elseif event == "BAG_UPDATE_DELAYED" then
-            if self.itemID then
-                self:RequestUpdateItem();
-            end
-        elseif event == "LOOT_OPENED" then
-            MainFrame:SetFrameStrata("MEDIUM");
-        elseif event == "LOOT_CLOSED" then
-            MainFrame:SetFrameStrata("FULLSCREEN_DIALOG");
-        elseif event == "BAG_UPDATE_COOLDOWN" then
-            if self.itemID then
-                local startTime, duration, enable = GetItemCooldown(self.itemID);
-                if startTime and duration and duration > 0 and enable == 1 then
-                    self.Cooldown:SetCooldownDuration(duration);
-                    self.Cooldown:Show();
-                end
-            end
-        end
-    end
-
-    function QuestFlyout:CreateItemButton(parent)
-        local f = CreateFrame("Frame", nil, parent, "DUIQuestFlyoutButtonTemplate");
-        local texture = "Interface/AddOns/DialogueUI/Art/Theme_Shared/QuestFlyoutButton.png";
-
-        local borderSize = 52;
-        local iconSize = 64/96 * borderSize;
-        f.iconEffectiveWidth = 64/96 * borderSize;
-        f.textLeftOffset = 40/96 * borderSize;
-
-        local textBgLeftOffset = 64/96 * borderSize;
-        f.TextBackground:ClearAllPoints();
-        f.TextBackground:SetPoint("LEFT", f, "LEFT", textBgLeftOffset, 0);
-
-        f:SetHeight(72/96 * borderSize);
-
-        f.TextBackground:SetTexture(texture);
-        f.TextHighlight:SetTexture(texture);
-
-        f.Icon:SetTexCoord(0.0625, 0.9275, 0.0625, 0.9275);
-        f.Icon:SetSize(iconSize, iconSize);
-
-        f.IconBorder:SetTexture(texture);
-        f.IconBorder:SetTexCoord(416/512, 1, 416/512, 1);
-        f.IconBorder:SetSize(borderSize, borderSize);
-        f.BorderHighlight:SetTexture(texture);
-        f.BorderHighlight:SetTexCoord(416/512, 1, 416/512, 1);
-        f.BorderHighlight:SetSize(borderSize, borderSize);
-
-        API.Mixin(f, ItemButtonMixin);
-        f:SetScript("OnEnter", f.OnEnter);
-        f:SetScript("OnLeave", f.OnLeave);
-        f:SetScript("OnMouseDown", f.OnMouseDown);
-        f:SetScript("OnMouseUp", f.OnMouseUp);
-        f:SetScript("OnHide", f.OnHide);
-
-        f:SetColorIndex(2);
-
-        f.Icon:SetTexture(132940);
-
-        return f
-    end
-end
-
-
 do
     function QuestFlyout:PlaceFrameAtCursor()
         local x, y = GetCursorPosition();
@@ -760,7 +472,6 @@ do
         self:ShowLoadingIndicator();
 
         MainFrame:Hide();
-        questData = questData or DEBUG_QUEST_DATA;
         MainFrame:SetQuestData(questData);
         self:PlaceFrameAtCursor();
 
@@ -770,10 +481,11 @@ do
 
     function QuestFlyout:SetupItemButton(name, icon, itemID)
         if not PrimaryItemButton then
-            PrimaryItemButton = self:CreateItemButton();
+            PrimaryItemButton = API.CreateItemActionButton(nil);
         end
         PrimaryItemButton:SetColorIndex(ContainerItemData[itemID]);
-        PrimaryItemButton:SetUsableItem(itemID);
+        local allowPressKeyToUse = addon.GetDBBool("PressKeyToOpenContainer");
+        PrimaryItemButton:SetUsableItem(itemID, allowPressKeyToUse);
         return PrimaryItemButton
     end
 
@@ -792,7 +504,7 @@ end
 
 
 ContainerItemData = {
-    --[itemID] = colorIndex,
+    --[itemID] = colorIndex,    --Red, Purple, Blue, Green, Teal
     [37586] = 2,
     [224784] = 2,
     [229354] = 3,
@@ -801,19 +513,5 @@ ContainerItemData = {
     [225571] = 2,
     [225572] = 2,
     [225573] = 2,
+    [232372] = 3,
 };
-
-
-do  --debug
-    --[[
-    C_Timer.After(0, function()
-        local ib = QuestFlyout:CreateItemButton();
-        ib:SetUsableItem(33226);    --37582
-        ib:SetPoint("CENTER", UIParent, "CENTER", 0, 32);
-    end)
-
-    function TTT()
-        QuestFlyout:SetQuestData()
-    end
-    --]]
-end

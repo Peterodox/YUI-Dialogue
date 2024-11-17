@@ -1596,7 +1596,7 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     if GetDBBool("AutoCompleteQuest") and (not self.chooseItems) then
         local questID = GetQuestID();
         local title = GetQuestTitle();
-        if GossipDataProvider:ShouldAutoCompleteQuest(questID, title) and GetQuestReward then
+        if GossipDataProvider:ShouldAutoCompleteQuest(questID, title) then
             local questData = {
                 questID = questID,
                 title = title,
@@ -1604,9 +1604,9 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
                 rewards = rewardList,
             };
 
-            CallbackRegistry:Trigger("TriggerQuestFinished");   --In some cases game doesn't fire QUEST_FINISHED after completing a quest?
+            local isAutoComplete = true;
+            API.CompleteCurrentQuest(0, isAutoComplete);
             addon.QuestFlyout:SetQuestData(questData);
-            GetQuestReward(0);
 
             return false
         end
@@ -1969,7 +1969,7 @@ function DUIDialogBaseMixin:RequestItemUpgrade()
     if self.isRequestingItemLevel then return end;
     self.isRequestingItemLevel = true;
 
-    After(0.25, function()
+    After(0.33, function()
         self.isRequestingItemLevel = nil;
         local playAnimation = self:IsChoosingReward();
         self.itemButtonPool:ProcessActiveObjects(function(button)
@@ -2094,7 +2094,7 @@ function DUIDialogBaseMixin:PlayIntroAnimation()
     self:SetScript("OnUpdate", ActiveAnimIntro);
 end
 
-local Handler = {
+local DialogHandlers = {
     ["GOSSIP_SHOW"] = "HandleGossip",
     ["QUEST_DETAIL"] = "HandleQuestDetail",         --See the details of an available quest
     ["QUEST_PROGRESS"] = "HandleQuestProgress",     --Show status of a taken quest. "Continue" button
@@ -2116,15 +2116,19 @@ function DUIDialogBaseMixin:ShowUI(event, ...)
     end
 
     local shouldShowUI;
-
-    if Handler[event] then
-        self.handler = Handler[event];
+    local handler = DialogHandlers[event];
+    if handler then
+        local playFadeIn = self.handler and self.handler ~= handler;    --Since 11.0.5? QUEST_DETAIL can fire repeatedly even though there is no real update
+        self.handler = handler;
         self.handlerArgs = { ... };
-        local playFadeIn = true;
-        shouldShowUI = self[ Handler[event] ](self, playFadeIn);
+        shouldShowUI = self[handler](self, playFadeIn);
     end
 
-    if not shouldShowUI then return end;
+    if not shouldShowUI then
+        self.handler = nil;
+        self.handlerArgs = nil;
+        return
+    end
 
     if not self:IsShown() then
         CameraUtil:InitiateInteraction();

@@ -9,7 +9,6 @@ local tostring = tostring;
 local find = string.find;
 
 local LOCALE = GetLocale and GetLocale() or "enUS";
-local IS_TWW = addon.IsToCVersionEqualOrNewerThan(110000);
 
 
 local function AlwaysNil(arg)
@@ -763,6 +762,7 @@ do  -- Quest
     local QuestGetAutoAccept = QuestGetAutoAccept or AlwaysFalse;
     local C_QuestLog = C_QuestLog;
     local IsOnQuest = C_QuestLog.IsOnQuest;
+    local GetQuestReward = GetQuestReward;
     local ReadyForTurnIn = C_QuestLog.ReadyForTurnIn or IsQuestComplete or AlwaysFalse;
     local QuestIsFromAreaTrigger = QuestIsFromAreaTrigger or AlwaysFalse;
     local GetSuggestedGroupSize = GetSuggestedGroupSize or AlwaysZero;
@@ -899,6 +899,12 @@ do  -- Quest
         end
     end
 
+    local function CompleteCurrentQuest(rewardChoiceID, isAutoComplete)
+        rewardChoiceID = rewardChoiceID or 0;
+        GetQuestReward(rewardChoiceID);
+        CallbackRegistry:Trigger("TriggerQuestFinished", isAutoComplete);   --In some cases game doesn't fire QUEST_FINISHED after completing a quest?
+    end
+    API.CompleteCurrentQuest = CompleteCurrentQuest;
 
     local QuestMixin = {};
     do
@@ -1132,7 +1138,7 @@ do  -- Quest
         return MAX_QUESTS - numQuests, MAX_QUESTS
     end
 
-    local GetItemInfoInstant = C_Item.GetItemInfoInstant or GetItemInfoInstant;
+    local GetItemInfoInstant = C_Item.GetItemInfoInstant;
     local select = select;
 
     local function IsQuestLoreItem(item)
@@ -2020,7 +2026,7 @@ end
 do  -- Tooltip
     local GetInventoryItemLink = GetInventoryItemLink;
     local GetInventoryItemID = GetInventoryItemID;
-    local GetItemInfoInstant = C_Item.GetItemInfoInstant or GetItemInfoInstant;
+    local GetItemInfoInstant = C_Item.GetItemInfoInstant;
     local GetQuestItemLink = GetQuestItemLink;
 
     local EQUIPLOC_SLOTID = {
@@ -2221,10 +2227,16 @@ do  -- Tooltip
     end
     API.GetRewardItemLevelDelta = GetRewardItemLevelDelta;
 
+    local function IsItemAnUpgrade(newLink)
+        local delta, isReady = GetMaxEquippedItemLevelDelta(newLink)
+        return (delta and delta > 0), isReady
+    end
+    API.IsItemAnUpgrade = IsItemAnUpgrade;
+    API.IsItemAnUpgrade_External = IsItemAnUpgrade;     --Override our API if Pawn is installed (see SupportedAddOns/Pawn.lua)
 
     local function IsRewardItemUpgrade(questInfoType, index)
-        local delta, isReady = GetRewardItemLevelDelta(questInfoType, index);
-        return (delta and delta > 0), isReady
+        local newLink = GetQuestItemLink(questInfoType, index);
+        return API.IsItemAnUpgrade_External(newLink)
     end
     API.IsRewardItemUpgrade = IsRewardItemUpgrade;
 
@@ -2626,9 +2638,11 @@ do  -- Items
     local IsCosmeticItem = C_Item.IsCosmeticItem or IsCosmeticItem or AlwaysFalse;
     local GetTransmogItemInfo = (C_TransmogCollection and C_TransmogCollection.GetItemInfo) or AlwaysFalse;
     local GetItemLevel = C_Item.GetDetailedItemLevelInfo or GetDetailedItemLevelInfo or AlwaysZero;
-    local GetItemInfo = C_Item.GetItemInfo or GetItemInfo;
+    local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+    local GetItemInfo = C_Item.GetItemInfo;
     local IsDressableItem = C_Item.IsDressableItemByID or IsDressableItem or AlwaysFalse;
     local GetQuestItemLink = GetQuestItemLink;
+    local GetToyInfo = C_ToyBox and C_ToyBox.GetToyInfo or AlwaysNil;
 
     API.IsEquippableItem = IsEquippableItem;
     API.IsCosmeticItem = IsCosmeticItem;
@@ -2667,6 +2681,29 @@ do  -- Items
         end
     end
     API.GetQuestChoiceSellPrice = GetQuestChoiceSellPrice;
+
+    local function GetItemClassification(item)
+        if IsCosmeticItem(item) then
+            return "cosmetic"
+        end
+
+        local itemID, _, _, _, _, classID, subClassID = GetItemInfoInstant(item);
+        if classID == 2 or classID == 4 then
+            return "equipment"
+        elseif classID == 17 then
+            return "pet"
+        elseif classID == 15 then
+            if subClassID == 5 then
+                return "mount"
+            end
+
+            local toyItemID = GetToyInfo(itemID);
+            if toyItemID then
+                return "toy"
+            end
+        end
+    end
+    API.GetItemClassification = GetItemClassification;
 end
 
 do  -- Keybindings
@@ -2728,7 +2765,7 @@ do  -- Inventory Bags Container
         if count and count > 0 then 
             for bagID = 0, NUM_BAG_SLOTS do
                 for slotID = 1, GetContainerNumSlots(bagID) do
-                    if(GetContainerItemID(bagID, slotID) == itemID) then
+                    if (GetContainerItemID(bagID, slotID) == itemID) then
                         return bagID, slotID
                     end
                 end
@@ -2738,7 +2775,7 @@ do  -- Inventory Bags Container
     API.GetItemBagPosition = GetItemBagPosition;
 
     local function GetBagQuestItemInfo(itemID)
-        --used in 
+        --used in Widget_QuestItemDisplay
         local bagID, slotID = GetItemBagPosition(itemID);
         if bagID and slotID then
             local containerInfo = GetContainerItemInfo(bagID, slotID);
@@ -2751,12 +2788,39 @@ do  -- Inventory Bags Container
                     itemInfo.questID = questInfo.questID;
                     itemInfo.isOnQuest = questInfo.isActive;
                 end
-                
                 return itemInfo
             end
         end
     end
     API.GetBagQuestItemInfo = GetBagQuestItemInfo;
+
+    local function GetItemLinkInBag(itemID)
+        if not itemID then return end;
+
+        local count = GetItemCount(itemID);
+        if count and count > 0 then
+            for bagID = 0, NUM_BAG_SLOTS do
+                for slotID = 1, GetContainerNumSlots(bagID) do
+                    if (GetContainerItemID(bagID, slotID) == itemID) then
+                        local containerInfo = GetContainerItemInfo(bagID, slotID);
+                        if containerInfo then
+                            return containerInfo.hyperlink
+                        end
+                    end
+                end
+            end
+
+            local GetInventoryItemID = GetInventoryItemID;
+            for slotID = 1, 19 do
+                if GetInventoryItemID("player", slotID) == itemID then
+                    return GetInventoryItemLink("player", slotID)
+                end
+            end
+
+            return string.format("|Hitem:%d|h", itemID)
+        end
+    end
+    API.GetItemLinkInBag = GetItemLinkInBag;
 end
 
 do  -- Spell
@@ -2772,7 +2836,7 @@ do  -- Spell
     end
     API.GetGlyphIDForSpell = GetGlyphIDForSpell;
 
-    if IS_TWW then
+    if addon.IsToCVersionEqualOrNewerThan(110000) then
         local GetSpellInfo_Table = C_Spell.GetSpellInfo;    --{"name", "rank", "iconID", "castTime", "minRange", "maxRange", "spellID", "originalIconID"}
 
         local function GetSpellName(spellID)
