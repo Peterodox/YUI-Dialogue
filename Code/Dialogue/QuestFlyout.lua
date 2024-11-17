@@ -4,6 +4,7 @@ local L = addon.L;
 local ThemeUtil = addon.ThemeUtil;
 local QUEST_ERROR_TYPES = addon.QUEST_ERROR_TYPES;      --See AlertFrame.lua
 local Round = API.Round;
+local IsContainerItem = API.IsContainerItem;
 
 local QuestFlyout = {};
 addon.QuestFlyout = QuestFlyout;
@@ -21,7 +22,6 @@ local GetQuestItemLink = GetQuestItemLink;
 
 local MainFrame, LoadingIndicator, PrimaryItemButton;
 
-local ContainerItemData = {};
 
 local QuestFlyoutFrameMixin = {};
 do
@@ -190,7 +190,7 @@ do
             if method == "SetRewardItem" then
                 index = data[2];
                 name, icon, itemID, isUsable = QuestFlyout:GetRewardItemInfo(index);
-                if (itemID and ContainerItemData[itemID]) and isUsable then
+                if IsContainerItem(itemID) and isUsable then
                     anyContainer = true;
                     local itemButton = QuestFlyout:SetupItemButton(name, icon, itemID);
                     itemButton:ClearAllPoints();
@@ -483,7 +483,6 @@ do
         if not PrimaryItemButton then
             PrimaryItemButton = API.CreateItemActionButton(nil);
         end
-        PrimaryItemButton:SetColorIndex(ContainerItemData[itemID]);
         local allowPressKeyToUse = addon.GetDBBool("PressKeyToOpenContainer");
         PrimaryItemButton:SetUsableItem(itemID, allowPressKeyToUse);
         return PrimaryItemButton
@@ -501,17 +500,3 @@ do
         return name, texture, itemID, isUsable
     end
 end
-
-
-ContainerItemData = {
-    --[itemID] = colorIndex,    --Red, Purple, Blue, Green, Teal
-    [37586] = 2,
-    [224784] = 2,
-    [229354] = 3,
-    [226263] = 5,
-    [226273] = 3,
-    [225571] = 2,
-    [225572] = 2,
-    [225573] = 2,
-    [232372] = 3,
-};

@@ -13,6 +13,7 @@ local GetItemIconByID = C_Item.GetItemIconByID;
 local GetItemNameByID = C_Item.GetItemNameByID;
 local GetItemQualityByID = C_Item.GetItemQualityByID;
 local IsEquippedItem = C_Item.IsEquippedItem;
+local PlayerHasTransmogByItemID = (C_TransmogCollection and C_TransmogCollection.PlayerHasTransmog) or API.AlwaysTrue;
 
 
 local ITEM_TEXT_WIDTH = 192;
@@ -120,7 +121,7 @@ do  --Quest Flyout ItemButton
     function ItemButtonMixin:SetItem(item)
         local itemID;
         if type(item) == "number" then
-            self.hyperlink = API.GetItemLinkInBag(self.itemID);
+            self.hyperlink = API.GetItemLinkInBag(item);
             itemID = item;
         else
             self.hyperlink = item;
@@ -133,10 +134,10 @@ do  --Quest Flyout ItemButton
     end
 
     function ItemButtonMixin:SetColorIndex(colorIndex)
-        --Red, Purple, Blue, Green, Teal
+        --Grey, Green, Blue, Purple, Red, Teal
         --Need to be set before Layout (SetButtonText)
-        colorIndex = colorIndex or 1;
-        colorIndex = (colorIndex > 5 and 1) or colorIndex;
+        colorIndex = colorIndex or 5;
+        colorIndex = (colorIndex > 6 and 1) or colorIndex;
         self.colorIndex = colorIndex;
         ThemeUtil:SetFontColor(self.ButtonText, "DarkModeGold");
     end
@@ -146,11 +147,11 @@ do  --Quest Flyout ItemButton
         if quality == 1 then
             colorIndex = 1;
         elseif quality == 2 then
-            colorIndex = 4;
+            colorIndex = 2;
         elseif quality == 3 or quality == 7 then
             colorIndex = 3;
         elseif colorIndex == 4 then
-            colorIndex = 2;
+            colorIndex = 4;
         end
         self:SetColorIndex(colorIndex);
     end
@@ -166,7 +167,11 @@ do  --Quest Flyout ItemButton
     end
 
     function ItemButtonMixin:IsFocused()
-        return self:IsMouseMotionFocus() or (self.ActionButton and self.ActionButton:IsFocused())
+        if self.enabled then
+            return self:IsMouseMotionFocus() or (self.ActionButton and self.ActionButton:IsFocused())
+        else
+            return self:IsMouseOver()
+        end
     end
 
     function ItemButtonMixin:SetButtonEnabled(isEnabled)
@@ -219,6 +224,9 @@ do  --Quest Flyout ItemButton
             end);
             ActionButton:SetPostClickCallback(function(f, button)
                 self:OnMouseUp(button);
+                if self.PostClick then
+                    self:PostClick(button);
+                end
             end);
             ActionButton:SetParent(self);
             ActionButton:SetFrameStrata(self:GetFrameStrata());
@@ -278,13 +286,13 @@ do  --Quest Flyout ItemButton
     function ItemButtonMixin:ShowButton()
         self:SetAlpha(1);
         self:Show();
+        self.alpha = 1;
         self.isFadingOut = nil;
         self:SetScript("OnUpdate", nil);
     end
 
     function ItemButtonMixin:ClearButton()
         self:Hide();
-        self:ClearAllPoints();
         self:StopAnimating();
         if self.hasData then
             self.hasData = nil;
@@ -346,11 +354,27 @@ do  --Event Handler, Lazy Update
 
     --LazyUpdate Bag
     function ItemButtonMixin:UpdateItem()
-        if self.type == "item" then
+        local allowPressKeyToUse = self:HasHotkey();
+        if self.type == "use" then
             if self.itemID then
-                self:SetUsableItem(self.itemID);
+                self:SetUsableItem(self.itemID, allowPressKeyToUse);
             else
                 self:SetButtonEnabled(false);
+            end
+        elseif self.type == "equip" then
+            if self:IsItemEquipped() then
+                self:SetSuccessText(L["Item Equipped"]);
+                self:OnItemEquipped();
+            else
+                self:SetEquipItem(self.hyperlink, allowPressKeyToUse);
+            end
+        elseif self.type == "cosmetic" then
+            if self:IsKnownCosmetic() then
+                self:SetButtonEnabled(false);
+                self:SetSuccessText(L["Collection Collected"]);
+                self:OnItemKnown();
+            else
+                self:SetCosmeticItem(self.itemID, allowPressKeyToUse);
             end
         end
     end
@@ -369,32 +393,6 @@ do  --Event Handler, Lazy Update
     end
 
 
-    --LazyUpdate Equipment
-    function ItemButtonMixin:UpdateEquipment()
-        if self.type == "equip" then
-            if self:IsItemEquipped() then
-                self:SetSuccessText(L["Item Equipped"]);
-                self:OnItemEquipped();
-            else
-                self:SetEquipItem(self.hyperlink, self:HasHotkey());
-            end
-        end
-    end
-
-    function ItemButtonMixin:OnUpdate_Equipment(elapsed)
-        self.t = self.t + elapsed;
-        if self.t > self.delay then
-            self.t = 0;
-            self:SetScript("OnUpdate", nil);
-            self:UpdateEquipment();
-        end
-    end
-
-    function ItemButtonMixin:RequestUpdateEquipment(delay)
-        self:LazyUpdate(self.OnUpdate_Equipment, delay);
-    end
-
-
     --Event
     --Events are register based on button type
 
@@ -405,6 +403,8 @@ do  --Event Handler, Lazy Update
                 self:SetUsableItem(self.itemID, allowPressKeyToUse);
             elseif self.type == "equip" and self.hyperlink then
                 self:SetEquipItem(self.hyperlink, allowPressKeyToUse);
+            elseif self.type == "cosmetic" and self.itemID then
+                self:SetCosmeticItem(self.itemID, allowPressKeyToUse);
             end
         elseif event == "GLOBAL_MOUSE_DOWN" then
             if self.allowRightClickToClose then
@@ -414,11 +414,7 @@ do  --Event Handler, Lazy Update
                 end
             end
         elseif event == "BAG_UPDATE_DELAYED" then
-            if self.type == "use" and self.itemID then
-                self:RequestUpdateBag();
-            elseif self.type == "equip" and self.hyperlink then
-                self:RequestUpdateEquipment();
-            end
+            self:RequestUpdateBag();
         elseif event == "BAG_UPDATE_COOLDOWN" then
             if self.itemID then
                 local startTime, duration, enable = GetItemCooldown(self.itemID);
@@ -429,7 +425,9 @@ do  --Event Handler, Lazy Update
             end
         elseif event == "PLAYER_EQUIPMENT_CHANGED" then
             local equipmentSlot, isEmpty = ...
-            self:RequestUpdateEquipment();
+            self:RequestUpdateBag();
+        elseif event == "TRANSMOG_COSMETIC_COLLECTION_SOURCE_ADDED" then
+            self:RequestUpdateBag();
         end
 
         self:OnEvent(event, ...);
@@ -495,6 +493,18 @@ do  --Actions Types
             end
         end
     end
+
+    function ItemButtonMixin:SetCosmeticItem(item, allowPressKeyToUse)
+        self:SetUsableItem(item, allowPressKeyToUse);
+        self.type = "cosmetic";
+        if self:IsKnownCosmetic() then
+            self:SetButtonEnabled(false);
+            self:SetSuccessText(L["Collection Collected"]);
+            self:OnItemKnown();
+        else
+            self:RegisterEvent("TRANSMOG_COSMETIC_COLLECTION_SOURCE_ADDED");
+        end
+    end
 end
 
 
@@ -515,7 +525,9 @@ do  --Determine if the item is learned/used
     end
 
     function ItemButtonMixin:IsKnownCosmetic()
-
+        if self.itemID then
+            return PlayerHasTransmogByItemID(self.itemID)
+        end
     end
 
     function ItemButtonMixin:IsKnownMount()
@@ -551,6 +563,9 @@ do  --Override
     end
 
     function ItemButtonMixin:OnItemEquipped()
+    end
+
+    function ItemButtonMixin:OnItemKnown()
     end
 end
 

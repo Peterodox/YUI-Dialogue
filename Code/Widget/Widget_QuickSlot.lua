@@ -17,6 +17,9 @@ WidgetManager:AddLootMessageProcessor(QuickSlotManager, "ItemLink");
 
 local RewardItemButton;
 
+local function HasItem(item)
+    return GetItemCount(item) > 0
+end
 
 function QuickSlotManager:ListenLootEvent(state)
     if state then
@@ -40,10 +43,13 @@ function QuickSlotManager:OnEvent(event, ...)
         if self.pendingItemLink and self.itemClassification then
             local success;
 
-            if GetItemCount(self.pendingItemLink) > 0 then
+            if HasItem(self.pendingItemLink) then
                 if self.itemClassification == "equipment" then
                     success = true;
                     self:AddEquipment(self.pendingItemLink);
+                elseif self.itemClassification == "container" then
+                    success = true;
+                    self:AddContainer(self.pendingItemLink);
                 end
             end
 
@@ -66,6 +72,12 @@ function QuickSlotManager:OnUpate_UnregisterEvents(elapsed)
     end
 end
 
+function QuickSlotManager:WatchBagItem(itemLink, itemClassification)
+    self:RegisterEvent("BAG_UPDATE_DELAYED");
+    self.pendingItemLink = itemLink;
+    self.itemClassification = itemClassification;
+end
+
 function QuickSlotManager:OnItemLooted(itemLink)
     --Fired after CHAT_MSG_LOOT, but the item may have not been pushed into the bags yet
 
@@ -78,33 +90,64 @@ function QuickSlotManager:OnItemLooted(itemLink)
 
     if itemClassification == "equipment" then
         if API.IsItemAnUpgrade_External(itemLink) then
-            if GetItemCount(itemLink) > 0 then
+            if HasItem(itemLink) then
                 self:AddEquipment(itemLink);
             else
-                self:RegisterEvent("BAG_UPDATE_DELAYED");
-                self.pendingItemLink = itemLink;
-                self.itemClassification = itemClassification;
+                self:WatchBagItem(itemLink, itemClassification);
             end
+        end
+    elseif itemClassification == "container" then
+        if HasItem(itemLink) then
+            self:AddContainer(itemLink);
+        else
+            self:WatchBagItem(itemLink, itemClassification);
+        end
+    elseif itemClassification == "cosmetic" then
+        if HasItem(itemLink) then
+            self:AddCosmetic(itemLink);
+        else
+            self:WatchBagItem(itemLink, itemClassification);
         end
     end
 end
 
-function QuickSlotManager:AddEquipment(itemLink)
+
+function QuickSlotManager:AddItemButton(itemLink, setupMethod, isActionCompleteMethod)
     local countDownDuration = COUNTDOWN_IDLE;
+    local disableButton;
     local allowPressKeyToUse = true;
 
     local button = self:GetItemButton();
-    button:SetEquipItem(itemLink, allowPressKeyToUse);
+    button[setupMethod](button, itemLink, allowPressKeyToUse);
     button:ShowButton();
-    if button:IsItemEquipped() then
+
+    if isActionCompleteMethod ~= nil and button[isActionCompleteMethod](button) then
         countDownDuration = COUNTDOWN_COMPLETE_AUTO;
     end
 
     if button and button:IsShown() then
-        button:SetCountdown(countDownDuration);
+        button:SetCountdown(countDownDuration, disableButton);
+        if disableButton then
+            button:PlayFlyUpAnimation(true);
+        else
+            button:PlayFlyUpAnimation(true);
+        end
     end
+
+    print(button:IsShown(), button:GetAlpha())
 end
 
+function QuickSlotManager:AddEquipment(itemLink)
+    self:AddItemButton(itemLink, "SetEquipItem", "IsItemEquipped");
+end
+
+function QuickSlotManager:AddContainer(itemLink)
+    self:AddItemButton(itemLink, "SetUsableItem");
+end
+
+function QuickSlotManager:AddCosmetic(itemLink)
+    self:AddItemButton(itemLink, "SetCosmeticItem", "IsKnownCosmetic");
+end
 
 do
     local MODULE_ENABLED = false;
@@ -129,6 +172,9 @@ do
             if MODULE_ENABLED then
                 MODULE_ENABLED = false;
                 QuickSlotManager:ListenLootEvent(false);
+                if RewardItemButton then
+                    RewardItemButton:ClearButton();
+                end
             end
         end
     end
@@ -144,7 +190,7 @@ do
         self.CloseButton:SetInteractable(false);
 
         API.SetPlayCutsceneCallback(function()
-            self:Hide();
+            self:ClearButton();
         end);
 
         self.AnimIn = self:CreateAnimationGroup(nil, "DUIGenericPopupAnimationTemplate");
@@ -197,6 +243,7 @@ do
     function QuestRewardItemButtonMixin:OnCountdownFinished()
         self:FadeOut(0);
         self:UnregisterAllEvents();
+        print("FINISHED")
     end
 
     function QuestRewardItemButtonMixin:SetCountdown(second, disableButton)
@@ -236,6 +283,10 @@ do
         self:ShowUpgradeIcon(false);
         self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
     end
+
+    function QuestRewardItemButtonMixin:OnItemKnown()
+        self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
+    end
 end
 
 
@@ -249,22 +300,53 @@ do  --Debug
 
         if false then return end;
 
+        local case = "link";   --equipment container cosmetic link
+
         C_Timer.After(2, function()
             local button = self:GetItemButton();
-            local itemID = 6070;    --172137 226734 6070
-            local itemLink = "item:"..itemID;
-            button:SetCountdown(COUNTDOWN_IDLE);
-            button:SetEquipItem(itemLink, true);
-            button:ShowButton();
-            button:PlayFlyUpAnimation(true);
+            local allowPressKeyToUse = true;
+            if case == "equipment" then
+                local itemID = 6070;    --172137 226734 6070
+                local itemLink = "item:"..itemID;
+                button:SetCountdown(COUNTDOWN_IDLE);
+                button:SetEquipItem(itemLink, allowPressKeyToUse);
+            elseif case == "container" then
+                local itemID = 227450;
+                if GetItemClassification(itemID) == case then
+                    button:SetUsableItem(itemID, allowPressKeyToUse);
+                else
+                    button:ClearButton();
+                    return
+                end
+            elseif case == "cosmetic" then
+                local itemID = 209976;
+                if GetItemClassification(itemID) == case then
+                    button:SetCosmeticItem(itemID, allowPressKeyToUse);
+                else
+                    button:ClearButton();
+                    return
+                end
+
+            elseif case == "link" then
+                button:ClearButton();
+                button = nil;
+                local itemID = 213190;
+                QuickSlotManager:OnItemLooted(string.format("|Hitem:%d|h", itemID));
+            end
+
+            if button then
+                button:ShowButton();
+                button:PlayFlyUpAnimation(true);
+            end
         end)
     end
 
     function QuickSlotManager:GetItemButton()
         if not RewardItemButton then
             RewardItemButton = API.CreateItemActionButton(nil, QuestRewardItemButtonMixin);
+            RewardItemButton:Hide();
             RewardItemButton:SetFrameStrata("FULLSCREEN_DIALOG");
-            RewardItemButton:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 196);
+            RewardItemButton:SetPoint("BOTTOM", nil, "BOTTOM", 0, 196);
             RewardItemButton:SetIgnoreParentScale(true);
             RewardItemButton:SetIgnoreParentAlpha(true);
         end

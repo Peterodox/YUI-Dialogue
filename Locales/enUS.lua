@@ -60,6 +60,7 @@ L["Click To Open BtWQuests"] = "Click to view this quest in BtWQuests window.";
 L["Story Progress"] = STORY_PROGRESS or "Story Progress";
 L["Quest Complete Alert"] = QUEST_WATCH_POPUP_QUEST_COMPLETE or "Quest Complete!";
 L["Item Equipped"] = "Equipped";
+L["Collection Collected"] = COLLECTED or "Collected";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";

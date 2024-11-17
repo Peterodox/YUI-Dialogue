@@ -20,6 +20,11 @@ local function AlwaysFalse(arg)
 end
 API.AlwaysFalse = AlwaysFalse;
 
+local function AlwaysTrue(arg)
+    return true
+end
+API.AlwaysTrue = AlwaysTrue;
+
 local function AlwaysZero(arg)
     return 0
 end
@@ -2688,6 +2693,11 @@ do  -- Items
         end
 
         local itemID, _, _, _, _, classID, subClassID = GetItemInfoInstant(item);
+
+        if API.IsContainerItem(itemID) then
+            return "container"
+        end
+
         if classID == 2 or classID == 4 then
             return "equipment"
         elseif classID == 17 then
