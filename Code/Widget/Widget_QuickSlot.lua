@@ -86,7 +86,7 @@ function QuickSlotManager:OnItemLooted(itemLink)
     end
 
     local itemClassification = GetItemClassification(itemLink);
-    print(itemClassification, itemLink);
+    --print(itemClassification, itemLink);
 
     if itemClassification == "equipment" then
         if API.IsItemAnUpgrade_External(itemLink) then
@@ -128,13 +128,11 @@ function QuickSlotManager:AddItemButton(itemLink, setupMethod, isActionCompleteM
     if button and button:IsShown() then
         button:SetCountdown(countDownDuration, disableButton);
         if disableButton then
-            button:PlayFlyUpAnimation(true);
+            button:PlayFlyUpAnimation(false);
         else
             button:PlayFlyUpAnimation(true);
         end
     end
-
-    print(button:IsShown(), button:GetAlpha())
 end
 
 function QuickSlotManager:AddEquipment(itemLink)
@@ -243,7 +241,6 @@ do
     function QuestRewardItemButtonMixin:OnCountdownFinished()
         self:FadeOut(0);
         self:UnregisterAllEvents();
-        print("FINISHED")
     end
 
     function QuestRewardItemButtonMixin:SetCountdown(second, disableButton)
