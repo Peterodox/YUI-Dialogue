@@ -1,10 +1,12 @@
--- Auto Complete Quest
--- Hallow's End: Candy Bucket
+-- Auto Complete Quest (Weekly, Hallow's End: Candy Bucket)
+-- Auto Accept certain quest if it's the only option
+
 
 local _, addon = ...
 local L = addon.L;
 local GossipDataProvider = addon.GossipDataProvider;
-local GetQuestName = addon.API.GetQuestName
+local CallbackRegistry = addon.CallbackRegistry;
+local GetQuestName = addon.API.GetQuestName;
 
 local AutoCompleteQuestName = {};
 
@@ -70,6 +72,11 @@ local AutoCompleteQuestID = {
     [85113] = true,     --Special Assignment: Storm's a Brewin
 };
 
+local AutoAcceptQuest = {
+    [82449] = true,     --The Call of the Worldsoul (select an activity)
+};
+
+
 local ExampleQuest = {
     --{questID, fallbackName}
     --Use the questID to get the quest name
@@ -83,50 +90,26 @@ function GossipDataProvider:ShouldAutoCompleteQuest(questID, questName)
     return false
 end
 
-
-local Loader = CreateFrame("Frame");
-
-function Loader:OnEvent(event, questID, success)
-    if event == "QUEST_DATA_LOAD_RESULT" then
-        if AutoCompleteQuestID[questID] then
-            for i, v in ipairs(ExampleQuest) do
-                if questID == v[1] then
-                    table.remove(ExampleQuest, i);
-                    local name;
-                    if success then
-                        name = GetQuestName(questID);
-                    end
-                    name = name or v[2];
-                    AutoCompleteQuestName[name] = true;
-                    --print(questID, success, name, name == v[2]);
-                    break
-                end
-            end
-        end
-
-        if #ExampleQuest == 0 then
-            self:UnregisterEvent("QUEST_DATA_LOAD_RESULT");
-            self:SetScript("OnEvent", nil);
-            ExampleQuest = nil;
-        end
-    end
+function GossipDataProvider:ShouldAutoAcceptQuest(questID)
+    return questID and AutoAcceptQuest[questID]
 end
 
 local function RequestQuestNames()
-    local RequestLoadQuestByID = C_QuestLog.RequestLoadQuestByID;
-    if not RequestLoadQuestByID then
-        ExampleQuest = nil;
-        Loader.OnEvent = nil;
-        return
-    end
-
-    Loader:SetScript("OnEvent", Loader.OnEvent);
-    Loader:RegisterEvent("QUEST_DATA_LOAD_RESULT");
-    local questID;
+    local questID, fallbackName;
     for _, v in ipairs(ExampleQuest) do
         questID = v[1];
+        fallbackName = v[2];
         AutoCompleteQuestID[questID] = true;
-        RequestLoadQuestByID(questID);
+        local function callback(id)
+            local name = GetQuestName(questID);
+            if not (name and name ~= "") then
+                name = fallbackName;
+            end
+            AutoCompleteQuestName[name] = true;
+            --print(id, name);
+        end
+
+        CallbackRegistry:LoadQuest(questID, callback)
     end
 end
 addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", RequestQuestNames);

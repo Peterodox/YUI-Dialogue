@@ -2020,6 +2020,9 @@ end
 do  -- Chat Message
     local ADDON_ICON = "|TInterface\\AddOns\\DialogueUI\\Art\\Icons\\Logo:0:0|t";
     local function PrintMessage(header, msg)
+        if not msg then
+            msg = "";
+        end
         if StripHyperlinks then
             msg = StripHyperlinks(msg);
         end

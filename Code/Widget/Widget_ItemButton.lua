@@ -477,7 +477,7 @@ do  --Actions Types
         self:SetItem(item);
 
         if ActionButton then
-            nameReady = ActionButton:SetUseItemByID(self.itemID, "AnyButton", allowPressKeyToUse);
+            nameReady = ActionButton:SetUseItemByID(self.itemID, "LeftButton", allowPressKeyToUse);
             ActionButton:CoverObject(self, 4);
         end
 
@@ -650,7 +650,6 @@ do  --Override
     function ItemButtonMixin:PostClick(button)
         --We want to clear the override binding when the ActionButton is clicked
         --Instead of waiting for the response of its action like collecting transmog, pet
-        print(button)
         if button == "LeftButton" then
             addon.SecureButtonContainer:ClearOverrideBinding();
         end

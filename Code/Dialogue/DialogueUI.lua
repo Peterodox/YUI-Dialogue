@@ -1037,13 +1037,14 @@ function DUIDialogBaseMixin:HandleGossip()
     local options = GetOptions();
     tsort(options, SortFunc_GossipPrioritizeQuest);
 
+    local numAvailableQuests = availableQuests and #availableQuests or 0;
     local anyActiveQuest = activeQuests and #activeQuests > 0;
-    local anyAvailableQuest = availableQuests and #availableQuests > 0;
+    local anyAvailableQuest = numAvailableQuests > 0;
     local anyQuest = anyActiveQuest or anyAvailableQuest;
     local anyOption = options and #options > 0;
 
     self.hasActiveGossipQuests = anyActiveQuest;
-    self.numAvailableQuests = availableQuests and #availableQuests or 0;
+    self.numAvailableQuests = numAvailableQuests;
 
     if (not(anyQuest or anyOption)) and NameplateGossip:ShouldUseNameplate() then
         --debug
@@ -1055,6 +1056,17 @@ function DUIDialogBaseMixin:HandleGossip()
     end
 
     local autoSelectGossip = GetDBBool("AutoSelectGossip");
+    local autoCompleteQuest = GetDBBool("AutoCompleteQuest");
+
+    if (autoSelectGossip or autoCompleteQuest) and (not anyOption) and (not anyActiveQuest) and (numAvailableQuests == 1) then
+        local firstQuestID = availableQuests[1].questID;
+        if GossipDataProvider:ShouldAutoAcceptQuest(firstQuestID) then
+            C_GossipInfo.SelectAvailableQuest(firstQuestID);
+            API.PrintMessage(L["Auto Select"], availableQuests[1].title);
+            return false
+        end
+    end
+
     local onlyOption = #options == 1;
 
     if (not GetDBBool("ForceGossip")) and (not anyQuest) and (onlyOption) and (not ForceGossip()) then
@@ -1192,8 +1204,6 @@ function DUIDialogBaseMixin:HandleGossip()
         questInfo.index = i;
         quests[questIndex] = questInfo;
     end
-
-    local autoCompleteQuest = GetDBBool("AutoCompleteQuest");
 
     for i, questInfo in ipairs(activeQuests) do
         questIndex = questIndex + 1;

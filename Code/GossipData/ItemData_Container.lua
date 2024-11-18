@@ -6,8 +6,14 @@ local API = addon.API;
 
 local ContainerItem = {};
 
+local MiscUsableItem = {
+    [224817] = true,        --Algari Herbalist's Notes
+    [224818] = true,        --Algari Miner's Notes
+    [224807] = true,        --Algari Skinner's Notes
+};
+
 function API.IsContainerItem(itemID)
-    return itemID and ContainerItem[itemID] == true
+    return itemID and (MiscUsableItem[itemID] == true or ContainerItem[itemID] == true)
 end
 
 ContainerItem = {

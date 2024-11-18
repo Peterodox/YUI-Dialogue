@@ -9,6 +9,7 @@ local IsQuestRequiredItem = API.IsQuestRequiredItem;
 local RewardTooltipCode = {};
 addon.RewardTooltipCode = RewardTooltipCode;
 
+local UIParent = UIParent;
 
 -- User Settings
 local USE_BLIZZARD_TOOLTIP = false;
@@ -283,9 +284,27 @@ end
 
 function RewardTooltipCode:OnLeave(itemButton)
     TooltipFrame:Hide();
+    GameTooltip:Hide();
     self:RestoreGameTooltip();
 end
 
+function RewardTooltipCode:ShowHyperlink(itemButton, hyperlink)
+    TooltipFrame:Hide();
+
+    local tooltip;
+    if USE_BLIZZARD_TOOLTIP then
+        self:TakeOutGameTooltip();
+        tooltip = GameTooltip;
+    else
+        tooltip = TooltipFrame;
+    end
+    tooltip:SetOwner(self, "ANCHOR_NONE");
+
+    local relativeTo = itemButton.Icon or itemButton;
+    tooltip:SetPoint("BOTTOMLEFT", relativeTo, "TOPRIGHT", 0, 2);
+    tooltip:SetHyperlink(hyperlink);
+    tooltip:Show();
+end
 
 do
     local CallbackRegistry = addon.CallbackRegistry;

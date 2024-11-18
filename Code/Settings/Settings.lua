@@ -561,8 +561,8 @@ local Schematic = { --Scheme
                 },
             },
             {type = "Checkbox", name = L["Hide UI"], description = L["Hide UI Desc"], dbKey = "HideUI"},
-            {type = "Checkbox", name = L["Hide Sparkles"], description = L["Hide Sparkles Desc"], preview = "HideOutlineSparkles.jpg", ratio = 2, dbKey = "HideOutlineSparkles", requiredParentValue = {HideUI = true}, validationFunc = OutlineSparklesSupported_Validation},
-            {type = "Checkbox", name = L["Hide Unit Names"], description = L["Hide Unit Names Desc"], dbKey = "HideUnitNames", requiredParentValue = {HideUI = true}},
+            {type = "Checkbox", name = L["Hide Sparkles"], description = L["Hide Sparkles Desc"], preview = "HideOutlineSparkles.jpg", ratio = 2, dbKey = "HideOutlineSparkles", requiredParentValueAnd = {HideUI = true}, validationFunc = OutlineSparklesSupported_Validation},
+            {type = "Checkbox", name = L["Hide Unit Names"], description = L["Hide Unit Names Desc"], dbKey = "HideUnitNames", requiredParentValueAnd = {HideUI = true}},
             {type = "Checkbox", name = L["Show Copy Text Button"], description = L["Show Copy Text Button Desc"], preview = "CopyTextButton", ratio = 1, dbKey = "ShowCopyTextButton"},
             {type = "Checkbox", name = L["Show NPC Name On Page"], description = L["Show NPC Name On Page Desc"], dbKey = "ShowNPCNameOnPage"},
 
@@ -576,7 +576,7 @@ local Schematic = { --Scheme
 
             {type = "Subheader", name = L["Readables"]},    --Book
             {type = "Checkbox", name = L["BookUI Enable"], description = L["BookUI Enable Desc"], preview = "BookUI", ratio = 1, dbKey = "BookUIEnabled"},
-            {type = "ArrowOption", name = L["Frame Size"], description = L["BookUI Frame Size Desc"], tooltip = OptionHasNoEffectDueToMobile, dbKey = "BookUISize", requiredParentValue = {BookUIEnabled = true},
+            {type = "ArrowOption", name = L["Frame Size"], description = L["BookUI Frame Size Desc"], tooltip = OptionHasNoEffectDueToMobile, dbKey = "BookUISize", requiredParentValueAnd = {BookUIEnabled = true},
                 choices = {
                     {dbValue = 0, valueText = L["Size Extra Small"]},
                     {dbValue = 1, valueText = L["Size Small"]},
@@ -601,8 +601,8 @@ local Schematic = { --Scheme
                     {dbValue = 2, valueText = L["Camera Movement Horizontal"]},
                 },
             },
-            {type = "Checkbox", name = L["Change FOV"], description = L["Change FOV Desc"], dbKey = "CameraChangeFov", requiredParentValue = {CameraMovement = 1}, preview = "CameraChangeFov", ratio = 2},
-            {type = "ArrowOption", name = L["Camera Zoom Multiplier"], description = L["Camera Zoom Multiplier Desc"], dbKey = "CameraZoomMultiplier", requiredParentValue = {CameraMovement = 1},
+            {type = "Checkbox", name = L["Change FOV"], description = L["Change FOV Desc"], dbKey = "CameraChangeFov", requiredParentValueAnd = {CameraMovement = 1}, preview = "CameraChangeFov", ratio = 2},
+            {type = "ArrowOption", name = L["Camera Zoom Multiplier"], description = L["Camera Zoom Multiplier Desc"], dbKey = "CameraZoomMultiplier", requiredParentValueAnd = {CameraMovement = 1},
                 choices = {
                     {dbValue = 1, valueText = "1"},
                     {dbValue = 2, valueText = "2"},
@@ -611,10 +611,10 @@ local Schematic = { --Scheme
                     {dbValue = 5, valueText = "5"},
                 },
             },
-            {type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement1MaintainPosition", requiredParentValue = {CameraMovement = 1}},
+            {type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement1MaintainPosition", requiredParentValueAnd = {CameraMovement = 1}},
             --{type = "Checkbox", name = L["Maintain Camera Position"], description = L["Maintain Camera Position Desc"], dbKey = "CameraMovement2MaintainPosition", {CameraMovement = 2}},
-            {type = "Checkbox", name = L["Maintain Offset While Mounted"], description = L["Maintain Offset While Mounted Desc"], dbKey = "CameraMovementMountedCamera", requiredParentValue = {CameraMovement = {1, 2}}},
-            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", requiredParentValue = {CameraMovement = {1, 2}}},
+            {type = "Checkbox", name = L["Maintain Offset While Mounted"], description = L["Maintain Offset While Mounted Desc"], dbKey = "CameraMovementMountedCamera", requiredParentValueAnd = {CameraMovement = {1, 2}}},
+            {type = "Checkbox", name = L["Disable Camera Movement Instance"], description = L["Disable Camera Movement Instance Desc"], dbKey = "CameraMovementDisableInstance", requiredParentValueAnd = {CameraMovement = {1, 2}}},
         },
     },
 
@@ -629,15 +629,15 @@ local Schematic = { --Scheme
                     {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"]},
                 },
             },
-            {type = "ArrowOption", name = L["Primary Control Key"], description = L["Primary Control Key Desc"], dbKey = "PrimaryControlKey", valueTextFormatter = ValueTextFormatter_PrimaryControlKey, hasHotkey = true, requiredParentValue = {InputDevice = 1},
+            {type = "ArrowOption", name = L["Primary Control Key"], description = L["Primary Control Key Desc"], dbKey = "PrimaryControlKey", valueTextFormatter = ValueTextFormatter_PrimaryControlKey, hasHotkey = true, requiredParentValueAnd = {InputDevice = 1},
                 choices = {
                     {dbValue = 1, valueText = L["Key Space"]},
                     {dbValue = 2, valueText = L["Key Interact"], tooltip = PrimaryControlKey_Interact_Tooltip},
                     {dbValue = 0, valueText = L["Key Disabled"], tooltip = L["Key Disabled Tooltip"]},
                 },
             },
-            {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI", requiredParentValue = {InputDevice = 1}},
-            {type = "Checkbox", name = L["Press Tab To Select Reward"], description = L["Press Tab To Select Reward Desc"], dbKey = "CycleRewardHotkeyEnabled", requiredParentValue = {InputDevice = 1}},
+            {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI", requiredParentValueAnd = {InputDevice = 1}},
+            {type = "Checkbox", name = L["Press Tab To Select Reward"], description = L["Press Tab To Select Reward Desc"], dbKey = "CycleRewardHotkeyEnabled", requiredParentValueAnd = {InputDevice = 1}},
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
@@ -652,19 +652,19 @@ local Schematic = { --Scheme
         tabName = L["Gameplay"],  --Cate4
         options = {
             {type = "Checkbox", name = L["Auto Quest Popup"], description = L["Auto Quest Popup Desc"], dbKey = "AutoQuestPopup", preview = "AutoQuestPopup", ratio = 2},
-            {type = "Custom", name = L["Move Position"], icon = "Settings-Move.png", onClickFunc = WidgetManager_Move_OnClick, requiredParentValue = {AutoQuestPopup = true}},
+            {type = "Custom", name = L["Move Position"], icon = "Settings-Move.png", onClickFunc = WidgetManager_Move_OnClick, requiredParentValueAnd = {AutoQuestPopup = true}},
             {type = "Custom", name = L["Reset Position"], icon = "Settings-Reset.png", description = L["Quest Item Display Reset Position Desc"], validationFunc = WidgetManagerPosition_Validation, onClickFunc = WidgetManager_Reset_OnClick, requireSameParentValue = true},
 
             {type = "Checkbox", name = L["Quest Item Display"], description = L["Quest Item Display Desc"], dbKey = "QuestItemDisplay", preview = "QuestItemDisplay", ratio = 2},
-            {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", requiredParentValue = {QuestItemDisplay = true}},
+            {type = "Checkbox", name = L["Quest Item Display Hide Seen"], description = L["Quest Item Display Hide Seen Desc"], dbKey = "QuestItemDisplayHideSeen", requiredParentValueAnd = {QuestItemDisplay = true}},
             {type = "Checkbox", name = L["Quest Item Display Await World Map"], description = L["Quest Item Display Await World Map Desc"], dbKey = "QuestItemDisplayDynamicFrameStrata", requireSameParentValue = true},
             {type = "Custom", name = L["Move Position"], icon = "Settings-Move.png", onClickFunc = QuestItemDisplay_Move_OnClick, requireSameParentValue = true},
             {type = "Custom", name = L["Reset Position"], icon = "Settings-Reset.png", description = L["Quest Item Display Reset Position Desc"], validationFunc = QuestItemDisplayPosition_Validation, onClickFunc = QuestItemDisplay_Reset_OnClick, requireSameParentValue = true},
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Valuable Reward Popup"], description = L["Valuable Reward Popup Desc"], dbKey = "QuickSlotQuestReward", preview = "QuickSlotQuestReward", ratio = 2},
-            {type = "Checkbox", name = L["Press Key To Use Item"], tooltip = UseItemHotkey_Tooltip, dbKey = "QuickSlotUseHotkey", requiredParentValue = {QuickSlotQuestReward = true}},
             {type = "Checkbox", name = L["Auto Complete Quest"], description = L["Auto Complete Quest Desc"], dbKey = "AutoCompleteQuest", preview = "QuestAutoComplete", ratio = 2},
+            {type = "Checkbox", name = L["Press Key To Use Item"], tooltip = UseItemHotkey_Tooltip, dbKey = "QuickSlotUseHotkey", requiredParentValueOr = {QuickSlotQuestReward = true, AutoCompleteQuest = true}, branchLevel = 0},
 
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
@@ -681,17 +681,17 @@ local Schematic = { --Scheme
         tabName = L["Accessibility"],  --Cate5
         options = {
             {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
-            {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", requiredParentValue = {TTSEnabled = true}},
+            {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", requiredParentValueAnd = {TTSEnabled = true}},
             {type = "Checkbox", name = L["TTS Auto Play"], description = L["TTS Auto Play Desc"], dbKey = "TTSAutoPlay", requireSameParentValue = true},
-            {type = "Checkbox", name = L["TTS Skip Recent"], description = L["TTS Skip Recent Desc"], dbKey = "TTSSkipRecent", branchLevel = 2, requiredParentValue = {TTSEnabled = true, TTSAutoPlay = true}},
+            {type = "Checkbox", name = L["TTS Skip Recent"], description = L["TTS Skip Recent Desc"], dbKey = "TTSSkipRecent", branchLevel = 2, requiredParentValueAnd = {TTSEnabled = true, TTSAutoPlay = true}},
             {type = "Checkbox", name = L["TTS Auto Play Delay"], description = L["TTS Auto Play Delay Desc"], dbKey = "TTSAutoPlayDelay", branchLevel = 2, requireSameParentValue = true},
-            {type = "Checkbox", name = L["TTS Auto Stop"], description = L["TTS Auto Stop Desc"], dbKey = "TTSAutoStop", requiredParentValue = {TTSEnabled = true}},
+            {type = "Checkbox", name = L["TTS Auto Stop"], description = L["TTS Auto Stop Desc"], dbKey = "TTSAutoStop", requiredParentValueAnd = {TTSEnabled = true}},
             {type = "Checkbox", name = L["TTS Stop On New"], description = L["TTS Stop On New Desc"], dbKey = "TTSStopOnNew", requireSameParentValue = true},
             {type = "DropdownButton", name = L["TTS Voice Male"], description = L["TTS Voice Male Desc"], tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceMale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, requireSameParentValue = true},
             {type = "DropdownButton", name = L["TTS Voice Female"], description = L["TTS Voice Female Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceFemale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, requireSameParentValue = true},
-            {type = "Checkbox", name = L["TTS Use Narrator"], description = L["TTS Use Narrator Desc"], dbKey = "TTSUseNarrator", requiredParentValue = {TTSEnabled = true}},
-            {type = "DropdownButton", name = L["TTS Voice Narrator"], description = L["TTS Voice Narrator Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceNarrator", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, branchLevel = 2, requiredParentValue = {TTSEnabled = true, TTSUseNarrator = true}},
-            {type = "ArrowOption", name = L["TTS Rate"], dbKey = "TTSRate", description = L["TTS Rate Desc"], requiredParentValue = {TTSEnabled = true},
+            {type = "Checkbox", name = L["TTS Use Narrator"], description = L["TTS Use Narrator Desc"], dbKey = "TTSUseNarrator", requiredParentValueAnd = {TTSEnabled = true}},
+            {type = "DropdownButton", name = L["TTS Voice Narrator"], description = L["TTS Voice Narrator Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceNarrator", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, branchLevel = 2, requiredParentValueAnd = {TTSEnabled = true, TTSUseNarrator = true}},
+            {type = "ArrowOption", name = L["TTS Rate"], dbKey = "TTSRate", description = L["TTS Rate Desc"], requiredParentValueAnd = {TTSEnabled = true},
                 choices = {
                     {dbValue = 1, valueText = "1"},
                     {dbValue = 2, valueText = "2"},
@@ -720,7 +720,7 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["TTS Content Quest Name"], dbKey = "TTSContentQuestTitle", branchLevel = 2, requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Content Objective"], dbKey = "TTSContentObjective", branchLevel = 2, requireSameParentValue = true},
 
-            {type = "Subheader", name = L["Readable Objects"], requiredParentValue = {TTSEnabled = true, BookUIEnabled = true}},
+            {type = "Subheader", name = L["Readable Objects"], requiredParentValueAnd = {TTSEnabled = true, BookUIEnabled = true}},
             {type = "DropdownButton", name = L["BookUI TTS Voice"], description = L["BookUI TTS Voice Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="BookTTSVoice", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, menuDataBuilder = TTSVoice_BuildMenuData, branchLevel = 2, requireSameParentValue = true},
             {type = "Checkbox", name = L["BookUI TTS Click To Read"], description = L["BookUI TTS Click To Read Desc"], dbKey = "BookTTSClickToRead", branchLevel = 2, requireSameParentValue = true},
         },
@@ -1123,33 +1123,62 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     local dbKeyToWidget = {};
 
     for i, optionData in ipairs(tabData.options) do
-        if optionData.requiredParentValue or optionData.requireSameParentValue then
+        if optionData.requiredParentValueAnd or optionData.requiredParentValueOr or optionData.requireSameParentValue then
             if optionData.requireSameParentValue then
                 --For adjacent options that use the same parentKey
                 isOptionValid = isLastRequirementMet;
             else
-                isOptionValid = true;
-                for parentKey, requiredValue in pairs(optionData.requiredParentValue) do
-                    local dbValue = GetDBValue(parentKey);
-                    if type(requiredValue) == "table" then
-                        local isCurrentRequirementMet = false;
-                        for _, value in ipairs(requiredValue) do
-                            if value == dbValue then
-                                isCurrentRequirementMet = true;
+                if optionData.requiredParentValueAnd then
+                    isOptionValid = true;
+                    for parentKey, requiredValue in pairs(optionData.requiredParentValueAnd) do
+                        local dbValue = GetDBValue(parentKey);
+                        if type(requiredValue) == "table" then
+                            local isCurrentRequirementMet = false;
+                            for _, value in ipairs(requiredValue) do
+                                if value == dbValue then
+                                    isCurrentRequirementMet = true;
+                                end
+                            end
+                            if isCurrentRequirementMet then
+                                isOptionValid = isOptionValid and true;
+                            else
+                                isOptionValid = false;
+                            end
+                        else
+                            if dbValue ~= requiredValue then
+                                isOptionValid = false;
                             end
                         end
-                        if isCurrentRequirementMet then
-                            isOptionValid = true;
-                        else
-                            isOptionValid = false
-                        end
-                    else
-                        if dbValue ~= requiredValue then
-                            isOptionValid = false;
+                        if dbKeyToWidget[parentKey] then
+                            dbKeyToWidget[parentKey].isParentOption = true;
                         end
                     end
-                    if dbKeyToWidget[parentKey] then
-                        dbKeyToWidget[parentKey].isParentOption = true;
+                else
+                    isOptionValid = false;
+                    for parentKey, requiredValue in pairs(optionData.requiredParentValueOr) do
+                        local dbValue = GetDBValue(parentKey);
+                        if type(requiredValue) == "table" then
+                            local isCurrentRequirementMet = false;
+                            for _, value in ipairs(requiredValue) do
+                                if value == dbValue then
+                                    isCurrentRequirementMet = true;
+                                end
+                            end
+                            if isCurrentRequirementMet then
+                                isOptionValid = true;
+                            else
+                                isOptionValid = isOptionValid or false
+                            end
+                        else
+                            if dbValue == requiredValue then
+                                isOptionValid = true;
+                            else
+                                isOptionValid = isOptionValid or false;
+                            end
+                        end
+                        if dbKeyToWidget[parentKey] then
+                            dbKeyToWidget[parentKey].isParentOption = true;
+                        end
                     end
                 end
 
@@ -1402,7 +1431,7 @@ function DUIDialogSettingsOptionMixin:SetData(optionData)
 
     local nameOffset;
 
-    if optionData.requiredParentValue or optionData.requireSameParentValue then
+    if (optionData.requiredParentValueAnd or optionData.requiredParentValueOr or optionData.requireSameParentValue) and (optionData.branchLevel ~= 0) then
         local branch = MainFrame.texturePool:Acquire();
         local branchLevel = optionData.branchLevel or 1;
         local branchWidth = OPTIONBUTTON_HEIGHT*0.5;

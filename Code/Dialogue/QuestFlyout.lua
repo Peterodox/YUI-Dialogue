@@ -142,7 +142,7 @@ do
         local numLines = 0;
 
         for i, text in ipairs(paragraphs) do
-            TPP = paragraphs;   --debug
+            --TPP = paragraphs;   --debug
             if text and text ~= "" and text ~= " " then
                 numLines = numLines + 1;
                 fs = self.fontStringPool:Acquire();
@@ -155,7 +155,6 @@ do
                 end
                 fs.width = width;
                 textHeight = textHeight + Round(textHeight + fs:GetHeight() + PARAGRAPH_SPACING);
-                print(i, text)
             end
         end
         textHeight = textHeight - PARAGRAPH_SPACING;

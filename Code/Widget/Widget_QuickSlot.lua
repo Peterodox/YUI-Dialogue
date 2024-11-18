@@ -23,6 +23,7 @@ end
 
 local SupportedItemTypes = {
     equipment = true,
+    container = true,
     cosmetic = true,
     mount = true,
     pet = true,
@@ -33,7 +34,7 @@ function QuickSlotManager:ListenLootEvent(state)
     if state then
         self:RegisterEvent("CHAT_MSG_LOOT");
         self.t = 0;
-        self:SetScript("OnUpdate", self.OnUpate_UnregisterEvents);
+        self:SetScript("OnUpdate", self.OnUpdate_UnregisterEvents);
     else
         self.t = nil;
         self.pendingItemLink = nil;
@@ -67,9 +68,9 @@ function QuickSlotManager:OnEvent(event, ...)
 end
 QuickSlotManager:SetScript("OnEvent", QuickSlotManager.OnEvent);
 
-function QuickSlotManager:OnUpate_UnregisterEvents(elapsed)
+function QuickSlotManager:OnUpdate_UnregisterEvents(elapsed)
     self.t = self.t + elapsed;
-    if self.t >= 10000.0 then   --debug
+    if self.t >= 1.0 then   --debug
         self:ListenLootEvent(false);
     end
 end
@@ -256,22 +257,19 @@ do  --QuestRewardItemButtonMixin
             local tooltip;
             if UIParent:IsVisible() then
                 tooltip = GameTooltip;
-            elseif addon.DialogueUI:IsVisible() then
-                tooltip = addon.SharedTooltip;
-            end
-            if tooltip then
                 tooltip:SetOwner(self, "ANCHOR_NONE");
-                tooltip:SetPoint("BOTTOMLEFT", self.Icon, "TOPRIGHT", 0, 0);
+                tooltip:SetPoint("BOTTOMLEFT", self.Icon, "TOPRIGHT", 0, 2);
                 tooltip:SetHyperlink(self.hyperlink);
                 tooltip:Show();
+            elseif addon.DialogueUI:IsVisible() then
+                addon.RewardTooltipCode:ShowHyperlink(self, self.hyperlink)
             end
         end
         self.CloseButton:PauseAutoCloseTimer(true);
     end
 
     function QuestRewardItemButtonMixin:OnButtonLeave()
-        GameTooltip:Hide();
-        addon.SharedTooltip:Hide();
+        addon.RewardTooltipCode:OnLeave();
         self:UnregisterEvent("MODIFIER_STATE_CHANGED");
         self.CloseButton:PauseAutoCloseTimer(false);
     end
@@ -366,7 +364,8 @@ do  --QuestRewardItemButtonMixin
 end
 
 
-do  --Debug
+do  --debug
+    --[[
     QuickSlotManager:RegisterEvent("PLAYER_ENTERING_WORLD");
 
     function QuickSlotManager:PLAYER_ENTERING_WORLD()
@@ -417,4 +416,5 @@ do  --Debug
             end
         end)
     end
+    --]]
 end
