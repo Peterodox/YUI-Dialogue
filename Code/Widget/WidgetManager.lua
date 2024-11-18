@@ -233,12 +233,19 @@ do  --Auto Close Button
     local AutoCloseButtonMixin = {};
 
     function AutoCloseButtonMixin:SetCountdown(second)
-        self.duration = second;
-        self.t = 0;
-        self.Swipe1:Show();
-        self.Swipe2:Show();
-        self.SwipeMask1:SetRotation(0);
-        self.SwipeMask2:SetRotation(-PI);
+        if second and second > 0 then
+            self.duration = second;
+            self.t = 0;
+            self.Swipe1:Show();
+            self.Swipe2:Show();
+            self.SwipeMask1:SetRotation(0);
+            self.SwipeMask2:SetRotation(-PI);
+        else
+            self.duration = 1;
+            self.t = 1;
+            self.Swipe1:Hide();
+            self.Swipe2:Hide();
+        end
         self.isCountingDown = true;
         self:SetScript("OnUpdate", Countdown_OnUpdate);
     end

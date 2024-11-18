@@ -2703,14 +2703,16 @@ do  -- Items
         elseif classID == 17 then
             return "pet"
         elseif classID == 15 then
-            if subClassID == 5 then
+            if subClassID == 2 then
+                return "pet"
+            elseif subClassID == 5 then
                 return "mount"
             end
+        end
 
-            local toyItemID = GetToyInfo(itemID);
-            if toyItemID then
-                return "toy"
-            end
+        local toyItemID = GetToyInfo(itemID);
+        if toyItemID then
+            return "toy"
         end
     end
     API.GetItemClassification = GetItemClassification;

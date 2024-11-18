@@ -21,6 +21,14 @@ local function HasItem(item)
     return GetItemCount(item) > 0
 end
 
+local SupportedItemTypes = {
+    equipment = true,
+    cosmetic = true,
+    mount = true,
+    pet = true,
+    toy =  true,
+};
+
 function QuickSlotManager:ListenLootEvent(state)
     if state then
         self:RegisterEvent("CHAT_MSG_LOOT");
@@ -44,13 +52,7 @@ function QuickSlotManager:OnEvent(event, ...)
             local success;
 
             if HasItem(self.pendingItemLink) then
-                if self.itemClassification == "equipment" then
-                    success = true;
-                    self:AddEquipment(self.pendingItemLink);
-                elseif self.itemClassification == "container" then
-                    success = true;
-                    self:AddContainer(self.pendingItemLink);
-                end
+                success = self:AddItemButtonByType(self.itemClassification, self.pendingItemLink);
             end
 
             if success then
@@ -67,7 +69,7 @@ QuickSlotManager:SetScript("OnEvent", QuickSlotManager.OnEvent);
 
 function QuickSlotManager:OnUpate_UnregisterEvents(elapsed)
     self.t = self.t + elapsed;
-    if self.t >= 1.0 then
+    if self.t >= 10000.0 then   --debug
         self:ListenLootEvent(false);
     end
 end
@@ -76,6 +78,34 @@ function QuickSlotManager:WatchBagItem(itemLink, itemClassification)
     self:RegisterEvent("BAG_UPDATE_DELAYED");
     self.pendingItemLink = itemLink;
     self.itemClassification = itemClassification;
+    if self.t then
+        --Extend unregister countdown in case of lags
+        self.t = self.t - 1;
+    end
+end
+
+function QuickSlotManager:AddItemButtonByType(itemClassification, itemLink)
+    local success;
+    if itemClassification == "equipment" then
+        success = true;
+        self:AddEquipment(itemLink);
+    elseif itemClassification == "cosmetic" then
+        success = true;
+        self:AddCosmetic(itemLink);
+    elseif itemClassification == "container" then
+        success = true;
+        self:AddContainer(itemLink);
+    elseif itemClassification == "mount" then
+        success = true;
+        self:AddMount(itemLink);
+    elseif itemClassification == "pet" then
+        success = true;
+        self:AddPet(itemLink);
+    elseif itemClassification == "toy" then
+        success = true;
+        self:AddToy(itemLink);
+    end
+    return success
 end
 
 function QuickSlotManager:OnItemLooted(itemLink)
@@ -86,25 +116,16 @@ function QuickSlotManager:OnItemLooted(itemLink)
     end
 
     local itemClassification = GetItemClassification(itemLink);
-    --print(itemClassification, itemLink);
+    --print(itemClassification, itemLink);  --debug
 
+    local shouldAddItem = itemClassification and SupportedItemTypes[itemClassification];
     if itemClassification == "equipment" then
-        if API.IsItemAnUpgrade_External(itemLink) then
-            if HasItem(itemLink) then
-                self:AddEquipment(itemLink);
-            else
-                self:WatchBagItem(itemLink, itemClassification);
-            end
-        end
-    elseif itemClassification == "container" then
+        shouldAddItem = API.IsItemAnUpgrade_External(itemLink);
+    end
+
+    if shouldAddItem then
         if HasItem(itemLink) then
-            self:AddContainer(itemLink);
-        else
-            self:WatchBagItem(itemLink, itemClassification);
-        end
-    elseif itemClassification == "cosmetic" then
-        if HasItem(itemLink) then
-            self:AddCosmetic(itemLink);
+            self:AddItemButtonByType(itemClassification, itemLink);
         else
             self:WatchBagItem(itemLink, itemClassification);
         end
@@ -115,7 +136,7 @@ end
 function QuickSlotManager:AddItemButton(itemLink, setupMethod, isActionCompleteMethod)
     local countDownDuration = COUNTDOWN_IDLE;
     local disableButton;
-    local allowPressKeyToUse = true;
+    local allowPressKeyToUse = addon.GetDBBool("QuickSlotUseHotkey");
 
     local button = self:GetItemButton();
     button[setupMethod](button, itemLink, allowPressKeyToUse);
@@ -135,17 +156,33 @@ function QuickSlotManager:AddItemButton(itemLink, setupMethod, isActionCompleteM
     end
 end
 
-function QuickSlotManager:AddEquipment(itemLink)
-    self:AddItemButton(itemLink, "SetEquipItem", "IsItemEquipped");
+
+do  --Add Button Method
+    function QuickSlotManager:AddEquipment(itemLink)
+        self:AddItemButton(itemLink, "SetEquipItem", "IsItemEquipped");
+    end
+
+    function QuickSlotManager:AddContainer(itemLink)
+        self:AddItemButton(itemLink, "SetUsableItem");
+    end
+
+    function QuickSlotManager:AddCosmetic(itemLink)
+        self:AddItemButton(itemLink, "SetCosmeticItem", "IsKnownCosmetic");
+    end
+
+    function QuickSlotManager:AddMount(itemLink)
+        self:AddItemButton(itemLink, "SetMountItem", "IsKnownMount");
+    end
+
+    function QuickSlotManager:AddPet(itemLink)
+        self:AddItemButton(itemLink, "SetPetItem", "IsKnownPet");
+    end
+
+    function QuickSlotManager:AddToy(itemLink)
+        self:AddItemButton(itemLink, "SetToyItem", "IsKnownToy");
+    end
 end
 
-function QuickSlotManager:AddContainer(itemLink)
-    self:AddItemButton(itemLink, "SetUsableItem");
-end
-
-function QuickSlotManager:AddCosmetic(itemLink)
-    self:AddItemButton(itemLink, "SetCosmeticItem", "IsKnownCosmetic");
-end
 
 do
     local MODULE_ENABLED = false;
@@ -180,8 +217,9 @@ do
 end
 
 
-local QuestRewardItemButtonMixin = {};
-do
+do  --QuestRewardItemButtonMixin
+    local QuestRewardItemButtonMixin = {};
+
     function QuestRewardItemButtonMixin:OnLoad()
         self.CloseButton = addon.WidgetManager:CreateAutoCloseButton(self);
         self.CloseButton:SetPoint("CENTER", self, "TOPRIGHT", -5, -5);
@@ -215,17 +253,25 @@ do
     function QuestRewardItemButtonMixin:OnButtonEnter()
         if self.hyperlink then
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
-            local tooltip = GameTooltip;
-            tooltip:SetOwner(self, "ANCHOR_NONE");
-            tooltip:SetPoint("BOTTOMLEFT", self.Icon, "TOPRIGHT", 0, 0);
-            tooltip:SetHyperlink(self.hyperlink);
-            tooltip:Show();
+            local tooltip;
+            if UIParent:IsVisible() then
+                tooltip = GameTooltip;
+            elseif addon.DialogueUI:IsVisible() then
+                tooltip = addon.SharedTooltip;
+            end
+            if tooltip then
+                tooltip:SetOwner(self, "ANCHOR_NONE");
+                tooltip:SetPoint("BOTTOMLEFT", self.Icon, "TOPRIGHT", 0, 0);
+                tooltip:SetHyperlink(self.hyperlink);
+                tooltip:Show();
+            end
         end
         self.CloseButton:PauseAutoCloseTimer(true);
     end
 
     function QuestRewardItemButtonMixin:OnButtonLeave()
         GameTooltip:Hide();
+        addon.SharedTooltip:Hide();
         self:UnregisterEvent("MODIFIER_STATE_CHANGED");
         self.CloseButton:PauseAutoCloseTimer(false);
     end
@@ -238,16 +284,36 @@ do
 
     end
 
+    function QuestRewardItemButtonMixin:OnButtonHide()
+        self.CloseButton:StopCountdown();
+        self.UpgradeArrow:Hide();
+    end
+
     function QuestRewardItemButtonMixin:OnCountdownFinished()
         self:FadeOut(0);
         self:UnregisterAllEvents();
     end
 
     function QuestRewardItemButtonMixin:SetCountdown(second, disableButton)
-        self.CloseButton:SetCountdown(second);
+        local hideDirectly;
+
         if disableButton then
             self:UnregisterAllEvents();
             self:SetButtonEnabled(false);
+            if (self.type == "cosmetic" or self.type == "mount" or self.type == "pet" or self.type == "toy") and (UIParent:IsShown()) then
+                --No Countdown because WoW has AlertFrame for them
+                hideDirectly = true;
+            else
+                hideDirectly = false;
+            end
+        else
+            hideDirectly = false;
+        end
+
+        if hideDirectly then
+            self:ClearButton();
+        else
+            self.CloseButton:SetCountdown(second);
         end
     end
 
@@ -284,11 +350,24 @@ do
     function QuestRewardItemButtonMixin:OnItemKnown()
         self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
     end
+
+
+    function QuickSlotManager:GetItemButton()
+        if not RewardItemButton then
+            RewardItemButton = API.CreateItemActionButton(nil, QuestRewardItemButtonMixin);
+            RewardItemButton:Hide();
+            RewardItemButton:SetFrameStrata("FULLSCREEN_DIALOG");
+            RewardItemButton:SetPoint("BOTTOM", nil, "BOTTOM", 0, 196);
+            RewardItemButton:SetIgnoreParentScale(true);
+            RewardItemButton:SetIgnoreParentAlpha(true);
+        end
+        return RewardItemButton
+    end
 end
 
 
 do  --Debug
-    --QuickSlotManager:RegisterEvent("PLAYER_ENTERING_WORLD");
+    QuickSlotManager:RegisterEvent("PLAYER_ENTERING_WORLD");
 
     function QuickSlotManager:PLAYER_ENTERING_WORLD()
         C_Timer.After(0.5, function()
@@ -299,7 +378,7 @@ do  --Debug
 
         local case = "link";   --equipment container cosmetic link
 
-        C_Timer.After(2, function()
+        C_Timer.After(3, function()
             local button = self:GetItemButton();
             local allowPressKeyToUse = true;
             if case == "equipment" then
@@ -325,9 +404,10 @@ do  --Debug
                 end
 
             elseif case == "link" then
+                QuickSlotManager:ListenLootEvent(true);
                 button:ClearButton();
                 button = nil;
-                local itemID = 213190;
+                local itemID = 25473;  --213190
                 QuickSlotManager:OnItemLooted(string.format("|Hitem:%d|h", itemID));
             end
 
@@ -336,17 +416,5 @@ do  --Debug
                 button:PlayFlyUpAnimation(true);
             end
         end)
-    end
-
-    function QuickSlotManager:GetItemButton()
-        if not RewardItemButton then
-            RewardItemButton = API.CreateItemActionButton(nil, QuestRewardItemButtonMixin);
-            RewardItemButton:Hide();
-            RewardItemButton:SetFrameStrata("FULLSCREEN_DIALOG");
-            RewardItemButton:SetPoint("BOTTOM", nil, "BOTTOM", 0, 196);
-            RewardItemButton:SetIgnoreParentScale(true);
-            RewardItemButton:SetIgnoreParentAlpha(true);
-        end
-        return RewardItemButton
     end
 end

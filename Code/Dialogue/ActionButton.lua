@@ -214,6 +214,7 @@ function SecureButtonMixin:SetUseItemByID(itemID, mouseButton, allowPressKeyToUs
         self:SetTriggerMouseButton(mouseButton);
         self:SetMacroText("/use item:"..itemID);
         if allowPressKeyToUse then
+            --[[
             if not IsNameValid(itemName) then
                 itemName = GetItemNameByID(itemID);
                 if not IsNameValid(itemName) then
@@ -227,6 +228,9 @@ function SecureButtonMixin:SetUseItemByID(itemID, mouseButton, allowPressKeyToUs
                 end
             end
             return SecureButtonContainer:SetPressToUseItem(nil, itemName, self);
+            --]]
+
+            return SecureButtonContainer:SetPressToClick(nil, self:GetName(), self);
         end
     end
 end
@@ -249,23 +253,7 @@ function SecureButtonMixin:SetEquipItem(item, mouseButton, allowPressKeyToUse)
     self:SetTriggerMouseButton(mouseButton);
     self:SetMacroText("/equip "..item);
     if allowPressKeyToUse then
-        local itemName = GetItemNameByID(itemID);
-        if not IsNameValid(itemName) then
-            local callback = function(id)
-                if id == itemID and self:IsShown() and (not InCombatLockdown()) then
-                    itemName = GetItemNameByID(itemID);
-                    SecureButtonContainer:SetPressToUseItem(nil, itemName, self);
-                end
-            end
-            CallbackRegistry:LoadItem(itemID, callback);
-        end
-
-        if itemName then
-            --return SecureButtonContainer:SetPressToUseItem(nil, itemName, self);
-            return SecureButtonContainer:SetPressToClick(nil, self:GetName(), self);
-        end
-
-        return false
+        return SecureButtonContainer:SetPressToClick(nil, self:GetName(), self);
     end
 end
 

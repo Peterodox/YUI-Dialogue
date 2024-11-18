@@ -483,7 +483,7 @@ do
         if not PrimaryItemButton then
             PrimaryItemButton = API.CreateItemActionButton(nil);
         end
-        local allowPressKeyToUse = addon.GetDBBool("PressKeyToOpenContainer");
+        local allowPressKeyToUse = addon.GetDBBool("QuickSlotUseHotkey");
         PrimaryItemButton:SetUsableItem(itemID, allowPressKeyToUse);
         return PrimaryItemButton
     end

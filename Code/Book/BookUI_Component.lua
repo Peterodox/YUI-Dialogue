@@ -97,6 +97,16 @@ do  --Header / Book Title
     local HeaderFrameMixin = {};
 
     function HeaderFrameMixin:SetTitle(title)
+        --debug: Check mising glyph
+        --[[
+        do
+            local name = C_Item.GetItemInfo(226364);
+            title = name;
+            local index = 12;
+            print(string.sub(title, 12, 12))
+            print(string.byte(title, 14))
+        end
+        --]]
         local minLineHeight = 14;
         self:SetAutoScalingText(self.Title, title, minLineHeight);
     end

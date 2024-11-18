@@ -65,7 +65,13 @@ do  --Quest Flyout ItemButton
         local textPaddingV = 12;
         local textPaddingH = 12;
         local hotkeyFramePadding = 4;
-        local buttonWidth = self.textLeftOffset + self.ButtonText:GetWrappedWidth() + textPaddingH;
+        local buttonWidth = self.textLeftOffset + textPaddingH;
+
+        if self.ButtonText:IsTruncated() then
+            buttonWidth = buttonWidth + ITEM_TEXT_WIDTH;
+        else
+            buttonWidth = buttonWidth + self.ButtonText:GetWrappedWidth();
+        end
 
         self.ButtonText:ClearAllPoints();
         if self.HotkeyFrame and self.HotkeyFrame:IsShown() then
@@ -144,13 +150,13 @@ do  --Quest Flyout ItemButton
 
     function ItemButtonMixin:SetColorByQuality(quality)
         local colorIndex;
-        if quality == 1 then
+        if quality == 0 or quality == 1 then
             colorIndex = 1;
         elseif quality == 2 then
             colorIndex = 2;
         elseif quality == 3 or quality == 7 then
             colorIndex = 3;
-        elseif colorIndex == 4 then
+        elseif quality == 4 then
             colorIndex = 4;
         end
         self:SetColorIndex(colorIndex);
@@ -376,6 +382,30 @@ do  --Event Handler, Lazy Update
             else
                 self:SetCosmeticItem(self.itemID, allowPressKeyToUse);
             end
+        elseif self.type == "mount" then
+            if self:IsKnownMount() then
+                self:SetButtonEnabled(false);
+                self:SetSuccessText(L["Collection Collected"]);
+                self:OnItemKnown();
+            else
+                self:SetMountItem(self.itemID, allowPressKeyToUse);
+            end
+        elseif self.type == "pet" then
+            if self:IsKnownPet() then
+                self:SetButtonEnabled(false);
+                self:SetSuccessText(L["Collection Collected"]);
+                self:OnItemKnown();
+            else
+                self:SetPetItem(self.itemID, allowPressKeyToUse);
+            end
+        elseif self.type == "toy" then
+            if self:IsKnownToy() then
+                self:SetButtonEnabled(false);
+                self:SetSuccessText(L["Collection Collected"]);
+                self:OnItemKnown();
+            else
+                self:SetToyItem(self.itemID, allowPressKeyToUse);
+            end
         end
     end
 
@@ -426,7 +456,7 @@ do  --Event Handler, Lazy Update
         elseif event == "PLAYER_EQUIPMENT_CHANGED" then
             local equipmentSlot, isEmpty = ...
             self:RequestUpdateBag();
-        elseif event == "TRANSMOG_COSMETIC_COLLECTION_SOURCE_ADDED" then
+        elseif event == "TRANSMOG_COSMETIC_COLLECTION_SOURCE_ADDED" or event == "NEW_MOUNT_ADDED" or event == "NEW_PET_ADDED" or event == "NEW_TOY_ADDED" then
             self:RequestUpdateBag();
         end
 
@@ -505,6 +535,43 @@ do  --Actions Types
             self:RegisterEvent("TRANSMOG_COSMETIC_COLLECTION_SOURCE_ADDED");
         end
     end
+
+    function ItemButtonMixin:SetMountItem(item, allowPressKeyToUse)
+        self:SetUsableItem(item, allowPressKeyToUse);
+        self.type = "mount";
+        self.mountID = C_MountJournal.GetMountFromItem(self.itemID);
+        if self:IsKnownMount() then
+            self:SetButtonEnabled(false);
+            self:SetSuccessText(L["Collection Collected"]);
+            self:OnItemKnown();
+        else
+            self:RegisterEvent("NEW_MOUNT_ADDED");
+        end
+    end
+
+    function ItemButtonMixin:SetPetItem(item, allowPressKeyToUse)
+        self:SetUsableItem(item, allowPressKeyToUse);
+        self.type = "pet";
+        if self:IsKnownPet() then
+            self:SetButtonEnabled(false);
+            self:SetSuccessText(L["Collection Collected"]);
+            self:OnItemKnown();
+        else
+            self:RegisterEvent("NEW_PET_ADDED");
+        end
+    end
+
+    function ItemButtonMixin:SetToyItem(item, allowPressKeyToUse)
+        self:SetUsableItem(item, allowPressKeyToUse);
+        self.type = "toy";
+        if self:IsKnownToy() then
+            self:SetButtonEnabled(false);
+            self:SetSuccessText(L["Collection Collected"]);
+            self:OnItemKnown();
+        else
+            self:RegisterEvent("NEW_TOY_ADDED");
+        end
+    end
 end
 
 
@@ -520,10 +587,6 @@ do  --Determine if the item is learned/used
         return false
     end
 
-    function ItemButtonMixin:IsKnownToy()
-
-    end
-
     function ItemButtonMixin:IsKnownCosmetic()
         if self.itemID then
             return PlayerHasTransmogByItemID(self.itemID)
@@ -531,11 +594,27 @@ do  --Determine if the item is learned/used
     end
 
     function ItemButtonMixin:IsKnownMount()
-
+        if not self.mountID then
+            return true
+        end
+        local isCollected = select(11, C_MountJournal.GetMountInfoByID(self.mountID));
+        return isCollected
     end
 
     function ItemButtonMixin:IsKnownPet()
+        if self.itemID then
+            local creatureName = C_PetJournal.GetPetInfoByItemID(self.itemID);
+            if creatureName then
+                local _, petGUID = C_PetJournal.FindPetIDByName(creatureName);
+                return petGUID ~= nil
+            end
+        end
+    end
 
+    function ItemButtonMixin:IsKnownToy()
+        if self.itemID then
+            return PlayerHasToy(self.itemID)
+        end
     end
 end
 
@@ -566,6 +645,15 @@ do  --Override
     end
 
     function ItemButtonMixin:OnItemKnown()
+    end
+
+    function ItemButtonMixin:PostClick(button)
+        --We want to clear the override binding when the ActionButton is clicked
+        --Instead of waiting for the response of its action like collecting transmog, pet
+        print(button)
+        if button == "LeftButton" then
+            addon.SecureButtonContainer:ClearOverrideBinding();
+        end
     end
 end
 

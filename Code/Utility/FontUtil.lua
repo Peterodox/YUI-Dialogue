@@ -31,6 +31,10 @@ local NUMBER_FONT_FILE = {
     russian = "Interface/AddOns/DialogueUI/Fonts/ARIALN.ttf",
 };
 
+local DEFAULT_BOOK_TITLE_FONT_FILE = {
+    roman = "Interface/AddOns/DialogueUI/Fonts/TrajanPro3SemiBold.ttf",
+};
+
 local HEIGHT_1 = {10, 12, 14, 16, 24};
 local HEIGHT_2 = {8, 10, 12, 14, 20};
 
@@ -118,6 +122,11 @@ end
 function FontUtil:GetDefaultFont()
     local alphabet = self:GetAlphabetForCurrentClient();
     return DEFAULT_FONT_FILE[alphabet];
+end
+
+function FontUtil:GetDefaultTitleFont()
+    local alphabet = self:GetAlphabetForCurrentClient();
+    return DEFAULT_BOOK_TITLE_FONT_FILE[alphabet] or DEFAULT_FONT_FILE[alphabet]
 end
 
 function FontUtil:GetUserFont()
@@ -338,10 +347,9 @@ do
         end
 
         if GetDBValue("FontText") == "default" then
-            _G.DUIFont_Book_Title:SetFont("Interface/AddOns/DialogueUI/Fonts/TrajanPro3SemiBold.ttf", 18, "");
-        else
-            _G.DUIFont_Book_Title:SetFont(textFontFile, 18, "");
+            textFontFile = self:GetDefaultTitleFont();
         end
+        _G.DUIFont_Book_Title:SetFont(textFontFile, 18, "");
 
         addon.CallbackRegistry:Trigger("FontSizeChanged", DEFAULT_FONT_SIZE, FONT_SIZE_ID);
     end

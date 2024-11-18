@@ -514,16 +514,16 @@ local function OutlineSparklesSupported_Validation()
     return addon.IsToCVersionEqualOrNewerThan(110000)
 end
 
-local function OpenContainerKey_TooltipFunc()
+local function UseItemHotkey_Tooltip()
     local deviceID = GetDBValue("InputDevice");
     if deviceID == 2 then
-        return L["Press Key To Open Container Desc Xbox"]
+        return L["Press Key To Use Item Desc Xbox"]
     elseif deviceID == 3 then
-        return L["Press Key To Open Container Desc PlayStation"]
+        return L["Press Key To Use Item Desc PlayStation"]
     elseif deviceID == 4 then
-        return L["Press Key To Open Container Desc Switch"]
+        return L["Press Key To Use Item Desc Switch"]
     else
-        return L["Press Key To Open Container Desc PC"]
+        return L["Press Key To Use Item Desc PC"]
     end
 end
 
@@ -662,8 +662,9 @@ local Schematic = { --Scheme
             {type = "Custom", name = L["Reset Position"], icon = "Settings-Reset.png", description = L["Quest Item Display Reset Position Desc"], validationFunc = QuestItemDisplayPosition_Validation, onClickFunc = QuestItemDisplay_Reset_OnClick, requireSameParentValue = true},
 
             {type = "Subheader", name = L["Quest"]},
+            {type = "Checkbox", name = L["Valuable Reward Popup"], description = L["Valuable Reward Popup Desc"], dbKey = "QuickSlotQuestReward", preview = "QuickSlotQuestReward", ratio = 2},
+            {type = "Checkbox", name = L["Press Key To Use Item"], tooltip = UseItemHotkey_Tooltip, dbKey = "QuickSlotUseHotkey", requiredParentValue = {QuickSlotQuestReward = true}},
             {type = "Checkbox", name = L["Auto Complete Quest"], description = L["Auto Complete Quest Desc"], dbKey = "AutoCompleteQuest", preview = "QuestAutoComplete", ratio = 2},
-            {type = "Checkbox", name = L["Press Key To Open Container"], tooltip = OpenContainerKey_TooltipFunc, dbKey = "PressKeyToOpenContainer", requiredParentValue = {AutoCompleteQuest = true}},
 
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
