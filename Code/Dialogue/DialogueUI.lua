@@ -935,6 +935,7 @@ local function SortFunc_GossipPrioritizeQuest(a, b)
 
 	return a.orderIndex < b.orderIndex;
 end
+addon.SortFunc_GossipPrioritizeQuest = SortFunc_GossipPrioritizeQuest;
 
 local function SortFunc_PrioritizeCompleteQuest(a, b)
     if a.isComplete ~= b.isComplete then
@@ -1028,13 +1029,75 @@ function DUIDialogBaseMixin:IsGossipHandledExternally()
     return false
 end
 
+local function HandleAutoSelect(options, activeQuests, availableQuests, anyOption, anyActiveQuest, anyAvailableQuest, numAvailableQuests)
+    --If returning true, the main UI should not be shown
+
+    if anyOption == nil then
+        anyOption = options and #options > 0;
+    end
+
+    if anyActiveQuest == nil then
+        anyActiveQuest = activeQuests and #activeQuests > 0;
+    end
+
+    if anyAvailableQuest == nil then
+        numAvailableQuests = availableQuests and #availableQuests
+        anyAvailableQuest = numAvailableQuests and numAvailableQuests > 0;
+    end
+
+    local autoSelectGossip = GetDBBool("AutoSelectGossip");
+    local autoCompleteQuest = GetDBBool("AutoCompleteQuest");
+
+    if (autoSelectGossip or autoCompleteQuest) and (not anyOption) and (not anyActiveQuest) and (numAvailableQuests == 1) then
+        local firstQuestID = availableQuests[1].questID;
+        if GossipDataProvider:ShouldAutoAcceptQuest(firstQuestID) then
+            C_GossipInfo.SelectAvailableQuest(firstQuestID);
+            API.PrintMessage(L["Auto Select"], availableQuests[1].title);
+            return true
+        end
+    end
+
+    local onlyOption = #options == 1;
+
+    if (not GetDBBool("ForceGossip")) and (not (anyActiveQuest or anyAvailableQuest)) and (onlyOption) and (not ForceGossip()) then
+        if options[1].selectOptionWhenOnlyOption then
+            C_GossipInfo.SelectOptionByIndex(options[1].orderIndex);
+            return true
+        end
+
+        if autoSelectGossip and IsAutoSelectOption(options[1].gossipOptionID, true) then
+            C_GossipInfo.SelectOption(options[1].gossipOptionID);
+            API.PrintMessage(L["Auto Select"], options[1].name);
+            return true
+        end
+    end
+
+    if (not anyAvailableQuest) and autoSelectGossip then
+        for i, data in ipairs(options) do
+            if IsAutoSelectOption(data.gossipOptionID, onlyOption) then
+                C_GossipInfo.SelectOption(data.gossipOptionID);
+                API.PrintMessage(L["Auto Select"], data.name);
+                return true
+            end
+        end
+    end
+
+    return false
+end
+addon.DialogueHandleAutoSelect = HandleAutoSelect;
+
 function DUIDialogBaseMixin:HandleGossip()
-    if self:IsGossipHandledExternally() then return false end;
+    if self:IsGossipHandledExternally() then
+        if self:IsShown() then
+            CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+        end
+        return false
+    end
 
     local availableQuests = GetAvailableQuests();
     local activeQuests = GetActiveQuests();
+    local options = GetOptions() or {};
 
-    local options = GetOptions();
     tsort(options, SortFunc_GossipPrioritizeQuest);
 
     local numAvailableQuests = availableQuests and #availableQuests or 0;
@@ -1046,50 +1109,18 @@ function DUIDialogBaseMixin:HandleGossip()
     self.hasActiveGossipQuests = anyActiveQuest;
     self.numAvailableQuests = numAvailableQuests;
 
+    --[[    --NameplateGossip isn't in use
     if (not(anyQuest or anyOption)) and NameplateGossip:ShouldUseNameplate() then
-        --debug
         local success = addon.NameplateGossip:RequestDisplayGossip();
         if success then
             self.keepGossipHistory = false;
             return false
         end
     end
+    --]]
 
-    local autoSelectGossip = GetDBBool("AutoSelectGossip");
-    local autoCompleteQuest = GetDBBool("AutoCompleteQuest");
-
-    if (autoSelectGossip or autoCompleteQuest) and (not anyOption) and (not anyActiveQuest) and (numAvailableQuests == 1) then
-        local firstQuestID = availableQuests[1].questID;
-        if GossipDataProvider:ShouldAutoAcceptQuest(firstQuestID) then
-            C_GossipInfo.SelectAvailableQuest(firstQuestID);
-            API.PrintMessage(L["Auto Select"], availableQuests[1].title);
-            return false
-        end
-    end
-
-    local onlyOption = #options == 1;
-
-    if (not GetDBBool("ForceGossip")) and (not anyQuest) and (onlyOption) and (not ForceGossip()) then
-        if options[1].selectOptionWhenOnlyOption then
-            C_GossipInfo.SelectOptionByIndex(options[1].orderIndex);
-            return false
-        end
-
-        if autoSelectGossip and IsAutoSelectOption(options[1].gossipOptionID, true) then
-            C_GossipInfo.SelectOption(options[1].gossipOptionID);
-            API.PrintMessage(L["Auto Select"], options[1].name);
-            return false
-        end
-    end
-
-    if (not anyAvailableQuest) and autoSelectGossip then
-        for i, data in ipairs(options) do
-            if IsAutoSelectOption(data.gossipOptionID, onlyOption) then
-                C_GossipInfo.SelectOption(data.gossipOptionID);
-                API.PrintMessage(L["Auto Select"], data.name);
-                return false
-            end
-        end
+    if HandleAutoSelect(options, activeQuests, availableQuests, anyOption, anyActiveQuest, anyAvailableQuest, numAvailableQuests) then
+        return false
     end
 
     local fromOffsetY = 0;
@@ -1136,10 +1167,12 @@ function DUIDialogBaseMixin:HandleGossip()
     local hotkey;
 
     local anyNewOrCompleteQuest = anyAvailableQuest;
-    for i, questInfo in ipairs(activeQuests) do
-        if questInfo.isComplete then
-            anyNewOrCompleteQuest = true;
-            break
+    if not anyNewOrCompleteQuest then
+        for i, questInfo in ipairs(activeQuests) do
+            if questInfo.isComplete then
+                anyNewOrCompleteQuest = true;
+                break
+            end
         end
     end
 

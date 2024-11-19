@@ -12,14 +12,18 @@ local InCombatLockdown = InCombatLockdown;
 local IsInInstance = IsInInstance;
 
 
-local EVENT_PROCESS_DELAY = 0.017;  --Affected by CameraMovement
+local EVENT_PROCESS_DELAY = 0.017;          --Affected by CameraMovement
 local MAINTAIN_CAMERA_POSITION = false;
 local USE_AUTO_QUEST_POPUP = true;
 local DISABLE_DUI_IN_INSTANCE = false;
+local HANDLE_EVENT_EXTERNALLY = false;      --If true, Events will be handled by Skimmers
 
 
 local EL = CreateFrame("Frame");
 local Muter = {};
+
+local function GetCustomGossipHandler()
+end
 
 local GossipEvents = {
     "GOSSIP_SHOW", "GOSSIP_CLOSED",
@@ -88,7 +92,9 @@ function EL:OnGossipClosed(interactionIsContinuing)
     if self.customFrame then
         local f = self.customFrame;
         self.customFrame = nil;
-        HideUIPanel(f);
+        if not InCombatLockdown() then
+            HideUIPanel(f);
+        end
         return
     end
 
@@ -109,9 +115,13 @@ function EL:NegateLastEvent(event)
 end
 
 function EL:OnEvent(event, ...)
+    if HANDLE_EVENT_EXTERNALLY then
+        return
+    end
+
     if event == "GOSSIP_SHOW" then
         self.lastEvent = event;
-        local handler = self:GetHandler(...);
+        local handler = GetCustomGossipHandler(...);
         if handler then
             self.customFrame = handler(...);
         else
@@ -194,8 +204,7 @@ function EL:OnEvent(event, ...)
     --print(event, GetTimePreciseSec(), ...);    --debug
 end
 
-
-function EL:ListenEvent(state)
+function EL:ListenEvents(state)
     local method;
 
     if state then
@@ -281,7 +290,6 @@ function EL:ProcessEventNextUpdate(customDelay)
     self:SetScript("OnUpdate", self.OnUpdate);
 end
 
-
 do
     local DEFAULT_CAMERA_MODE = 1;
 
@@ -355,7 +363,7 @@ do  --Unlisten events from default UI
         if state then
             if Muter.muted then return end;
             Muter.muted = true;
-            EL:ListenEvent(true);
+            EL:ListenEvents(true);
 
             if CustomGossipFrameManager then    --CustomGossipFrameBase.lua (Retail)
                 CustomGossipFrameManager:UnregisterEvent("GOSSIP_SHOW");
@@ -378,7 +386,7 @@ do  --Unlisten events from default UI
 
         elseif Muter.muted then
             Muter.muted = false;
-            EL:ListenEvent(false);
+            EL:ListenEvents(false);
 
             if CustomGossipFrameManager then    --CustomGossipFrameBase.lua (Retail)
                 CustomGossipFrameManager:RegisterEvent("GOSSIP_SHOW");
@@ -439,7 +447,7 @@ do  --Unlisten events from default UI
     addon.CallbackRegistry:Register("SettingChanged.DisableDUIInInstance", Settings_DisableDUIInInstance);
 end
 
-do
+do  --See Blizzard_UIPanels_Game/CustomGossipFrameBase.lua
 	local function HandleNPEGuideGossipShow(textureKit)
 		C_AddOns.LoadAddOn("Blizzard_NewPlayerExperienceGuide");
 		ShowUIPanel(GuideFrame);
@@ -458,15 +466,10 @@ do
 		return DelvesDifficultyPickerFrame
 	end
 
-    EL.handlers = {};
+    local Handlers = {};
 
     function EL:RegisterHandler(textureKit, func)
-        self.handlers[textureKit] = func;
-    end
-
-    function EL:GetHandler(textureKit)
-        --print("textureKit", textureKit)
-        return textureKit and self.handlers[textureKit]
+        Handlers[textureKit] = func;
     end
 
 	function EL:RegisterCustomGossipFrames()
@@ -480,5 +483,16 @@ do
 		self:RegisterHandler("twistingcorridors", HandleTorghastLevelPickerGossipShow);
         self:RegisterHandler("delves-difficulty-picker", HandleDelvesDifficultyPickerGossipShow);   --For some reason this textureKit is sometimes nil, causing issue
 	end
-    EL:RegisterCustomGossipFrames();
+
+    function GetCustomGossipHandler(textureKit)
+        return textureKit and Handlers[textureKit]
+    end
+    addon.GetCustomGossipHandler = GetCustomGossipHandler;
+end
+
+do  --DEBUG Skimmer
+    local function SetHandleEventExternally(state)
+        HANDLE_EVENT_EXTERNALLY = state == true;
+    end
+    addon.SetHandleEventExternally = SetHandleEventExternally;
 end

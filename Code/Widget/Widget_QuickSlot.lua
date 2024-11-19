@@ -70,7 +70,7 @@ QuickSlotManager:SetScript("OnEvent", QuickSlotManager.OnEvent);
 
 function QuickSlotManager:OnUpdate_UnregisterEvents(elapsed)
     self.t = self.t + elapsed;
-    if self.t >= 1.0 then   --debug
+    if self.t >= 1.0 then   --debug Change to infinite so we can test it off vendors
         self:ListenLootEvent(false);
     end
 end

@@ -30,4 +30,6 @@ Code\Book\BookUI.xml
 Code\Widget\WidgetManager.xml
 Code\Core.lua
 
+#Code\Skimmer\Skimmer.xml
+
 Code\SupportedAddOns\SupportedAddOns.xml
