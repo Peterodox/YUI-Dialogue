@@ -483,6 +483,7 @@ do  --See Blizzard_UIPanels_Game/CustomGossipFrameBase.lua
 		self:RegisterHandler("twistingcorridors", HandleTorghastLevelPickerGossipShow);
         self:RegisterHandler("delves-difficulty-picker", HandleDelvesDifficultyPickerGossipShow);   --For some reason this textureKit is sometimes nil, causing issue
 	end
+    EL:RegisterCustomGossipFrames();
 
     function GetCustomGossipHandler(textureKit)
         return textureKit and Handlers[textureKit]
