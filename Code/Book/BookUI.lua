@@ -618,7 +618,7 @@ do  --Background Calculation \ Theme
             p = {};
             self.BackgroundPieces = p;
             p[1] = self:CreateTexture(nil, "BACKGROUND", nil, -1);
-            p[2] = self.Footer:CreateTexture(nil, "OVERLAY", nil, -1);
+            p[2] = self.Footer:CreateTexture(nil, "OVERLAY", nil, -1);      --We use the bottom texture's upper border to "mask" the text body
         end
 
         local cs = ConvertedSize;

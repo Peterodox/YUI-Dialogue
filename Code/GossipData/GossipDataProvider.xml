@@ -7,6 +7,7 @@
     <Script file="GossipData_ShowUI.lua"/>
     <Script file="GossipData_Hint.lua"/>
     <Script file="GossipData_AutoQuest.lua"/>
+    <Script file="GossipData_Teleport.lua"/>
 
     <Script file="ItemData_Container.lua"/>
 </Ui>

@@ -167,8 +167,6 @@ function DUIDialogSettingsMixin:LoadTheme()
 
     local filePath = ThemeUtil:GetTexturePath();
 
-    self.Background:SetTexture(filePath.."Settings-Background.png");
-    self.BackgroundShadow:SetTexture(filePath.."Settings-BackgroundShadow.png");
     self.HeaderDivider:SetTexture(filePath.."Settings-Divider-H.png");
     self.VerticalDivider:SetTexture(filePath.."Settings-Divider-V.png");
     self.PreviewBorder:SetTexture(filePath.."Settings-PreviewBorder.png");
@@ -199,18 +197,23 @@ function DUIDialogSettingsMixin:LoadTheme()
         self.hotkeyFramePool:CallAllObjects("LoadTheme");
     end
 
-    self.BackgroundDecor:SetTexture(filePath.."Settings-BackgroundDecor.png");
+    self.BackgroundDecor:SetTexture("Interface/AddOns/DialogueUI/Art/ParchmentDecor/Dalaran.png");
 
     local themeID;
 
     if ThemeUtil:IsDarkMode() then
         themeID = 2;
         self.BackgroundDecor:SetBlendMode("ADD");
+        self.BackgroundDecor:SetAlpha(1);
+        self.BackgroundDecor:SetVertexColor(0.2, 0.2, 0.2);
     else
         themeID = 1;
         self.BackgroundDecor:SetBlendMode("BLEND");
+        self.BackgroundDecor:SetAlpha(0.8);
+        self.BackgroundDecor:SetVertexColor(173/255, 114/255, 65/255);
     end
 
+    self.BackgroundFrame:SetTheme(themeID);
     self.ScrollBar:SetTheme(themeID);
 
     for i, button in ipairs(self.tabButtons) do
@@ -225,21 +228,9 @@ function DUIDialogSettingsMixin:LoadTheme()
 end
 
 function DUIDialogSettingsMixin:UpdatePixel(scale)
-    if not scale then
-        scale = self:GetEffectiveScale();
-    end
-
-    local pixelOffset = 10.0;
-    local offset = API.GetPixelForScale(scale, pixelOffset);
-    self.BackgroundShadow:ClearAllPoints();
-    self.BackgroundShadow:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset);
-    self.BackgroundShadow:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
-
-
-    API.UpdateTextureSliceScale(self.Background);
-    API.UpdateTextureSliceScale(self.BackgroundShadow);
     API.UpdateTextureSliceScale(self.PreviewBorder);
     API.UpdateTextureSliceScale(self.Header.Selection);
+    self.BackgroundFrame:UpdatePixel();
 end
 
 function DUIDialogSettingsMixin:HighlightButton(button)
@@ -362,7 +353,7 @@ local function ValueTextFormatter_PrimaryControlKey(arrowOptionButton, dbValue)
     fontString:ClearAllPoints();
     fontString:SetPoint("TOP", arrowOptionButton, "TOP", widgetWidth*0.5, ARROWOPTION_VALUETEXT_OFFSET_Y);
     f:ClearAllPoints();
-
+    f:SetParent(arrowOptionButton);
     local textWidth = fontString:GetWrappedWidth();
     f:SetPoint("RIGHT", fontString, "CENTER", -0.5*textWidth -HOTKEYFRAME_VALUETEXT_GAP, 0);
 end
@@ -638,6 +629,7 @@ local Schematic = { --Scheme
             },
             {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Checkbox", name = L["Press Tab To Select Reward"], description = L["Press Tab To Select Reward Desc"], dbKey = "CycleRewardHotkeyEnabled", requiredParentValueAnd = {InputDevice = 1}},
+            {type = "Checkbox", name = L["Disable Hokey For Teleport"], description = L["Disable Hokey For Teleport Desc"], dbKey = "DisableHotkeyForTeleport", requiredParentValueAnd = {InputDevice = 1}},
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
@@ -808,10 +800,34 @@ function TextureFrameMixin:SetVertexColor(r, g, b, a)
     self.Texture:SetVertexColor(r, g, b, a)
 end
 
+function TextureFrameMixin:SetTexCoord(...)
+    self.Texture:SetTexCoord(...)
+end
+
+function TextureFrameMixin:ClearTextureSlice()
+    self.Texture:ClearTextureSlice()
+end
+
+function TextureFrameMixin:SetTextureSliceMargins(left, top, right, bottom)
+    self.Texture:SetTextureSliceMargins(left, top, right, bottom)
+end
+
+function TextureFrameMixin:SetTextureSliceMode(sliceMode)
+    self.Texture:SetTextureSliceMode(sliceMode)
+end
+
 local function CreateTexture()
     local f = CreateFrame("Frame", nil, MainFrame, "DUIDialogSettingsTextureFrameTemplate");
     API.Mixin(f, TextureFrameMixin);
     return f
+end
+
+local function RemoveTexture(f)
+    f.Texture:ClearTextureSlice();
+    f.Texture:SetTexCoord(0, 1, 0, 1);
+    f.Texture:SetVertexColor(1, 1, 1, 1);
+    f:ClearAllPoints();
+    f:Hide();
 end
 
 
@@ -866,7 +882,7 @@ function ScrollFrameMixin:IsAtBottom()
 end
 
 function ScrollFrameMixin:ScrollBy(offset)
-    self:SetScrollOffset( self:GetScrollOffset() + offset);
+    self:SetScrollOffset(self:GetScrollOffset() + offset);
 end
 
 function ScrollFrameMixin:ScrollToBottom()
@@ -879,6 +895,7 @@ function ScrollFrameMixin:OnMouseWheel(delta)
     else
         self:ScrollBy(OPTIONBUTTON_HEIGHT);
     end
+    addon.UpdateSettingsDropdownMenuPosition();
 end
 
 
@@ -892,7 +909,7 @@ function DUIDialogSettingsMixin:Init()
     self.checkboxPool = API.CreateObjectPool(CreateCheckbox, RemoveWidget, OnAcquireCheckbox);
     self.arrowOptionPool = API.CreateObjectPool(CreateArrowOption, RemoveWidget, OnAcquireArrowOption);
     self.dropdownButtonPool = API.CreateObjectPool(CreateDropdownButton, RemoveWidget, OnAcquireDropdownButton);
-    self.texturePool = API.CreateObjectPool(CreateTexture);
+    self.texturePool = API.CreateObjectPool(CreateTexture, RemoveTexture);
 
     local function CreateHotkeyFrame()
         local f = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
@@ -1044,7 +1061,7 @@ function DUIDialogSettingsMixin:Layout()
 
     self.DecorMask:SetSize(rightAreaWidth, rightAreaWidth);
     self.DecorMask:ClearAllPoints();
-    self.DecorMask:SetPoint("BOTTOM", self.Description, "BOTTOM", 0, -16);
+    self.DecorMask:SetPoint("BOTTOM", self.Description, "BOTTOM", 0, -24);
 
     --Reduce tab button size if necessary
     local headerObjectWidth = tabButtonsSpan + minTabButtonWidth + TAB_BUTTON_GAP;
@@ -1103,6 +1120,7 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     if INPUT_DEVICE_GAME_PAD then
         local gap = 4 * TAB_BUTTON_GAP;
         local lb = self.hotkeyFramePool:Acquire();
+        lb:SetParent(self.Header.Container);
         lb:SetKey("PADLSHOULDER");
         lb:SetPoint("LEFT", self.Header.Container, "LEFT", 0, 0);
 
@@ -1111,6 +1129,7 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
         firstTabButton:SetPoint("LEFT", lb, "RIGHT", gap, 0);
 
         local rb = self.hotkeyFramePool:Acquire();
+        rb:SetParent(self.Header.Container);
         rb:SetKey("PADRSHOULDER");
         rb:SetPoint("LEFT", self.tabButtons[ #self.tabButtons ], "RIGHT", gap, 0);
     end
@@ -1380,14 +1399,18 @@ end
 
 
 function DUIDialogSettingsOptionMixin:SetSubheader()
-    --[[
     local icon = MainFrame.texturePool:Acquire();
-    icon:SetSize(FONT_HEIGHT_NORMAL, FONT_HEIGHT_NORMAL);
-    icon:SetTexture(FILE_PATH.."Settings-SubheaderIcon.png");
-    icon:SetVertexColor(0.50, 0.36, 0.24);
-    icon:SetPoint("LEFT", self, "LEFT", 4, 0);
+    local textWidth = self.Label:GetWrappedWidth();
+    local frameHeight = 3*FONT_HEIGHT_NORMAL;
+    local frameWidth = math.max(textWidth + 2.2*FONT_HEIGHT_NORMAL, frameHeight);   --204/54*frameHeight
+    icon:SetSize(frameWidth, frameHeight);
+    icon:SetTexture(ThemeUtil:GetTextureFile("LabelBackground.png"));
+    icon:SetTexCoord(0, 204/255, 0, 54/64);
+    icon:SetTextureSliceMode(0);
+    icon:SetTextureSliceMargins(24, 24, 24, 16);
+    icon:SetVertexColor(1, 1, 1, 1);
+    icon:SetPoint("LEFT", self.Label, "LEFT", -FONT_HEIGHT_NORMAL, 0);
     icon:SetParent(self);
-    --]]
 end
 
 function DUIDialogSettingsOptionMixin:SetData(optionData)
@@ -1399,7 +1422,6 @@ function DUIDialogSettingsOptionMixin:SetData(optionData)
 
     if optionData.type == "Subheader" then
         isSubheader = true;
-        self:SetSubheader();
     elseif optionData.type == "Checkbox" then
         self:SetCheckbox(optionData);
     elseif optionData.type == "ArrowOption" then
@@ -1443,6 +1465,9 @@ function DUIDialogSettingsOptionMixin:SetData(optionData)
         branch:SetParent(self);
     else
         nameOffset = OPTIONBUTTON_LABEL_OFFSET;
+        if isSubheader then
+            self:SetSubheader();    --No background for sub-subcategory
+        end
     end
 
     if optionData.icon then
@@ -1963,6 +1988,17 @@ do  --DropdownButton
                 return tooltip
             end
         end
+    end
+
+    function DUIDialogSettingsDropdownButtonMixin:IsInRange()
+        local top = self:GetTop();
+        local bottom = self:GetBottom();
+        local frameTop = MainFrame.ScrollFrame:GetTop();
+        local frameBottom = MainFrame.ScrollFrame:GetBottom();
+        if top and bottom and frameTop and frameBottom then
+            return (top > frameBottom) and (bottom < frameTop)
+        end
+        return true
     end
 end
 

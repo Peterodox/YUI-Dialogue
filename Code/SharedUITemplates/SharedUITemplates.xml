@@ -1,0 +1,15 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="SharedUITemplates.lua"/>
+    <Script file="GenericFrame.lua"/>
+
+    <Frame name="DUIGenericTitledFrameTemplate" mixin="DUIGenericTitledFrameMixin" setAllPoints="true" useParentLevel="true" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND" textureSubLevel="0">
+                <Texture parentKey="Background" setAllPoints="true">
+                    <TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="80" right="80" top="80" bottom="80"/>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
+</Ui>

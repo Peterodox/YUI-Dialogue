@@ -43,6 +43,7 @@ local DefaultValues = {
     ScrollDownThenAcceptQuest = false,
     RightClickToCloseUI = true,
     CycleRewardHotkeyEnabled = false,           --Press Tab to cycle through choosable rewards
+    DisableHotkeyForTeleport = false,           --Disable gossip hotkey when select teleportation
     EmulateSwipe = true,
     MobileDeviceMode = false,
 

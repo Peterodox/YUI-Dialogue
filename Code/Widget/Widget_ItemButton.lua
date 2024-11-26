@@ -448,8 +448,8 @@ do  --Event Handler, Lazy Update
         elseif event == "BAG_UPDATE_COOLDOWN" then
             if self.itemID then
                 local startTime, duration, enable = GetItemCooldown(self.itemID);
-                if startTime and duration and duration > 0 and enable == 1 then
-                    self.Cooldown:SetCooldownDuration(duration);
+                if enable == 1 and startTime and startTime > 0 and duration and duration > 0 then
+                    self.Cooldown:SetCooldown(startTime, duration);
                     self.Cooldown:Show();
                 end
             end

@@ -48,7 +48,8 @@ function MenuButtonMixin:OnMouseUp(button)
 end
 
 function MenuButtonMixin:SetButtonText(text, autoScaling, getTextWidth)
-    self.ButtonText:SetFontObject("DUIFont_MenuButton_Normal");
+    --self.ButtonText:SetFontObject("DUIFont_MenuButton_Normal");
+    FontUtil:SetupFontStringByFontObjectName(self.ButtonText, "DUIFont_MenuButton_Normal");
 
     if autoScaling then
         FontUtil:SetAutoScalingText(self.ButtonText, text);
@@ -187,7 +188,8 @@ function DropdownMenuMixin:MarkButtonSelected(button)
         self.SelectedIcon:SetParent(button);
         self.SelectedIcon:SetPoint("CENTER", button, "LEFT", 0, 0);
         self.SelectedIcon:Show();
-        button.ButtonText:SetFontObject("DUIFont_MenuButton_Highlight");
+        --button.ButtonText:SetFontObject("DUIFont_MenuButton_Highlight");
+        FontUtil:SetupFontStringByFontObjectName(button.ButtonText, "DUIFont_MenuButton_Highlight");
     end
 end
 
@@ -477,6 +479,23 @@ function DropdownMenuMixin:AcquireButton()
     end
     return self.buttonPool:Acquire();
 end
+
+function DropdownMenuMixin:OnPositionChanged()
+    if self:IsShown() and self.owner then
+        if self.owner.IsInRange then
+            if not self.owner:IsInRange() then
+                self:Hide();
+            end
+        end
+    end
+end
+
+local function UpdateSettingsDropdownMenuPosition()
+    if MainDropdownMenu then
+        MainDropdownMenu:OnPositionChanged();
+    end
+end
+addon.UpdateSettingsDropdownMenuPosition = UpdateSettingsDropdownMenuPosition;
 
 local function CreateDropdownMenu(parent)
     local f = CreateFrame("Frame", nil, parent, "DUIDropdownMenuTemplate");

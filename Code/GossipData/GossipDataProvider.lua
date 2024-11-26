@@ -1,5 +1,6 @@
 local _, addon = ...
 local TooltipFrame = addon.SharedTooltip;
+local GetCurrentNPCInfo = addon.API.GetCurrentNPCInfo;
 
 local ipairs = ipairs;
 local UnitName = UnitName;
@@ -15,10 +16,12 @@ function DataProvider:AddDataSource(dataSource)
 end
 
 function DataProvider:OnInteractWithNPC()
-    local npcName = UnitName("npc");
-    if npcName then
+    self:SetEnableGossipHotkey(true);
+
+    local creatureName, creatureID = GetCurrentNPCInfo();
+    if creatureName then
         for i, source in ipairs(self.sources) do
-            source:OnInteractWithNPC(npcName);
+            source:OnInteractWithNPC(creatureName, creatureID);
         end
     end
 end
@@ -33,9 +36,11 @@ function DataProvider:SetupTooltipByGossipOptionID(gossipOptionID)
     local hasTooltip = false;
 
     for i, source in ipairs(self.sources) do
-        hasTooltip = source:SetupTooltipByGossipOptionID(TooltipFrame, gossipOptionID);
-        if hasTooltip then
-            break
+        if source.SetupTooltipByGossipOptionID then
+            hasTooltip = source:SetupTooltipByGossipOptionID(TooltipFrame, gossipOptionID);
+            if hasTooltip then
+                break
+            end
         end
     end
 
@@ -52,11 +57,18 @@ function DataProvider:GetOverrideName(gossipOptionID)
     return self.alternativeNames[gossipOptionID]
 end
 
+function DataProvider:SetEnableGossipHotkey(state)
+    self.enableGossipHotkey = state;
+end
+
+function DataProvider:IsGossipHotkeyEnabled()
+    return self.enableGossipHotkey ~= false
+end
 
 --[[
 local DataSource = {};
 
-function DataSource:OnInteractWithNPC(npcName)
+function DataSource:OnInteractWithNPC(creatureName)
 
 end
 

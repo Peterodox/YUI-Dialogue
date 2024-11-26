@@ -126,8 +126,8 @@ function EL:OnEvent(event, ...)
             self.customFrame = handler(...);
         else
             if self:ThrottleGossipEvent() then
-                MainFrame:ShowUI(event);    --Depends on the options, we may select the non-gossip one directly without openning the UI
                 GossipDataProvider:OnInteractWithNPC();
+                MainFrame:ShowUI(event);    --Depends on the options, we may select the non-gossip one directly without openning the UI
                 CancelClosingGossipInteraction();
             end
         end

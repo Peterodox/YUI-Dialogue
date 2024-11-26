@@ -449,3 +449,23 @@ do  --Settings
     end
     addon.CallbackRegistry:Register("SettingChanged.TTSUseHotkey", Settings_TTSUseHotkey);
 end
+
+
+do  --Error Prevention Disable Hotkey
+    function KeyboardControl:DisableGossipHotkeys()
+        local anyChange;
+
+        if self.keyActions then
+            for key, v in pairs(self.keyActions) do
+                if v.obj and v.obj.type == "gossip" then
+                    self.keyActions[key] = nil;
+                    anyChange = true;
+                end
+            end
+        end
+
+        if anyChange then
+            
+        end
+    end
+end

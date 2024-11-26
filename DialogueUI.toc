@@ -20,6 +20,7 @@ API.xml
 Code\Utility\Utility.xml
 Code\Sound.lua
 Code\Camera.lua
+Code\SharedUITemplates\SharedUITemplates.xml
 Code\Tooltip\Tooltip.xml
 Code\Scroll\Scroll.xml
 Code\Settings\Settings.xml

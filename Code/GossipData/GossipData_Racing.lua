@@ -3,8 +3,8 @@ if not addon.IsToCVersionEqualOrNewerThan(100000) then return end;
 
 local DataSource = CreateFrame("Frame");
 
-function DataSource:OnInteractWithNPC(npcName)
-    if self:IsDragonRacingNPC(npcName) then
+function DataSource:OnInteractWithNPC(creatureName)
+    if self:IsDragonRacingNPC(creatureName) then
         self:SetScript("OnEvent", self.OnEvent);
         self:RegisterUnitEvent("UNIT_AURA", "player");
         self:ResetQueryCounter();
@@ -46,13 +46,13 @@ local RankIcons = {
     [4] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-None.png",
 };
 
-function DataSource:IsDragonRacingNPC(npcName)
-    return npcName == NPC_NAME1
+function DataSource:IsDragonRacingNPC(creatureName)
+    return creatureName == NPC_NAME1
 end
 
 
-function DataSource:IsDragonRacingNPC_Variants(npcName)
-    return npcName == NPC_NAME1 or npcName == NPC_NAME2
+function DataSource:IsDragonRacingNPC_Variants(creatureName)
+    return creatureName == NPC_NAME1 or creatureName == NPC_NAME2
 end
 
 do

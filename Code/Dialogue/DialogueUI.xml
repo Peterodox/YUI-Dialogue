@@ -3,7 +3,7 @@
     <Script file="ActionButton.lua"/>
     <Script file="KeyboardControl.lua"/>
     <Script file="RewardTooltipCode.lua"/>
-    <Script file="SharedUITemplates.lua"/>
+    <Script file="UITemplates.lua"/>
     <Script file="QuestHeaderWidget.lua"/>
     <Script file="Banner.lua"/>
     <Script file="QuestRewards.lua"/>

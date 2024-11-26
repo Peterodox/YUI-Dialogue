@@ -309,6 +309,11 @@ do  --ButtonMixin
     function ButtonMixin:SetClickable(state)
         self.clickable = state;
         self.Background:SetShown(state);
+        if state then
+            self.ButtonText:SetFontObject("DUIFont_ItemSelect");
+        else
+            self.ButtonText:SetFontObject("DUIFont_Item");
+        end
     end
 
     local function CampaignName_OnEnter(self)
@@ -361,7 +366,6 @@ do  --ButtonMixin
         --QuestRemainingTime
         self.type = "Time";
         self.uiOrder = 1;
-        self.ButtonText:SetFontObject("DUIFont_Item");
         --self:SetIcon(nil);
         self.useIcon = true;
         self.iconTextGap = 2;
@@ -377,7 +381,6 @@ do  --ButtonMixin
 
     function ButtonMixin:SetQuestTagNameAndIcon(name, icon)
         self.type = "Tag";
-        self.ButtonText:SetFontObject("DUIFont_Item");
         self.iconTextGap = 2;
         self:SetIcon(icon);
         self:SetText(name);
@@ -435,9 +438,8 @@ do  --ButtonMixin
         self.Icon:SetTexture(BASE_TEXTURE);
         self.Icon:SetTexCoord(132/512, 164/512, 0, 32/512);
         self.ButtonText:SetWidth(160);
-        self.ButtonText:SetFontObject("DUIFont_ItemSelect");
         self:SetText(questLineName);
-        self:SetClickable(true);
+        self:SetClickable(false);
         self.onEnterFunc = QuestLineQuest_OnEnter;
     end
 
@@ -449,7 +451,6 @@ do  --ButtonMixin
         self.Icon:SetTexture(BASE_TEXTURE);
         self.Icon:SetTexCoord(132/512, 164/512, 0, 32/512);
         self.ButtonText:SetWidth(160);
-        self.ButtonText:SetFontObject("DUIFont_ItemSelect");
         self:SetText(chainName);
         self:SetClickable(true);
         self.onEnterFunc = onEnterFunc;
