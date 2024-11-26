@@ -88,6 +88,7 @@ function DUIDialogSettingsMixin:OnShow()
     self:RegisterEvent("GAME_PAD_DISCONNECTED");
     self:MoveToBestPosition();
     addon.CallbackRegistry:Trigger("SettingsUI.Show");
+    addon.SharedTooltip:Hide();
 end
 
 function DUIDialogSettingsMixin:MoveToBestPosition()

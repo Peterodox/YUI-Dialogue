@@ -1090,6 +1090,10 @@ function DUIDialogBaseMixin:HandleGossip()
     if self:IsGossipHandledExternally() then
         if self:IsShown() then
             CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+            self.interactionIsContinuing = true;
+            self:Hide();
+        else
+            self.interactionIsContinuing = nil;
         end
         return false
     end
@@ -2243,16 +2247,16 @@ function DUIDialogBaseMixin:OnShow()
 end
 
 function DUIDialogBaseMixin:CloseDialogInteraction()
+    if self.interactionIsContinuing then
+        self.interactionIsContinuing = nil;
+        return
+    end
+
     CloseQuest();
     CloseGossipInteraction();
 
     --Classic:
     --HideUI will cause ClassTrainerFrame to not processing events (Blizzard_TrainerUI/Blizzard_TrainerUI.lua#72)
-end
-
-function DUIDialogBaseMixin:SetInteractionIsContinuing(interactionIsContinuing)
-    --Not used
-	self.interactionIsContinuing = true;    --?
 end
 
 function DUIDialogBaseMixin:OnHide()
