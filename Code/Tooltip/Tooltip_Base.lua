@@ -147,6 +147,13 @@ function TooltipBaseMixin:ClearLines()
 end
 
 local function TooltipBaseMixin_OnUpdate_FadeIn(self, elapsed)
+    if not self.t then
+        self.t = nil;
+        self:SetScript("OnUpdate", nil);
+        self:SetFrameAlpha(1);
+        return
+    end
+
     self.t = self.t + elapsed;
     if self.t > 0 then
         local alpha = 10*self.t;
@@ -177,7 +184,7 @@ function TooltipBaseMixin:SetFrameAlpha(alpha)
     end
 end
 
-function TooltipBaseMixin:Show()
+function TooltipBaseMixin:Show(instant)
     local layoutComplete;
 
     if self.DisplayModel then
@@ -193,11 +200,11 @@ function TooltipBaseMixin:Show()
         self:Layout();
     end
 
-    if self.showDelay then
+    if self.showDelay and not instant then
         self.t = self.showDelay;
         self:SetFrameAlpha(0);
         if layoutComplete then
-           self:SetScript("OnUpdate", TooltipBaseMixin_OnUpdate_FadeIn);
+            self:SetScript("OnUpdate", TooltipBaseMixin_OnUpdate_FadeIn);
         end
     else
         self.t = nil;

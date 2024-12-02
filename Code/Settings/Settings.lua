@@ -631,6 +631,7 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Checkbox", name = L["Press Tab To Select Reward"], description = L["Press Tab To Select Reward Desc"], dbKey = "CycleRewardHotkeyEnabled", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Checkbox", name = L["Disable Hokey For Teleport"], description = L["Disable Hokey For Teleport Desc"], dbKey = "DisableHotkeyForTeleport", requiredParentValueAnd = {InputDevice = 1}},
+            {type = "Checkbox", name =L["GamePad Click First Object"], description = L["GamePad Click First Object Desc"], dbKey = "GamePadClickFirstObject", requiredParentValueAnd = {InputDevice = {2, 3, 4}}},
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
@@ -2204,6 +2205,7 @@ end
 do  --Create an entrance to settings in Blizzard addon settings window
     if Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory then
         local f = CreateFrame("Frame");
+        f:Hide();
         f:SetSize(8, 8);    --will be changed by API
 
         local paddingV = 96;

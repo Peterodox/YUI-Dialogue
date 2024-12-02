@@ -191,6 +191,8 @@ L["Emulate Swipe Desc"] = "Scroll the dialogue UI up/down by clicking and draggi
 L["Mobile Device Mode"] = "Mobile Device Mode";
 L["Mobile Device Mode Desc"] = "Experimental Feature:\n\nIncreases UI and font size to make texts readable on small-screen devices.";
 L["Mobile Device Mode Override Option"] = "This option currently has no effect because you have enabled \"Mobile Device Mode\" in Control.";
+L["GamePad Click First Object"] = "Click First Option";
+L["GamePad Click First Object Desc"] = "When starting a new interaction with an NPC, press the Confirm Button to click the first dialogue option.";
 
 L["Key Space"] = "Space";
 L["Key Interact"] = "Interact";

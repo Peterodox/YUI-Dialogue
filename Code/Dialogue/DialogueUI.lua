@@ -3038,6 +3038,13 @@ do  --GamePad/Controller
         if self.gamepadFocus then
             self.gamepadFocus:OnClick("GamePad");
             return true
+        else
+            --Select the next object widthout clicking it if we don't have a focus (usually when starting a fresh interaction)
+            self:FocusNextObject();
+            if self.gamepadFocus and GetDBBool("GamePadClickFirstObject") then
+                self.gamepadFocus:OnClick("GamePad");
+                return true
+            end
         end
         return false
     end

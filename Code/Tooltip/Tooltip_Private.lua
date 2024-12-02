@@ -7,6 +7,7 @@ local CallbackRegistry = addon.CallbackRegistry;
 local GetItemQualityColor = API.GetItemQualityColor;
 local IsItemValidForComparison = API.IsItemValidForComparison;
 local GetTransmogItemInfo = API.GetTransmogItemInfo;
+local IsEncounterComplete = C_RaidLocks and C_RaidLocks.IsEncounterComplete or API.AlwaysFalse;
 local C_TooltipInfo = addon.TooltipAPI;
 local C_TransmogCollection = C_TransmogCollection;
 local IsDressableItemByID = C_Item.IsDressableItemByID;
@@ -684,6 +685,10 @@ function SharedTooltip:OnEvent(event, ...)
         if key == "LSHIFT" and down == 1 then
             self:ToggleAlternateInfo();
         end
+    elseif event == "UPDATE_INSTANCE_INFO" then
+        if self.customMethod == "DisplayRaidLocks" and self.customArgs then
+            self:DisplayRaidLocks(self.customArgs, true);
+        end
 	end
 end
 
@@ -692,9 +697,12 @@ SharedTooltip:SetScript("OnEvent", SharedTooltip.OnEvent);
 SharedTooltip:SetScript("OnHide", function(self)
     self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
     self:UnregisterEvent("MODIFIER_STATE_CHANGED");
+    self:UnregisterEvent("UPDATE_INSTANCE_INFO");
     self.tooltipInfo = nil;
     self.tooltipData = nil;
     self.getterName = nil;
+    self.customMethod = nil;
+    self.customArgs = nil;
 end);
 
 
@@ -849,5 +857,40 @@ do  --Used by UI widgets
 
     function SharedTooltip.HideTooltip()
         SharedTooltip:Hide();
+    end
+end
+
+do  --Showing boss locks
+    function SharedTooltip:DisplayRaidLocks(info, fromRequest)
+        self.dataInstanceID = nil;
+        self:ClearLines();
+
+        if info.dungeonName then
+            self:SetTitle(info.dungeonName, 1, 0.82, 0);
+        end
+
+        local dead = BOSS_DEAD or "Defeated";
+        local alive = BOSS_ALIVE or "Available";
+
+        for _, v in ipairs(info.encounters) do
+            local hasDefeated = IsEncounterComplete(v.mapID, v.encounterID, v.difficultyID);
+            if hasDefeated then
+                self:AddDoubleLine(v.bossName, dead, 1, 1, 1, 1, 0.125, 0.125);
+            else
+                self:AddDoubleLine(v.bossName, alive,  1, 1, 1, 0.1, 1, 0.1);
+            end
+        end
+
+        self:UnregisterEvent("UPDATE_INSTANCE_INFO");
+
+        if (not fromRequest) and RequestRaidInfo then
+            self.customMethod = "DisplayRaidLocks";
+            self.customArgs = info;
+            self:RegisterEvent("UPDATE_INSTANCE_INFO");
+            RequestRaidInfo();
+        end
+
+        local instant = true;
+        self:Show(instant);
     end
 end

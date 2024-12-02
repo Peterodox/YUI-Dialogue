@@ -10,6 +10,9 @@ local GossipDataProvider = addon.GossipDataProvider;
 local IsTeleportNPC = {
     --[creatureID] = true,
 
+    [231541] = true,        --Sky-Captain Cableclamp (Siren Isle to Dornogal)
+    [475936] = true,        --Mole Machine Transport (Siren Isle to Gundargaz)
+
     --Wormhole
     [35646] = true,         --Northrend
     [81205] = true,         --Draenor

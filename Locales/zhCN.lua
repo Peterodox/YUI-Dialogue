@@ -191,6 +191,8 @@ L["Emulate Swipe Desc"] = "在对话界面上点击并拖拽来滚动页面。";
 L["Mobile Device Mode"] = "移动设备模式";
 L["Mobile Device Mode Desc"] = "实验性功能：\n\n增大界面和字号来让文本在小屏幕设备上也可清晰分辨。";
 L["Mobile Device Mode Override Option"] = "此选项暂时不起作用，因为你已在控制选项里开启“移动设备”模式";
+L["GamePad Click First Object"] = "点击第一个选项";
+L["GamePad Click First Object Desc"] = "当你与一个新的NPC交互时，按确认键来直接点击第一个对话选项。";
 
 L["Key Space"] = "空格";
 L["Key Interact"] = "交互键";

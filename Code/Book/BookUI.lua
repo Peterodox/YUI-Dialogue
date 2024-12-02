@@ -271,7 +271,7 @@ do  --Cache
 
     function Cache:CacheCurrentPage()
         local page = ItemTextGetPage();
-        local rawText = ItemTextGetText();
+        local rawText = ItemTextGetText(page);  --No argument required. This for test purpose.
         self.activeData.pageTexts[page] = rawText;
 
         if ItemTextHasNextPage() then
@@ -490,7 +490,7 @@ do  --Cache
 
     function Cache:GetPageStartOffset(page)
         if self.activeData then
-            return self.activeData.pageStartOffset[page]
+            return self.activeData.pageStartOffset[page] or 0
         end
     end
 
@@ -1066,7 +1066,7 @@ do  --Formatter
     end
 
     function Formatter:FormatText(text)
-        if find(text, "^<HTML>") then
+        if find(text, "<HTML>") then
             return self:FormatHTML(text)
         else
             return self:FormatParagraph(text)
@@ -1127,12 +1127,12 @@ do  --Formatter
                     if not tag then
                         tag = match(paragraphText, "^<([%w]+)%s");
                     end
-
+                    --print(i, tag)
                     if tag and not IgnoredTags[tag] then
                         tag = lower(tag);
 
                         if tag == "img" then
-                            local file = match(paragraphText, "src=\"([%S]+)\"%s");
+                            local file = match(paragraphText, "src=\"([%S]+)\"");   --src=\"([%S]+)\"%s
                             if file then
                                 numImages = numImages + 1;
                                 local width = match(paragraphText,"width=\"(%d+)");
@@ -1144,13 +1144,13 @@ do  --Formatter
                                 local left, right, top, bottom = 0, 1, 0, 1;
                                 if not (width and height) then
                                     file = lower(file);
-                                    local ratio;
-                                    ratio, left, right, top, bottom = BookComponent:GetTextureCoordForFile(file);
+                                    local ratio, _l, _r, _t, _b = BookComponent:GetTextureCoordForFile(file);   --Check AtlasInfo
                                     if ratio then
                                         imageWidth = ConvertedSize.CONTENT_WIDTH;
                                         imageHeight = ratio * imageWidth;
                                         width = imageWidth;
                                         height = imageHeight;
+                                        left, right, top, bottom = _l, _r, _t, _b;
                                     end
 
                                     if not (width and height) then
@@ -1163,6 +1163,14 @@ do  --Formatter
                                         end
                                     end
                                 end
+
+                                if not (width and height) then
+                                    width = ConvertedSize.CONTENT_WIDTH;
+                                    height = width;
+                                    imageWidth = Round(width * 0.618)
+                                    imageHeight = imageWidth;
+                                end
+
                                 if width and height then
                                     if lower(file) == "interface\\common\\spacer" then
                                         Cache:AddSpacerToNextContent(self.PARAGRAPH_SPACING);
@@ -2111,6 +2119,51 @@ do  --Hide Default UI
         ItemTextFrame:SetParent(nil);
         ItemTextFrame:SetScale(0.65);
         EL:SetScript("OnEvent", nil);
+    end
+    --]]
+end
+
+
+do  --ItemTextGetText Override Debug
+    --[[
+    local Libram = {
+        [1] = 
+<The pages are covered in ancient elven runes.>
+
+The pages herein contain memories of events that transpired in the collection and creation of the reagents required to craft lesser arcanum.
+
+May our enemies never gain access to these libram.
+
+May I live to see the pallid light of the moon shine upon Quel'Thalas once again.
+
+May I die but for the grace of Kael'thas.
+
+May I kill for the glory of Illidan.
+
+-Master Kariel Winthalus
+
+<HTML>
+<BODY>
+<IMG src="Interface\Pictures\11733_blackrock_256"/>
+</BODY>
+</HTML>
+
+<HTML>
+<BODY>
+<IMG src="Interface\Pictures\11733_blasted_256"/>
+</BODY>
+</HTML>
+
+<HTML>
+<BODY>
+<IMG src="Interface\Pictures\11733_ungoro_256"/>
+</BODY>
+</HTML>
+,
+    };
+
+    function ItemTextGetText(page)
+        return Libram[page]
     end
     --]]
 end

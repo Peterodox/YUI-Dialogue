@@ -690,7 +690,8 @@ do  -- NPC Interaction
     local match = string.match;
 
     local function GetCreatureIDFromGUID(guid)
-        local id = match(guid, "^%a+%-0%-%d*%-%d*%-%d*%-(%d*)");
+        --Including Creature, Vehicle, GameObject
+        local id = guid and match(guid, "^%a+%-0%-%d*%-%d*%-%d*%-(%d*)");
         if id then
             return tonumber(id)
         end
@@ -698,9 +699,10 @@ do  -- NPC Interaction
     API.GetCreatureIDFromGUID = GetCreatureIDFromGUID;
 
     local function GetCurrentNPCInfo()
-        if UnitExists("npc") then
-            local name = UnitName("npc");
-            local creatureID = GetCreatureIDFromGUID(UnitGUID("npc"));
+        local name = UnitName("npc");
+        local creatureID = GetCreatureIDFromGUID(UnitGUID("npc"));
+        if creatureID then
+            name = name or "";
             return name, creatureID
         end
     end

@@ -909,7 +909,7 @@ do
 end
 
 do
-    local Items = {
+    local OneTimeItem = {
         29433,      --Grisly Trophy
         191140,     --Bronze Timepiece
         227450,     --Sky Racer's Purse
@@ -923,13 +923,14 @@ do
         226136,     --Nerubian Blood
         219934,     --Spark of War
         225741,     --Titan Disc Fragment
+        227406,     --Interesting Notes
     };
 
-    for _, itemID in ipairs(Items) do
+    for _, itemID in ipairs(OneTimeItem) do
         ONE_TIME_ITEM[itemID] = true;
     end
 
-    Items = nil;
+    OneTimeItem = nil;
 end
 
 
