@@ -112,7 +112,7 @@ do  --Legacy Raid (LFR) show boss name and status in this wing
 
 
     LFRGossipOptions = {
-        --[gossipOptionID] = {dungeonID, mapID, difficultyID, {journalEncounteID1, encounterID1}, {journalEncounteID2, encounterID2}, ...}
+        --[gossipOptionID] = {dungeonID, mapID, difficultyID, {journalEncounteID1, dungeonEncounterID1}, {journalEncounteID2, dungeonEncounterID2}, ...}
 
         --Shadowlands (npc: 205959)
         [110020] = {2090, 2296, DIFFICULTY_LFR, {2429, 2418}, {2428, 2383}, {2420, 2406}},      --The Leeching Vaults
@@ -237,7 +237,7 @@ end
 
 do  --Instance Teleporter Option Tooltip
     local Data = {
-        -- (d)ata  = { {mapID, journalEncounteID, encounterID}, }
+        -- (d)ata  = { {mapID, journalEncounteID, dungeonEncounterID}, }
         -- (o)nwer = { gossipOptionID1, gossipOptionID2, ... }
     };
 
@@ -249,6 +249,52 @@ do  --Instance Teleporter Option Tooltip
         {
             d = {{1530, 1737, 1866}},   --Font Of Night
             o = {47121, 47126, 47108, 47113},
+        },
+    };
+
+    Data.Antorus = {
+        {
+            d = {{1712, 2009, 2082}, {1712, 2004, 2088}},     --Exhaust
+            o = {47848, 47868},
+        },
+        {
+            d = {{1712, 1983, 2069}, {1712, 1986, 2073}, {1712, 1984, 2063}},     --Burning Throne
+            o = {47865, },
+        },
+    };
+
+    Data.Ulduar = {
+        {
+            d = {{603, 1637, 1132}},     --Formation Grounds
+            o = {37961},
+        },
+        {
+            d = {{603, 1638, 1136}, {603, 1639, 1139}, {603, 1640, 1142}},     --Colossal Forge
+            o = {37962},
+        },
+        {
+            d = {{603, 1640, 1142}},     --Scrapyard
+            o = {37963},
+        },
+        {
+            d = {{603, 1641, 1140}, {603, 1642, 1137}, {603, 1650, 1130}},     --Antechamber of Ulduar
+            o = {37964},
+        },
+        {
+            d = {{603, 1642, 1137}, {603, 1643, 1131}, {603, 1644, 1135}, {603, 1645, 1141}},     --Shattered Walkway
+            o = {37965},
+        },
+        {
+            d = {{603, 1646, 1133}, {603, 1644, 1135}, {603, 1645, 1141}},     --Conservatory of Life
+            o = {37967},
+        },
+        {
+            d = {{603, 1647, 1138}},     --Spark of Imagination
+            o = {37969},
+        },
+        {
+            d = {{603, 1649, 1143}},     --Prison of Yogg-Saron
+            o = {37971},
         },
     };
 
