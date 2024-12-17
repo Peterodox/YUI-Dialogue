@@ -763,9 +763,6 @@ do  -- Easing
 end
 
 do  -- Quest
-    local FREQUENCY_DAILY = 1;      --Enum.QuestFrequency.Daily
-    local FREQUENCY_WEELY = 2;      --Enum.QuestFrequency.Weekly
-    local FREQUENCY_SCHEDULER = 3;  --Enum.ResetByScheduler --Includes Meta Quest: Time-gated quests that give good rewards (TWW)
     local ICON_PATH = "Interface/AddOns/DialogueUI/Art/Icons/";
     local Enum_QuestClassification = CopyEnum("QuestClassification");
 
@@ -1002,11 +999,11 @@ do  -- Quest
             end
 
         else
-            if questInfo.frequency == FREQUENCY_DAILY then
+            if questInfo.frequency == 1 then    --Enum.QuestFrequency.Daily
                 file = "DailyQuest.png";
-            elseif questInfo.frequency == FREQUENCY_WEELY then
+            elseif questInfo.frequency == 2 then    --Enum.QuestFrequency.Weekly
                 file = "WeeklyQuest.png";
-            elseif questInfo.frequency == FREQUENCY_SCHEDULER and not questInfo.isMeta then
+            elseif questInfo.frequency == 3 and not questInfo.isMeta then   ----Enum.QuestFrequency.ResetByScheduler
                 file = "RepeatableScheduler.png";    --TWW
             elseif  questInfo.repeatable then
                 file = "RepeatableQuest.png";
@@ -2034,6 +2031,14 @@ do  -- Chat Message
         print(ADDON_ICON.."|cffffd100"..header.."  |cffffffff"..msg.."|r");
     end
     API.PrintMessage = PrintMessage;
+
+    function API.PrintQuestCompletionText(msg)
+        if msg == "" then return end;
+        if StripHyperlinks then
+            msg = StripHyperlinks(msg);
+        end
+        print(ADDON_ICON.." |cffffd100"..msg.."|r");
+    end
 end
 
 do  -- Tooltip

@@ -175,6 +175,8 @@ do
 
         self.bodyHeight = textHeight;
         self.bodyWidth = maxTextWidth;
+
+        self.fadeOutDelay = API.Clamp(1.0*numLines, 5, 10);
     end
 
     function QuestFlyoutFrameMixin:SetQuestRewards(rewards)
@@ -201,9 +203,6 @@ do
         end
 
         if anyContainer then
-            self.fadeOutDelay = 5;
-        else
-            self.fadeOutDelay = 5;
         end
     end
 
@@ -223,7 +222,6 @@ do
         self:SetScript("OnUpdate", self.OnUpdate_FadeIn);
         self:EnableMouseScript(true);
         self:Show();
-        
         self.AnimIn:Stop();
         if playAnimation then
             self.AnimIn:Play();
@@ -304,9 +302,12 @@ do
                 self.Alert:SetText(L["Quest Complete Alert"]);
                 self:FadeIn(true);
                 LoadingIndicator:FadeOut();
+                if self.rawText then
+                    API.PrintQuestCompletionText(self.rawText);
+                    self.rawText = nil;
+                end
             end
         elseif event == "UI_ERROR_MESSAGE" then
-
             local errorType, message = ...
             if QUEST_ERROR_TYPES[errorType] then
                 self:SetWatchedQuest(nil);
@@ -366,6 +367,7 @@ do
 
     function QuestFlyoutFrameMixin:SetQuestData(questData)
         self.questData = questData;
+        self.rawText = questData.rawText;
         self:SetQuestText(questData.title, questData.paragraphs);
         self:SetQuestRewards(questData.rewards);
         self:SetWatchedQuest(questData.questID);

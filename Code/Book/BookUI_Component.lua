@@ -299,6 +299,45 @@ do  --Header / Book Title
         end
     end
 
+    function HeaderFrameMixin:QueryLetterSender(itemGUID)
+        self.itemGUID = itemGUID;
+        local tooltipData = itemGUID and addon.TooltipAPI.GetItemByGUID(itemGUID);
+        if tooltipData then
+            self.dataInstanceID = tooltipData.dataInstanceID;
+            if self.dataInstanceID then
+                self:RegisterEvent("TOOLTIP_DATA_UPDATE");
+                self:SetScript("OnEvent", self.OnEvent);
+                self:ProcessTooltipData(tooltipData);
+            end
+        else
+            self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
+        end
+    end
+
+    function HeaderFrameMixin:ProcessTooltipData(tooltipData)
+        local line2 = tooltipData.lines and tooltipData.lines[2];
+        if line2 and line2.leftColor and line2.leftColor.r == 1 and line2.leftColor.g == 1 and line2.leftColor.b == 1 then
+            self.Location:SetText(line2.leftText);
+            self.Location:Show();
+        end
+    end
+
+    function HeaderFrameMixin:OnEvent(event, ...)
+        if event == "TOOLTIP_DATA_UPDATE" then
+            local dataInstanceID = ...
+            if dataInstanceID and dataInstanceID == self.dataInstanceID then
+                self:QueryLetterSender(self.itemGUID);
+            end
+        end
+    end
+
+    function HeaderFrameMixin:OnHide()
+        self.dataInstanceID = nil;
+        self.itemGUID = nil;
+        self:SetScript("OnEvent", nil);
+        self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
+    end
+
 
     function BookComponent:InitHeader(headerFrame)
         local Title = headerFrame:CreateFontString(nil, "OVERLAY", "DUIFont_Book_Title");
@@ -316,6 +355,7 @@ do  --Header / Book Title
         Location:SetPoint("BOTTOM", Title, "TOP", 0, 9);
 
         Mixin(headerFrame, HeaderFrameMixin);
+        headerFrame:SetScript("OnHide", headerFrame.OnHide);
 
 
         local function PageButton_OnClick(f)

@@ -484,7 +484,7 @@ function DUIDialogOptionButtonMixin:SetQuestVisual(questInfo)
     self.Icon:SetTexture(GetQuestIcon(questInfo));  --We fill in the QuestInfo through this API
 
     if questInfo.isComplete or (not questInfo.isOnQuest) then
-        if questInfo.repeatable or questInfo.frequency ~= 0 then
+        if questInfo.repeatable or (questInfo.frequency and questInfo.frequency ~= 0) then
             self:SetButtonArt(2);
         else
             self:SetButtonArt(1);

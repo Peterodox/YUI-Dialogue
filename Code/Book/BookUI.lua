@@ -1831,7 +1831,18 @@ do  --EventListener
             end
 
             local isObjectChanged = Cache:SetActiveObject(objectType, objectID, itemID);
-            MainFrame.Header:SetLocation(objectType == "GameObject", Cache:GetBookLocation());
+
+            MainFrame.Header:QueryLetterSender(nil);
+            if objectType == "GameObject" then
+                MainFrame.Header:SetLocation(true, Cache:GetBookLocation());
+            else
+                if itemID == 8383 then  --Plain Letter
+                    MainFrame.Header:QueryLetterSender(guid);
+                else
+                    MainFrame.Header:SetLocation(false);
+                end
+            end
+
             self.itemTextBegun = true;
 
             if MainFrame.SourceItemButton then

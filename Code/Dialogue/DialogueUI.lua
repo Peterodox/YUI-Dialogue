@@ -1672,10 +1672,12 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
         local questID = GetQuestID();
         local title = GetQuestTitle();
         if GossipDataProvider:ShouldAutoCompleteQuest(questID, title) then
+            local completionText = GetQuestText("Complete");
             local questData = {
                 questID = questID,
                 title = title,
-                paragraphs = API.SplitParagraph(GetQuestText("Complete") or L["Quest Complete Alert"]);
+                paragraphs = API.SplitParagraph(completionText or L["Quest Complete Alert"]);
+                rawText = completionText,
                 rewards = rewardList,
             };
 

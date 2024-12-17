@@ -48,6 +48,7 @@ do
     local ids = {
         122968,     --Count me in! <Queue for The Codex of Chromie.>
         124977,     --Send me into the Blackrock Depths. (Heroic Raid)
+        124978,     --Send me into the Blackrock Depths. (Normal Raid)
     };
     for _, id in ipairs(ids) do
         GossipIcon[id] = GossipIcon["LFG"];
