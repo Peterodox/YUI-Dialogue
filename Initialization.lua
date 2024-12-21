@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.5.6";
-local VERSION_DATE = 1734400000;
+local VERSION_TEXT = "v0.5.7";
+local VERSION_DATE = 1734700000;
 
 
 local addonName, addon = ...
@@ -20,6 +20,7 @@ local DefaultValues = {
     FontNumber = "default",
     FrameOrientation = 2,                       --1:Left  2:Right(Default)
     HideUI = true,
+        ShowChatWindow = true,
         HideOutlineSparkles = true,
         HideUnitNames = false,
     ShowCopyTextButton = false,
@@ -39,6 +40,7 @@ local DefaultValues = {
     CameraZoomMultiplier = 1,                   --The smaller the further
 
     InputDevice = 1,                            --1:K&M  2:XBOX  3.PS  4.Mobile
+    UseCustomBindings = false,
     PrimaryControlKey = 1,                      --1: Space  2:Interact Key
     ScrollDownThenAcceptQuest = false,
     RightClickToCloseUI = true,
@@ -174,6 +176,8 @@ local function LoadDatabase()
     InheritExistingValues = nil;
 
     LoadTutorials();
+
+    addon.CallbackRegistry:Trigger("ADDON_LOADED", DB);
 end
 
 local function SetTutorialRead(tutorialFlag)

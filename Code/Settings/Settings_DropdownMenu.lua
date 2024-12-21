@@ -495,7 +495,7 @@ local function UpdateSettingsDropdownMenuPosition()
         MainDropdownMenu:OnPositionChanged();
     end
 end
-addon.UpdateSettingsDropdownMenuPosition = UpdateSettingsDropdownMenuPosition;
+addon.CallbackRegistry:Register("SettingsUI.OnMouseWheel", UpdateSettingsDropdownMenuPosition);
 
 local function CreateDropdownMenu(parent)
     local f = CreateFrame("Frame", nil, parent, "DUIDropdownMenuTemplate");

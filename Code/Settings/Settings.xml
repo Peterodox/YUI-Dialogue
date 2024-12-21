@@ -1,7 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="Settings_Definitions.lua"/>
     <Script file="Settings_Font.lua"/>
-
+    <Script file="Settings_Keybinding.lua"/>
     <Script file="Settings_DropdownMenu.lua"/>
     <Script file="Settings.lua"/>
 
@@ -334,6 +334,36 @@
             <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
             <OnClick method="OnClick"/>
+        </Scripts>
+    </Button>
+
+    <Button name="DUIDialogSettingsKeybindingTemplate" mixin="DUIDialogSettingsKeybindingMixin" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
+        <Size x="144" y="24"/>
+        <HitRectInsets>
+            <AbsInset left="0" right="0" top="-4" bottom="-4"/>
+        </HitRectInsets>
+        <Layers>
+            <Layer level="ARTWORK" textureSubLevel="2">
+                <Texture parentKey="Background">
+                    <TexCoords left="0" right="0.75" top="0" bottom="0.125"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="ValueText" inherits="DUIFont_Quest_SubHeader" justifyH="CENTER" justifyV="MIDDLE" text="Unbound" maxLines="1">
+                    <Size x="120"/>
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="2"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnClick method="OnClick"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
         </Scripts>
     </Button>
 

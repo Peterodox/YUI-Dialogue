@@ -129,6 +129,9 @@ L["Orientation Left"] = "左侧";
 L["Orientation Right"] = "右侧";
 L["Hide UI"] = "隐藏界面";
 L["Hide UI Desc"] = "与NPC交互时隐藏其他界面。";
+L["Show Chat Window"] = "NPC聊天窗口";
+L["Show Chat Window Left Desc"] = "在屏幕左下角显示NPC聊天窗口。";
+L["Show Chat Window Right Desc"] = "在屏幕右下角显示NPC聊天窗口。";
 L["Hide Unit Names"] = "隐藏单位姓名";
 L["Hide Unit Names Desc"] = "与NPC交互时隐藏其他玩家和NPC的名字。";
 L["Hide Sparkles"] = "隐藏人物描边与闪光";
@@ -175,6 +178,8 @@ L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "确认键： [KEY:PS:PAD1]\n取消键： [KEY:PS:PAD2]";
 L["Input Device Switch"] = "Switch";
 L["Input Device Switch Tooltip"] = "确认键： [KEY:SWITCH:PAD1]\n取消键： [KEY:SWITCH:PAD2]";
+L["Use Custom Bindings"] = "使用自定义按键";
+L["Use Custom Bindings Desc"] = "勾选此选项以启用自定义按键。";
 L["Primary Control Key"] = "确认键";
 L["Primary Control Key Desc"] = "按下此按钮将自动选择第一个最佳选项，例如接受任务。"
 L["Press Button To Scroll Down"] = "按确认键来向下滚屏";
@@ -289,6 +294,20 @@ L["BookUI TTS Voice"] = "声音";
 L["BookUI TTS Voice Desc"] = "使用此声音朗读书籍：";
 L["BookUI TTS Click To Read"] = "点击以朗读段落";
 L["BookUI TTS Click To Read Desc"] = "左键点击某个段落来朗读它。\n\n左键点击正在被朗读的段落即可停止。";
+
+--Keybinding Action
+L["Bound To"] = "绑定到：";
+L["Not Bound"] = "未绑定";
+L["Action Confirm"] = "确认键";
+L["Action Option1"] = "对话选项 1";
+L["Action Option2"] = "对话选项 2";
+L["Action Option3"] = "对话选项 3";
+L["Action Option4"] = "对话选项 4";
+L["Action Option5"] = "对话选项 5";
+L["Action Option6"] = "对话选项 6";
+L["Action Option7"] = "对话选项 7";
+L["Action Option8"] = "对话选项 8";
+L["Action Option9"] = "对话选项 9";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";

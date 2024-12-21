@@ -5,19 +5,19 @@ local _, addon = ...
 local API = addon.API;
 local Clipboard = addon.Clipboard;
 local SecureButtonContainer = addon.SecureButtonContainer;
+local BindingUtil = addon.BindingUtil;
 
 
-local DEFAULT_CONTROL_KEY = "SPACE";
 local GAMEPAD_CONFIRM = "PAD1";
 local GAMEPAD_CANCEL = "PAD2";
 local GAMEPAD_ALT = "PAD4";
 local IS_KBM = true;
 
 
+local USE_CUSTOM_BINDINGS = false;
+
 -- Custom Settings
 local ENABLE_KEYCONTROL_IN_COMBAT = true;
-local PRIMARY_CONTROL_KEY = DEFAULT_CONTROL_KEY;
-local USE_INTERACT_KEY = false;
 local DISABLE_CONTROL_KEY = false;          --If true, pressing the key (Space) will not continue quest
 local CYCLE_REWARD_ENABLED = false;         --Press Tab to cycle through choosable rewards
 local TTS_ENABLED = false;
@@ -27,7 +27,6 @@ local DEBUG_SHOW_GAMEPAD_BUTTON = false;    --[TEMP] Console user
 
 local InCombatLockdown = InCombatLockdown;
 local IsModifierKeyDown = IsModifierKeyDown;
-local tostring = tostring;
 local type = type;
 
 local KeyboardControl = CreateFrame("Frame");
@@ -41,6 +40,7 @@ KeyboardControl.combatFrame:SetPropagateKeyboardInput(true);
 
 function KeyboardControl:ResetKeyActions()
     self.keyActions = {};
+    self.actions = {};
 end
 KeyboardControl:ResetKeyActions()
 
@@ -55,6 +55,7 @@ function KeyboardControl:CanSetKey(key)
     return false
 end
 
+--[[
 function KeyboardControl:SetKeyFunction(key, func, override)
     if not self:CanSetKey(key) then return end;
 
@@ -86,6 +87,27 @@ function KeyboardControl:SetKeyButton(key, buttonToClick, override)
         return key
     end
 end
+--]]
+
+function KeyboardControl:SetAction(action, buttonToClick, override)
+    if (not self.actions[action]) or override then
+        self.actions[action] = {
+            obj = buttonToClick,
+            type = "button",
+        };
+        return BindingUtil:GetActiveActionKey(action)
+    end
+end
+
+function KeyboardControl:SetIndexedAction(buttonIndex, buttonToClick, override)
+    if buttonIndex <= 9 then
+        if buttonIndex == 1 then
+            self:SetAction("Confirm", buttonToClick, override);
+        end
+        local action = "Option"..buttonIndex;
+        return self:SetAction(action, buttonToClick, override)
+    end
+end
 
 function KeyboardControl:OnEvent(event, ...)
     if event == "PLAYER_REGEN_DISABLED" then
@@ -115,13 +137,7 @@ function KeyboardControl:OnShow()
 
     if self.bindingDirty then
         self.bindingDirty = nil;
-        if USE_INTERACT_KEY then
-            local newKey = API.GetBestInteractKey();
-            if newKey and newKey ~= PRIMARY_CONTROL_KEY then
-                PRIMARY_CONTROL_KEY = newKey;
-                addon.DialogueUI:OnSettingsChanged();
-            end
-        end
+        BindingUtil:LoadBindings();
     end
 end
 
@@ -137,28 +153,27 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
 
     local valid = false;
     local processed = false;
+    local action;
+
+    if key == "ESCAPE" then
+        action = "Exit";
+    end
 
     if key == GAMEPAD_CONFIRM then
         valid = KeyboardControl.parent:ClickFocusedObject();
         if valid then
             processed = true;
+            action = nil;
         else
-            key = PRIMARY_CONTROL_KEY;
-        end
-    else
-        if DISABLE_CONTROL_KEY and key == PRIMARY_CONTROL_KEY then
-            key = "DISABLED";
-            processed = true;
-            valid = false;
+            action = "Confirm";
         end
     end
 
-
-    if (not processed) and (key == PRIMARY_CONTROL_KEY) and (not KeyboardControl.keyActions[key]) then
-        key = "1";
+    if (not processed) and (not action) then
+        action = BindingUtil:GetActiveKeyAction(key);
     end
 
-    if key == "ESCAPE" then
+    if action == "Exit" then
         valid = true;
 
         if Clipboard:CloseIfShown() then
@@ -191,11 +206,11 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
         valid = true;
         processed = true;
         KeyboardControl.parent:FocusNextObject();
-    elseif key == "F1" then
+    elseif action == "Settings" or key == "SETTINGS" then
         valid = true;
         processed = true;
         addon.SettingsUI:ToggleUI();
-    elseif (key == "R" and not IsModifierKeyDown()) then
+    elseif action == "TTS" and not IsModifierKeyDown() then
         if TTS_ENABLED and TTS_HOTKEY_ENABLED then
             valid = true;
             processed = true;
@@ -208,11 +223,16 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
         end
     end
 
-    if (not processed) and KeyboardControl.keyActions[key] then
+    if action == "Confirm" and DISABLE_CONTROL_KEY and not USE_CUSTOM_BINDINGS then
+        processed = true;
+        valid = false;
+    end
+
+    if (not processed) and action and KeyboardControl.actions[action] then
         valid = true;
 
-        local actionType = KeyboardControl.keyActions[key].type;
-        local object = KeyboardControl.keyActions[key].obj;
+        local actionType = KeyboardControl.actions[action].type;
+        local object = KeyboardControl.actions[action].obj;
 
         if actionType == "function" then
             object();
@@ -273,18 +293,14 @@ function KeyboardControl:StopListeningKeys()
     self.combatFrame:EnableKeyboard(false);
 end
 
-function KeyboardControl.GetPrimaryControlKey()
-    return PRIMARY_CONTROL_KEY
-end
-
 
 do  --GamePad/Controller
     local KeyRemap = {
         PAD2 = "ESCAPE",
         PADDUP = "GAMEPAD_UP",
         PADDDOWN = "GAMEPAD_DOWN",
-        PADFORWARD = "F1",  --Toggle Settings
-        PADMENU = "F1",
+        PADFORWARD = "SETTINGS",  --Toggle Settings
+        PADMENU = "SETTINGS",
         PADBACK = "ESCAPE",
         PADDLEFT = "GAMEPAD_UP",
         PADDRIGHT = "GAMEPAD_DOWN",
@@ -408,28 +424,15 @@ end
 
 do  --Settings
     local function Settings_PrimaryControlKey(dbValue)
-        local newKey;
-
         DISABLE_CONTROL_KEY = false;
 
         if dbValue == 1 then
-            newKey = DEFAULT_CONTROL_KEY;
             KeyboardControl:UnregisterEvent("UPDATE_BINDINGS");
-            USE_INTERACT_KEY = false;
         elseif dbValue == 2 then
-            newKey = API.GetBestInteractKey() or DEFAULT_CONTROL_KEY;
             KeyboardControl:RegisterEvent("UPDATE_BINDINGS");
-            USE_INTERACT_KEY = true;
         elseif dbValue == 0 then
-            newKey = "DISABLED";
             KeyboardControl:UnregisterEvent("UPDATE_BINDINGS");
-            USE_INTERACT_KEY = false;
             DISABLE_CONTROL_KEY = true;
-        end
-
-        if newKey and newKey ~= PRIMARY_CONTROL_KEY then
-            PRIMARY_CONTROL_KEY = newKey;
-            addon.DialogueUI:OnSettingsChanged();
         end
     end
     addon.CallbackRegistry:Register("SettingChanged.PrimaryControlKey", Settings_PrimaryControlKey);
@@ -448,6 +451,11 @@ do  --Settings
         TTS_HOTKEY_ENABLED = dbValue == true
     end
     addon.CallbackRegistry:Register("SettingChanged.TTSUseHotkey", Settings_TTSUseHotkey);
+
+    local function Settings_UseCustomBindings(dbValue)
+        USE_CUSTOM_BINDINGS = dbValue == true;
+    end
+    addon.CallbackRegistry:Register("SettingChanged.UseCustomBindings", Settings_UseCustomBindings);
 end
 
 

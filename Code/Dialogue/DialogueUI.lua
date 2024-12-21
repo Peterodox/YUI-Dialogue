@@ -625,7 +625,7 @@ function DUIDialogBaseMixin:AcquireAcceptButton(enableHotkey)
     self.AcceptButton:Show();
 
     if enableHotkey then
-        KeyboardControl:SetKeyButton("PRIMARY", self.AcceptButton);
+        KeyboardControl:SetAction("Confirm", self.AcceptButton);
     end
 
     return self.AcceptButton
@@ -644,7 +644,7 @@ function DUIDialogBaseMixin:AcquireExitButton()
     self.ExitButton:Hide();
     self.ExitButton:Show();
 
-    KeyboardControl:SetKeyButton("ESCAPE", self.ExitButton);
+    KeyboardControl:SetAction("Exit", self.ExitButton);
 
     return self.ExitButton
 end
@@ -1212,7 +1212,7 @@ function DUIDialogBaseMixin:HandleGossip()
             hotkeyIndex = hotkeyIndex + 1;
             button = self:AcquireOptionButton();
             if enableGossipHotkey then
-                hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+                hotkey = KeyboardControl:SetIndexedAction(hotkeyIndex, button);
             else
                 hotkey = nil;
             end
@@ -1226,7 +1226,7 @@ function DUIDialogBaseMixin:HandleGossip()
             hotkeyIndex = hotkeyIndex + 1;
             button = self:AcquireOptionButton();
             if enableGossipHotkey then
-                hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+                hotkey = KeyboardControl:SetIndexedAction(hotkeyIndex, button);
             else
                 hotkey = nil;
             end
@@ -1288,7 +1288,7 @@ function DUIDialogBaseMixin:HandleGossip()
     for i, questInfo in ipairs(quests) do
         hotkeyIndex = hotkeyIndex + 1;
         button = self:AcquireOptionButton();
-        hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+        hotkey = KeyboardControl:SetIndexedAction(hotkeyIndex, button);
 
         if questInfo.isAvailableQuest then
             button:SetAvailableQuest(questInfo, questInfo.index, hotkey);
@@ -1330,7 +1330,7 @@ function DUIDialogBaseMixin:HandleGossip()
             hotkeyIndex = hotkeyIndex + 1;
             button = self:AcquireOptionButton();
             if enableGossipHotkey then
-                hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+                hotkey = KeyboardControl:SetIndexedAction(hotkeyIndex, button);
             else
                 hotkey = nil;
             end
@@ -1344,7 +1344,7 @@ function DUIDialogBaseMixin:HandleGossip()
             hotkeyIndex = hotkeyIndex + 1;
             button = self:AcquireOptionButton();
             if enableGossipHotkey then
-                hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+                hotkey = KeyboardControl:SetIndexedAction(hotkeyIndex, button);
             else
                 hotkey = nil;
             end
@@ -1370,7 +1370,7 @@ function DUIDialogBaseMixin:HandleGossip()
 
     if not (#options > 0 or anyQuest) then
         --If there is no options, allow pressing SPACE to goodbye
-        KeyboardControl:SetKeyButton("PRIMARY", GoodbyeButton);
+        KeyboardControl:SetAction("Confirm", GoodbyeButton);
     end
 
     local objectHeight = firstObject:GetTop() - lastObject:GetBottom();
@@ -1494,7 +1494,7 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
     if API.IsQuestAutoAccepted() or API.IsPlayerOnQuest(self.questID) then
         AcceptButton:SetButtonAlreadyOnQuest();
         ExitButton:SetButtonCloseAutoAcceptQuest();
-        KeyboardControl:SetKeyButton("PRIMARY", ExitButton);
+        KeyboardControl:SetAction("Confirm", ExitButton);
         self.acknowledgeAutoAcceptQuest = true;
     else
         AcceptButton:SetButtonAcceptQuest();
@@ -1641,7 +1641,7 @@ function DUIDialogBaseMixin:HandleQuestProgress(playFadeIn)
     self.questIsFromGossip = nil;
 
     if not canComplete then
-        KeyboardControl:SetKeyButton("PRIMARY", CancelButton);
+        KeyboardControl:SetAction("Confirm", CancelButton);
     end
 
     self:SetScrollRange(offsetY);
@@ -1811,7 +1811,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
     for i, questInfo in ipairs(quests) do
         hotkeyIndex = hotkeyIndex + 1;
         button = self:AcquireOptionButton();
-        hotkey = KeyboardControl:SetKeyButton(hotkeyIndex, button);
+        hotkey = KeyboardControl:SetIndexedAction(hotkeyIndex, button);
 
         if questInfo.isAvailableQuest then
             button:SetGreetingAvailableQuest(questInfo, questInfo.index, hotkey);
@@ -3294,6 +3294,7 @@ do
     CallbackRegistry:Register("SettingChanged.AutoSelectGossip", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.ShowDialogHint", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.DisableHotkeyForTeleport", GenericOnSettingsChanged);
+    CallbackRegistry:Register("CustomBindingChanged", GenericOnSettingsChanged);
 
 
     local function SettingsUI_Show()

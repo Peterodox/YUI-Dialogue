@@ -4,6 +4,7 @@ local API = addon.API;
 local SettingsDefinitions = addon.SettingsDefinitions;
 local Clamp = API.Clamp;
 local ThemeUtil = addon.ThemeUtil;
+local CallbackRegistry = addon.CallbackRegistry;
 local TTSUtil = addon.TTSUtil;
 local PlaySound = addon.PlaySound;
 local InCombatLockdown = InCombatLockdown;
@@ -87,7 +88,7 @@ function DUIDialogSettingsMixin:OnShow()
     self:RegisterEvent("GAME_PAD_ACTIVE_CHANGED");
     self:RegisterEvent("GAME_PAD_DISCONNECTED");
     self:MoveToBestPosition();
-    addon.CallbackRegistry:Trigger("SettingsUI.Show");
+    CallbackRegistry:Trigger("SettingsUI.Show");
     addon.SharedTooltip:Hide();
 end
 
@@ -181,17 +182,21 @@ function DUIDialogSettingsMixin:LoadTheme()
 
     local file2 = filePath.."Settings-Checkbox.png";
     self.checkboxPool:ProcessAllObjects(function(widget)
-        widget:SetTexture(file2);
+        widget:LoadTexture(file2);
     end);
 
     local file3 = filePath.."Settings-ArrowOption.png";
     local file4 = filePath.."Settings-ArrowOption.png";
-
     self.arrowOptionPool:ProcessAllObjects(function(widget)
-        widget:SetTexture(file3);
+        widget:LoadTexture(file3);
         widget.barPool:ProcessAllObjects(function(bar)
             bar:SetTexture(file4);
         end);
+    end);
+
+    local file5 =filePath.."Settings-Keybinding.png";
+    self.keybindingPool:ProcessAllObjects(function(widget)
+        widget:LoadTexture(file5);
     end);
 
     if self.hotkeyFramePool then
@@ -254,7 +259,7 @@ function DUIDialogSettingsMixin:OnHide()
     self:EnableGamePadButton(false);
     self:UnregisterEvent("GAME_PAD_ACTIVE_CHANGED");
     self:UnregisterEvent("GAME_PAD_DISCONNECTED");
-    addon.CallbackRegistry:Trigger("SettingsUI.Hide");
+    CallbackRegistry:Trigger("SettingsUI.Hide");
 end
 
 function DUIDialogSettingsMixin:OnEvent(event, ...)
@@ -382,7 +387,11 @@ local function TTSHotkey_TooltipFunc()
         device = "PC";
     end
 
-    return L["TTS Use Hotkey Tooltip "..device]
+    if device == "PC" then
+        return addon.BindingUtil:GetActionTooltip("TTS");
+    else
+        return L["TTS Use Hotkey Tooltip "..device]
+    end
 end
 
 local function TTSVoice_TooltipFunc(self)
@@ -502,6 +511,15 @@ local function OptionHasNoEffectDueToMobile()
     end
 end
 
+local function ChatWindowTooltip()
+    if GetDBValue("FrameOrientation") == 1 then
+        --Dialogue on the left, Chat on the right
+        return L["Show Chat Window Right Desc"]
+    else
+        return L["Show Chat Window Left Desc"]
+    end
+end
+
 local function OutlineSparklesSupported_Validation()
     return addon.IsToCVersionEqualOrNewerThan(110000)
 end
@@ -553,6 +571,7 @@ local Schematic = { --Scheme
                 },
             },
             {type = "Checkbox", name = L["Hide UI"], description = L["Hide UI Desc"], dbKey = "HideUI"},
+            {type = "Checkbox", name = L["Show Chat Window"], tooltip = ChatWindowTooltip, dbKey = "ShowChatWindow", requiredParentValueAnd = {HideUI = true}},
             {type = "Checkbox", name = L["Hide Sparkles"], description = L["Hide Sparkles Desc"], preview = "HideOutlineSparkles.jpg", ratio = 2, dbKey = "HideOutlineSparkles", requiredParentValueAnd = {HideUI = true}, validationFunc = OutlineSparklesSupported_Validation},
             {type = "Checkbox", name = L["Hide Unit Names"], description = L["Hide Unit Names Desc"], dbKey = "HideUnitNames", requiredParentValueAnd = {HideUI = true}},
             {type = "Checkbox", name = L["Show Copy Text Button"], description = L["Show Copy Text Button Desc"], preview = "CopyTextButton", ratio = 1, dbKey = "ShowCopyTextButton"},
@@ -621,13 +640,28 @@ local Schematic = { --Scheme
                     {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"]},
                 },
             },
-            {type = "ArrowOption", name = L["Primary Control Key"], description = L["Primary Control Key Desc"], dbKey = "PrimaryControlKey", valueTextFormatter = ValueTextFormatter_PrimaryControlKey, hasHotkey = true, requiredParentValueAnd = {InputDevice = 1},
+
+            {type = "Checkbox", name = L["Use Custom Bindings"], description = L["Use Custom Bindings Desc"], dbKey = "UseCustomBindings", requiredParentValueAnd = {InputDevice = 1}},
+            {type = "Keybinding", branchLevel = 2, action = "Confirm", name = L["Action Confirm"], description = L["Primary Control Key Desc"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true}},
+            {type = "Keybinding", branchLevel = 2, action = "Option1", name = L["Action Option1"], description = L["Action Option1"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "Option2", name = L["Action Option2"], description = L["Action Option2"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "Option3", name = L["Action Option3"], description = L["Action Option3"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "Option4", name = L["Action Option4"], description = L["Action Option4"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "Option5", name = L["Action Option5"], description = L["Action Option5"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "Option6", name = L["Action Option6"], description = L["Action Option6"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "Option7", name = L["Action Option7"], description = L["Action Option7"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "Option8", name = L["Action Option8"], description = L["Action Option8"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "Option9", name = L["Action Option9"], description = L["Action Option9"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true, TTSUseHotkey = true}},
+
+            {type = "ArrowOption", name = L["Primary Control Key"], description = L["Primary Control Key Desc"], dbKey = "PrimaryControlKey", valueTextFormatter = ValueTextFormatter_PrimaryControlKey, hasHotkey = true, requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = false},
                 choices = {
                     {dbValue = 1, valueText = L["Key Space"]},
                     {dbValue = 2, valueText = L["Key Interact"], tooltip = PrimaryControlKey_Interact_Tooltip},
                     {dbValue = 0, valueText = L["Key Disabled"], tooltip = L["Key Disabled Tooltip"]},
                 },
             },
+
             {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Checkbox", name = L["Press Tab To Select Reward"], description = L["Press Tab To Select Reward Desc"], dbKey = "CycleRewardHotkeyEnabled", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Checkbox", name = L["Disable Hokey For Teleport"], description = L["Disable Hokey For Teleport Desc"], dbKey = "DisableHotkeyForTeleport", requiredParentValueAnd = {InputDevice = 1}},
@@ -676,7 +710,8 @@ local Schematic = { --Scheme
         options = {
             {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
             {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", requiredParentValueAnd = {TTSEnabled = true}},
-            {type = "Checkbox", name = L["TTS Auto Play"], description = L["TTS Auto Play Desc"], dbKey = "TTSAutoPlay", requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {TTSEnabled = true, TTSUseHotkey = true}},
+            {type = "Checkbox", name = L["TTS Auto Play"], description = L["TTS Auto Play Desc"], dbKey = "TTSAutoPlay", requiredParentValueAnd = {TTSEnabled = true}},
             {type = "Checkbox", name = L["TTS Skip Recent"], description = L["TTS Skip Recent Desc"], dbKey = "TTSSkipRecent", branchLevel = 2, requiredParentValueAnd = {TTSEnabled = true, TTSAutoPlay = true}},
             {type = "Checkbox", name = L["TTS Auto Play Delay"], description = L["TTS Auto Play Delay Desc"], dbKey = "TTSAutoPlayDelay", branchLevel = 2, requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Auto Stop"], description = L["TTS Auto Stop Desc"], dbKey = "TTSAutoStop", requiredParentValueAnd = {TTSEnabled = true}},
@@ -770,7 +805,7 @@ local function CreateCheckbox()
 end
 
 local function OnAcquireCheckbox(checkbox)
-    checkbox:SetTexture(ThemeUtil:GetTextureFile("Settings-Checkbox.png"));
+    checkbox:LoadTexture(ThemeUtil:GetTextureFile("Settings-Checkbox.png"));
 end
 
 local function CreateArrowOption()
@@ -779,7 +814,7 @@ local function CreateArrowOption()
 end
 
 local function OnAcquireArrowOption(widget)
-    widget:SetTexture(ThemeUtil:GetTextureFile("Settings-ArrowOption.png"));
+    widget:LoadTexture(ThemeUtil:GetTextureFile("Settings-ArrowOption.png"));
 end
 
 local function CreateDropdownButton()
@@ -788,7 +823,17 @@ local function CreateDropdownButton()
 end
 
 local function OnAcquireDropdownButton(widget)
-    widget:SetTexture(ThemeUtil:GetTextureFile("Settings-DropdownButton.png"));
+    widget:LoadTexture(ThemeUtil:GetTextureFile("Settings-DropdownButton.png"));
+end
+
+local function CreateKeybinding()
+    local widget = CreateFrame("Button", nil, MainFrame, "DUIDialogSettingsKeybindingTemplate");
+    return widget
+end
+
+local function OnAcquireKeybinding(widget)
+    widget:LoadTexture(ThemeUtil:GetTextureFile("Settings-Keybinding.png"));
+    widget:ResetState();
 end
 
 
@@ -897,7 +942,7 @@ function ScrollFrameMixin:OnMouseWheel(delta)
     else
         self:ScrollBy(OPTIONBUTTON_HEIGHT);
     end
-    addon.UpdateSettingsDropdownMenuPosition();
+    CallbackRegistry:Trigger("SettingsUI.OnMouseWheel", delta);
 end
 
 
@@ -911,6 +956,7 @@ function DUIDialogSettingsMixin:Init()
     self.checkboxPool = API.CreateObjectPool(CreateCheckbox, RemoveWidget, OnAcquireCheckbox);
     self.arrowOptionPool = API.CreateObjectPool(CreateArrowOption, RemoveWidget, OnAcquireArrowOption);
     self.dropdownButtonPool = API.CreateObjectPool(CreateDropdownButton, RemoveWidget, OnAcquireDropdownButton);
+    self.keybindingPool = API.CreateObjectPool(CreateKeybinding, RemoveWidget, OnAcquireKeybinding);
     self.texturePool = API.CreateObjectPool(CreateTexture, RemoveTexture);
 
     local function CreateHotkeyFrame()
@@ -1098,6 +1144,7 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     self.optionButtonPool:Release();
     self.checkboxPool:Release();
     self.arrowOptionPool:Release();
+    self.keybindingPool:Release();
     self.dropdownButtonPool:Release();
     self.texturePool:Release();
     self.hotkeyFramePool:Release();
@@ -1395,10 +1442,14 @@ function DUIDialogSettingsOptionMixin:SetDropdownButton(optionData)
     self.widget:SetData(optionData);
 end
 
+function DUIDialogSettingsOptionMixin:SetKeybindingOption(optionData)
+    self:AttachWidget(MainFrame.keybindingPool, 0.75);
+    self.widget:SetData(optionData);
+end
+
 function DUIDialogSettingsOptionMixin:SetCustomButton(optionData)
     self.widget = nil;
 end
-
 
 function DUIDialogSettingsOptionMixin:SetSubheader()
     local icon = MainFrame.texturePool:Acquire();
@@ -1434,6 +1485,8 @@ function DUIDialogSettingsOptionMixin:SetData(optionData)
         else
             self:SetDropdownButton(optionData);
         end
+    elseif optionData.type == "Keybinding" then
+        self:SetKeybindingOption(optionData);
     elseif optionData.type == "Custom" then
         self:SetCustomButton(optionData);
     end
@@ -1488,6 +1541,9 @@ function DUIDialogSettingsOptionMixin:SetData(optionData)
     self.Label:SetPoint("LEFT", self, "LEFT", nameOffset, 0);
 end
 
+function DUIDialogSettingsOptionMixin:AdjustScroll()
+    MainFrame:AdjustScrollToObject(self);
+end
 
 do  --ArrowOption
     DUIDialogSettingsArrowOptionMixin = {};
@@ -1739,7 +1795,7 @@ do  --ArrowOption
         self:SelectChoiceByIndex(selectedID);
     end
 
-    function DUIDialogSettingsArrowOptionMixin:SetTexture(file)
+    function DUIDialogSettingsArrowOptionMixin:LoadTexture(file)
         self.LeftArrow.Texture:SetTexture(file);
         self.LeftArrow.Highlight:SetTexture(file);
         self.RightArrow.Texture:SetTexture(file);
@@ -1774,7 +1830,7 @@ do  --Checkbox
         self:GetParent():OnLeave();
     end
 
-    function DUIDialogSettingsCheckboxMixin:SetTexture(file)
+    function DUIDialogSettingsCheckboxMixin:LoadTexture(file)
         self.Background:SetTexture(file);
         self.Check:SetTexture(file);
     end
@@ -1859,7 +1915,7 @@ do  --DropdownButton
         PlaySound("CHECKBOX_ON");
     end
 
-    function DUIDialogSettingsDropdownButtonMixin:SetTexture(file)
+    function DUIDialogSettingsDropdownButtonMixin:LoadTexture(file)
         self.Background:SetTexture(file);
         self.Arrow:SetTexture(file);
     end
@@ -2108,6 +2164,17 @@ do  --GamePad/Controller
         end
         return false
     end
+
+    function DUIDialogSettingsMixin:AdjustScrollToObject(object)
+        --move the scroll frame if the object is partially clipped
+        local top = object:GetTop();
+        local bottom = object:GetBottom();
+        if top > self.scrollFrameTop then
+            self.ScrollFrame:ScrollBy(self.scrollFrameTop - top);
+        elseif bottom < self.scrollFrameBottom then
+            self.ScrollFrame:ScrollBy(self.scrollFrameBottom - bottom);
+        end
+    end
 end
 
 
@@ -2156,7 +2223,7 @@ do
 
         OPTIONBUTTON_WIDTH = widthMultiplier * OPTIONBUTTON_HEIGHT;
     end
-    addon.CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
+    CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 
     local function PostFontSizeChanged()
         --We wait after hotkey frame size update
@@ -2187,7 +2254,7 @@ do
         f:Layout();
         f:UpdateCurrentTab();
     end
-    addon.CallbackRegistry:Register("PostFontSizeChanged", PostFontSizeChanged);
+    CallbackRegistry:Register("PostFontSizeChanged", PostFontSizeChanged);
 
     local function PostInputDeviceChanged(dbValue)
         INPUT_DEVICE_GAME_PAD = dbValue ~= 1;
@@ -2199,7 +2266,7 @@ do
         f:Layout();
         f:UpdateCurrentTab();
     end
-    addon.CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
+    CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
 end
 
 do  --Create an entrance to settings in Blizzard addon settings window

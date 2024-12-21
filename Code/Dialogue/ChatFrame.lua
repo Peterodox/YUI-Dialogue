@@ -662,10 +662,11 @@ end
 
 do
     local function Settings_HideUI(dbValue)
-        ChatFrame:SetEnabled(dbValue == true);
+        local state = addon.GetDBBool("HideUI") and addon.GetDBBool("ShowChatWindow");
+        ChatFrame:SetEnabled(state);
     end
-
     addon.CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
+    addon.CallbackRegistry:Register("SettingChanged.ShowChatWindow", Settings_HideUI);
 end
 
 

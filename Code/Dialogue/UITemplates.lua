@@ -7,9 +7,9 @@ local TooltipFrame = addon.SharedTooltip;
 local GossipDataProvider = addon.GossipDataProvider;
 local PlaySound = addon.PlaySound;
 local ThemeUtil = addon.ThemeUtil;
-local GetPrimaryControlKey = addon.KeyboardControl.GetPrimaryControlKey;
 local RewardTooltipCode = addon.RewardTooltipCode;
 local SwipeEmulator = addon.SwipeEmulator;
+local BindingUtil = addon.BindingUtil;
 
 -- User Settings
 local SHOW_QUEST_TYPE_TEXT = true;
@@ -1018,7 +1018,7 @@ end
 
 function DUIDialogHotkeyFrameMixin:SetKey(key)
     if key == "PRIMARY" then
-        key = GAME_PAD_CONFIRM_KEY or GetPrimaryControlKey();
+        key = GAME_PAD_CONFIRM_KEY or BindingUtil:GetActiveActionKey("Confirm");
     end
 
     if key ~= self.key then
