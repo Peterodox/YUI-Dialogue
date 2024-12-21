@@ -5,6 +5,7 @@ local _, addon = ...
 local unpack = unpack;
 local BookComponent = addon.BookComponent;
 local Atlas = {};
+local TextureSize = {};
 
 local function CalculateCoord(file, ratio, width, height, left, right, top, bottom)
     --ratio: height / width
@@ -13,7 +14,13 @@ end
 
 function BookComponent:GetTextureCoordForFile(file)
     if Atlas[file] then
-        return unpack(Atlas[file]);
+        return unpack(Atlas[file])
+    end
+end
+
+function BookComponent:GetTextureSize(file)
+    if TextureSize[file] then
+        return TextureSize[file][1], TextureSize[file][2]
     end
 end
 
@@ -76,4 +83,20 @@ do  --Artifact Book
     for k, v in pairs(Info) do
         CalculateCoord(PREFIX..k, ((v[2] -v[1])/WIDTH), WIDTH, HEIGHT, 0, WIDTH, v[1], v[2]);
     end
+end
+
+do  --PvPRankBadges, A Treatise on Military Ranks, Stormwind City  75, 68
+    local CustomSize = {40, 40};
+    local name;
+    for i = 1, 14 do
+        if i < 10 then
+            name = "0"..i;
+        else
+            name = i;
+        end
+        TextureSize["interface\\pvprankbadges\\pvprank"..name] = CustomSize;
+    end
+
+    TextureSize["interface\\pvprankbadges\\pvprankalliance"] = {86, 100};
+    TextureSize["interface\\pvprankbadges\\pvprankhorde"] = {86, 100};
 end

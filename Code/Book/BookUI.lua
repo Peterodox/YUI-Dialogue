@@ -5,6 +5,7 @@ local BookComponent = addon.BookComponent;
 local GetDBBool = addon.GetDBBool;
 local CallbackRegistry = addon.CallbackRegistry;
 local TTSUtil = addon.TTSUtil;
+local BindingUtil = addon.BindingUtil;
 local SwipeEmulator = addon.SwipeEmulator;
 local FadeHelper = addon.UIParentFadeHelper;
 local Round = API.Round;
@@ -399,6 +400,10 @@ do  --Cache
         self.activeData.maxContentIndex = index;
 
         justifyH = justifyH or "LEFT";
+        if justifyH == "right" then
+            --Treat right-alignment as middle unless we encounter some edge cases (issue#98)
+            justifyH = "CENTER";
+        end
 
         local spacingAbove = 0;
         if self.spacingPending then
@@ -429,11 +434,11 @@ do  --Cache
         end
     end
 
-    function Cache:StoreImage(file, width, height, left, right, top, bottom)
+    function Cache:StoreImage(file, align, width, height, left, right, top, bottom)
         local index = self.activeData.maxContentIndex + 1;
         self.activeData.maxContentIndex = index;
 
-        local align = "CENTER";
+        align = align or "CENTER";
 
         local spacingAbove = 0;
         if self.spacingPending then
@@ -1105,6 +1110,7 @@ do  --Formatter
         text = gsub(text, "^<[^<>]+>", "", 1);
         text = gsub(text, "<[^<>]+>$", "", 1);
         text = gsub(text, "<[^<>]+>$", "", 1);
+        text = gsub(text, "<[^<>]+>$", "", 1);
         return text
     end
 
@@ -1142,8 +1148,13 @@ do  --Formatter
                                 align = match(paragraphText,"align=\"(%a+)") or "center";
                                 local imageWidth, imageHeight;
                                 local left, right, top, bottom = 0, 1, 0, 1;
+                                file = lower(file);
+
                                 if not (width and height) then
-                                    file = lower(file);
+                                    width, height = BookComponent:GetTextureSize(file);
+                                end
+
+                                if not (width and height) then
                                     local ratio, _l, _r, _t, _b = BookComponent:GetTextureCoordForFile(file);   --Check AtlasInfo
                                     if ratio then
                                         imageWidth = ConvertedSize.CONTENT_WIDTH;
@@ -1172,7 +1183,7 @@ do  --Formatter
                                 end
 
                                 if width and height then
-                                    if lower(file) == "interface\\common\\spacer" then
+                                    if file == "interface\\common\\spacer" then
                                         Cache:AddSpacerToNextContent(self.PARAGRAPH_SPACING);
                                     else
                                         if not imageWidth then
@@ -1180,7 +1191,7 @@ do  --Formatter
                                             imageWidth = Round(ConvertedSize.CONTENT_WIDTH * scale);
                                             imageHeight = Round(imageWidth * height / width);
                                         end
-                                        Cache:StoreImage(file, imageWidth, imageHeight, left, right, top, bottom);
+                                        Cache:StoreImage(file, align, imageWidth, imageHeight, left, right, top, bottom);
                                     end
                                 end
                             end
@@ -1324,18 +1335,32 @@ do  --Main UI
                 end
             end
 
+            local offsetX = 0;
+
             if data.text then
                 Formatter:SetFontObjectByTag(obj, data.fontTag);
                 obj:SetJustifyH(data.align);
                 obj:SetText(data.text);
+                offsetX = 0;
             elseif data.image then
                 obj:SetSize(data.width, data.height);
                 obj:SetTexture(data.image);
                 obj:SetTexCoord(data.left, data.right, data.top, data.bottom);
+                --[[
+                --Always centralize IMG unless we encounter some edge cases (issue#98)
+                if data.align == "left" then
+                    offsetX = -0.5*(ConvertedSize.CONTENT_WIDTH - data.width);
+                elseif data.align == "right" then
+                    offsetX = 0.5*(ConvertedSize.CONTENT_WIDTH - data.width);
+                else
+                    offsetX = 0;
+                end
+                --]]
+                offsetX = 0;
             end
 
             obj.contentIndex = contentIndex;
-            obj:SetPoint("TOP", MainFrame.ContentFrame, "TOP", 0, -data.offsetY);
+            obj:SetPoint("TOP", MainFrame.ContentFrame, "TOP", offsetX, -data.offsetY);
             obj:Show();
 
             if MainFrame.isReadingContent then
@@ -1707,7 +1732,7 @@ do  --Keyboard Control, In Combat Behavior
         elseif key == "F1" then
             valid = true;
             addon.SettingsUI:ToggleUI();
-        elseif key == "R" and (not IsModifierKeyDown()) and GetDBBool("TTSEnabled") and GetDBBool("TTSUseHotkey") then
+        elseif BindingUtil:GetActiveKeyAction(key) == "TTS" and (not IsModifierKeyDown()) and GetDBBool("TTSEnabled") and GetDBBool("TTSUseHotkey") then
             valid = true;
             addon.TTSUtil:ToggleSpeaking("book");
         else

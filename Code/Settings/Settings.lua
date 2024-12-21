@@ -643,7 +643,8 @@ local Schematic = { --Scheme
 
             {type = "Checkbox", name = L["Use Custom Bindings"], description = L["Use Custom Bindings Desc"], dbKey = "UseCustomBindings", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Keybinding", branchLevel = 2, action = "Confirm", name = L["Action Confirm"], description = L["Primary Control Key Desc"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true}},
-            {type = "Keybinding", branchLevel = 2, action = "Option1", name = L["Action Option1"], description = L["Action Option1"], requireSameParentValue = true},
+            {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true, TTSUseHotkey = true}},
+            {type = "Keybinding", branchLevel = 2, action = "Option1", name = L["Action Option1"], description = L["Action Option1"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true}},
             {type = "Keybinding", branchLevel = 2, action = "Option2", name = L["Action Option2"], description = L["Action Option2"], requireSameParentValue = true},
             {type = "Keybinding", branchLevel = 2, action = "Option3", name = L["Action Option3"], description = L["Action Option3"], requireSameParentValue = true},
             {type = "Keybinding", branchLevel = 2, action = "Option4", name = L["Action Option4"], description = L["Action Option4"], requireSameParentValue = true},
@@ -652,7 +653,7 @@ local Schematic = { --Scheme
             {type = "Keybinding", branchLevel = 2, action = "Option7", name = L["Action Option7"], description = L["Action Option7"], requireSameParentValue = true},
             {type = "Keybinding", branchLevel = 2, action = "Option8", name = L["Action Option8"], description = L["Action Option8"], requireSameParentValue = true},
             {type = "Keybinding", branchLevel = 2, action = "Option9", name = L["Action Option9"], description = L["Action Option9"], requireSameParentValue = true},
-            {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true, TTSUseHotkey = true}},
+
 
             {type = "ArrowOption", name = L["Primary Control Key"], description = L["Primary Control Key Desc"], dbKey = "PrimaryControlKey", valueTextFormatter = ValueTextFormatter_PrimaryControlKey, hasHotkey = true, requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = false},
                 choices = {
@@ -710,7 +711,7 @@ local Schematic = { --Scheme
         options = {
             {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
             {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", requiredParentValueAnd = {TTSEnabled = true}},
-            {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {TTSEnabled = true, TTSUseHotkey = true}},
+            {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {TTSEnabled = true, TTSUseHotkey = true, UseCustomBindings = true}},
             {type = "Checkbox", name = L["TTS Auto Play"], description = L["TTS Auto Play Desc"], dbKey = "TTSAutoPlay", requiredParentValueAnd = {TTSEnabled = true}},
             {type = "Checkbox", name = L["TTS Skip Recent"], description = L["TTS Skip Recent Desc"], dbKey = "TTSSkipRecent", branchLevel = 2, requiredParentValueAnd = {TTSEnabled = true, TTSAutoPlay = true}},
             {type = "Checkbox", name = L["TTS Auto Play Delay"], description = L["TTS Auto Play Delay Desc"], dbKey = "TTSAutoPlayDelay", branchLevel = 2, requireSameParentValue = true},
