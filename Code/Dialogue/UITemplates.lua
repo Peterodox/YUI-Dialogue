@@ -1382,13 +1382,28 @@ function DUIDialogItemButtonMixin:UpdatePixel(scale)
 end
 
 function DUIDialogItemButtonMixin:OnClick(button)
-    if self.objectType == "item" and IsControlKeyDown() then
+    local modifiedAction;
+    if IsModifiedClick("CHATLINK") then
+        modifiedAction = 1;
+    elseif IsModifiedClick("DRESSUP") and self.objectType == "item" then
+        modifiedAction = 2;
+    end
+    if modifiedAction and not InCombatLockdown() then
         --I'm reluctant to add Dressing Room support due to potential taint (DressUpFrame), but if that's what the users want
         local link = GetQuestItemLink(self.type, self.index);
-        if link and API.IsDressableItem(link) and not InCombatLockdown() then
-            CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
-            DressUpVisual(link);
-            return
+        if link then
+            if modifiedAction == 1 then
+                CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+                if ChatEdit_InsertLink(link) then
+                    return
+                end
+            elseif modifiedAction == 2 then
+                if API.IsDressableItem(link) then
+                    CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+                    DressUpVisual(link);
+                    return
+                end
+            end
         end
     end
 

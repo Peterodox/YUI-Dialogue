@@ -60,6 +60,7 @@ local DefaultValues = {
         QuickSlotUseHotkey = true,
     AutoSelectGossip = false,
     ForceGossip = false,
+        ForceGossipSkipGameObject = false,
     ShowDialogHint = true,
     DisableDUIInInstance = false,
 

@@ -1063,7 +1063,7 @@ local function HandleAutoSelect(options, activeQuests, availableQuests, anyOptio
 
     local onlyOption = #options == 1;
 
-    if (not GetDBBool("ForceGossip")) and (not (anyActiveQuest or anyAvailableQuest)) and (onlyOption) and (not ForceGossip()) then
+    if (not (anyActiveQuest or anyAvailableQuest)) and (onlyOption) and ( (not GetDBBool("ForceGossip")) or (GetDBBool("ForceGossipSkipGameObject") and API.IsInteractingWithGameObject()) ) and (not ForceGossip()) then
         if options[1].selectOptionWhenOnlyOption then
             C_GossipInfo.SelectOptionByIndex(options[1].orderIndex);
             return true

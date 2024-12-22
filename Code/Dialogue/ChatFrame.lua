@@ -1,5 +1,5 @@
 local _, addon = ...
-
+local GetDBBool = addon.GetDBBool;
 local UpdateTextureSliceScale = addon.API.UpdateTextureSliceScale;
 
 local tinsert = table.insert;
@@ -608,25 +608,28 @@ function ChatFrame:ListenEvents(state)
 end
 
 function ChatFrame:SetEnabled(enabled)
+    self.isEnabled = enabled;
     self:ListenEvents(enabled);
     self:SetShown(enabled);
 end
 
-do
-    --ChatFrame is always visible when interacting with NPC while HideUI = true
-    --[[
-    local function UIParent_OnShow()
-        ChatFrame:Hide();
+
+do  --Hide ChatFrame when UIParent is visible
+    function ChatFrame:UpdateVisibility(uiParentShown)
+        if self.isEnabled then
+            if uiParentShown == nil then
+                uiParentShown = UIParent:IsShown();
+            end
+            if uiParentShown then
+                self:Hide();
+            else
+                self:Show();
+            end
+        end
     end
 
-    addon.CallbackRegistry:Register("UIParent.Show", UIParent_OnShow);
-
-    local function UIParent_OnHide()
-        ChatFrame:Show();
-    end
-
-    addon.CallbackRegistry:Register("UIParent.Hide", UIParent_OnHide);
-    --]]
+    addon.CallbackRegistry:Register("UIParent.Show", ChatFrame.UpdateVisibility, ChatFrame);
+    addon.CallbackRegistry:Register("UIParent.Hide", ChatFrame.UpdateVisibility, ChatFrame);
 end
 
 
@@ -662,7 +665,7 @@ end
 
 do
     local function Settings_HideUI(dbValue)
-        local state = addon.GetDBBool("HideUI") and addon.GetDBBool("ShowChatWindow");
+        local state = GetDBBool("HideUI") and GetDBBool("ShowChatWindow");
         ChatFrame:SetEnabled(state);
     end
     addon.CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
