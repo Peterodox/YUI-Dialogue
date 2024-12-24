@@ -293,12 +293,12 @@ function RewardTooltipCode:ShowHyperlink(itemButton, hyperlink)
 
     local tooltip;
     if USE_BLIZZARD_TOOLTIP then
-        self:TakeOutGameTooltip();
+        RewardTooltipCode:TakeOutGameTooltip();
         tooltip = GameTooltip;
     else
         tooltip = TooltipFrame;
     end
-    tooltip:SetOwner(self, "ANCHOR_NONE");
+    tooltip:SetOwner(itemButton, "ANCHOR_NONE");
 
     local relativeTo = itemButton.Icon or itemButton;
     tooltip:SetPoint("BOTTOMLEFT", relativeTo, "TOPRIGHT", 0, 2);

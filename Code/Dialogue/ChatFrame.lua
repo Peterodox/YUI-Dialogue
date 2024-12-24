@@ -438,6 +438,8 @@ do
             object:SetAlpha(0);
             object.alpha = 0;
         end
+        self.fadingDirection = -1;
+        self:SetScript("OnUpdate", nil);
     end
 
     function MessageFader:IsFading()
@@ -618,18 +620,21 @@ do  --Hide ChatFrame when UIParent is visible
     function ChatFrame:UpdateVisibility(uiParentShown)
         if self.isEnabled then
             if uiParentShown == nil then
-                uiParentShown = UIParent:IsShown();
+                --uiParentShown = UIParent:IsShown();
+                uiParentShown = false;
             end
             if uiParentShown then
                 self:Hide();
             else
                 self:Show();
+                MessageFader:FadeOutMessagesInstantly();
             end
         end
     end
 
     addon.CallbackRegistry:Register("UIParent.Show", ChatFrame.UpdateVisibility, ChatFrame);
-    addon.CallbackRegistry:Register("UIParent.Hide", ChatFrame.UpdateVisibility, ChatFrame);
+    --addon.CallbackRegistry:Register("UIParent.Hide", ChatFrame.UpdateVisibility, ChatFrame);
+    addon.CallbackRegistry:Register("DialogueUI.Show", ChatFrame.UpdateVisibility, ChatFrame);
 end
 
 
