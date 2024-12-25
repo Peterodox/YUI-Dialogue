@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.5.7";
-local VERSION_DATE = 1734700000;
+local VERSION_TEXT = "v0.5.8";
+local VERSION_DATE = 1735100000;
 
 
 local addonName, addon = ...
