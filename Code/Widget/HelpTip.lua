@@ -342,7 +342,7 @@ do  --Load Tips (TipPresets);
     };
 
     for helpFlag, info in pairs(TipPresets) do
-        --CallbackRegistry:RegisterTutorial(helpFlag, function()
+        CallbackRegistry:RegisterTutorial(helpFlag, function()
             TipPresets[helpFlag].unread = true;
             if info.event and info.helpText then
                 local function callback(arg1, arg2, arg3)
@@ -351,7 +351,7 @@ do  --Load Tips (TipPresets);
                 end
                 CallbackRegistry:Register(info.event, callback);
             end
-        --end);
+        end);
     end
 
     --[[    --debug
