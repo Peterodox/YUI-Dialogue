@@ -194,7 +194,7 @@ function DUIDialogSettingsMixin:LoadTheme()
         end);
     end);
 
-    local file5 =filePath.."Settings-Keybinding.png";
+    local file5 = filePath.."Settings-Keybinding.png";
     self.keybindingPool:ProcessAllObjects(function(widget)
         widget:LoadTexture(file5);
     end);

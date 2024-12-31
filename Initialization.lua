@@ -117,6 +117,7 @@ local TutorialFlags = {
     --Saved in the DB, prefix: Tutorial_
     --e.g. Tutorial_OpenSettings = true
     "OpenSettings",
+    "WarbandCompletedQuest",
 };
 
 local function GetDBValue(dbKey)

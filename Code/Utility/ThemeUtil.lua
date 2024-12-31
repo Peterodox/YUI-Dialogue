@@ -120,6 +120,8 @@ function ThemeUtil:SetThemeByID(themeID)
     if addon.DropdownMenu then
         addon.DropdownMenu:LoadTheme();
     end
+
+    addon.CallbackRegistry:Trigger("ThemeChanged", themeID);
 end
 
 function ThemeUtil:GetTexturePath()

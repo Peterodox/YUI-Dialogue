@@ -784,6 +784,8 @@ do
 
         local widthMultiplier = max(1, FONT_HEIGHT_MEDIUM / 10);
         FONTSTRING_MAX_WIDTH = widthMultiplier * (TOOLTIP_MAX_WIDTH - 2*TOOLTIP_PADDING);
+
+        CallbackRegistry:Trigger("TooltipTextMaxWidthChanged", FONTSTRING_MAX_WIDTH);
     end
     CallbackRegistry:Register("PostFontSizeChanged", PostFontSizeChanged);
 end

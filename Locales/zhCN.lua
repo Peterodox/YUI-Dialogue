@@ -316,6 +316,8 @@ L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开或关闭设置";   --Use this if gamepad enabled
 L["Instuction Open Settings"] = "在与NPC交互时按下 [KEY:PC:F1] 来打开设置";    --Used in Game Menu - AddOns
 L["Instuction Open Settings Console"] = "在与NPC交互时按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开设置";
+L["HelpTip Warband Completed Quest"] = "这个图标表示你战团里的角色完成过此任务。";
+L["Got It"] = "我悟了";     --HELP_TIP_BUTTON_GOT_IT
 
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = "千";     --1,000 = 1K

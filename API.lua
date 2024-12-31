@@ -242,10 +242,11 @@ do  -- Pixel
     API.GetScaledCursorPosition = GetScaledCursorPosition;
 end
 
-do  -- Object Pool
+do  -- Object Pool (Pool needs to Release all objects before reusing) / DynamicPoolMixin (can reuse any inactive object without Releasing All objects)
     local ObjectPoolMixin = {};
     local ipairs = ipairs;
     local tinsert = table.insert;
+    local tremove = table.remove;
 
     function ObjectPoolMixin:Release()
         for i, object in ipairs(self.objects) do
@@ -341,6 +342,90 @@ do  -- Object Pool
         return pool
     end
     API.CreateObjectPool = CreateObjectPool;
+
+
+
+
+    local DynamicPoolMixin = {};
+
+    function DynamicPoolMixin:ReleaseAll()
+        local removeFunc = self.Remove or RemoveObject;
+        for obj, active in pairs(self.activeObjects) do
+            if active then
+                removeFunc(obj);
+            end
+        end
+        self.activeObjects = {};
+        self.bins = {};
+        for i, obj in ipairs(self.allObjects) do
+            self.bins[i] = obj;
+        end
+    end
+
+    function DynamicPoolMixin:RecycleObject(obj)
+        if self.activeObjects[obj] then
+            self.activeObjects[obj] = nil;
+            if self.Remove then
+                self.Remove(obj);
+            else
+                RemoveObject(obj);
+            end
+        end
+        tinsert(self.bins, obj);
+    end
+
+    function DynamicPoolMixin:Acquire()
+        local obj = tremove(self.bins);
+        if not obj then
+            obj = self.Create();
+            obj.Release = self.ReleaseObject;
+            tinsert(self.allObjects, obj);
+        end
+        if self.OnAcquired then
+            self.OnAcquired(obj);
+        end
+        self.activeObjects[obj] = true;
+        return obj
+    end
+
+    function DynamicPoolMixin:CallActive(method, arg1, arg2, arg3, arg4)
+        for obj, active in pairs(self.activeObjects) do
+            obj[method](obj, arg1, arg2, arg3, arg4);
+        end
+    end
+
+    function DynamicPoolMixin:EnumerateActive()
+        return pairs(self.activeObjects);
+    end
+
+    function DynamicPoolMixin:DebugGetCount()
+        local numTotal = #self.allObjects;
+        local numInactive = #self.bins;
+        local numActive = 0;
+        for obj, active in pairs(self.activeObjects) do
+            numActive = numActive + 1;
+        end
+        print(numTotal, numActive, numInactive);
+    end
+
+    local function CreateDynamicObjectPool(createFunc, removeFunc, onAcquiredFunc)
+        local pool = API.CreateFromMixins(DynamicPoolMixin);
+
+        pool.allObjects = {};
+        pool.bins = {};
+        pool.activeObjects = {};
+
+        pool.Create = createFunc;
+        pool.Remove = removeFunc or RemoveObject;
+        pool.OnAcquired = onAcquiredFunc;
+
+        pool.ReleaseObject = function(obj)
+            pool:RecycleObject(obj);
+        end
+
+        return pool
+    end
+    API.CreateDynamicObjectPool = CreateDynamicObjectPool;
 end
 
 do  -- String

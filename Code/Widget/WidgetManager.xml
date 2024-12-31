@@ -5,6 +5,8 @@
     <Script file="Widget_QuestPopup.lua"/>
     <Script file="Widget_QuickSlot.lua"/>
 
+    <Script file="HelpTip.lua"/>
+
     <Frame name="DUIQuestPopupTemplate" virtual="true">
         <Size x="536" y="88"/>
         <Layers>
@@ -151,4 +153,61 @@
             </Cooldown>
         </Frames>
     </Button>
+
+    <Frame name="DUIHelpTipFrameTemplate" virtual="true">
+        <Size x="256" y="104"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Text" inherits="DUIFont_Tooltip_Large" justifyH="LEFT" justifyV="TOP">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Frame parentKey="BackgroundFrame" inherits="DUIGenericTitledFrameTemplate"/>
+            <Frame parentKey="ArrowFrame">
+                <Size x="16" y="16"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="Arrow1" parentArray="Arrows" alpha="0">
+                            <Size x="48" y="48"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="AnimPointRight" looping="REPEAT" setToFinalAlpha="true">
+                        <Alpha childKey="Arrow1" order="1" fromAlpha="0" toAlpha="0" duration="0.5" startDelay="0"/>
+                        <Alpha childKey="Arrow1" order="2" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0"/>
+                        <Alpha childKey="Arrow1" order="2" fromAlpha="1" toAlpha="0" duration="0.4" startDelay="1.0"/>
+                        <Translation childKey="Arrow1" order="2" offsetX="10" duration="1.0" startDelay="0" smoothing="OUT"/>
+                    </AnimationGroup>
+                </Animations>
+            </Frame>
+            <Button parentKey="CloseButton">
+                <Size x="48" y="48"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT"/>
+                </Anchors>
+                <HighlightTexture parentKey="HighlightTexture"/>
+                <NormalTexture parentKey="NormalTexture"/>
+            </Button>
+            <Frame parentKey="OkayButton" hidden="true">    <!--Not a Button-->
+                <Size x="32" y="16"/>
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <FontString parentKey="ButtonText" inherits="DUIFont_Tooltip_Medium" justifyH="RIGHT" justifyV="TOP">
+                            <Anchors>
+                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="0" y="0"/>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
+    </Frame>
 </Ui>

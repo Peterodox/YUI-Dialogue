@@ -395,6 +395,7 @@ function DUIDialogBaseMixin:OnLoad()
         button.type = nil;
         button.hasQuestType = nil;
         button.rightFrameWidth = nil;
+        button.extraObjects = nil;
     end
 
     local function OnAcquireOptionButton(button)
@@ -743,6 +744,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         if questID and API.IsQuestFlaggedCompletedOnAccount(questID) then
             self.WarbandCompleteAlert:Show();
             self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -56, 2);
+            CallbackRegistry:TriggerOnNextUpdate("WarbandCompleteAlert.Show", self.FrontFrame.Header, self.WarbandCompleteAlert);
         else
             self.WarbandCompleteAlert:Hide();
             self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -8, 2);

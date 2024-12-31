@@ -11,5 +11,8 @@
                 </Texture>
             </Layer>
         </Layers>
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
     </Frame>
 </Ui>

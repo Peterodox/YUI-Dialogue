@@ -316,6 +316,8 @@ L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";     --Sh
 L["Tutorial Settings Hotkey Console"] = "Press [KEY:PC:F1] or [KEY:CONSOLE:MENU] to toggle Settings";   --Use this if gamepad enabled
 L["Instuction Open Settings"] = "To open Settings, press [KEY:PC:F1] while you are interacting with an NPC.";    --Used in Game Menu - AddOns
 L["Instuction Open Settings Console"] = "To open Settings, press [KEY:PC:F1] or [KEY:CONSOLE:MENU] while you are interacting with an NPC.";
+L["HelpTip Warband Completed Quest"] = "This icon indicates the quest has been completed by your Warband.";
+L["Got It"] = HELP_TIP_BUTTON_GOT_IT or "Got It";
 
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K

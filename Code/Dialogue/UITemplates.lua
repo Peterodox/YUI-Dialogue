@@ -475,6 +475,11 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
             self.hasQuestType = true;
             self.rightFrameWidth = Round(frameWidth);
         end
+
+        local rightIcon = self:GetExtraObject("Warband");
+        if rightIcon then
+            rightIcon:SetPoint("RIGHT", self, "RIGHT", -48, 0);
+        end
     else
         self:RemoveQuestTypeText();
     end
@@ -507,6 +512,10 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
     API.BuildQuestInfo(questInfo);
     self:SetQuestVisual(questInfo);
     self:SetButtonText(questInfo.title, true);
+
+    if API.IsQuestFlaggedCompletedOnAccount(self.questID) then
+        self:ShowWarbandCompletedIcon();
+    end
 
     local function OnQuestLoaded(questID)
         if self:IsQuestButton() and self.questID == questID and self:IsShown() then
@@ -545,7 +554,6 @@ function DUIDialogOptionButtonMixin:SetActiveQuest(questInfo, index, hotkey)
     self:SetQuest(questInfo, hotkey);
     self:Enable();
 end
-
 
 function DUIDialogOptionButtonMixin:SetGreetingAvailableQuest(questInfo, index, hotkey)
     --Handle QUEST_GREETING event
@@ -898,6 +906,35 @@ end
 
 function DUIDialogOptionButtonMixin:SetOwner(owner)
     self.owner = owner;
+end
+
+do  --Extra Icons On OptionButton
+    function DUIDialogOptionButtonMixin:HasExtraObject(key)
+        return self:GetExtraObject(key) ~= nil
+    end
+
+    function DUIDialogOptionButtonMixin:GetExtraObject(key)
+        if self.extraObjects then
+            return self.extraObjects[key]
+        end
+    end
+
+    function DUIDialogOptionButtonMixin:SetExtraObject(key, object)
+        if not self.extraObjects then
+            self.extraObjects = {};
+        end
+        self.extraObjects[key] = object;
+    end
+
+    function DUIDialogOptionButtonMixin:ShowWarbandCompletedIcon()
+        if not self:HasExtraObject("Warband") then
+            local iconFrame = addon.DialogueUI.iconFramePool:Acquire();
+            self:SetExtraObject("Warband", iconFrame);
+            iconFrame:SetPoint("RIGHT", self, "RIGHT", -6, 0);
+            iconFrame:SetParent(self);
+            iconFrame:SetWarbandCompletedIcon(self.artID == 4);     --if true, the background is grey
+        end
+    end
 end
 
 function DUIDialogOptionButtonMixin:SetHotkey(hotkey)
@@ -2273,6 +2310,7 @@ do  --Icon Frame Overlay
         self:ClearAllPoints();
         self:Hide();
         self.Icon:SetTexture(nil);
+        self:SetUsingParentLevel(false);
         if self.t then
             self:SetScript("OnUpdate", nil);
             self:SetAlpha(1);
@@ -2292,12 +2330,14 @@ do  --Icon Frame Overlay
         self:SetSize(14, 14);
         self:AllPoints(true);
         self.Icon:SetTexture(ICON_PATH.."CurrencyOverflow.png");
+        self.Icon:SetTexCoord(0, 1, 0, 1);
     end
 
     function DUIDialogIconFrameMixin:SetHighestSellPrice()
         self:SetSize(15, 15);
         self:AllPoints(true);
         self.Icon:SetTexture(ICON_PATH.."Coin-Gold.png");
+        self.Icon:SetTexCoord(0, 1, 0, 1);
     end
 
     function DUIDialogIconFrameMixin:SetItemIsUpgrade(playAnimation)
@@ -2306,6 +2346,7 @@ do  --Icon Frame Overlay
         self.Icon:SetSize(32, 32);
         self.Icon:SetTexture(ICON_PATH.."ItemIsUpgrade.png");
         self.Icon:SetPoint("CENTER", self, "CENTER", 0, 0);
+        self.Icon:SetTexCoord(0, 1, 0, 1);
         if playAnimation then
             self.t = -0.5;
             self.alpha = 0;
@@ -2314,6 +2355,19 @@ do  --Icon Frame Overlay
             self.duration = 0.5;
             self:SetAlpha(0);
             self:SetScript("OnUpdate", IconAnimation_FlyUp);
+        end
+    end
+
+    function DUIDialogIconFrameMixin:SetWarbandCompletedIcon(isGreyBackground)
+        local size = 2*BUTTON_PADDING_LARGE + 10;
+        self:AllPoints(true);
+        self:SetSize(size, size);
+        self:SetUsingParentLevel(true);
+        self.Icon:SetTexture(ThemeUtil:GetTextureFile("WarbandCompleted.png"));
+        if isGreyBackground then
+            self.Icon:SetTexCoord(0.5, 1, 0, 1);
+        else
+            self.Icon:SetTexCoord(0, 0.5, 0, 1);
         end
     end
 end

@@ -318,6 +318,10 @@ do  --GamePad/Controller
     function KeyboardControl:OnGamePadButtonDown(button)
         self:StopRepeatingAction();
 
+        if addon.HelpTip:CloseAll() then
+            return
+        end
+
         local inCombat = InCombatLockdown();
         if SecureButtonContainer:IsActionKey(button) and not inCombat then
             KeyboardControl:SetPropagateKeyboardInput(true);

@@ -277,6 +277,10 @@ do  --Auto Close Button
             self.CloseButtonTexture:SetTexCoord(0, 0.25, 0, 0.25);
             self.Swipe1:SetTexCoord(0.125, 0.25, 0.25, 0.5)
             self.Swipe2:SetTexCoord(0, 0.125, 0.25, 0.5);
+        elseif themeID == 3 then
+            self.CloseButtonTexture:SetTexCoord(0.75, 1, 0, 0.25);
+            self.Swipe1:SetTexCoord(0.875, 1, 0.25, 0.5)
+            self.Swipe2:SetTexCoord(0.75, 0.875, 0.25, 0.5);
         else
             self.CloseButtonTexture:SetTexCoord(0.25, 0.5, 0, 0.25);
             self.Swipe1:SetTexCoord(0.375, 0.5, 0.25, 0.5)
