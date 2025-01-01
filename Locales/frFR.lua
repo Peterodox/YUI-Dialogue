@@ -230,8 +230,8 @@ L["TTS Content Objective"] = "Objectifs de la quête";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Utilisez [KEY:PC:F1] pour afficher les options";
 L["Tutorial Settings Hotkey Console"] = "utilisez [KEY:PC:F1] ou [KEY:CONSOLE:MENU] pour afficher les options";   --Use this if gamepad enabled
-L["Instuction Open Settings"] = "To open Settings, press [KEY:PC:F1] while you are interacting with an NPC.";    --Used in Game Menu - AddOns
-L["Instuction Open Settings Console"] = "To open Settings, press [KEY:PC:F1] or [KEY:CONSOLE:MENU] while you are interacting with an NPC.";
+L["Instruction Open Settings"] = "To open Settings, press [KEY:PC:F1] while you are interacting with an NPC.";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "To open Settings, press [KEY:PC:F1] or [KEY:CONSOLE:MENU] while you are interacting with an NPC.";
 
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K

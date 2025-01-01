@@ -43,7 +43,7 @@ local InvalidKeys = {
     TAB = true,
     BACKSPACE = true,
     CAPSLOCK = true,
-    F1 = true,          --Reserved for Settings
+    --F1 = true,          --Reserved for Settings
 };
 
 BindingUtil.KeyToAction = {};

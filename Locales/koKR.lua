@@ -230,8 +230,8 @@ L["TTS Content Objective"] = "퀘스트 목표";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "[KEY:PC:F1]을 눌러 설정을 전환합니다";     --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "[KEY:PC:F1] 또는 [KEY:CONSOLE:MENU]를 눌러 설정을 전환합니다";   --Use this if gamepad enabled
-L["Instuction Open Settings"] = "설정을 열려면 NPC와 상호 작용하는 동안 [KEY:PC:F1]을 누릅니다.";    --Used in Game Menu - AddOns
-L["Instuction Open Settings Console"] = "설정을 열려면 NPC와 상호 작용하는 동안 [KEY:PC:F1] 또는 [KEY:CONSOLE:MENU]를 누릅니다.";
+L["Instruction Open Settings"] = "설정을 열려면 NPC와 상호 작용하는 동안 [KEY:PC:F1]을 누릅니다.";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "설정을 열려면 NPC와 상호 작용하는 동안 [KEY:PC:F1] 또는 [KEY:CONSOLE:MENU]를 누릅니다.";
 
 
 --DO NOT TRANSLATE

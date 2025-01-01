@@ -1,5 +1,5 @@
 ## Interface: 11505, 11506
-## Version: 0.5.8
+## Version: 0.5.9
 
 ## Title: Dialogue UI
 

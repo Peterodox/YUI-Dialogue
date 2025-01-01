@@ -230,8 +230,8 @@ L["TTS Content Objective"] = "Objetivos de Misión";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para abrir la Configuración";     --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para abrir la Configuración";   --Use this if gamepad enabled
-L["Instuction Open Settings"] = "Para abrir la Configuración, presiona [KEY:PC:F1] mientras interactúas con un PNJ.";    --Used in Game Menu - AddOns
-L["Instuction Open Settings Console"] = "Para abrir la Configuración, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un PNJ.";
+L["Instruction Open Settings"] = "Para abrir la Configuración, presiona [KEY:PC:F1] mientras interactúas con un PNJ.";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "Para abrir la Configuración, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un PNJ.";
 
 --DO NOT TRANSLATE
 L["Match Stat Armor"] = "([,%d%.]+) armadura";

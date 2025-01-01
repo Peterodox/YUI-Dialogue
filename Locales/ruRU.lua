@@ -289,8 +289,8 @@ L["BookUI TTS Click To Read Desc"] = "Нажмите на параграф, чт
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Нажмите [KEY:PC:F1] для открытия настроек";   --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Нажмите [KEY:PC:F1] или [KEY:CONSOLE:MENU] для открытия настроек";   --Use this if gamepad enabled
-L["Instuction Open Settings"] = "Чтобы открыть настройки, нажмите [KEY:PC:F1] во время взаимодействия с NPC.";    --Used in Game Menu - AddOns
-L["Instuction Open Settings Console"] = "Чтобы открыть настройки, нажмите [KEY:PC:F1] или [KEY:CONSOLE:MENU] во время взаимодействия с NPC.";
+L["Instruction Open Settings"] = "Чтобы открыть настройки, нажмите [KEY:PC:F1] во время взаимодействия с NPC.";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "Чтобы открыть настройки, нажмите [KEY:PC:F1] или [KEY:CONSOLE:MENU] во время взаимодействия с NPC.";
 
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = "Т";     --1,000 = 1K

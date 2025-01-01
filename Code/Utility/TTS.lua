@@ -397,7 +397,15 @@ do  --TTS Play Button
         local TooltipFrame = addon.SharedTooltip;
         TooltipFrame:Hide();
         TooltipFrame:SetOwner(self, "TOPRIGHT");
-        TooltipFrame:SetTitle(L["TTS"], 1, 1, 1);
+
+        local titleText = L["TTS"];
+        if GetDBBool("TTSUseHotkey") then
+            local key = addon.BindingUtil:GetActiveActionKey("TTS");
+            if key then
+                titleText = titleText .. string.format(" |cffffd100(%s)", key);
+            end
+        end
+        TooltipFrame:SetTitle(titleText, 1, 1, 1);
 
         if TTS_AUTO_PLAY then
             TooltipFrame:AddDoubleLine(L["TTS Auto Play"], L["Option Enabled"], 1, 1, 1, 0.098, 1.000, 0.098);
@@ -406,6 +414,9 @@ do  --TTS Play Button
         end
 
         TooltipFrame:AddLeftLine(L["TTS Button Tooltip"], 1, 0.82, 0);
+
+
+
         TooltipFrame:Show();
     end
 

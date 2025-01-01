@@ -302,8 +302,10 @@ L["BookUI TTS Click To Read Desc"] = "左键点击某个段落来朗读它。\n\
 
 --Keybinding Action
 L["Bound To"] = "绑定到：";
+L["Hotkey Colon"] = "快捷键：";
 L["Not Bound"] = "未绑定";
 L["Action Confirm"] = "确认键";
+L["Action Settings"] = "打开/关闭设置界面";
 L["Action Option1"] = "对话选项 1";
 L["Action Option2"] = "对话选项 2";
 L["Action Option3"] = "对话选项 3";
@@ -317,8 +319,10 @@ L["Action Option9"] = "对话选项 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开或关闭设置";   --Use this if gamepad enabled
-L["Instuction Open Settings"] = "在与NPC交互时按下 [KEY:PC:F1] 来打开设置";    --Used in Game Menu - AddOns
-L["Instuction Open Settings Console"] = "在与NPC交互时按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开设置";
+L["Instruction Open Settings"] = "在对话界面可见时按 [KEY:PC:F1] 来打开设置";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "在对话界面可见时按 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开设置";
+L["Instruction Open Settings Keybind Format"] = "在对话界面可见时按 [%s] 来打开设置";
+L["Instruction Open Settings No Keybind"] = "你未设定打开设置界面的快捷键";
 L["HelpTip Warband Completed Quest"] = "这个图标表示你战团里的角色完成过此任务。";
 L["Got It"] = "我悟了";     --HELP_TIP_BUTTON_GOT_IT
 

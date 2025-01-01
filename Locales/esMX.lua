@@ -195,8 +195,8 @@ L["TTS Auto Stop Desc"] = "Detiene la lectura cuando te alejas del NPC.";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para alternar al menú de Ajustes";
 L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para alternar al menú de Ajustes";   --Usa esto si el gamepad está habilitado
-L["Instuction Open Settings"] = "Para abrir Ajustes, presiona [KEY:PC:F1] mientras interactúas con un NPC.";
-L["Instuction Open Settings Console"] = "Para abrir Ajustes, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un NPC.";
+L["Instruction Open Settings"] = "Para abrir Ajustes, presiona [KEY:PC:F1] mientras interactúas con un NPC.";
+L["Instruction Open Settings Console"] = "Para abrir Ajustes, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un NPC.";
 
 --DO NOT TRANSLATE
 L["Match Stat Armor"] = "([,%d%.]+) p. de armadura";

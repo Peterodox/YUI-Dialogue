@@ -208,8 +208,8 @@ L["TTS Content Quest Name"] = "Título da Missão";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Pressione [KEY:PC:F1] para alternar Configurações";     --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Pressione [KEY:PC:F1] ou [KEY:CONSOLE:MENU] para alternar Configurações";   --Use this if gamepad enabled
-L["Instuction Open Settings"] = "Para abrir Configurações, pressione [KEY:PC:F1] enquanto estiver interagindo com um NPC.";    --Used in Game Menu - AddOns
-L["Instuction Open Settings Console"] = "Para abrir Configurações, pressione [KEY:PC:F1] ou [KEY:CONSOLE:MENU] enquanto estiver interagindo com um NPC.";
+L["Instruction Open Settings"] = "Para abrir Configurações, pressione [KEY:PC:F1] enquanto estiver interagindo com um NPC.";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "Para abrir Configurações, pressione [KEY:PC:F1] ou [KEY:CONSOLE:MENU] enquanto estiver interagindo com um NPC.";
 
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K
