@@ -86,7 +86,7 @@ local tinsert = table.insert;
 local tsort = table.sort;
 local find = string.find;
 
-local Esaing_OutSine = addon.EasingFunctions.outSine;
+local Easing_Func = addon.EasingFunctions.outSine;
 local Round = API.Round;
 
 local MainFrame;
@@ -2124,7 +2124,7 @@ end
 
 local function AnimIntro_Unfold_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
-    local height = Esaing_OutSine(self.t, self.fromHeight, self.frameHeight, ANIM_DURATION_SCROLL_EXPAND);
+    local height = Easing_Func(self.t, self.fromHeight, self.frameHeight, ANIM_DURATION_SCROLL_EXPAND);
     local alpha = 4*self.t;
 
     if alpha > 1 then
@@ -2143,7 +2143,7 @@ end
 
 local function AnimIntro_FlyIn_OnUpdate(self, elapsed)
     self.t = self.t + elapsed;
-    local offsetX = Esaing_OutSine(self.t, self.fromOffsetX, self.frameOffsetX, ANIM_DURATION_SCROLL_EXPAND);
+    local offsetX = Easing_Func(self.t, self.fromOffsetX, self.frameOffsetX, ANIM_DURATION_SCROLL_EXPAND);
     local alpha = 4*self.t;
     local height = self.frameHeight;
 
@@ -3171,7 +3171,7 @@ do  --Vignette
     end
 end
 
-do
+do  --Generic Settings Registry
     function DUIDialogBaseMixin:OnSettingsChanged()
         if self:IsVisible() and self.handler then
             if not self.settingsDirty then
@@ -3337,4 +3337,13 @@ do
         end
     end
     CallbackRegistry:Register("PostInputDeviceChanged", PostInputDeviceChanged);
+
+
+    CallbackRegistry:Register("SettingChanged.DisableUIMotion", function(dbValue)
+        if dbValue then
+            Easing_Func = addon.EasingFunctions.none;
+        else
+            Easing_Func = addon.EasingFunctions.outSine;
+        end
+    end);
 end

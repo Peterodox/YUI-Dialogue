@@ -243,6 +243,9 @@ L["Compatibility"] = "兼容性";
 L["Disable DUI In Instance"] = "在副本内使用游戏原始对话界面";
 L["Disable DUI In Instance Desc"] = "当你进入地下城或团本时使用游戏原始对话界面。\n\n推荐勾选此选项如果你无法与开始或跳过Boss战的NPC交互。";
 
+L["Disable UI Motions"] = "减少界面动画";
+L["Disable UI Motions Desc"] = "减少界面动画例如主界面展开和按钮文字右移。";
+
 L["TTS"] = TEXT_TO_SPEECH or "文字转语音";
 L["TTS Desc"] = "点击位于任务界面左上角的按钮来朗读文本。\n\n语音，音量大小和速度将跟随魔兽自带的文字转语音设置。";
 L["TTS Use Hotkey"] = "使用快捷键";

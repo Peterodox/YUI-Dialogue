@@ -599,6 +599,9 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["BookUI Show Location"], description = L["BookUI Show Location Desc"], dbKey = "BookShowLocation", requireSameParentValue = true},
             {type = "Checkbox", name = L["BookUI Show Item Description"], description = L["BookUI Show Item Description Desc"], dbKey = "BookUIItemDescription", requireSameParentValue = true},
             {type = "Checkbox", name = L["BookUI Darken Screen"], description = L["BookUI Darken Screen Desc"], dbKey = "BookDarkenScreen", requireSameParentValue = true},
+
+            {type = "Subheader", name = L["Accessibility"]},
+            {type = "Checkbox", name = L["Disable UI Motions"], description = L["Disable UI Motions Desc"], dbKey = "DisableUIMotion"},
         },
     },
 
@@ -710,6 +713,9 @@ local Schematic = { --Scheme
     {
         tabName = L["Accessibility"],  --Cate5
         options = {
+            {type = "Checkbox", name = L["Disable UI Motions"], description = L["Disable UI Motions Desc"], dbKey = "DisableUIMotion"},
+
+            {type = "Subheader", name = L["TTS"]},
             {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
             {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", requiredParentValueAnd = {TTSEnabled = true}},
             {type = "Keybinding", branchLevel = 2, action = "TTS", name = L["TTS"], description = L["TTS"], requiredParentValueAnd = {TTSEnabled = true, TTSUseHotkey = true, UseCustomBindings = true}},

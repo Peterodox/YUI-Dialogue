@@ -54,7 +54,7 @@ do  --Help UI
 
         if direction == "RIGHT" then
             l, r, t, b = 256/512, 304/512, 0, 48/512;
-            self.ArrowFrame:SetPoint("CENTER", self, "RIGHT", -8, 0);
+            self.ArrowFrame:SetPoint("CENTER", self, "RIGHT", 0, 0);
             self.ArrowAnimation = self.ArrowFrame.AnimPointRight;
         end
 
@@ -183,11 +183,20 @@ do  --Help UI
         self:Show();
     end
 
-    function HelpFrameMixin:OnFadeInComplete()
+    function HelpFrameMixin:PlayArrowAnimation()
         if self.ArrowAnimation then
-            self.ArrowAnimation:Play();
+            if addon.GetDBBool("DisableUIMotion") then
+                self.ArrowFrame.Arrow1:SetAlpha(1);
+            else
+                self.ArrowFrame.Arrow1:SetAlpha(0);
+                self.ArrowAnimation:Play();
+            end
         end
+    end
+
+    function HelpFrameMixin:OnFadeInComplete()
         HelpTip.anyShown = true;
+        self:PlayArrowAnimation();
     end
 
     function HelpFrameMixin:Close()

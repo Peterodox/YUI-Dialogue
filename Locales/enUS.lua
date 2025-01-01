@@ -243,6 +243,9 @@ L["Compatibility"] = "Compatibility";
 L["Disable DUI In Instance"] = "Use WoW's Default UI In Instance";
 L["Disable DUI In Instance Desc"] = "Disable Dialogue UI and use WoW's default one when you are in dungeon or raid.\n\nEnable this option if you cannot interact with an NPC that allows you to start or skip boss encounters.";
 
+L["Disable UI Motions"] = "Reduce UI Movements";
+L["Disable UI Motions Desc"] = "Reduce UI movements such as Unfolding UI or Nudging Button Text.";
+
 L["TTS"] = TEXT_TO_SPEECH or "Text To Speech";
 L["TTS Desc"] = "Read dialogue text out loud by clicking the button on the top left of the UI.";
 L["TTS Use Hotkey"] = "Use Hotkey";

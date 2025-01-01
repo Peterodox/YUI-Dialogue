@@ -181,7 +181,8 @@
                 </Layers>
                 <Animations>
                     <AnimationGroup parentKey="AnimPointRight" looping="REPEAT" setToFinalAlpha="true">
-                        <Alpha childKey="Arrow1" order="1" fromAlpha="0" toAlpha="0" duration="0.5" startDelay="0"/>
+                        <Translation childKey="Arrow1" order="1" offsetX="-6" duration="0" startDelay="0"/>
+                        <Alpha childKey="Arrow1" order="1" fromAlpha="0" toAlpha="0" duration="1.0" startDelay="0"/>
                         <Alpha childKey="Arrow1" order="2" fromAlpha="0" toAlpha="1" duration="0.2" startDelay="0"/>
                         <Alpha childKey="Arrow1" order="2" fromAlpha="1" toAlpha="0" duration="0.4" startDelay="1.0"/>
                         <Translation childKey="Arrow1" order="2" offsetX="10" duration="1.0" startDelay="0" smoothing="OUT"/>

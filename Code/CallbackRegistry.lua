@@ -112,12 +112,14 @@ end
 function CallbackRegistry:TriggerOnNextUpdate(event, ...)
     --Use Case: in case Lua error appears and clogs other important processes
     --Currently used by HelpTip
-    if not Processor.anyDelayedTrigger then
-        Processor.triggerQueue = {};
-        Processor.anyDelayedTrigger = true;
+    if self.events[event] then
+        if not Processor.anyDelayedTrigger then
+            Processor.triggerQueue = {};
+            Processor.anyDelayedTrigger = true;
+        end
+        Processor.triggerQueue[event] = {...};
+        Processor:SetScript("OnUpdate", Processor_OnUpdate);
     end
-    Processor.triggerQueue[event] = {...};
-    Processor:SetScript("OnUpdate", Processor_OnUpdate);
 end
 
 

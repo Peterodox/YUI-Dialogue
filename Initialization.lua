@@ -66,6 +66,8 @@ local DefaultValues = {
 
     NameplateDialogEnabled = false,             --Experimental. Not in the settings
 
+    DisableUIMotion = false,
+
     TTSEnabled = false,
         TTSUseHotkey = true,    --Default key R
         TTSAutoPlay = false,

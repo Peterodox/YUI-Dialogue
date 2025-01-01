@@ -866,6 +866,14 @@ do  -- Easing
         t = t / d
         return (e - b) * pow(t, 2) + b
     end
+
+    function EasingFunctions.none(t, b, e, d)
+        return e
+    end
+
+    function EasingFunctions.noChange(t, b, e, d)
+        return b
+    end
 end
 
 do  -- Quest

@@ -39,7 +39,8 @@ local ANIM_DURATION_BUTTON_HOVER = 0.25;
 local ANIM_OFFSET_H_BUTTON_HOVER = 8;       --12 using GamePad
 
 local AbbreviateNumbers = API.AbbreviateNumbers;
-local Esaing_OutQuart = addon.EasingFunctions.outQuart;
+local Easing_ButtonText = addon.EasingFunctions.outQuart;
+local Easing_UpgradeArrow = addon.EasingFunctions.outSine;
 local Round = API.Round;
 local GetQuestIcon = API.GetQuestIcon;
 local IsQuestRequiredItem = API.IsQuestRequiredItem;
@@ -94,7 +95,7 @@ local function Anim_ShiftButtonCentent_OnUpdate(optionButton, elapsed)
     optionButton.t = optionButton.t + elapsed;
     local offset;
     if optionButton.t < ANIM_DURATION_BUTTON_HOVER then
-        offset = Esaing_OutQuart(optionButton.t, 0, ANIM_OFFSET_H_BUTTON_HOVER, ANIM_DURATION_BUTTON_HOVER);
+        offset = Easing_ButtonText(optionButton.t, 0, ANIM_OFFSET_H_BUTTON_HOVER, ANIM_DURATION_BUTTON_HOVER);
     else
         offset = ANIM_OFFSET_H_BUTTON_HOVER;
         optionButton:SetScript("OnUpdate", nil);
@@ -107,7 +108,7 @@ local function Anim_ResetButtonCentent_OnUpdate(optionButton, elapsed)
     optionButton.t = optionButton.t + elapsed;
     local offset;
     if optionButton.t < ANIM_DURATION_BUTTON_HOVER then
-        offset = Esaing_OutQuart(optionButton.t, optionButton.offset, 0, ANIM_DURATION_BUTTON_HOVER);
+        offset = Easing_ButtonText(optionButton.t, optionButton.offset, 0, ANIM_DURATION_BUTTON_HOVER);
     else
         offset = 0;
         optionButton:SetScript("OnUpdate", nil);
@@ -2271,12 +2272,10 @@ end
 do  --Icon Frame Overlay
     DUIDialogIconFrameMixin = {};
 
-    local inOutSine = addon.EasingFunctions.outSine;
-
     local function IconAnimation_FlyUp(self, elapsed)
         self.t = self.t + elapsed;
         if self.t > 0 then
-            self.offsetY = inOutSine(self.t, self.fromY, self.toY, self.duration);
+            self.offsetY = Easing_UpgradeArrow(self.t, self.fromY, self.toY, self.duration);
             self.alpha = self.alpha + 4*elapsed;
 
             if self.alpha > 1 then
@@ -2702,7 +2701,7 @@ do  --Settings, CallbackRegistry
         INPUT_DEVICE_GAME_PAD = dbValue ~= 1;
 
         if INPUT_DEVICE_GAME_PAD then
-            ANIM_OFFSET_H_BUTTON_HOVER = 8;
+            --ANIM_OFFSET_H_BUTTON_HOVER = 8;
             local prefix;
             if dbValue == 2 then
                 prefix = "XBOX_";
@@ -2728,7 +2727,7 @@ do  --Settings, CallbackRegistry
             HotkeyIcons.Action = HotkeyIcons[prefix.."PAD3"];
             HotkeyIcons.Mod = HotkeyIcons[prefix.."PAD4"];
         else
-            ANIM_OFFSET_H_BUTTON_HOVER = 8;
+            --ANIM_OFFSET_H_BUTTON_HOVER = 8;
             HotkeyIcons.Esc = nil;
             HotkeyIcons.Shift = nil;
             GAME_PAD_CONFIRM_KEY = nil;
@@ -2769,4 +2768,15 @@ do  --Settings, CallbackRegistry
         CallbackRegistry:Trigger("PostFontSizeChanged");
     end
     CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
+
+
+    CallbackRegistry:Register("SettingChanged.DisableUIMotion", function(dbValue)
+        if dbValue then
+            Easing_UpgradeArrow = addon.EasingFunctions.none;
+            ANIM_OFFSET_H_BUTTON_HOVER = 0;
+        else
+            Easing_UpgradeArrow = addon.EasingFunctions.outSine;
+            ANIM_OFFSET_H_BUTTON_HOVER = 8;
+        end
+    end);
 end
