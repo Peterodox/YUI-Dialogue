@@ -12,6 +12,7 @@
     <Script file="ChatFrame.lua"/>
     <Script file="FriendshipBar.lua"/>
     <Script file="QuestFlyout.lua"/>
+    <Script file="Translator.lua"/>
     <Script file="DialogueUI.lua"/>
     <Script file="Tutorial.lua"/>
 

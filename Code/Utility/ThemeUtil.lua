@@ -36,6 +36,7 @@ local COLORS = {
     DarkBrown = {0.19, 0.17, 0.13},
     LightBrown = {0.50, 0.36, 0.24},
     Ivory = {0.87, 0.86, 0.75},
+    Brick = {0.416, 0.18, 0.165},
 
     DarkModeGrey90 = {0.9, 0.9, 0.9},
     DarkModeGrey70 = {0.7, 0.7, 0.7},
@@ -57,6 +58,7 @@ local FONT_OBJECT_COLOR = {
     DUIFont_Quest_Gossip = {"DarkBrown", "DarkModeGoldDim"},
     DUIFont_Quest_Quest = {"Ivory", "DarkModeGold"},
     DUIFont_Quest_Disabled = {"LightBrown", "DarkModeGrey50"},
+    DUIFont_Quest_MultiLanguage = {"Brick", "DarkModeGrey50"},
 
     DUIFont_Settings_Disabled = {"LightBrown", "DarkModeGrey50"},
 

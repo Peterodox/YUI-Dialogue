@@ -23,7 +23,7 @@ do
             return result, result ~= nil
         end
 
-        function tooltip:ProcessItemExternal(itemLink)
+        function tooltip:CompareItemExternal(itemLink)
             TooltipCapture:ClearLines();
             if ShouldShowUpgrade(itemLink, false) then
                 local Item = PawnGetItemData(itemLink)

@@ -215,6 +215,10 @@
         <Color r="0.50" g="0.36" b="0.24"/>
     </Font>
 
+    <Font name="DUIFont_Quest_MultiLanguage" inherits="DUIFontFamily_Serif_12" virtual="true" justifyV="TOP" justifyH="LEFT">
+        <Color r="0.416" g="0.18" b="0.165"/>
+    </Font>
+
 
     <Font name="DUIFont_Settings_Disabled" inherits="DUIFontFamily_Serif_12" virtual="true" justifyV="MIDDLE" justifyH="LEFT">
         <Color r="0.50" g="0.36" b="0.24"/>

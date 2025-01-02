@@ -678,9 +678,13 @@ function DUIDialogBaseMixin:FlagPreviousGossipButtons()
     );
 end
 
-function DUIDialogBaseMixin:AcquireLeftFontString()
+function DUIDialogBaseMixin:AcquireLeftFontString(fontObject)
     local fs = self:AcquireFontString();
-    fs:SetFontObject("DUIFont_Quest_Paragraph");
+    if fontObject then
+        fs:SetFontObject(fontObject);
+    else
+        fs:SetFontObject("DUIFont_Quest_Paragraph");
+    end
     fs:SetJustifyV("TOP");
     fs:SetJustifyH("LEFT");
     return fs
@@ -962,9 +966,9 @@ function DUIDialogBaseMixin:FadeInContentFrame()
     end
 end
 
-function DUIDialogBaseMixin:InsertText(offsetY, text)
+function DUIDialogBaseMixin:InsertText(offsetY, text, fontObject)
 	--Add no spacing
-	local fs = self:AcquireLeftFontString();
+	local fs = self:AcquireLeftFontString(fontObject);
 	fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
 	fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", -PADDING_H * FRAME_SIZE_MULTIPLIER, 0);
 	fs:SetText(text);
@@ -972,9 +976,9 @@ function DUIDialogBaseMixin:InsertText(offsetY, text)
 	return offsetY
 end
 
-function DUIDialogBaseMixin:InsertParagraph(offsetY, paragraphText)
+function DUIDialogBaseMixin:InsertParagraph(offsetY, paragraphText, fontObject)
 	--Add paragrah spacing
-	return self:InsertText(offsetY + PARAGRAPH_SPACING, paragraphText);
+	return self:InsertText(offsetY + PARAGRAPH_SPACING, paragraphText, fontObject);
 end
 
 function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
@@ -1004,6 +1008,43 @@ function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
     end
 
     return offsetY, firstObject, lastObject
+end
+
+function DUIDialogBaseMixin:FormatDualParagraph(offsetY, text1, text2)
+    --For Dual-language addons
+    --Format: paragraph1, translatedPargraph1, paragraph2, translatedPargraph2, ...
+
+    local paragraphs2 = text2 and API.SplitParagraph(text2);
+    if paragraphs2 and #paragraphs2 > 0 then
+        local paragraphs1 = API.SplitParagraph(text1);
+        if paragraphs1 and #paragraphs1 > 0 then
+            local firstObject, lastObject;
+            local maxIndex = math.max(#paragraphs1, #paragraphs2);
+            local sources = {paragraphs1, paragraphs2};
+            for i = 1, maxIndex do
+                for j = 1, 2 do
+                    local para = sources[j];
+                    if para[i] then
+                        local fs = self:AcquireLeftFontString((j == 2 and "DUIFont_Quest_MultiLanguage") or "DUIFont_Quest_Paragraph");
+                        if not firstObject then
+                            firstObject = fs;
+                        end
+                        fs:SetPoint("TOPLEFT", self.ContentFrame, "TOPLEFT", PADDING_H * FRAME_SIZE_MULTIPLIER, -offsetY);
+                        fs:SetPoint("RIGHT", self.ContentFrame, "RIGHT", -PADDING_H * FRAME_SIZE_MULTIPLIER, 0);
+                        fs:SetText(para[i]);
+                        offsetY = Round(offsetY + fs:GetHeight() + PARAGRAPH_SPACING);
+                        lastObject = fs;
+                    end
+                end
+            end
+            offsetY = offsetY - PARAGRAPH_SPACING;
+            return offsetY, firstObject, lastObject
+        else
+            return self:FormatParagraph(offsetY, text1)
+        end
+    else
+        return self:FormatParagraph(offsetY, text1)
+    end
 end
 
 local function ConcatenateNPCName(text)
@@ -1421,17 +1462,12 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
     end
 
 
-    local text;
-
     --Title
     local offsetY = self:UpdateQuestTitle("Detail");
 
     --Detail
-    text = ConcatenateNPCName(GetQuestText("Detail"));
-    if text then
-        offsetY = offsetY + PARAGRAPH_SPACING;
-        offsetY = self:FormatParagraph(offsetY, text);
-    end
+    local translatedObjectiveText;
+    offsetY, translatedObjectiveText = self:FormatQuestText(offsetY, "Detail");
 
     --Objectives
     local objectiveText = GetObjectiveText();
@@ -1443,7 +1479,11 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
         offsetY = Round(offsetY + subheader.size);
 
         --Objective Texts
-        offsetY = self:FormatParagraph(offsetY, objectiveText);
+        if translatedObjectiveText then
+            offsetY = self:FormatDualParagraph(offsetY, objectiveText, translatedObjectiveText);
+        else
+            offsetY = self:FormatParagraph(offsetY, objectiveText);
+        end
 
         local groupNum = GetSuggestedGroupSize();
         if groupNum and groupNum > 0 then
@@ -1566,11 +1606,7 @@ function DUIDialogBaseMixin:HandleQuestProgress(playFadeIn)
     local offsetY = self:UpdateQuestTitle("Progress");
 
     --Progress
-    local text = ConcatenateNPCName(GetQuestText("Progress"));
-    if text then
-        offsetY = offsetY + PARAGRAPH_SPACING;
-        offsetY = self:FormatParagraph(offsetY, text);
-    end
+    offsetY = self:FormatQuestText(offsetY, "Progress");
 
     --Required Items
     local numRequiredItems = GetNumQuestItems();
@@ -1661,6 +1697,32 @@ function DUIDialogBaseMixin:IsRewardChosen()
     return numRewardChoices <= 1 or (choiceID ~= nil);
 end
 
+function DUIDialogBaseMixin:FormatQuestText(offsetY, method)
+    local text = ConcatenateNPCName(GetQuestText(method));
+    local translatedObjectiveText;
+    if text then
+        local processed = false;
+
+        if API.GetQuestTextExternal then
+            local title, text1, text2 = API.GetQuestTextExternal(self.questID, method);
+            if title and text1 then
+                offsetY = self:InsertParagraph(offsetY, title, "DUIFont_Quest_MultiLanguage");
+
+                offsetY = offsetY + PARAGRAPH_SPACING;
+                offsetY = self:FormatDualParagraph(offsetY, text, text1);
+                translatedObjectiveText = text2;
+                processed = true;
+            end
+        end
+
+        if not processed then
+            offsetY = offsetY + PARAGRAPH_SPACING;
+            offsetY = self:FormatParagraph(offsetY, text);
+        end
+    end
+    return offsetY, translatedObjectiveText
+end
+
 function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     self:ReleaseAllObjects();
 
@@ -1698,11 +1760,7 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     local offsetY = self:UpdateQuestTitle("Complete");
 
     --Progress
-    local text = ConcatenateNPCName(GetQuestText("Complete"));
-    if text then
-        offsetY = offsetY + PARAGRAPH_SPACING;
-        offsetY = self:FormatParagraph(offsetY, text);
-    end
+    offsetY = self:FormatQuestText(offsetY, "Complete");
 
     if rewardList and #rewardList > 0 then
         self:RegisterEvent("QUEST_ITEM_UPDATE");

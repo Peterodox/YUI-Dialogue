@@ -583,6 +583,7 @@ function SharedTooltip:ProcessInfo(info)
 
     if tooltipData then
         tooltipData.isItem = info.isItem;
+        tooltipData.isSpell = info.isSpell;
     end
 
     local success = self:ProcessTooltipData(tooltipData);
@@ -668,6 +669,9 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
 
     if tooltipData.isItem then
         self:ShowItemComparison();
+        CallbackRegistry:TriggerOnNextUpdate("SharedTooltip.SetItem", self, self:GetItemID(), self:GetHyperlink());
+    elseif tooltipData.isSpell then
+        CallbackRegistry:TriggerOnNextUpdate("SharedTooltip.SetSpell", self, self.tooltipData and self.tooltipData.id or nil);
     end
 
     return true
@@ -712,12 +716,13 @@ do
 
     local function AddTooltipDataAccessor(handler, accessor, getterName)
         local isItem = string.find(getterName, "Item");
-
+        local isSpell = getterName == "GetSpellByID" or nil;
         handler[accessor] = function(self, ...)
             local tooltipInfo = {
                 getterName = getterName,
                 getterArgs = { ... };
                 isItem = (isItem ~= nil) or nil,
+                isSpell = isSpell,
             };
             return self:ProcessInfo(tooltipInfo);
         end

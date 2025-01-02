@@ -49,6 +49,7 @@ local FONT_OBJECT_HEIGHT = {
     DUIFont_Quest_Gossip = HEIGHT_1,
     DUIFont_Quest_Quest = HEIGHT_1,
     DUIFont_Quest_Disabled = HEIGHT_1,
+    DUIFont_Quest_MultiLanguage = HEIGHT_1,
 
     DUIFont_Settings_Disabled = HEIGHT_1,
 
