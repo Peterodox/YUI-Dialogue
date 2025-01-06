@@ -449,7 +449,7 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
         typeText = L["Quest Type Trivial"];
     else
         if SHOW_QUEST_TYPE_TEXT then
-            if questInfo.repeatable then
+            if questInfo.repeatable and not questInfo.isWeekly then
                 typeText = L["Quest Type Repeatable"];
             else
                 local isRecurring, seconds = API.GetRecurringQuestTimeLeft(questInfo.questID);

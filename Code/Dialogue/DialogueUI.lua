@@ -2832,7 +2832,6 @@ do  --Clipboard
     end
 end
 
-
 do  --Quest Rewards
 
     local ITEM_BUTTON_SPACING = 8;
@@ -2959,7 +2958,6 @@ do  --Quest Rewards
     end
 end
 
-
 do
     --Clipboard
     local CopyTextButton;
@@ -2987,6 +2985,7 @@ do
                 CopyTextButton:Hide();
             end
         end
+        MainFrame:LayoutTopWidgets();
     end
     CallbackRegistry:Register("SettingChanged.ShowCopyTextButton", Settings_ShowCopyTextButton);
 
@@ -3007,7 +3006,6 @@ do
     end
     CallbackRegistry:Register("SettingChanged.CameraMovement", Settings_CameraMovement);
 end
-
 
 do  --GamePad/Controller
     function DUIDialogBaseMixin:UpdateScrollFrameBound()
@@ -3136,7 +3134,6 @@ do  --GamePad/Controller
         self.GamePadFocusIndicator:SetShown(not highlightedButtonSelected);
     end
 end
-
 
 do  --TTS
     local TTSButton;
@@ -3404,4 +3401,47 @@ do  --Generic Settings Registry
             Easing_Func = addon.EasingFunctions.outSine;
         end
     end);
+end
+
+do  --Translator Button
+    function DUIDialogBaseMixin:ShowTranslatorButton(state)
+        if state then
+            if not self.TranslatorButton then
+                self.TranslatorButton = addon.CreateTranslatorButton(MainFrame);
+            end
+            self.TranslatorButton:Show();
+            self.translatorEnabled = true;
+        else
+            if self.TranslatorButton then
+                self.TranslatorButton:Hide();
+            end
+            self.translatorEnabled = false;
+        end
+        self:LayoutTopWidgets();
+    end
+
+    function DUIDialogBaseMixin:LayoutTopWidgets()
+        local widget1, widget2;
+
+        if self.CopyTextButton and self.CopyTextButton:IsShown() then
+            widget1 = self.CopyTextButton;
+        end
+
+        if self.TranslatorButton and self.TranslatorButton:IsShown() then
+            if widget1 then
+                widget2 = self.TranslatorButton;
+            else
+                widget1 = self.TranslatorButton;
+            end
+        end
+
+        if widget1 then
+            widget1:ClearAllPoints();
+            widget1:SetPoint("TOPRIGHT", self, "TOPRIGHT", -8, -8);
+            if widget2 then
+                widget2:ClearAllPoints();
+                widget2:SetPoint("RIGHT", widget1, "LEFT", -4, 0);
+            end
+        end
+    end
 end

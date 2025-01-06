@@ -1074,6 +1074,10 @@ do  -- Quest
             questInfo.isMeta = class == Enum_QuestClassification.Meta;
         end
 
+        if questInfo.frequency == 2 then
+            questInfo.isWeekly = true;
+        end
+
         return questInfo
     end
     API.BuildQuestInfo = BuildQuestInfo;

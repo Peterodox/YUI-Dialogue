@@ -30,6 +30,16 @@ function TranslatorButtonMixin:ShowTooltip()
     --Override
 end
 
+function TranslatorButtonMixin:OnClick(button)
+    if self.onClickFunc then
+        self.onClickFunc(button)
+    end
+end
+
+function TranslatorButtonMixin:SetOnClickFunc(onClickFunc)
+    self.onClickFunc = onClickFunc;
+end
+
 local function CreateTranslatorButton(parent, onClickFunc)
     local b = CreateFrame("Button", nil, parent);
     b:SetSize(BUTTON_SIZE, BUTTON_SIZE);
@@ -42,12 +52,14 @@ local function CreateTranslatorButton(parent, onClickFunc)
 
     API.Mixin(b, TranslatorButtonMixin);
 
-    b:SetScript("OnClick", onClickFunc);
+    b:SetScript("OnClick", b.OnClick);
     b:SetScript("OnEnter", b.OnEnter);
     b:SetScript("OnLeave", b.OnLeave);
 
     b:SetTheme(addon.ThemeUtil:GetThemeID());
     addon.CallbackRegistry:Register("ThemeChanged", "SetTheme", b);
+
+    b.onClickFunc = onClickFunc;
 
     return b
 end

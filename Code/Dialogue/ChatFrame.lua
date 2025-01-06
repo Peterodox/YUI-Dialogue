@@ -4,6 +4,8 @@ local UpdateTextureSliceScale = addon.API.UpdateTextureSliceScale;
 
 local tinsert = table.insert;
 local format = string.format;
+local gsub = string.gsub;
+local find = string.find;
 local ipairs = ipairs;
 local time = time;
 
@@ -455,22 +457,25 @@ do
     end
 end
 
-
 function ChatFrame:AddMessage(text, name, event)
     local type = EventIndex[event];
     local prefix = ChatEventData[event].prefix;
 
     if event == "CHAT_MSG_MONSTER_EMOTE" then
-        text = text:format(name);
+        if find(text, "%%s") then
+            text = text:format(name);
+        else
+            text = gsub(text, "%%", "");
+        end
     end
 
     if prefix then
         text = format(prefix, name) .. text;
     end
-
+    --print(text);
     ScrollViewDataProvider:AddContent(
         {text, type, GetRelativeTime()}
-    )
+    );
 end
 
 

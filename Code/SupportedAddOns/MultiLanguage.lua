@@ -21,6 +21,13 @@ do
     local languageLookup = {
         en = "enUS",
         fr = "frFR",
+        de = "deDE",
+        es = "esES",
+        pt = "ptBR",
+        ru = "ruRU",
+        cn = "zhCN",
+        ko = "koKR";
+        it = "itIT",
     };
 
     local function OnAddOnLoaded()
@@ -73,12 +80,10 @@ do
         local TranslatorButton = MainFrame.TranslatorButton;
 
         local function HideTranslatorButton()
-            if TranslatorButton then
-                TranslatorButton:Hide();
-            end
+            MainFrame:ShowTranslatorButton(false);
         end
 
-        local function TranslatorButton_OnClick()
+        local function TranslatorButton_OnClick(button)
             ENABLE_TRANSLATION = not ENABLE_TRANSLATION;
             MainFrame:OnSettingsChanged();
         end
@@ -93,37 +98,25 @@ do
         local function OnViewingQuest(questID, method)
             HideTranslatorButton();
             if IsQuestTranslationAvailable(questID) then
-                if not TranslatorButton then
-                    if MainFrame.TranslatorButton then
-                        TranslatorButton = MainFrame.TranslatorButton;
-                    else
-                        TranslatorButton = addon.CreateTranslatorButton(MainFrame, TranslatorButton_OnClick);
-                        MainFrame.TranslatorButton = TranslatorButton;
-                    end
-                end
-                if TranslatorButton then
-                    TranslatorButton:ClearAllPoints();
-                    if addon.GetDBBool("ShowCopyTextButton") then
-                        TranslatorButton:SetPoint("RIGHT", MainFrame.CopyTextButton, "LEFT", -4, 0);
-                    else
-                        TranslatorButton:SetPoint("TOPRIGHT", MainFrame, "TOPRIGHT", -8, -8);
-                    end
+                MainFrame:ShowTranslatorButton(true);
+                TranslatorButton = MainFrame.TranslatorButton;
 
-                    function TranslatorButton:ShowTooltip()
-                        local TooltipFrame = addon.SharedTooltip;
-                        TooltipFrame:Hide();
-                        TooltipFrame:SetOwner(self, "TOPRIGHT");
-                        TooltipFrame:AddLeftLine(L["Translator Source"]..ADDON_NAME, 1, 1, 1, true);
-                        if ENABLE_TRANSLATION then
-                            TooltipFrame:AddLeftLine(L["Translator Click To Hide Translation"], 1, 0.82, 0);
-                        else
-                            TooltipFrame:AddLeftLine(L["Translator Click To Show Translation"], 1, 0.82, 0);
-                        end
-                        TooltipFrame:Show();
-                    end
+                TranslatorButton:SetOnClickFunc(TranslatorButton_OnClick);
 
-                    TranslatorButton:Show();
+                function TranslatorButton:ShowTooltip()
+                    local TooltipFrame = addon.SharedTooltip;
+                    TooltipFrame:Hide();
+                    TooltipFrame:SetOwner(self, "TOPRIGHT");
+                    TooltipFrame:AddLeftLine(L["Translator Source"]..ADDON_NAME, 1, 1, 1, true);
+                    if ENABLE_TRANSLATION then
+                        TooltipFrame:AddLeftLine(L["Translator Click To Hide Translation"], 1, 0.82, 0);
+                    else
+                        TooltipFrame:AddLeftLine(L["Translator Click To Show Translation"], 1, 0.82, 0);
+                    end
+                    TooltipFrame:Show();
                 end
+
+                TranslatorButton:Show();
             end
         end
         addon.CallbackRegistry:Register("ViewingQuest", OnViewingQuest);
