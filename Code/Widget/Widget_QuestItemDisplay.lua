@@ -924,6 +924,7 @@ do
         219934,     --Spark of War
         225741,     --Titan Disc Fragment
         227406,     --Interesting Notes
+        235610,     --Undermine Adventurer's Cache
     };
 
     for _, itemID in ipairs(OneTimeItem) do
@@ -934,6 +935,7 @@ do
 end
 
 
+--[[
 do
     function Debug_QuestItemDisplay(itemID)
         QuestItemDisplay:TryDisplayItem(itemID or 132120);

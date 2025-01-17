@@ -166,6 +166,9 @@ do  --AsyncCallback
             list = self.itemCallbacks;
         elseif event == "SPELL_DATA_LOAD_RESULT" then
             list = self.spellCallbacks;
+        elseif event == "TOOLTIP_DATA_UPDATE" then
+            list = self.npcCallbacks;
+            success = true;
         end
 
         if list and id and success then
@@ -213,6 +216,14 @@ do  --AsyncCallback
                 end
                 self:RunAllCallbacks(self.spellCallbacks);
                 self.spellCallbacks = nil;
+            end
+
+            if self.npcCallbacks then
+                if self.LoadNPC then
+                    self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
+                end
+                self:RunAllCallbacks(self.npcCallbacks);
+                self.npcCallbacks = nil;
             end
         end
     end
@@ -274,6 +285,55 @@ do  --AsyncCallback
         end
         EL.t = 0;
         EL:SetScript("OnUpdate", EL.OnUpdate);
+    end
+
+
+    if C_TooltipInfo then
+        function CallbackRegistry:LoadNPC(creatureID, callback, isRequery)
+            local tooltipData = addon.TooltipAPI.GetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+            local dataInstanceID, newCallback;
+            if tooltipData and tooltipData.lines then
+                local name = tooltipData.lines[1].leftText;
+                if name and name ~= "" then
+                    callback(creatureID, name);
+                else
+                    dataInstanceID = tooltipData.dataInstanceID;
+                    newCallback = function()
+                        local tooltipData = addon.TooltipAPI.GetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+                        local name = tooltipData.lines[1].leftText;
+                        if name and name ~= "" then
+                            callback(creatureID, name);
+                        end
+                    end
+                end
+            elseif not isRequery then
+                dataInstanceID = 0;
+                newCallback = function()
+                    local tooltipData = addon.TooltipAPI.GetHyperlink("unit:Creature-0-0-0-0-"..creatureID);
+                    local name = tooltipData and tooltipData.lines and tooltipData.lines[1].leftText;
+                    if name and name ~= "" then
+                        callback(creatureID, name);
+                    end
+                end
+            end
+
+            if dataInstanceID and newCallback then
+                EL:AddCallback("npcCallbacks", dataInstanceID, newCallback);
+                EL:RegisterEvent("TOOLTIP_DATA_UPDATE");
+                if not EL.t then
+                    EL.t = 0;
+                end
+                if EL.t > 0 then
+                    --Extend the shutdown countdown because we usually acquire NPC name during log-in
+                    EL.t = -0.5;
+                end
+                EL:SetScript("OnUpdate", EL.OnUpdate);
+            end
+        end
+    else
+        function CallbackRegistry:LoadNPC()
+
+        end
     end
 end
 

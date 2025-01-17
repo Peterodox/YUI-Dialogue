@@ -12,6 +12,7 @@ local IsTeleportNPC = {
 
     [231541] = true,        --Sky-Captain Cableclamp (Siren Isle to Dornogal)
     [475936] = true,        --Mole Machine Transport (Siren Isle to Gundargaz)
+    [125433] = true,        --Carli Joyride, <Board the drill to the Ringing Deeps.>
 
     --Wormhole
     [35646] = true,         --Northrend

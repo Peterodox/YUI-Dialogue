@@ -21,6 +21,8 @@ local AutoSelectGossip = {
     [122660] = 1,           --Explorers' League Supplies, Dornagal
     [120910] = 1,           --Breem, Dornagal Flight Master
 
+    [125367] = 1,           --DRIVE, Mobber
+
     --Delves Start
     [111366] = 1,           --Fungal Folly, Stoneguard Benston
     [120018] = 1,           --Waterworks, Foreman Bruknar

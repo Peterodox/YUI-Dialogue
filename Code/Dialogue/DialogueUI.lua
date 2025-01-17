@@ -820,7 +820,7 @@ function DUIDialogBaseMixin:UpdateQuestTitle(method)
             HeaderWidgetManger:AddQuestRemainingTime(seconds);
         end
 
-        HeaderWidgetManger:RequestQuestLineQuest(questID);
+        HeaderWidgetManger:RequestQuestData(questID);
     end
 
     local decor = API.GetQuestBackgroundDecor(questID);

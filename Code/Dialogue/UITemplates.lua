@@ -122,7 +122,7 @@ local function OnClickFunc_SelectOption(gossipButton)
     gossipButton.owner:SetSelectedGossipIndex(gossipButton.id);     --For Dialogue History: Grey out other buttons
 
     --Classic
-    if gossipButton.isTrainer or GossipDataProvider:DoesOptionOpenUI(gossipButton.gossipOptionID) then
+    if gossipButton.isSpecialIcon or GossipDataProvider:DoesOptionOpenUI(gossipButton.gossipOptionID) then
         CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
     end
 
@@ -396,7 +396,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self:Enable();
 
     --Classic
-    self.isTrainer = data.icon == 132058;
+    self.isSpecialIcon = data.icon ~= 132053;
 end
 
 function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
@@ -420,7 +420,7 @@ function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
     self:SetButtonText(name, false);
     self:SetButtonArt(0);
     self:Enable();
-    self.isTrainer = false;
+    self.isSpecialIcon = false;
 end
 
 function DUIDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
@@ -449,15 +449,16 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
         typeText = L["Quest Type Trivial"];
     else
         if SHOW_QUEST_TYPE_TEXT then
-            if questInfo.repeatable and not questInfo.isWeekly then
+            if questInfo.repeatable and not (questInfo.isWeekly or questInfo.isDaily) then
                 typeText = L["Quest Type Repeatable"];
             else
                 local isRecurring, seconds = API.GetRecurringQuestTimeLeft(questInfo.questID);
-                if isRecurring and seconds then
+                if isRecurring and seconds and not questInfo.frequency == 3 then
+                    --The remaining time of meta quest isn't always accurate
                     typeText = API.SecondsToTime(seconds, true, true);
-                elseif questInfo.frequency == 1 then
+                elseif questInfo.isDaily == 1 then
                     typeText = L["Quest Frequency Daily"];
-                elseif questInfo.frequency == 2 then
+                elseif questInfo.isWeekly == 2 then
                     typeText = L["Quest Frequency Weekly"];
                 elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
 
@@ -804,8 +805,8 @@ function DUIDialogOptionButtonMixin:Layout(largePadding)
         end
     end
 
-    if self.rightFrameWidth then
-        self.Name:SetWidth(self.baseWidth - self.rightFrameWidth - nameOffset - ANIM_OFFSET_H_BUTTON_HOVER);
+    if self.baseWidth then
+        self.Name:SetWidth(self.baseWidth - (self.rightFrameWidth or 0) - nameOffset - ANIM_OFFSET_H_BUTTON_HOVER);
     end
 
     local textHeight = self.Name:GetHeight();
@@ -1597,11 +1598,13 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
     self:SetItemCount(count);
 
     local isEquippable = itemID and IsEquippableItem(itemID);
+    local isCosmetic;
     local itemOverlayID;
 
     if not isUsable then
         itemOverlayID = "alert";
     elseif itemID and IsCosmeticItem(itemID) then
+        isCosmetic = true;
         itemOverlayID = "cosmetic";
     elseif itemID and isEquippable then
         itemOverlayID = quality;
@@ -1613,7 +1616,7 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
         --Equipment's count is always 1. No itemID in Classic
         --Inventory Itemlink may not be immediately available
         self.isEquippable = true;
-        if isUsable and (not self:DoesButtonHaveMarker("upgrade")) then
+        if isUsable and (not isCosmetic) and (not self:DoesButtonHaveMarker("upgrade")) then
             local isUpgrade, isReady = API.IsRewardItemUpgrade(questInfoType, index);
             if isReady then
                 if isUpgrade then

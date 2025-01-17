@@ -904,6 +904,7 @@ do  -- Quest
     local GetNumQuestLeaderBoards = GetNumQuestLeaderBoards;
     local GetQuestLogLeaderBoard = GetQuestLogLeaderBoard;
     local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysNil;
+    local IsAccountQuest = C_QuestLog.IsAccountQuest or AlwaysFalse;
 
     API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
 
@@ -1003,6 +1004,7 @@ do  -- Quest
     API.QuestHasQuestSessionBonus = QuestHasQuestSessionBonus;
     API.GetQuestItemInfoLootType = GetQuestItemInfoLootType;
     API.GetTitleForQuestID = GetTitleForQuestID;
+    API.IsAccountQuest = IsAccountQuest;
 
     if GetAvailableQuestInfo then
         API.GetAvailableQuestInfo = GetAvailableQuestInfo;
@@ -1076,6 +1078,14 @@ do  -- Quest
 
         if questInfo.frequency == 2 then
             questInfo.isWeekly = true;
+        end
+
+        if questInfo.frequency == 1 then
+            questInfo.isDaily = true;
+        end
+
+        if questInfo.isAccountQuest == nil then
+            questInfo.isAccountQuest = IsAccountQuest(questInfo.questID);
         end
 
         return questInfo
@@ -1228,7 +1238,6 @@ do  -- Quest
 
     local MAX_QUESTS;
     local GetNumQuestLogEntries = C_QuestLog.GetNumQuestLogEntries;
-    local IsAccountQuest = C_QuestLog.IsAccountQuest;
     local GetQuestIDForLogIndex = C_QuestLog.GetQuestIDForLogIndex;
     local GetQuestInfo = C_QuestLog.GetInfo;
 
@@ -3215,7 +3224,6 @@ do  -- Dev Tool
 
     if not DEV_MODE then return end;
 
-    local IsAccountQuest = C_QuestLog.IsAccountQuest;
     local GetQuestIDForLogIndex = C_QuestLog.GetQuestIDForLogIndex;
     local GetQuestInfo = C_QuestLog.GetInfo;
 
@@ -3235,7 +3243,7 @@ do  -- Dev Tool
             if questID ~= 0 then
                 print(i, questID)
             end
-            if questID ~= 0 and not IsAccountQuest(questID) then
+            if questID ~= 0 and not API.IsAccountQuest(questID) then
                 local info = GetQuestInfo(i);
                 if info and (not (info.isHidden or info.isHeader)) and info.frequency == 1 then
                     numAllQuests = numAllQuests - 1;
@@ -3263,7 +3271,7 @@ do  -- Dev Tool
         for _, key in ipairs(QuestInfoFields) do
             TooltipAddInfo(tooltip, info, key)
         end
-        tooltip:AddDoubleLine("Account", tostring(IsAccountQuest(questID)));
+        tooltip:AddDoubleLine("Account", tostring(API.IsAccountQuest(questID)));
         tooltip:AddDoubleLine("isCalling", tostring(C_QuestLog.IsQuestCalling(questID)));
         tooltip:AddDoubleLine("QuestType", C_QuestLog.GetQuestType(questID));
         tooltip:AddDoubleLine("isRepeatable", tostring(C_QuestLog.IsRepeatableQuest(questID)));

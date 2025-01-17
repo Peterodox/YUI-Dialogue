@@ -36,8 +36,8 @@ addon.GossipDataProvider:AddDataSource(DataSource);
 
 local match = string.match;
 local RACE_TIMES = "^Race Times";
-local NPC_NAME1 = "Bronze Timekeeper";
-local NPC_NAME2 = " ";
+local Timekeepers = {};
+
 
 local RankIcons = {
     [1] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Gold.png",
@@ -47,12 +47,7 @@ local RankIcons = {
 };
 
 function DataSource:IsDragonRacingNPC(creatureName)
-    return creatureName == NPC_NAME1
-end
-
-
-function DataSource:IsDragonRacingNPC_Variants(creatureName)
-    return creatureName == NPC_NAME1 or creatureName == NPC_NAME2
+    return creatureName and Timekeepers[creatureName] == true
 end
 
 do
@@ -60,54 +55,138 @@ do
 
     if locale == "enUS" then
         RACE_TIMES = "^Race Times";
-        NPC_NAME1 = "Bronze Timekeeper";
+        Timekeepers = {
+            ["Grimy Timekeeper"] = true,
+            ["Bronze Timekeeper"] = true,
+        };
 
     elseif locale == "esMX" then
         RACE_TIMES = "^Tiempos de la carrera";
-        NPC_NAME1 = "Cronometradora bronce";
+        Timekeepers = {
+            ["Cronometradora bronce"] = true,
+            ["Cronometradora mugrienta"] = true,
+            ["Cronometrador bronce"] = true,
+            ["Cronometrador mugriento"] = true,
+        };
 
     elseif locale == "ptBR" then
         RACE_TIMES = "^Tempos da Corrida";
-        NPC_NAME1 = "Guarda-tempo Bronze";
-
-    elseif locale == "frFR" then
-        RACE_TIMES = "^Temps des courses";
-        NPC_NAME1 = "Chronométreuse de bronze";
-        NPC_NAME2 = "Chronométreur de bronze";
-        DataSource.IsDragonRacingNPC = DataSource.IsDragonRacingNPC_Variants;
+        Timekeepers = {
+            ["Guarda-tempo Bronze"] = true,
+            ["Guarda-tempo Limosa"] = true,
+        };
 
     elseif locale == "deDE" then
         RACE_TIMES = "^Rennzeiten";
-        NPC_NAME1 = "Bronzezeithüter";
-        NPC_NAME2 = "Bronzezeithüterin";
-        DataSource.IsDragonRacingNPC = DataSource.IsDragonRacingNPC_Variants;
+        Timekeepers = {
+            ["Schmuddelige Zeithüterin"] = true,
+            ["Schmuddeliger Zeithüter"] = true,
+            ["Bronzezeithüterin"] = true,
+            ["Bronzezeithüter"] = true,
+        };
 
     elseif locale == "esES" then
         RACE_TIMES = "^Tiempos de carrera";
-        NPC_NAME1 = "Vigilante del tiempo bronce";
+        Timekeepers = {
+            ["Vigilante del tiempo pringoso"] = true,
+            ["Vigilante del tiempo pringosa"] = true,
+            ["Vigilante del tiempo bronce"] = true,
+        };
+
+    elseif locale == "frFR" then
+        RACE_TIMES = "^Temps des courses";
+        Timekeepers = {
+            ["Chronométreuse crasseuse"] = true,
+            ["Chronométreur de bronze"] = true,
+            ["Chronométreur crasseux"] = true,
+            ["Chronométreuse de bronze"] = true,
+        };
 
     elseif locale == "itIT" then
         RACE_TIMES = "^Tempi della Corsa";
-        NPC_NAME1 = "Custode del Tempo Bronzea";
+        Timekeepers = {
+            ["Custode del Tempo Sporco"] = true,
+            ["Custode del Tempo Bronzea"] = true,
+            ["Custode del Tempo Sporca"] = true,
+            ["Custode del Tempo Bronzeo"] = true,
+        };
 
     elseif locale == "ruRU" then
         RACE_TIMES = "^Время гонки";
-        NPC_NAME1 = "Бронзовая хранительница времени";
+        Timekeepers = {
+            ["Бронзовая хранительница времени"] = true,
+            ["Бронзовый хранитель времени"] = true,
+            ["Закопченный хранитель времени"] = true,
+            ["Закопченная хранительница времени"] = true,
+        };
 
     elseif locale == "koKR" then
         RACE_TIMES = "^경주 시간";
-        NPC_NAME1 = "청동 시간지기";
+        Timekeepers = {
+            ["꾀죄죄한 시간지기"] = true,
+            ["청동 시간지기"] = true,
+        };
 
     elseif locale == "zhTW" then
         RACE_TIMES = "^競賽時間";
-        NPC_NAME1 = "青銅時空守衛者";
+        Timekeepers = {
+            ["髒兮兮的時空守衛者"] = true,
+            ["青銅時空守衛者"] = true,
+        };
 
     elseif locale == "zhCN" then
         RACE_TIMES = "^竞速时间";
-        NPC_NAME1 = "青铜时光守护者";
+        Timekeepers = {
+            ["青铜时光守护者"] = true,
+            ["满身油渍的时光守护者"] = true,
+        };
     end
 end
 
+do  --For Dev / Debug
+    --[[
+    Timekeepers = {};
+
+    print("Locale: ", GetLocale())
+
+    local Creatures = {
+        193027,     --Bronze Timekeeper
+        219547,     --Bronze Timekeeper
+        231793,     --Grimy Timekeeper (Male)
+        233918,     --Grimy Timekeeper (Female) 
+    };
+
+
+    local function OnNPCDataReceived(creatureID, creatureName)
+        Timekeepers[creatureName] = true;
+        print(creatureID, creatureName);
+
+        if addon.Clipboard then
+            local content;
+
+            for name in pairs(Timekeepers) do
+                local line = string.format("[\"%s\"] = true,", name);
+                if content then
+                    content = content .. "\n"..line;
+                else
+                    content = line;
+                end
+            end
+
+            if content then
+                addon.Clipboard:ShowContent(content);
+            end
+        end
+    end
+
+    local CallbackRegistry = addon.CallbackRegistry;
+    CallbackRegistry:Register("PLAYER_ENTERING_WORLD", function()
+        for _, creatureID in ipairs(Creatures) do
+            CallbackRegistry:LoadNPC(creatureID, OnNPCDataReceived);
+        end
+    end);
+    --]]
+end
 
 local function UpdateGossipIcons(ranks)
     local f = addon.DialogueUI;

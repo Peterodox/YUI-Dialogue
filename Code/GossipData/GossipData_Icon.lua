@@ -44,6 +44,7 @@ local GossipIcon = {
 GossipIcon[132052] = GossipIcon["Inn"];
 
 
+local GossipOptionIDXIcon = {};
 do
     local ids = {
         122968,     --Count me in! <Queue for The Codex of Chromie.>
@@ -51,18 +52,18 @@ do
         124978,     --Send me into the Blackrock Depths. (Normal Raid)
     };
     for _, id in ipairs(ids) do
-        GossipIcon[id] = GossipIcon["LFG"];
+        GossipOptionIDXIcon[id] = GossipIcon["LFG"];
     end
     ids = nil;
 end
 
-function GossipDataProvider:GetGossipIcon(oldIconFile, nameOrID1, nameOrID2)
-    if nameOrID1 and GossipIcon[nameOrID1] then
-        return GossipIcon[nameOrID1]
+function GossipDataProvider:GetGossipIcon(oldIconFile, name, gossipOptionID)
+    if name and GossipIcon[name] then
+        return GossipIcon[name]
     end
 
-    if nameOrID2 and GossipIcon[nameOrID2] then
-        return GossipIcon[nameOrID2]
+    if gossipOptionID and GossipOptionIDXIcon[gossipOptionID] then
+        return GossipOptionIDXIcon[gossipOptionID]
     end
 
     if not oldIconFile then

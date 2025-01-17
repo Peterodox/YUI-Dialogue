@@ -119,6 +119,11 @@ do  --HeaderWidgetManger
         f:SetQuestTagNameAndIcon(tagName, tagIcon);
     end
 
+    function HeaderWidgetManger:AddAccountQuest()
+        local f = self.buttonPool:Acquire();
+        f:SetAccountQuest();
+    end
+
     function HeaderWidgetManger:AddQuestRemainingTime(seconds)
         local f = self.buttonPool:Acquire();
         f:SetRemainingTime(seconds);
@@ -176,15 +181,22 @@ do  --HeaderWidgetManger
         end
     end
 
-    function HeaderWidgetManger:RequestQuestLineQuest(questID, isRequery)
+    function HeaderWidgetManger:RequestQuestData(questID, isRequery)
         self:OnHide();
         self.questID = questID;
+
+        local anyChange;
+        if (not self:DoesWidgetExist("Account")) and API.IsAccountQuest(questID) then
+            self:AddAccountQuest();
+            anyChange = true;
+        end
+
         local hasQuestLineOnMap, questLineName, questLineID, uiMapID, achievementID = API.GetQuestLineInfo(questID);
         if hasQuestLineOnMap then
             if questLineName then
                 if not self:DoesWidgetExist("BTW") then
                     self:AddQuestLineQuest(questLineName, questLineID, questID, uiMapID, achievementID);
-                    self:LayoutWidgets();
+                    anyChange = true;
                 end
             elseif not isRequery then
                 local function OnQuestLoaded(id)
@@ -194,6 +206,10 @@ do  --HeaderWidgetManger
                 end
                 addon.CallbackRegistry:LoadQuest(questID, OnQuestLoaded);
             end
+        end
+
+        if anyChange then
+            self:LayoutWidgets();
         end
     end
 
@@ -387,6 +403,14 @@ do  --ButtonMixin
         self:SetClickable(false);
     end
 
+    function ButtonMixin:SetAccountQuest()
+        self.type = "Account";
+        self.uiOrder = 4;
+        self:SetIcon("Interface/AddOns/DialogueUI/Art/Icons/Warband.png");
+        self:SetText(ACCOUNT_QUEST_LABEL);
+        self:SetClickable(false);
+    end
+    
     local function QuestLineQuest_OnEnter(self)
         if not self.args then return end;
 
