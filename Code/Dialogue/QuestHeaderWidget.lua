@@ -201,7 +201,7 @@ do  --HeaderWidgetManger
             elseif not isRequery then
                 local function OnQuestLoaded(id)
                     if self.questID == id then
-                        self:RequestQuestLineQuest(questID, true);
+                        self:RequestQuestData(questID, true);
                     end
                 end
                 addon.CallbackRegistry:LoadQuest(questID, OnQuestLoaded);
