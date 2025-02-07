@@ -94,7 +94,7 @@ do  --Help UI
         self.Text:ClearAllPoints();
         self.Text:SetPoint("TOPLEFT", self, "TOPLEFT", padding, -padding);
 
-        if addon.DeviceUtil:IsUsingController() then
+        if not addon.DeviceUtil:IsUsingController() then
             self.OkayButton:Hide();
         else
             self.OkayButton:Show();
