@@ -171,6 +171,7 @@ do  --Header / Book Title
             self.Location:SetText(locationText);
             self.Location:Show();
         else
+            self.Location:SetText(nil);
             self.Location:Hide();
         end
     end

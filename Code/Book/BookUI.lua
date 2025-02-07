@@ -1861,10 +1861,9 @@ do  --EventListener
             if objectType == "GameObject" then
                 MainFrame.Header:SetLocation(true, Cache:GetBookLocation());
             else
+                MainFrame.Header:SetLocation(false);
                 if itemID == 8383 then  --Plain Letter
                     MainFrame.Header:QueryLetterSender(guid);
-                else
-                    MainFrame.Header:SetLocation(false);
                 end
             end
 

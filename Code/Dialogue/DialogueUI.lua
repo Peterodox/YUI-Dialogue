@@ -39,9 +39,9 @@ local BUTTON_HORIZONTAL_GAP = 8.0;
 local FRAME_OFFSET_RATIO = 3/4;     --Center align to 1/4 of the WorldFrame width (to the right)
 
 local FONT_SIZE = 12;
-local TEXT_SPACING = FONT_SIZE*0.35;                 --Font Size /3
+local TEXT_SPACING = FONT_SIZE*0.35;                --Font Size /3
 local PARAGRAPH_SPACING = 4*TEXT_SPACING;           --4 * TEXT_SPACING
-local PARAGRAPH_BUTTON_SPACING = 2*FONT_SIZE;    --Font Size * 2
+local PARAGRAPH_BUTTON_SPACING = 2*FONT_SIZE;       --Font Size * 2
 
 local CreateFrame = CreateFrame;
 local C_CampaignInfo = C_CampaignInfo;
@@ -102,8 +102,7 @@ addon.SharedVignette = SharedVignette;
 DUIDialogBaseMixin = {};
 
 function DUIDialogBaseMixin:CalculateBestFrameHeight()
-    local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
-
+    local viewportWidth, viewportHeight = API.GetBestViewportSize();
     local heightRatio = 0.618;
     local frameHeight = heightRatio * viewportHeight;
     local heightInPixel = API.GetSizeInPixel(self:GetEffectiveScale(), frameHeight);
@@ -3310,7 +3309,7 @@ do  --Generic Settings Registry
 
         local newScale = dbValue and FrameSizeIndexScale[dbValue];
 
-        if newScale and newScale ~= FRAME_SIZE_MULTIPLIER then
+        if newScale then
             FRAME_SIZE_MULTIPLIER = newScale;
 
             if dbValue == 0 then

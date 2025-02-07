@@ -40,7 +40,7 @@ local Mapping = {
 
 function DeviceUtil:IsUsingController()
     local deviceID = GetDBValue("InputDevice");
-    return not (deviceID == 2 or deviceID == 3 or deviceID == 4)
+    return (deviceID == 2 or deviceID == 3 or deviceID == 4)
 end
 
 function DeviceUtil:GetDeviceMapping()
@@ -65,7 +65,11 @@ function DeviceUtil:GetCancelKey()
 end
 
 function DeviceUtil:GetActionKey()
-    return self:GetDeviceMapping()[3]
+    if self:IsUsingController() then
+        return self:GetDeviceMapping()[3]
+    else
+        return addon.BindingUtil:GetActiveActionKey("Confirm");
+    end
 end
 
 function DeviceUtil:GetModKey()

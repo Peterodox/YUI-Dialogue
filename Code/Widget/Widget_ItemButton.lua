@@ -259,7 +259,7 @@ do  --Quest Flyout ItemButton
                 local f = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
                 self.HotkeyFrame = f;
                 f:SetTheme(2);
-                f:SetKey("Action");
+                f:SetKey(addon.DeviceUtil:GetActionKey());
             end
             self.HotkeyFrame:Show();
             self.HotkeyFrame:UseCompactMode();
@@ -652,6 +652,10 @@ do  --Override
         --Instead of waiting for the response of its action like collecting transmog, pet
         if button == "LeftButton" then
             addon.SecureButtonContainer:ClearOverrideBinding();
+            if self.HotkeyFrame and self.HotkeyFrame:IsShown() then
+                self.HotkeyFrame:Hide();
+                self:Layout();
+            end
         end
     end
 end

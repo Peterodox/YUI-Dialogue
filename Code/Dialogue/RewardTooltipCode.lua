@@ -238,7 +238,7 @@ local function GameTooltip_OnEnter(self)
     elseif self.objectType == "skill" then
         local bonusPoint = self.Count:GetText();
         local skillName = self.Name:GetText();
-        tooltip:SetTitle(bonusPoint.." "..skillName, 1, 1, 1);
+        tooltip:SetText(bonusPoint.." "..skillName, 1, 1, 1);
         local info = self.skillLineID and C_TradeSkillUI.GetProfessionInfoBySkillLineID(self.skillLineID);
         if info then
             local currentLevel = info.skillLevel;
@@ -257,7 +257,7 @@ local function GameTooltip_OnEnter(self)
         GarrisonFollowerTooltip_ShowWithData(data);
 
     elseif self.objectType == "warmode" then
-        tooltip:SetTitle(L["War Mode Bonus"], 1, 0.82, 0);
+        tooltip:SetText(L["War Mode Bonus"], 1, 0.82, 0);
         tooltip:AddLine(WAR_MODE_BONUS_QUEST, 1, 1, 1, true);
         tooltip:Show();
 

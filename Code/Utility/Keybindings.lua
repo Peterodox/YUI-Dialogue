@@ -204,7 +204,9 @@ do  --Control Used in KeyboardControl.lua
     end
 
     function BindingUtil:GetActiveActionKey(action)
-        return ActiveActionKeys[action]
+        if ActiveActionKeys[action] and ActiveActionKeys[action] ~= "DISABLED" then
+            return ActiveActionKeys[action]
+        end
     end
 
     function BindingUtil:GetActionTooltip(action)

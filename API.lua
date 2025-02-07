@@ -180,7 +180,9 @@ do  -- Pixel
     API.DisableSharpening = DisableSharpening;
 
     local function GetBestViewportSize()
-        local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
+        --WorldFrame's size is unaffected by screen resolution
+        --Issue caused by occasionally bugged resolution since 11.0? https://github.com/Peterodox/YUI-Dialogue/issues/104
+        local viewportWidth, viewportHeight = WorldFrame:GetSize();
         viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
         return viewportWidth, viewportHeight
     end
