@@ -11,6 +11,17 @@
 ## IconTexture: Interface\AddOns\DialogueUI\Art\Icons\Logo
 ## AddonCompartmentFunc: DialogueUI_ShowSettingsFrame
 
+## Category-enUS: Quests
+## Category-deDE: Quests
+## Category-esES: Misiones
+## Category-esMX: Misiones
+## Category-frFR: Quêtes
+## Category-itIT: Missioni
+## Category-koKR: 퀘스트
+## Category-ptBR: Missões
+## Category-ruRU: Задания
+## Category-zhCN: 任务
+## Category-zhTW: 任務
 
 Initialization.lua
 Locales\Localization.xml
