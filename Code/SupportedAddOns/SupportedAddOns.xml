@@ -8,4 +8,5 @@
     <Script file="Rematch.lua"/>
     <Script file="BtWQuests.lua"/>
     <Script file="MultiLanguage.lua"/>
+    <Script file="CzechQuests.lua"/>
 </Ui>
