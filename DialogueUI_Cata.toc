@@ -1,5 +1,5 @@
-## Interface: 40401, 40402
-## Version: 0.6.2
+## Interface: 40402
+## Version: 0.6.3
 
 ## Title: Dialogue UI
 

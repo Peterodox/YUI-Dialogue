@@ -244,7 +244,7 @@ local function GameTooltip_OnEnter(self)
             local currentLevel = info.skillLevel;
             local maxLevel = info.maxSkillLevel;
             if currentLevel and maxLevel and maxLevel ~= 0 then
-                tooltip:AddLeftLine(L["Format Current Skill Level"]:format(currentLevel, maxLevel), 1, 0.82, 0);
+                tooltip:AddLine(L["Format Current Skill Level"]:format(currentLevel, maxLevel), 1, 0.82, 0);
             end
             tooltip:Show();
         end
