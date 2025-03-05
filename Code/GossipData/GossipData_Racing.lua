@@ -1,10 +1,51 @@
 local _, addon = ...
 if not addon.IsToCVersionEqualOrNewerThan(100000) then return end;
 
+
+local match = string.match;
+local RACE_TIMES = "^Race Times";
+local Timekeepers = {};
 local DataSource = CreateFrame("Frame");
+
+
+local RankIcons = {
+    [1] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Gold.png",
+    [2] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Silver.png",
+    [3] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Bronze.png",
+    [4] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-None.png",
+};
+
+
+local function UpdateGossipIcons(ranks)
+    local f = addon.DialogueUI;
+
+    if not f:IsShown() then return end;
+
+    local optionButtons = f.optionButtonPool:GetActiveObjects();
+    for i = 1, #ranks do
+        if optionButtons[i] then
+            optionButtons[i].Icon:SetTexture(RankIcons[ranks[i]]);
+        end
+    end
+end
+
+local function DialogueUI_HandleEvent(self, event)
+    if event == "GOSSIP_SHOW" then
+        if DataSource.ranks then
+            UpdateGossipIcons(DataSource.ranks);
+        end
+    end
+end
+
 
 function DataSource:OnInteractWithNPC(creatureName)
     if self:IsDragonRacingNPC(creatureName) then
+        self.ranks = nil;
+        if not self.callbackAdded then
+            self.callbackAdded = true;
+            --"OnInteractWithNPC" triggered before "DialogueUI.HandleEvent"
+            addon.CallbackRegistry:Register("DialogueUI.HandleEvent", DialogueUI_HandleEvent, self);
+        end
         self:SetScript("OnEvent", self.OnEvent);
         self:RegisterUnitEvent("UNIT_AURA", "player");
         self:ResetQueryCounter();
@@ -12,6 +53,11 @@ function DataSource:OnInteractWithNPC(creatureName)
         self.active = true;
     else
         self.active = false;
+        if self.callbackAdded then
+            self.callbackAdded = nil;
+            self.ranks = nil;
+            addon.CallbackRegistry:UnregisterCallback("DialogueUI.HandleEvent", DialogueUI_HandleEvent, self);
+        end
     end
 end
 
@@ -25,26 +71,19 @@ function DataSource:SetupTooltipByGossipOptionID(tooltip, gossipOptionID)
     return false
 end
 
-function DataSource:OnEvent(event)
+function DataSource:OnEvent(event, ...)
     if event == "UNIT_AURA" then
         self:UpdateRaceTimesFromAura();
+    elseif event == "TOOLTIP_DATA_UPDATE" then
+        local dataInstanceID = ...
+        if dataInstanceID ==self.dataInstanceID then
+            self:UpdateRaceTimesFromAura();
+        end
     end
 end
 
 addon.GossipDataProvider:AddDataSource(DataSource);
 
-
-local match = string.match;
-local RACE_TIMES = "^Race Times";
-local Timekeepers = {};
-
-
-local RankIcons = {
-    [1] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Gold.png",
-    [2] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Silver.png",
-    [3] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-Bronze.png",
-    [4] = "Interface/AddOns/DialogueUI/Art/Icons/Racing-None.png",
-};
 
 function DataSource:IsDragonRacingNPC(creatureName)
     return creatureName and Timekeepers[creatureName] == true
@@ -188,18 +227,6 @@ do  --For Dev / Debug
     --]]
 end
 
-local function UpdateGossipIcons(ranks)
-    local f = addon.DialogueUI;
-
-    if not f:IsShown() then return end;
-
-    local optionButtons = f.optionButtonPool:GetActiveObjects();
-    for i = 1, #ranks do
-        if optionButtons[i] then
-            optionButtons[i].Icon:SetTexture(RankIcons[ranks[i]]);
-        end
-    end
-end
 
 local function ProcessLines(...)
     local n = select('#', ...);
@@ -237,19 +264,20 @@ local function ProcessLines(...)
         i = i + 1;
     end
 
+    DataSource.ranks = ranks;
+
     if k == 1 then
-        --print("No Data")
         DataSource:QueryAuraTooltipInto();
     else
         UpdateGossipIcons(ranks);
         DataSource:QueryAuraTooltipInto();    --Sometimes the tooltip data is partial so we keep querying x times
-        --DataSource:PostDataFullyRetrieved();
     end
 end
 
 local function ProcessAuraByAuraInstanceID(auraInstanceID)
     local info = C_TooltipInfo.GetUnitBuffByAuraInstanceID("player", auraInstanceID);
     if info and info.lines and info.lines[2] then
+        DataSource:WatchDataInstanceID(info.dataInstanceID);
         ProcessLines( string.split("\r", info.lines[2].leftText) );
     else
         --Tooltip data not ready
@@ -290,11 +318,10 @@ end
 function DataSource:PostDataFullyRetrieved()
     self.auraInstanceID = nil;
     self:UnregisterEvent("UNIT_AURA");
+    self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
     self:SetScript("OnUpdate", nil);
     self:SetScript("OnEvent", nil);
 end
-
-
 
 local function ProcessFunc(auraInfo)
     if auraInfo.icon == 237538 then
@@ -306,11 +333,15 @@ local function ProcessFunc(auraInfo)
     end
 end
 
-
 function DataSource:UpdateRaceTimesFromAura()
     local unit = "player";
     local filter = "HELPFUL";
     local usePackedAura = true;
 
     AuraUtil.ForEachAura(unit, filter, nil, ProcessFunc, usePackedAura);
+end
+
+function DataSource:WatchDataInstanceID(dataInstanceID)
+    self.dataInstanceID = dataInstanceID;
+    self:RegisterUnitEvent("TOOLTIP_DATA_UPDATE");
 end

@@ -35,6 +35,7 @@ local DEFAULT_BOOK_TITLE_FONT_FILE = {
     roman = "Interface/AddOns/DialogueUI/Fonts/TrajanPro3SemiBold.ttf",
 };
 
+local OVERRIDE_FONT = {};   --[FontObjectName] = file, used as multilanguage support
 local HEIGHT_1 = {10, 12, 14, 16, 24};
 local HEIGHT_2 = {8, 10, 12, 14, 20};
 
@@ -191,6 +192,10 @@ function FontUtil:SetCustomFont(dbValue)
     end
 end
 
+function FontUtil:UpdateFont()
+    self:SetCustomFont();
+end
+
 function FontUtil:GetFontNameByFile(fontFile)
     fontFile = fontFile or "default";
     local fontName;
@@ -312,6 +317,8 @@ do
 
             if IS_NUMBER_FONT[fontName] then
                 fontFile = FontUtil:GetUserNumberFont();
+            elseif OVERRIDE_FONT[fontName] then
+                fontFile = OVERRIDE_FONT[fontName];
             else
                 fontFile = textFontFile;
             end
@@ -334,7 +341,7 @@ do
         if not success then
             if not isRequery then
                 C_Timer.After(0.2, function()  --Wait until "PostFontSizeChanged" tiggered in SharedUITemplate.lua
-                    FontUtil:SetFontByFile(textFontFile, true);
+                    self:SetFontByFile(textFontFile, true);
                 end);
             end
             return
@@ -349,6 +356,8 @@ do
 
             if IS_NUMBER_FONT[fontName] then
                 fontFile = FontUtil:GetUserNumberFont();
+            elseif OVERRIDE_FONT[fontName] then
+                fontFile = OVERRIDE_FONT[fontName];
             else
                 fontFile = textFontFile;
             end
@@ -367,10 +376,36 @@ do
     function FontUtil:GetDefaultFontSize()
         return DEFAULT_FONT_SIZE
     end
+
+    function FontUtil:SetOverrideFont(fontObjectName, file, isRequery)
+        if FONT_OBJECT_HEIGHT[fontObjectName] then
+            if file then
+                local success = self.TestFont:SetFont(file, 10, "");
+                if success then
+                    OVERRIDE_FONT[fontObjectName] = file;
+                else
+                    if not isRequery then
+                        C_Timer.After(0.2, function()
+                            self:SetOverrideFont(fontObjectName, file, true);
+                        end);
+                    end
+                    return
+                end
+            else
+                OVERRIDE_FONT[fontObjectName] = nil;
+            end
+            self:UpdateFont();
+        end
+        return false
+    end
+
+    function FontUtil:SetMultiLanguageQuestFont(file)
+        return self:SetOverrideFont("DUIFont_Quest_MultiLanguage", file);
+    end
 end
 
 
-do
+do  --Settings Callbacks
     local function Settings_FontSizeBase(dbValue)
         FontUtil:SetFontSizeByID(dbValue);
     end

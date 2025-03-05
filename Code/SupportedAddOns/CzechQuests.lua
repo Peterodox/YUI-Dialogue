@@ -4,6 +4,11 @@
 -- QuestData Keys:
 -- title, objective, description (detail), progress, completion, 
 
+-- Peter's Note:
+--- 1. Pull Request by https://github.com/jarosr93
+--- 2. The translations in Czech Quests have no line-break.
+--- 3. We added a new method FontUtil:SetMultiLanguageQuestFont
+
 
 local _, addon = ...
 local API = addon.API;
@@ -13,21 +18,21 @@ do
     local ADDON_NAME = "CzechQuests";
 
     local requiredMethods = {
-        "CzechQuestsAddon_Store",     --SavedVariables
-        "CzechQuestsAddon",   --Data
+        "CzechQuestsAddon_Store",   --SavedVariables
+        "CzechQuestsAddon",         --Data
     };
 
     local function OnAddOnLoaded()
         local L = addon.L;
 
-        -- set Friz Quadrata TT with czech support
-        addon.SetDBValue("FontText", "Interface/AddOns/CzechQuests/Assets/Fonts/frizquadratatt_cz.ttf", true);
-        addon.FontUtil:SetFontByFile("Interface/AddOns/CzechQuests/Assets/Fonts/frizquadratatt_cz.ttf")
+        -- Friz Quadrata TT with czech support
+        addon.FontUtil:SetMultiLanguageQuestFont("Interface/AddOns/CzechQuests/Assets/Fonts/frizquadratatt_cz.ttf");
 
         local ENABLE_TRANSLATION = true;
+        local CzechQuestsAddon = CzechQuestsAddon;
 
-        local function GetQuestData(questId)
-            return CzechQuestsAddon:GetData("quest", questId);
+        local function GetQuestData(questID)
+            return CzechQuestsAddon:GetData("quest", questID);
         end
 
         local function GetQuestTextExternal(questID, method)
