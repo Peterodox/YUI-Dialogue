@@ -380,17 +380,14 @@ do
     function FontUtil:SetOverrideFont(fontObjectName, file, isRequery)
         if FONT_OBJECT_HEIGHT[fontObjectName] then
             if file then
-                local success = self.TestFont:SetFont(file, 10, "");
-                if success then
-                    OVERRIDE_FONT[fontObjectName] = file;
-                else
-                    if not isRequery then
-                        C_Timer.After(0.2, function()
-                            self:SetOverrideFont(fontObjectName, file, true);
-                        end);
-                    end
-                    return
+                self.TestFont:SetFont(file, 10, "");
+                OVERRIDE_FONT[fontObjectName] = file;
+                if not isRequery then
+                    C_Timer.After(0.2, function()
+                        self:SetOverrideFont(fontObjectName, file, true);
+                    end);
                 end
+                return
             else
                 OVERRIDE_FONT[fontObjectName] = nil;
             end
@@ -400,7 +397,8 @@ do
     end
 
     function FontUtil:SetMultiLanguageQuestFont(file)
-        return self:SetOverrideFont("DUIFont_Quest_MultiLanguage", file);
+        self:SetOverrideFont("DUIFont_Quest_MultiLanguage", file);
+        FontUtil:SetFontByFile(file)
     end
 end
 
