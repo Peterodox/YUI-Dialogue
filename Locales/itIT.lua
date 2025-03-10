@@ -6,6 +6,9 @@ local _, addon = ...
 local L = addon.L;
 
 
+L["Renown Level Label"] = "Fama ";
+
+
 --DO NOT TRANSLATE (Italian Missing on Cata Classic)
 --[[
 L["Match Stat Armor"] = "([,%d%.]+) Armor";

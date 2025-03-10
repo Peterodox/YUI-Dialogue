@@ -6,6 +6,9 @@ local _, addon = ...
 local L = addon.L;
 
 
+L["Renown Level Label"] = "名望 "
+
+
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = "千";     --1,000 = 1K
 L["Abbrev Breakpoint 10000"] = "萬";    --Reserved for Asian languages that have words for 10,000

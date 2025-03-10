@@ -8,6 +8,8 @@ local AutoSelectGossip = {
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra
     [109275] = true,        --Reporting to duty (Time Rift)
     [120733] = true,        --Theater Troupe
+    [132100] = true,        --Show Visions Upgrades (Horric Visions Revisited)
+    [49742] = true,         --Horrific Visions, Garona
 
     [107824] = 1,           --Trading Post
     [107827] = 1,           --Trading Post

@@ -13,11 +13,6 @@ local LFRGossipOptions = {};
 local InstanceTeleporterOptions = {};
 local DataSource = {};
 
-local Locale = {};
-Locale.BOSS_DEAD = BOSS_DEAD;
-Locale.BOSS_ALIVE = BOSS_ALIVE;
-Locale.Red = RED_FONT_COLOR;
-Locale.Green = GREEN_FONT_COLOR;
 
 function DataSource:OnInteractWithNPC(npcName)
 
