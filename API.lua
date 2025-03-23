@@ -496,7 +496,7 @@ do  -- String
         --Get object via string "FrameName.Key1.Key2"
         local obj = _G;
 
-        for k in string.gmatch(objNameKey, "%w+") do
+        for k in string.gmatch(objNameKey, "[%w_]+") do
             obj = obj[k];
             if not obj then
                 return
@@ -510,7 +510,7 @@ do  -- String
     local function DoesGlobalObjectExist(objNameKey)
         return GetGlobalObject(objNameKey) ~= nil
     end
-    API.GetGlobalObject = DoesGlobalObjectExist;
+    API.DoesGlobalObjectExist = DoesGlobalObjectExist;
 end
 
 do  -- NPC Interaction

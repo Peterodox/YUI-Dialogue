@@ -925,6 +925,8 @@ do
         225741,     --Titan Disc Fragment
         227406,     --Interesting Notes
         235610,     --Undermine Adventurer's Cache
+        239118,     --Pinnacle Cache
+        239120,     --Seasoned Adventurer's Cache
     };
 
     for _, itemID in ipairs(OneTimeItem) do

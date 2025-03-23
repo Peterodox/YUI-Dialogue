@@ -2385,7 +2385,6 @@ do  --Quest Portrait
             f:SetPortraitZoom(1);
             f:SetPortraitZoom(0.975);
             f:FreezeAnimation(0, 0, 0);
-            f:SetModelAlpha(0);
             self:FadeInAfterModelLoaded();
         end
 

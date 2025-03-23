@@ -34,8 +34,8 @@ f:SetScript("OnEvent", function(self, event)
     f.list = nil;
 end);
 
-local function AddSupportedAddOn(addonName, onLoadedCallback)
-    table.insert(f.list, {addonName, onLoadedCallback});
+local function AddSupportedAddOn(addonName, onLoadedCallback, requiredMethods)
+    table.insert(f.list, {addonName, onLoadedCallback, requiredMethods});
 end
 addon.AddSupportedAddOn = AddSupportedAddOn;
 
