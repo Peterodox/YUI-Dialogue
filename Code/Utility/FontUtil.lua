@@ -380,6 +380,7 @@ do
     function FontUtil:SetOverrideFont(fontObjectName, file, isRequery)
         if FONT_OBJECT_HEIGHT[fontObjectName] then
             if file then
+                self.TestFont:SetFont("Fonts/frizqt__.ttf", 10, "");
                 local success = self.TestFont:SetFont(file, 10, "");
                 if success then
                     OVERRIDE_FONT[fontObjectName] = file;
