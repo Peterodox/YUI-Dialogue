@@ -76,7 +76,7 @@ function DataSource:OnEvent(event, ...)
         self:UpdateRaceTimesFromAura();
     elseif event == "TOOLTIP_DATA_UPDATE" then
         local dataInstanceID = ...
-        if dataInstanceID ==self.dataInstanceID then
+        if dataInstanceID == self.dataInstanceID then
             self:UpdateRaceTimesFromAura();
         end
     end
@@ -343,5 +343,7 @@ end
 
 function DataSource:WatchDataInstanceID(dataInstanceID)
     self.dataInstanceID = dataInstanceID;
-    self:RegisterUnitEvent("TOOLTIP_DATA_UPDATE");
+    if dataInstanceID then
+        self:RegisterUnitEvent("TOOLTIP_DATA_UPDATE");
+    end
 end

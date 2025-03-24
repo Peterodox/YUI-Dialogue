@@ -316,7 +316,7 @@ do  --GamePad/Controller
     local REPEAT_INTERVAL = 0.125;
 
     function KeyboardControl:OnGamePadButtonDown(button)
-        self:StopRepeatingAction();
+        KeyboardControl:StopRepeatingAction();
 
         if addon.HelpTip:CloseAll() then
             return
@@ -364,7 +364,7 @@ do  --GamePad/Controller
             end
         else
             if RepeatableButton[button] then
-                self:RepeatAction(KeyRemap[button]);
+                KeyboardControl:RepeatAction(KeyRemap[button]);
             end
             button = KeyRemap[button];
         end
@@ -375,7 +375,7 @@ do  --GamePad/Controller
     end
 
     function KeyboardControl:OnGamePadButtonUp(button)
-        self:StopRepeatingAction();
+        KeyboardControl:StopRepeatingAction();
     end
 
     local function RepeatGamePadButton_OnUpdate(self, elapsed)

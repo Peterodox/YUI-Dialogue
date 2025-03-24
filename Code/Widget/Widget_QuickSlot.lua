@@ -369,10 +369,6 @@ do  --debug
     QuickSlotManager:RegisterEvent("PLAYER_ENTERING_WORLD");
 
     function QuickSlotManager:PLAYER_ENTERING_WORLD()
-        C_Timer.After(0.5, function()
-            ScriptErrorsFrame:Hide();
-        end)
-
         if false then return end;
 
         local case = "link";   --equipment container cosmetic link

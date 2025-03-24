@@ -5,8 +5,8 @@ local DeviceUtil = {};
 addon.DeviceUtil = DeviceUtil;
 
 local Mapping = {
-    --1:Bottom   2:Right   3:Left                 4:Top
-    --1:Confirm  2:Cancel  3:Mod(Alternate Info)  4:Action(Use/Cast)
+    --1:Bottom   2:Right   3:Left              4:Top
+    --1:Confirm  2:Cancel  3:Action(Use/Cast)  4:Mod(Alternate Info)
 
     KBM = {
         [1] = "SPACE",
@@ -74,4 +74,16 @@ end
 
 function DeviceUtil:GetModKey()
     return self:GetDeviceMapping()[4]
+end
+
+function DeviceUtil:GetKeyByFunction(keyFunction)
+    if keyFunction == "Confirm" then
+        return self:GetConfirmKey();
+    elseif keyFunction == "Cancel" then
+        return self:GetCancelKey();
+    elseif keyFunction == "Action" then
+        return self:GetActionKey();
+    elseif keyFunction == "Mod" then
+        return self:GetModKey();
+    end
 end

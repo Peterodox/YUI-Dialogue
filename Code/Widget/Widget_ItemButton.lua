@@ -259,7 +259,7 @@ do  --Quest Flyout ItemButton
                 local f = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
                 self.HotkeyFrame = f;
                 f:SetTheme(2);
-                f:SetKey(addon.DeviceUtil:GetActionKey());
+                f:SetKeyByFunction("Action");
             end
             self.HotkeyFrame:Show();
             self.HotkeyFrame:UseCompactMode();

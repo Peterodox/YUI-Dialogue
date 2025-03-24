@@ -911,20 +911,25 @@ end
 do
     local OneTimeItem = {
         29433,      --Grisly Trophy
+        163036,     --Polished Pet Charm
         191140,     --Bronze Timepiece
-        227450,     --Sky Racer's Purse
-        212493,     --Odd Glob of Wax
-        228361,     --Adventurer's Cache
-        229899,     --Coffer Key Shard
         206350,     --Radiant Remnant
+        219934,     --Spark of War
+        212493,     --Odd Glob of Wax
         224784,     --Pinnacle Cache
+        224835,     --Deepgrove Roots
+        224838,     --Null Silver
+        225741,     --Titan Disc Fragment
         225950,     --Nerubian Chitin
         226135,     --Nerubian Venom
         226136,     --Nerubian Blood
-        219934,     --Spark of War
-        225741,     --Titan Disc Fragment
         227406,     --Interesting Notes
+        227450,     --Sky Racer's Purse
+        228361,     --Adventurer's Cache
+        229899,     --Coffer Key Shard
         235610,     --Undermine Adventurer's Cache
+        235897,     --Radiant Echo S2
+        238208,     --Nanny's Surge Dividends
         239118,     --Pinnacle Cache
         239120,     --Seasoned Adventurer's Cache
     };
