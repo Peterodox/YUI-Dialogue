@@ -241,7 +241,7 @@ L["Nameplate Dialog"] = "在姓名版上显示对话";
 L["Nameplate Dialog Desc"] = "将不提供任何选项的对话显示在目标姓名版上。\n\n此选项将修改CVar \"SoftTarget Nameplate Interact\"";
 L["Compatibility"] = "兼容性";
 L["Disable DUI In Instance"] = "在副本内使用游戏原始对话界面";
-L["Disable DUI In Instance Desc"] = "当你进入地下城或团本时使用游戏原始对话界面。\n\n推荐勾选此选项如果你无法与开始或跳过Boss战的NPC交互。";
+L["Disable DUI In Instance Desc"] = "当你进入地下城或团本时使用游戏原始对话界面。";
 
 L["Disable UI Motions"] = "减少界面动画";
 L["Disable UI Motions Desc"] = "减少界面动画例如主界面展开和按钮文字右移。";

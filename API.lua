@@ -603,52 +603,50 @@ do  -- NPC Interaction
     API.CancelClosingGossipInteraction = CancelClosingGossipInteraction;
 
 
-    f:RegisterEvent("CINEMATIC_START");
-    f:RegisterEvent("CINEMATIC_STOP");
-    f:RegisterEvent("PLAY_MOVIE");
-    f:RegisterEvent("STOP_MOVIE");
-    f:RegisterEvent("LOADING_SCREEN_DISABLED");
+    local CGListener = CreateFrame("Frame");
+    do
+        local function IsPlayingCutscene()
+            if (not CGListener.CinematicFrame) and CinematicFrame then
+                CGListener.CinematicFrame = CinematicFrame;
+            end
 
-    f:SetScript("OnEvent", function(self, event, ...)
-        if event == "CINEMATIC_START" then
-            self.isPlayingCinematic = true;
-        elseif event == "CINEMATIC_STOP" then
-            self.isPlayingCinematic = false;
-        elseif event == "PLAY_MOVIE" then
-            self.isPlayingMovie = true;
-        elseif event == "STOP_MOVIE" then
-            self.isPlayingMovie = false;
-        elseif event == "LOADING_SCREEN_DISABLED" then
-            --Cutscene events can be stuck?
-            self.isPlayingCutscene = false;
-            self.isPlayingCinematic = false;
-            self.isPlayingMovie = false;
-        end
+            if (not CGListener.MovieFrame) and MovieFrame then
+                CGListener.MovieFrame = MovieFrame;
+            end
 
-        if self.isPlayingCinematic or self.isPlayingMovie then
-            self.isPlayingCutscene = true;
-            CallbackRegistry:Trigger("PlayCutscene");
-        else
-            self.isPlayingCutscene = false;
-        end
-    end);
-
-    local function IsPlayingCutscene()
-        if f.isPlayingCutscene ~= nil then
-            return f.isPlayingCutscene
-        else
-            if (CinematicFrame and CinematicFrame:IsShown()) or (MovieFrame and MovieFrame:IsShown()) then
+            if (CGListener.MovieFrame and CGListener.MovieFrame:IsShown()) or (CGListener.MovieFrame and CGListener.MovieFrame:IsShown()) then
                 --Cinematic played upon loading screen finished doesn't trigger events due to loading order? 11.1.0 Undermine
-                f.isPlayingCutscene = true;
-                CallbackRegistry:Trigger("PlayCutscene");
                 return true
             else
-                f.isPlayingCutscene = false;
                 return false
             end
         end
+        API.IsPlayingCutscene = IsPlayingCutscene;
+
+
+        CGListener:RegisterEvent("CINEMATIC_START");
+        CGListener:RegisterEvent("CINEMATIC_STOP");
+        CGListener:RegisterEvent("PLAY_MOVIE");
+        CGListener:RegisterEvent("STOP_MOVIE");
+        CGListener:RegisterEvent("LOADING_SCREEN_DISABLED");
+
+        function CGListener:CheckStatus()
+            self:SetScript("OnUpdate", self.OnUpdate);
+        end
+
+        function CGListener:OnUpdate(elapsed)
+            self:SetScript("OnUpdate", nil);
+            self.isPlayingCutscene = IsPlayingCutscene();
+            if self.isPlayingCutscene then
+                CallbackRegistry:Trigger("PlayCutscene");
+            end
+        end
+
+        CGListener:SetScript("OnEvent", function(self, event, ...)
+            self:CheckStatus();
+        end);
     end
-    API.IsPlayingCutscene = IsPlayingCutscene;
+
 
     local function SetPlayCutsceneCallback(callback)
         CallbackRegistry:Register("PlayCutscene", callback);

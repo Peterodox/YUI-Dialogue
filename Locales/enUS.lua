@@ -241,7 +241,7 @@ L["Nameplate Dialog"] = "Display Dialogue On Nameplate";
 L["Nameplate Dialog Desc"] = "Display the dialogue on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
 L["Compatibility"] = "Compatibility";
 L["Disable DUI In Instance"] = "Use WoW's Default UI In Instance";
-L["Disable DUI In Instance Desc"] = "Disable Dialogue UI and use WoW's default one when you are in dungeon or raid.\n\nEnable this option if you cannot interact with an NPC that allows you to start or skip boss encounters.";
+L["Disable DUI In Instance Desc"] = "Disable Dialogue UI and use WoW's default one when you are in dungeon or raid.";
 
 L["Disable UI Motions"] = "Reduce UI Movements";
 L["Disable UI Motions Desc"] = "Reduce UI movements such as Unfolding UI or Nudging Button Text.";
