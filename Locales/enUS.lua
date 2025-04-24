@@ -280,6 +280,8 @@ L["TTS Include Content"] = "Include Content";
 L["TTS Content NPC Name"] = "NPC Name";
 L["TTS Content Quest Name"] = "Quest Title";
 L["TTS Content Objective"] = "Quest Objectives";
+L["TTS Button Read Original"] = "Change to Read Original Text";
+L["TTS Button Read Translation"] = "Change to Read Translation";
 
 --Book UI and Settings
 L["Readables"] = "Readables";   --Readable Objects

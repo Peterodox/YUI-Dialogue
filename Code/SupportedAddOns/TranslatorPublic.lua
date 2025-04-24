@@ -1,3 +1,5 @@
+---- Implementation Guide ----
+
 --[[
     local translator = {
         name = "AddOn Name",                                            --string: Your addon's name
@@ -32,10 +34,37 @@ local temp, addon = ...
 temp = false;
 local API = addon.API;
 
+local ENABLE_TRANSLATION = false;
+
 local QuestDataGetter;
 local QuestFont;
 local TranslatorName;
 local OnTranslatorLoaded;
+
+
+local function UseFontStringForTTS(state)
+    if state then
+        function API.GetQuestTTSContentExternal()
+            local body, title = addon.DialogueUI:GetTTSTextFromFontStrings();
+            if body then
+                local content = {
+                    body = body,
+                    title = title,
+                };
+                return content
+            end
+        end
+    else
+        API.GetQuestTTSContentExternal = nil;
+    end
+end
+addon.UseFontStringForTTS = UseFontStringForTTS;
+
+
+local function IsTranslatorEnabled()
+    return ENABLE_TRANSLATION
+end
+addon.IsTranslatorEnabled = IsTranslatorEnabled;
 
 
 local function SetTranslator(translator)
@@ -70,8 +99,6 @@ DialogueUIAPI.SetTranslator = SetTranslator;
 addon.SetTranslator = SetTranslator;
 
 
-
-
 function OnTranslatorLoaded()
     if not (QuestDataGetter and TranslatorName) then return end;
 
@@ -79,7 +106,7 @@ function OnTranslatorLoaded()
 
     addon.FontUtil:SetMultiLanguageQuestFont(QuestFont);
 
-    local ENABLE_TRANSLATION = true;
+    ENABLE_TRANSLATION = true;
 
     local function GetQuestTextExternal(questID, method)
         if not ENABLE_TRANSLATION then

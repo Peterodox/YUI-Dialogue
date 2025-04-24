@@ -12,4 +12,6 @@
     <Script file="MultiLanguage.lua"/>
     <Script file="CzechQuests.lua"/>
     <Script file="WowUkrainizer.lua"/>
+
+    <Script file="Platine1AddOns.lua"/>
 </Ui>

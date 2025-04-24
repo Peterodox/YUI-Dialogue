@@ -14,9 +14,11 @@ f:SetScript("OnEvent", function(self, event)
 
     for _, data in ipairs(f.list) do
         addonName, addonLoaded, requiredMethods = data[1], data[2], data[3];
-        if IsAddOnLoaded(addonName) then
-            local requirementMet = true;
+        if (addonName and IsAddOnLoaded(addonName)) or (not addonName) then
+            local requirementMet = addonName and true;
+
             if requiredMethods then
+                requirementMet = true;
                 for _, method in ipairs(requiredMethods) do
                     if not DoesGlobalObjectExist(method) then
                         requirementMet = false;
@@ -35,6 +37,7 @@ f:SetScript("OnEvent", function(self, event)
 end);
 
 local function AddSupportedAddOn(addonName, onLoadedCallback, requiredMethods)
+    --Allows nillable addonName
     table.insert(f.list, {addonName, onLoadedCallback, requiredMethods});
 end
 addon.AddSupportedAddOn = AddSupportedAddOn;

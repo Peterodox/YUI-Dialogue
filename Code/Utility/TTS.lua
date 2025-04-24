@@ -22,6 +22,16 @@ local TTS_SKIP_RECENT = false;        --skp reading recently read quest dialogs
 local TTS_HISTORY_DEPTH = 20;         --number of quest dialogs that will be skipped
 ------------------
 
+local TTSFlags = {
+    Translation = -1,
+    Gossip = 0,
+    QuestText = 1,
+    QuestTitle = 2,
+    QuestObjective = 3,
+};
+addon.TTSFlags = TTSFlags;
+
+
 local UnitExists = UnitExists;
 local UnitSex = UnitSex;
 local C_VoiceChat = C_VoiceChat;
@@ -415,7 +425,18 @@ do  --TTS Play Button
 
         TooltipFrame:AddLeftLine(L["TTS Button Tooltip"], 1, 0.82, 0);
 
-
+        if self:CheckTranslator(true) then
+            local HOTKEY_ALTERNATE_MODE = "Shift";
+            local description;
+            local readTranslation = GetDBBool("TTSReadTranslation");
+            if readTranslation then
+                description = L["TTS Button Read Original"];
+            else
+                description = L["TTS Button Read Translation"];
+            end
+            local alternateModeCallback = nil;  --Handled by OnModiferStateChanged
+            TooltipFrame:ShowHotkey(HOTKEY_ALTERNATE_MODE, description, alternateModeCallback);
+        end
 
         TooltipFrame:Show();
     end
@@ -423,6 +444,7 @@ do  --TTS Play Button
     function TTSButtonMixin:OnLeave()
         self:SetAlpha(ALPHA_UNFOCUSED);
         addon.SharedTooltip:Hide();
+        self:CheckTranslator(false);
     end
 
     function TTSButtonMixin:SetTheme(themeID)
@@ -507,6 +529,32 @@ do  --TTS Play Button
         return b
     end
     addon.CreateTTSButton = CreateTTSButton;
+
+
+    --Translator: Press Shift to switch between reading original texts or the translation.
+    function TTSButtonMixin:CheckTranslator(state)
+        if state and addon.DialogueUI:IsTranslationAvailable() and addon.IsTranslatorEnabled() then
+            self:RegisterEvent("MODIFIER_STATE_CHANGED");
+            self:SetScript("OnEvent", self.OnModiferStateChanged);
+            return true
+        else
+            self:UnregisterEvent("MODIFIER_STATE_CHANGED");
+            self:SetScript("OnEvent", nil);
+            return false
+        end
+    end
+
+    function TTSButtonMixin:OnModiferStateChanged(event, key, down)
+        if (key == "LSHIFT" or key == "RSHIFT") and down == 1 then
+            if self:IsMouseMotionFocus() then
+                local userInput = true;
+                addon.FlipDBBool("TTSReadTranslation", userInput);
+                self:OnEnter();
+            else
+                self:CheckTranslator(false);
+            end
+        end
+    end
 end
 
 

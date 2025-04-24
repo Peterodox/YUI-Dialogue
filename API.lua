@@ -614,7 +614,7 @@ do  -- NPC Interaction
                 CGListener.MovieFrame = MovieFrame;
             end
 
-            if (CGListener.MovieFrame and CGListener.MovieFrame:IsShown()) or (CGListener.MovieFrame and CGListener.MovieFrame:IsShown()) then
+            if (CGListener.CinematicFrame and CGListener.CinematicFrame:IsShown()) or (CGListener.MovieFrame and CGListener.MovieFrame:IsShown()) then
                 --Cinematic played upon loading screen finished doesn't trigger events due to loading order? 11.1.0 Undermine
                 return true
             else
@@ -628,13 +628,13 @@ do  -- NPC Interaction
         CGListener:RegisterEvent("CINEMATIC_STOP");
         CGListener:RegisterEvent("PLAY_MOVIE");
         CGListener:RegisterEvent("STOP_MOVIE");
-        CGListener:RegisterEvent("LOADING_SCREEN_DISABLED");
+        --CGListener:RegisterEvent("LOADING_SCREEN_DISABLED");
 
         function CGListener:CheckStatus()
-            self:SetScript("OnUpdate", self.OnUpdate);
+            self:SetScript("OnUpdate", self.OnUpdate_CheckStatus);
         end
 
-        function CGListener:OnUpdate(elapsed)
+        function CGListener:OnUpdate_CheckStatus(elapsed)
             self:SetScript("OnUpdate", nil);
             self.isPlayingCutscene = IsPlayingCutscene();
             if self.isPlayingCutscene then
@@ -642,8 +642,24 @@ do  -- NPC Interaction
             end
         end
 
+        function CGListener:PauseUpdate()
+            self.paused = true;
+            self:SetScript("OnUpdate", self.OnUpdate_PauseUpdate);
+        end
+
+        function CGListener:OnUpdate_PauseUpdate(elapsed)
+            self:SetScript("OnUpdate", nil);
+            self.paused = nil;
+        end
+
         CGListener:SetScript("OnEvent", function(self, event, ...)
-            self:CheckStatus();
+            --self:CheckStatus();
+            if event == "CINEMATIC_START" or event == "PLAY_MOVIE" then
+                if not self.paused then
+                    self:PauseUpdate();
+                    CallbackRegistry:Trigger("PlayCutscene");
+                end
+            end
         end);
     end
 

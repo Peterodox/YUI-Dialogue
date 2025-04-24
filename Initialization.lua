@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.6.4";
-local VERSION_DATE = 1744900000;
+local VERSION_TEXT = "v0.6.5";
+local VERSION_DATE = 1745500000;
 
 
 local addonName, addon = ...
@@ -97,6 +97,7 @@ local DefaultValues = {
 
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
+    TTSReadTranslation = false,                 --Read original text or translation. Controlled by TTSButton modifier key
 
     --WidgetManagerPosition = {x, y};
     --QuestItemDisplayPosition = {x, y};
@@ -238,6 +239,14 @@ local function GetDBBool(dbKey)
     end
 end
 addon.GetDBBool = GetDBBool;
+
+
+local function FlipDBBool(dbKey, userInput)
+    if DB then
+        SetDBValue(dbKey, not GetDBBool(dbKey), userInput)
+    end
+end
+addon.FlipDBBool = FlipDBBool;
 
 
 local function IsDBValue(dbKey, value)

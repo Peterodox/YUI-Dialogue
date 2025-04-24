@@ -371,6 +371,8 @@ function DUIDialogBaseMixin:OnLoad()
         fontString:SetText(nil);
         fontString:Hide();
         fontString:ClearAllPoints();
+        fontString.ttsFlag = nil;
+        fontString.isTranslation = nil;
     end
 
     local function OnAcquireFontString(fontString)
@@ -980,7 +982,7 @@ function DUIDialogBaseMixin:InsertParagraph(offsetY, paragraphText, fontObject)
 	return self:InsertText(offsetY + PARAGRAPH_SPACING, paragraphText, fontObject);
 end
 
-function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
+function DUIDialogBaseMixin:FormatParagraph(offsetY, text, ttsFlag)
     local paragraphs = API.SplitParagraph(text);
 	local firstObject, lastObject;
     if paragraphs and #paragraphs > 0 then
@@ -994,6 +996,7 @@ function DUIDialogBaseMixin:FormatParagraph(offsetY, text)
             fs:SetText(paragraphText);
             offsetY = Round(offsetY + fs:GetHeight() + PARAGRAPH_SPACING);
             lastObject = fs;
+            fs.ttsFlag = ttsFlag;
         end
         offsetY = offsetY - PARAGRAPH_SPACING;
     else
@@ -1033,6 +1036,7 @@ function DUIDialogBaseMixin:FormatDualParagraph(offsetY, text1, text2)
                         fs:SetText(para[i]);
                         offsetY = Round(offsetY + fs:GetHeight() + PARAGRAPH_SPACING);
                         lastObject = fs;
+                        fs.isTranslation = j == 2;
                     end
                 end
             end
@@ -1212,8 +1216,9 @@ function DUIDialogBaseMixin:HandleGossip()
         gossipText = self.hintText.."\n\n"..gossipText;
         self.hintText = nil;
     end
+
     gossipText = ConcatenateNPCName(gossipText);
-    offsetY, firstObject, lastObject = self:FormatParagraph(offsetY, gossipText);
+    offsetY, firstObject, lastObject = self:FormatParagraph(offsetY, gossipText, addon.TTSFlags.Gossip);
 
     local hotkeyIndex = 0;
     local hotkey;
@@ -1479,9 +1484,9 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
 
         --Objective Texts
         if translatedObjectiveText then
-            offsetY = self:FormatDualParagraph(offsetY, objectiveText, translatedObjectiveText);
+            offsetY = self:FormatDualParagraph(offsetY, objectiveText, translatedObjectiveText, addon.TTSFlags.QuestObjective);
         else
-            offsetY = self:FormatParagraph(offsetY, objectiveText);
+            offsetY = self:FormatParagraph(offsetY, objectiveText, addon.TTSFlags.QuestObjective);
         end
 
         local groupNum = GetSuggestedGroupSize();
@@ -1716,7 +1721,7 @@ function DUIDialogBaseMixin:FormatQuestText(offsetY, method)
 
         if not processed then
             offsetY = offsetY + PARAGRAPH_SPACING;
-            offsetY = self:FormatParagraph(offsetY, text);
+            offsetY = self:FormatParagraph(offsetY, text, addon.TTSFlags.QuestObjective);
         end
     end
     return offsetY, translatedObjectiveText
@@ -1797,7 +1802,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
 	--local material = QuestFrame_GetMaterial();
 
     local geetingText = ConcatenateNPCName(GetQuestText("Greeting"));
-    offsetY, firstObject, lastObject = self:FormatParagraph(offsetY, geetingText);
+    offsetY, firstObject, lastObject = self:FormatParagraph(offsetY, geetingText, addon.TTSFlags.Gossip);
 
 
     local questIndex = 0;
@@ -1944,7 +1949,7 @@ function DUIDialogBaseMixin:HandleGossipConfirm(gossipID, warningText, cost)
     local offsetY = 0;
 
     warningText = ThemeUtil:AdjustTextColor(warningText);
-    offsetY = self:FormatParagraph(offsetY, warningText);
+    offsetY = self:FormatParagraph(offsetY, warningText, addon.TTSFlags.Gossip);
 
     local lockDuration = CalulateLockDuration(cost);
 
@@ -2341,6 +2346,7 @@ function DUIDialogBaseMixin:OnHide()
     self.handlerArgs = nil;
     self.questID = nil;
     self.hintText = nil;
+    self.translatorEnabled = nil;
     self.contentHeight = 0;
 
     self:UnregisterEvent("GOSSIP_SHOW");
@@ -2655,41 +2661,79 @@ do  --Clipboard
     end
 
     function DUIDialogBaseMixin:GetContentForTTS()
-        local content = {};
+        local content;
 
-        local GetGossipText = API.GetGossipText;
-        local GetQuestText = API.GetQuestText;
-
-        local npcName, npcID = API.GetCurrentNPCInfo();
-        if npcName and npcID then
-            content.speaker = npcName;
+        if API.GetQuestTTSContentExternal then
+            content = API.GetQuestTTSContentExternal();
         end
 
-        local questID = GetQuestID();
-        if questID and questID ~= 0 then
-            content.title = GetQuestTitle();
-        end
+        if not content then
+            content = {};
 
-        if self.handler == "HandleGossip" then
-            content.body = GetGossipText();
+            if self:IsTranslationAvailable() and GetDBBool("TTSReadTranslation") and addon.IsTranslatorEnabled() then
+                local body, objective;
+                local text;
+                local flags = addon.TTSFlags;
+                for _, fs in self.fontStringPool:EnumerateActive() do
+                    if fs.isTranslation then
+                        text = fs:GetText();
+                        if text and text ~= "" then
+                            if fs.ttsFlag == flags.QuestObjective then
+                                if objective then
+                                    objective = objective.."\n"..text;
+                                else
+                                    objective = text;
+                                end
+                            else
+                                if body then
+                                    body = body.."\n"..text;
+                                else
+                                    body = text;
+                                end
+                            end
+                        end
+                    end
+                end
+                content.body = body;
+                content.objective = objective;
+            else
+                local GetGossipText = API.GetGossipText;
+                local GetQuestText = API.GetQuestText;
 
-        elseif self.handler == "HandleQuestDetail" then
-            content.body = GetQuestText("Detail");
+                local questID = GetQuestID();
+                if questID and questID ~= 0 then
+                    content.title = GetQuestTitle();
+                end
 
-            local objective = GetObjectiveText();
-            if objective and objective ~= "" then
-                content.objective = JoinText(L["Quest Objectives"], "", objective);
+                if self.handler == "HandleGossip" then
+                    content.body = GetGossipText();
+
+                elseif self.handler == "HandleQuestDetail" then
+                    content.body = GetQuestText("Detail");
+
+                    local objective = GetObjectiveText();
+                    if objective and objective ~= "" then
+                        content.objective = JoinText(L["Quest Objectives"], "", objective);
+                    end
+
+                elseif self.handler == "HandleQuestProgress" then
+                    content.body = GetQuestText("Progress");
+
+                elseif self.handler == "HandleQuestComplete" then
+                    content.body = GetQuestText("Complete");
+
+                elseif self.handler == "HandleQuestGreeting" then
+                    content.body = GetQuestText("Greeting");
+
+                end
             end
+        end
 
-        elseif self.handler == "HandleQuestProgress" then
-            content.body = GetQuestText("Progress");
-
-        elseif self.handler == "HandleQuestComplete" then
-            content.body = GetQuestText("Complete");
-
-        elseif self.handler == "HandleQuestGreeting" then
-            content.body = GetQuestText("Greeting");
-
+        if content then
+            local npcName, npcID = API.GetCurrentNPCInfo();
+            if npcName and npcID then
+                content.speaker = npcName;
+            end
         end
 
         return content
@@ -3157,6 +3201,30 @@ do  --TTS
         end
     end
     CallbackRegistry:Register("SettingChanged.TTSEnabled", Settings_TTSEnabled);
+
+
+    function DUIDialogBaseMixin:GetTTSTextFromFontStrings()
+        local text, str, title;
+
+        for _, fs in self.fontStringPool:EnumerateActive() do
+            if fs.ttsFlag then
+                text = fs:GetText();
+                if text and text ~= "" then
+                    if str then
+                        str = str.."\n"..text;
+                    else
+                        str = text;
+                    end
+                end
+            end
+        end
+
+        if self.questLayout then
+            title = self.FrontFrame.Header.Title:GetText();
+        end
+
+        return str, title
+    end
 end
 
 do  --Vignette
@@ -3419,6 +3487,10 @@ do  --Translator Button
             self.translatorEnabled = false;
         end
         self:LayoutTopWidgets();
+    end
+
+    function DUIDialogBaseMixin:IsTranslationAvailable()
+        return self.translatorEnabled
     end
 
     function DUIDialogBaseMixin:LayoutTopWidgets()
