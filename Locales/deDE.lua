@@ -51,8 +51,8 @@ L["Different Item Types Alert"] = "Verschiedene Gegenstandstypen!";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Ihr erhaltet %d Ruf bei %s"; --Awards %d reputation with the %s
-L["Format You Have X"] = "- Du hast |cffffffff%d|r";
-L["Format You Have X And Y In Bank"] = "- Du hast |cffffffff%d|r (|cffffffff%d|r in deiner Bank)";
+L["Format You Have X"] = "- Du hast |cffffffff%s|r";
+L["Format You Have X And Y In Bank"] = "- Du hast |cffffffff%s|r (|cffffffff%s|r in deiner Bank)";
 L["Format Suggested Players"] = QUEST_SUGGESTED_GROUP_NUM or "Empfohlene Spieler [%d]";
 L["Format Current Skill Level"] = "Aktuelles Level: |cffffffff%d/%d|r";
 L["Format Reward Title"] = HONOR_REWARD_TITLE or "Titel: %s";

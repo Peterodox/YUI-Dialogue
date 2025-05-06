@@ -64,8 +64,8 @@ L["Collection Collected"] = "已收集";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";
-L["Format You Have X"] = "- 你拥有 |cffffffff%d|r";
-L["Format You Have X And Y In Bank"] = "- 你拥有 |cffffffff%d|r (|cffffffff%d|r 个在银行)";
+L["Format You Have X"] = "- 你拥有 |cffffffff%s|r";
+L["Format You Have X And Y In Bank"] = "- 你拥有 |cffffffff%s|r (|cffffffff%s|r 个在银行)";
 L["Format Suggested Players"] = "建议玩家人数：[%d]";
 L["Format Current Skill Level"] = "当前等级：|cffffffff%d/%d|r";
 L["Format Reward Title"] = "头衔：%s";

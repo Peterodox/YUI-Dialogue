@@ -4,12 +4,17 @@
 local _, addon = ...
 local API = addon.API;
 
-local ContainerItem = {};
+local ContainerItem = {};   --Auto-generated
 
 local MiscUsableItem = {
     [224817] = true,        --Algari Herbalist's Notes
     [224818] = true,        --Algari Miner's Notes
     [224807] = true,        --Algari Skinner's Notes
+
+
+    --Some items don't align to the pattern (Flags_0 is 0x0)
+    [142447] = true,        --Torn Sack of Pet Supplies
+    [184866] = true,        --Grummlepouch
 };
 
 function API.IsContainerItem(itemID)

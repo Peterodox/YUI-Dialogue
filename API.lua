@@ -1251,6 +1251,7 @@ do  -- Quest
         ["QuestBG-Web"] = "TWW-Web.png",
         ["QuestBG-1027"] = "TWW-Azeroth.png",
         ["QuestBG-Rocket"] = "TWW-Rocket.png",
+        ["QuestBG-Fist"] = "TWW-Fist.png",
     };
 
     local function GetQuestBackgroundDecor(questID)
@@ -2077,6 +2078,7 @@ do  -- Faction -- Reputation
     local function GetFactionStatusText(factionID)
         --Derived from Blizzard ReputationFrame_InitReputationRow in ReputationFrame.lua
         if not factionID then return end;
+        local factionName;
         local p1, description, standingID, barMin, barMax, barValue = GetFactionInfoByID(factionID);
 
         if type(p1) == "table" then     --Return table after TWW
@@ -2084,6 +2086,9 @@ do  -- Faction -- Reputation
             barMin = p1.currentReactionThreshold;
             barMax = p1.nextReactionThreshold;
             barValue = p1.currentStanding;
+            factionName = p1.name;
+        else
+            factionName = p1;
         end
 
         local isParagon = C_Reputation.IsFactionParagon(factionID);
@@ -2098,6 +2103,8 @@ do  -- Faction -- Reputation
 
             if repInfo.nextThreshold then
                 barMin, barMax, barValue = repInfo.reactionThreshold, repInfo.nextThreshold, repInfo.standing;
+                barValue = barValue - barMin;
+                barMax = barMax - barMin;
             else
                 barMin, barMax, barValue = 0, 1, 1;
                 isCapped = true;
@@ -2153,11 +2160,7 @@ do  -- Faction -- Reputation
             text = text .. rolloverText;
         end
 
-        if text then
-            text = " \n"..text;
-        end
-
-        return text
+        return text, factionName
     end
     API.GetFactionStatusText = GetFactionStatusText;
 

@@ -1929,9 +1929,11 @@ function DUIDialogBaseMixin:UpdateGossipQuests()
 
         tsort(activeQuests, SortFunc_PrioritizeCompleteQuest);
 
+        local rebuildQuestInfo = true;
+
         for i, activeQuestButton in ipairs(self.activeQuestButtons) do
             if activeQuests[i] and (activeQuestButton.questID == activeQuests[i].questID) then
-                activeQuestButton:SetQuestVisual(activeQuests[i]);
+                activeQuestButton:SetQuestVisual(activeQuests[i], rebuildQuestInfo);
             end
         end
     end
@@ -2413,6 +2415,12 @@ function DUIDialogBaseMixin:HighlightButton(optionButton)
         self.GamePadFocusIndicator:Show();
     else
         self.GamePadFocusIndicator:Hide();
+    end
+end
+
+function DUIDialogBaseMixin:ClearButtonHighlight(optionButton)
+    if self.highlightedButton == optionButton then
+        self:HighlightButton(nil);
     end
 end
 

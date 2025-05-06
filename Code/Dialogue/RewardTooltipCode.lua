@@ -155,6 +155,7 @@ local function CustomTooltip_OnEnter(self)
 
             local factionStatus = API.GetFactionStatusTextByCurrencyID(self.currencyID);
             if factionStatus then
+                tooltip:AddBlankLine();
                 tooltip:AddLeftLine(factionStatus, 1, 0.82, 0);
                 tooltip:Show();
             end
@@ -170,6 +171,7 @@ local function CustomTooltip_OnEnter(self)
         if self.factionID then
             local factionStatus = API.GetFactionStatusText(self.factionID);
             if factionStatus then
+                tooltip:AddBlankLine();
                 tooltip:AddLeftLine(factionStatus, 1, 0.82, 0);
             end
         end

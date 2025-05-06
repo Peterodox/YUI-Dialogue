@@ -58,8 +58,8 @@ L["New Quest Available"] = "Nouvelle quête disponible";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Récompense %d de réputation avec les %s";
-L["Format You Have X"] = "- Vous avez |cffffffff%d|r";
-L["Format You Have X And Y In Bank"] = "- Vous avez |cffffffff%d|r (|cffffffff%d|r dans votre banque)";
+L["Format You Have X"] = "- Vous avez |cffffffff%s|r";
+L["Format You Have X And Y In Bank"] = "- Vous avez |cffffffff%s|r (|cffffffff%s|r dans votre banque)";
 L["Format Suggested Players"] = QUEST_SUGGESTED_GROUP_NUM or "Joueurs suggérés [%d]";
 L["Format Current Skill Level"] = "Niveau Actuel : |cffffffff%d/%d|r";
 L["Format Reward Title"] = HONOR_REWARD_TITLE or "Titre: %s";

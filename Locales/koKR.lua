@@ -58,8 +58,8 @@ L["New Quest Available"] = "새로운 퀘스트 발견";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "%s로 %d 평판 획득";
-L["Format You Have X"] = "- 보유중 |cffffffff%d|r";
-L["Format You Have X And Y In Bank"] = "- 은행에 |cffffffff%d|r (|cffffffff%d|r 보유중)";
+L["Format You Have X"] = "- 보유중 |cffffffff%s|r";
+L["Format You Have X And Y In Bank"] = "- 은행에 |cffffffff%s|r (|cffffffff%s|r 보유중)";
 L["Format Suggested Players"] = QUEST_SUGGESTED_GROUP_NUM or "추천 플레이어 [%d]";
 L["Format Current Skill Level"] = "현재 레벨: |cffffffff%d/%d|r";
 L["Format Reward Title"] = "타이틀: %s";

@@ -14,6 +14,7 @@ local ShowUIGossip = {
     [82449]  = true,    --Faerin, Dornagal Weekly
     [124652] = true,    --Kaydee Racketring, (Quest) I'm ready to sign a contract
     [125367] = true,    --Mobber, <Access D.R.I.V.E.>
+    [124311] = true,    --(Lorewalking) What stories can you tell me?
 };
 
 function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)

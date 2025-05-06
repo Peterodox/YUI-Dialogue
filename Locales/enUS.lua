@@ -64,8 +64,8 @@ L["Collection Collected"] = COLLECTED or "Collected";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
-L["Format You Have X"] = "- You have |cffffffff%d|r";
-L["Format You Have X And Y In Bank"] = "- You have |cffffffff%d|r (|cffffffff%d|r in your bank)";
+L["Format You Have X"] = "- You have |cffffffff%s|r";
+L["Format You Have X And Y In Bank"] = "- You have |cffffffff%s|r (|cffffffff%s|r in your bank)";
 L["Format Suggested Players"] = QUEST_SUGGESTED_GROUP_NUM or "Suggested Players [%d]";
 L["Format Current Skill Level"] = "Current Level: |cffffffff%d/%d|r";
 L["Format Reward Title"] = HONOR_REWARD_TITLE or "Title: %s";

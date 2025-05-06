@@ -64,8 +64,8 @@ L["Collection Collected"] = "Полученные";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "Улучшает отношение фракции %2$s на %1$d";
-L["Format You Have X"] = "- Имеется |cffffffff%d|r";
-L["Format You Have X And Y In Bank"] = "- Имеется |cffffffff%d|r (|cffffffff%d|r в банке)";
+L["Format You Have X"] = "- Имеется |cffffffff%s|r";
+L["Format You Have X And Y In Bank"] = "- Имеется |cffffffff%s|r (|cffffffff%s|r в банке)";
 L["Format Suggested Players"] = "Рекомендуется %d |4игрок:игрока:игроков;.";
 L["Format Current Skill Level"] = "Текущий уровень: |cffffffff%d/%d|r";
 L["Format Reward Title"] = "Звание: %s";

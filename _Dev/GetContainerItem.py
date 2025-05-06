@@ -8,7 +8,7 @@ import csv
 dataSourcePath = 'G:\\Peter\\NarciUI TWW\\Resources\\'
 outPutPath = 'G:\\Peter\\NarciUI TWW\\Python\\'
 
-itemData = open(dataSourcePath +'ItemSparse.11.0.7.57528.csv')
+itemData = open(dataSourcePath +'ItemSparse.11.1.7.60520.csv')
 r_itemData = csv.reader(itemData)
 newLuaFile = open(outPutPath +'ContainerItem.lua', 'w', newline='')
 f_LuaFile = csv.writer(newLuaFile)
