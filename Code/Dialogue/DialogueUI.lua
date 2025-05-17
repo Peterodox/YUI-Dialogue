@@ -3238,8 +3238,8 @@ end
 do  --Vignette
     SharedVignette:SetFrameStrata("BACKGROUND");
     SharedVignette:SetFixedFrameStrata(true);
-    SharedVignette:SetPoint("TOPLEFT", UIParent, "TOPLEFT", -1, 1);
-    SharedVignette:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", 1, -1);
+    SharedVignette:SetPoint("TOPLEFT", WorldFrame, "TOPLEFT", -1, 1);
+    SharedVignette:SetPoint("BOTTOMRIGHT", WorldFrame, "BOTTOMRIGHT", 1, -1);
     SharedVignette:Hide();
     SharedVignette:SetAlpha(0);
 

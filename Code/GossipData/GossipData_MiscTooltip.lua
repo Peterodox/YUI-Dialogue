@@ -2,6 +2,7 @@ local _, addon = ...
 local L = addon.L;
 local GetFactionStatusText = addon.API.GetFactionStatusText;
 local GetCurrencyInfo = C_CurrencyInfo.GetCurrencyInfo;
+local GetItemCount = C_Item.GetItemCount;
 
 
 local function SetupTooltip_Reputation(tooltip, factionID)
@@ -22,6 +23,18 @@ local function SetupTooltip_Currency(tooltip, currencyID)
         tooltip:SetOwner(nil, "ANCHOR_NONE");
         tooltip:SetTitle(currencyInfo.name, 1, 1, 1);
         tooltip:AddLine(L["Format You Have X"]:format(BreakUpLargeNumbers(currencyInfo.quantity)), 1, 0.82, 0);
+        return true
+    end
+end
+
+local function SetupTooltip_Item(tooltip, itemID)
+    local name = C_Item.GetItemNameByID(itemID);
+    local count = GetItemCount(itemID, true, true, true, true);
+    if name then
+        tooltip:Hide();
+        tooltip:SetOwner(nil, "ANCHOR_NONE");
+        tooltip:SetTitle(name, 1, 1, 1);
+        tooltip:AddLine(L["Format You Have X"]:format(BreakUpLargeNumbers(count)), 1, 0.82, 0);
         return true
     end
 end
@@ -57,6 +70,14 @@ local GossipXCurrency = {
     [132189] = 3149,    --Obtain Echo of N'Zoth [Requires 1200 Displaced Corrupted Mementos]
 };
 
+local GossipXItem = {
+    --[gossipOptionID] = itemID
+
+    --Overcharged Delves
+    [134233] = 244465,    --Obtain Titan Disc [Requires 100 Titan Disc Shards]
+    [134234] = 244465,    --Obtain Titan Disc [100 Titan Disc Shards]
+};
+
 
 local DataSource = {};
 do
@@ -73,9 +94,19 @@ do
             return SetupTooltip_Reputation(tooltip, GossipXReputation[gossipOptionID]);
         elseif GossipXCurrency[gossipOptionID] then
             return SetupTooltip_Currency(tooltip, GossipXCurrency[gossipOptionID]);
+        elseif GossipXItem[gossipOptionID] then
+            return SetupTooltip_Item(tooltip, GossipXItem[gossipOptionID]);
         end
     end
 end
 
 local GossipDataProvider = addon.GossipDataProvider;
 GossipDataProvider:AddDataSource(DataSource);
+
+
+local function RequestItemNames()
+    for _, itemID in pairs(GossipXItem) do
+        C_Item.RequestLoadItemDataByID(itemID);
+    end
+end
+addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", RequestItemNames);

@@ -3,7 +3,7 @@
 --[[
     local translator = {
         name = "AddOn Name",                                            --string: Your addon's name
-        font = "Interface\AddOns\DialogueUI\Fonts\frizqt__.ttf",        --string: Your font's path (optional)
+        font = "Interface/AddOns/DialogueUI/Fonts/frizqt__.ttf",        --string: Your font's path (optional)
         questDataGetter = function(questID)
             local duiQuestData;
             local questData = YourQuestDataProvider(questID);
@@ -78,6 +78,8 @@ local function SetTranslator(translator)
             TranslatorName = translator.name;
             if type(translator.font) == "string" then
                 QuestFont = translator.font;
+            elseif type(translator.font) == "function" then
+                QuestFont = translator.font();
             end
             QuestDataGetter = translator.questDataGetter;
         else

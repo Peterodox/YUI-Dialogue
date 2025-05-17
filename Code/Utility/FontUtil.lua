@@ -403,6 +403,15 @@ do
     function FontUtil:SetMultiLanguageQuestFont(file)
         return self:SetOverrideFont("DUIFont_Quest_MultiLanguage", file);
     end
+
+
+    function FontUtil:GetFontByAlphabet(alphabet)
+        return DEFAULT_FONT_FILE[alphabet]
+    end
+
+    function FontUtil:SetMultiLanguageQuestFontByAlphabet(alphabet)
+        return self:SetOverrideFont("DUIFont_Quest_MultiLanguage", self:GetFontByAlphabet(alphabet));
+    end
 end
 
 

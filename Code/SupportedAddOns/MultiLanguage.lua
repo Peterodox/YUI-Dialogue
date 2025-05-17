@@ -30,6 +30,23 @@ do
         it = "itIT",
     };
 
+    local function GetFont()
+        local language = MultiLanguageOptions and MultiLanguageOptions.SELECTED_LANGUAGE;
+        local alphabet;
+        if language == "ru" then
+            alphabet = "russian";
+        elseif language == "cn" then
+            alphabet = "simplifiedchinese";
+        elseif language == "tw" then
+            alphabet = "traditionalchinese";
+        elseif language == "ko" then
+            alphabet = "korean";
+        else
+            alphabet = "roman";
+        end
+        return addon.FontUtil:GetFontByAlphabet(alphabet);
+    end
+
     local function OnAddOnLoaded()
         local gsub = string.gsub;
         local currentLocale = GetLocale();
@@ -47,6 +64,7 @@ do
 
         local translator = {
             name = ADDON_NAME,
+            font = GetFont,
             questDataGetter = function(questID)
                 local duiQuestData;
                 local questData = GetQuestData(questID);

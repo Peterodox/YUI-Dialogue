@@ -11,6 +11,21 @@ local GetQuestName = addon.API.GetQuestName;
 local AutoCompleteQuestName = {};
 
 local AutoCompleteQuestID = {
+    --Darkmoon Faire
+    [29506] = true,     --Alchemy
+    [29508] = true,     --Blacksmithing
+    [29509] = true,     --Cooking
+    [29510] = true,     --Enchanting
+    [29511] = true,     --Engineering
+    [29513] = true,     --Fishing
+    [29514] = true,     --Herbalism
+    [29515] = true,     --Inscription
+    [29516] = true,     --Jewelcrafting
+    [29517] = true,     --Leatherworking
+    [29518] = true,     --Mining
+    [29519] = true,     --Skinning
+
+
     [43323] = true,     --A Time to Reflect
     [43461] = true,     --A Time to Reflect
     [82783] = true,     --Chromie's Codex
@@ -69,6 +84,7 @@ local AutoCompleteQuestID = {
     [84680] = true,     --Rock 'n Stone Revival
     [84225] = true,     --Eggstinction
     [84241] = true,     --Shoreline Stand
+    [84370] = true,     --The Key to Success (Delves Weekly)
     [85113] = true,     --Special Assignment: Storm's a Brewin
 };
 
