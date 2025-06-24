@@ -1453,6 +1453,7 @@ do  --Main UI
         self:SetScript("OnGamePadStick", self.OnGamePadStick);
         self:SetScript("OnGamePadButtonDown", self.OnGamePadButtonDown);
         addon.SharedVignette:TryShow();
+        CallbackRegistry:Trigger("BookUI.Show");
     end
 
     function DUIBookUIMixin:OnHide()

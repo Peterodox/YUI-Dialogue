@@ -340,6 +340,7 @@ L["Match Stat DPS"] = "每秒伤害([,%d%.]+)";
 L["Show Answer"] = "显示正确答案。";
 L["Quest Failed Pattern"] = "^上交任务";
 L["AutoCompleteQuest HallowsEnd"] = "糖罐";     --Quest:28981
+L["AutoCompleteQuest Midsummer"] = "祭拜这团火焰";   --Quest:29031
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "拍卖行";

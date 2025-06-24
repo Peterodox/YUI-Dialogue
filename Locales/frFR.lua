@@ -247,6 +247,7 @@ L["Match Stat DPS"] = "([,%d%.%-]+) dégâts par seconde";
 L["Show Answer"] = "Voir la solution.";
 L["Quest Failed Pattern"] = "^Impossible de rendre";
 L["AutoCompleteQuest HallowsEnd"] = "Un seau de bonbons";     --Quest:28981
+L["AutoCompleteQuest Midsummer"] = "Honorer la flamme";   --Quest:29031
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "Hôtel des ventes";

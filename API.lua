@@ -3240,6 +3240,18 @@ do  -- System
         end
     end
     API.RemoveQuestObjectiveTrackerQuestPopUp = RemoveQuestObjectiveTrackerQuestPopUp;
+
+
+    local GetCurrentKeyBoardFocus = GetCurrentKeyBoardFocus;
+
+    function API.ClearEditBoxFocus()
+        local keyBoardFocus = GetCurrentKeyBoardFocus();
+        if keyBoardFocus and keyBoardFocus.ClearFocus then
+            securecallfunction(keyBoardFocus.ClearFocus, keyBoardFocus);
+        end
+    end
+    CallbackRegistry:Register("DialogueUI.Show", API.ClearEditBoxFocus);
+    CallbackRegistry:Register("BookUI.Show", API.ClearEditBoxFocus);
 end
 
 do  -- Zone -- Location -- Area

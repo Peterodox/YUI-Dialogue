@@ -96,7 +96,8 @@ local AutoAcceptQuest = {
 local ExampleQuest = {
     --{questID, fallbackName}
     --Use the questID to get the quest name
-    {28981, L["AutoCompleteQuest HallowsEnd"]},      --Candy Bucket
+    {28981, L["AutoCompleteQuest HallowsEnd"]},     --Candy Bucket
+    {29031, L["AutoCompleteQuest Midsummer"]},      --Honor the Flame
 };
 
 function GossipDataProvider:ShouldAutoCompleteQuest(questID, questName)

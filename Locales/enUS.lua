@@ -350,6 +350,7 @@ L["Match Stat DPS"] = "([,%d%.]+) damage per second";
 L["Show Answer"] = "Show answer.";
 L["Quest Failed Pattern"] = "^Turn in for";     --First few words of ERR_QUEST_FAILED_MAX_COUNT_S
 L["AutoCompleteQuest HallowsEnd"] = "Candy Bucket";     --Quest:28981
+L["AutoCompleteQuest Midsummer"] = "Honor the Flame";   --Quest:29031
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = BUTTON_LAG_AUCTIONHOUSE or "Auction House";
