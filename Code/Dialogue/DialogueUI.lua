@@ -1821,7 +1821,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
             index = i,
             title = title,
             isComplete = false,
-            questID = questID,
+            questID = questID or 0,
             isOnQuest = false,
             isTrivial = isTrivial,
             frequency = frequency,
@@ -1844,7 +1844,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         local title, isComplete = GetActiveTitle(i);
         local questID = GetActiveQuestID(i);
 
-        if autoCompleteQuest then
+        if GetDBBool("AutoCompleteQuest") then
             if GossipDataProvider:ShouldAutoCompleteQuest(questID) and SelectActiveQuest then
                 SelectActiveQuest(i);
                 return false

@@ -78,6 +78,13 @@ local GossipXItem = {
     [134234] = 244465,    --Obtain Titan Disc [100 Titan Disc Shards]
 };
 
+local GossipXSpell = {
+    --[gossipOptionID] = spellID
+
+    --Klaxxi
+    [134233] = 244465,    --Obtain Titan Disc [Requires 100 Titan Disc Shards]
+    [134234] = 244465,    --Obtain Titan Disc [100 Titan Disc Shards]
+};
 
 local DataSource = {};
 do

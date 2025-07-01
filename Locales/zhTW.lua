@@ -24,6 +24,7 @@ L["Show Answer"] = "顯示正確答案。";
 L["Quest Failed Pattern"] = "才能完成此任務。$";
 L["AutoCompleteQuest HallowsEnd"] = "糖果桶";     --Quest:28981
 L["AutoCompleteQuest Midsummer"] = "榮耀火焰";   --Quest:29031
+L["AutoCompleteQuest Midsummer2"] = "褻瀆這些火焰！";     --Quest:11580
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "拍賣場";

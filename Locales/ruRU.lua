@@ -351,6 +351,7 @@ L["Show Answer"] = "Показать решение.";
 L["Quest Failed Pattern"] = "^Не удалось завершить";
 L["AutoCompleteQuest HallowsEnd"] = "Кулек конфет";     --Quest:28981
 L["AutoCompleteQuest Midsummer"] = "Поклонение огню";   --Quest:29031
+L["AutoCompleteQuest Midsummer2"] = "Осквернение огня";     --Quest:11580
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "Аукционный дом";

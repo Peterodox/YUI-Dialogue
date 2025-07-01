@@ -924,6 +924,10 @@ do  --Scroll Anim
 
         local pageOffset;
 
+        if self.ScrollFrame:IsAtPageTop() then
+            return 1
+        end
+
         if self.ScrollFrame:IsAtPageBottom() then
             return maxPage
         end

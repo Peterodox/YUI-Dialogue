@@ -1462,7 +1462,8 @@ do  -- Quest
     local function ShouldMuteQuestDetail(questID)
         --Temp Blizzard bug fix for weekly quest appearing repeatedly issue
         local class = GetQuestClassification(questID);
-        if (class == 4 or class == 5) and IsOnQuest(questID) then
+        if (class == 4 or class == 5 or class == nil) and IsOnQuest(questID) then
+            --Nil case is for Classic where QuestClassification doesn't exist
             return true
         else
             return false
@@ -2435,6 +2436,7 @@ do  -- Tooltip
         TP:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", 0, -128);
         TP:Show();
         TP:SetScript("OnUpdate", nil);
+        TP.shouldManuallyAddItemLevel = not addon.IsToCVersionEqualOrNewerThan(50500);
 
 
         local UpdateFrame = CreateFrame("Frame");
@@ -2473,7 +2475,8 @@ do  -- Tooltip
             local tooltipData = {};
             tooltipData.dataInstanceID = 0;
 
-            local addItemLevel;
+            local shouldAddItemLevel = TP.shouldManuallyAddItemLevel;
+            local itemLevel;
             local itemLink = GetTooltipHyperlink();
 
             if itemLink then
@@ -2481,8 +2484,8 @@ do  -- Tooltip
                     UpdateFrame:OnItemChanged(numLines);
                 end
 
-                if API.IsEquippableItem(itemLink) then
-                    addItemLevel = API.GetItemLevel(itemLink);
+                if shouldAddItemLevel and API.IsEquippableItem(itemLink) then
+                    itemLevel = API.GetItemLevel(itemLink);
                 end
             end
 
@@ -2494,10 +2497,11 @@ do  -- Tooltip
 
             local fs, text;
             for i = 1, numLines do
-                if i == 2 and addItemLevel then
+                if i == 2 and shouldAddItemLevel and itemLevel then
+                    --Default tooltip shows item level after Mists
                     n = n + 1;
                     lines[n] = {
-                        leftText = L["Format Item Level"]:format(addItemLevel);
+                        leftText = L["Format Item Level"]:format(itemLevel);
                         leftColor = CreateColor(1, 0.82, 0),
                     };
                 end

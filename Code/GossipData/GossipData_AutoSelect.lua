@@ -37,6 +37,7 @@ local AutoSelectGossip = {
     [121526] = 1,           --The Dread Pit, Vanathia
     [121508] = 1,           --The Dread Pit, Vant
     [120767] = 1,           --Nightfall Sanctum, Great Kyron
+    [125516] = 1,           --Nightfall Sanctum,Nimsi Loosefire
     [131474] = 1,           --Tak-Rethan, Pamsy
 };
 
