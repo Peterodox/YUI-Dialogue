@@ -61,6 +61,18 @@ local GossipXReputation = {
     [40087] = 1276,     --Old Hillpaw
     [40088] = 1278,     --Sho
     [40089] = 1280,     --Tina Mudclaw
+
+    --Classic (Horder)
+    [126050] = 1277,     --Chee Chee
+    [126051] = 1275,     --Ella
+    [126052] = 1282,     --Fish Fellreed
+    [126053] = 1283,     --Farmer Fung
+    [126054] = 1281,     --Gina Mudclaw
+    [126055] = 1273,     --Jogu the Drunk
+    [126056] = 1279,     --Haohan Mudclaw
+    [126057] = 1276,     --Old Hillpaw
+    [126058] = 1278,     --Sho
+    [126059] = 1280,     --Tina Mudclaw
 };
 
 local GossipXCurrency = {

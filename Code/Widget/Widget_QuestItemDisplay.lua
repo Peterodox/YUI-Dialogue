@@ -932,6 +932,7 @@ do
         238208,     --Nanny's Surge Dividends
         239118,     --Pinnacle Cache
         239120,     --Seasoned Adventurer's Cache
+        245589,     --Hellcaller Chest
     };
 
     for _, itemID in ipairs(OneTimeItem) do

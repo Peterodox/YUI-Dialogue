@@ -944,6 +944,11 @@ local function SortFunc_GossipPrioritizeQuest(a, b)
         return false
     end
 
+    if a.icon ~= b.icon then
+        --Sort non-regular gossip icon to the top (e.g. Merchant)
+        return a.icon ~= 132053
+    end
+
 	return a.orderIndex < b.orderIndex;
 end
 addon.SortFunc_GossipPrioritizeQuest = SortFunc_GossipPrioritizeQuest;

@@ -1461,7 +1461,7 @@ do  -- Quest
 
     local function ShouldMuteQuestDetail(questID)
         --Temp Blizzard bug fix for weekly quest appearing repeatedly issue
-        local class = GetQuestClassification(questID);
+        local class = GetQuestClassification and GetQuestClassification(questID);
         if (class == 4 or class == 5 or class == nil) and IsOnQuest(questID) then
             --Nil case is for Classic where QuestClassification doesn't exist
             return true
@@ -2092,8 +2092,8 @@ do  -- Faction -- Reputation
             factionName = p1;
         end
 
-        local isParagon = C_Reputation.IsFactionParagon(factionID);
-        local isMajorFaction = C_Reputation.IsMajorFaction(factionID);
+        local isParagon = C_Reputation.IsFactionParagon and C_Reputation.IsFactionParagon(factionID);
+        local isMajorFaction = C_Reputation.IsMajorFaction and C_Reputation.IsMajorFaction(factionID);
         local repInfo = C_GossipInfo.GetFriendshipReputation(factionID);
 
         local isCapped;

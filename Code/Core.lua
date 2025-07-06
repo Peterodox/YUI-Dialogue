@@ -10,6 +10,7 @@ local ShouldMuteQuestDetail = API.ShouldMuteQuestDetail;
 local CloseQuest = CloseQuest;
 local InCombatLockdown = InCombatLockdown;
 local IsInInstance = IsInInstance;
+local GetQuestID = GetQuestID;
 
 
 local EVENT_PROCESS_DELAY = 0.017;          --Affected by CameraMovement
@@ -56,17 +57,9 @@ if not addon.IsToCVersionEqualOrNewerThan(50000) then
     end
 end
 
-local ShouldMuteQuest;
-if addon.IsToCVersionEqualOrNewerThan(110005) then
-    local GetQuestID = GetQuestID;
-    function ShouldMuteQuest()
-        local questID = GetQuestID();
-        return ShouldMuteQuestDetail(questID)
-    end
-else
-    function ShouldMuteQuest()
-        return false
-    end
+local function ShouldMuteQuest()
+    local questID = GetQuestID();
+    return ShouldMuteQuestDetail(questID)
 end
 
 function EL:OnManualEvent(event, ...)
