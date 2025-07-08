@@ -62,7 +62,7 @@ local GossipXReputation = {
     [40088] = 1278,     --Sho
     [40089] = 1280,     --Tina Mudclaw
 
-    --Classic (Horder)
+    --Classic (Horde)
     [126050] = 1277,     --Chee Chee
     [126051] = 1275,     --Ella
     [126052] = 1282,     --Fish Fellreed

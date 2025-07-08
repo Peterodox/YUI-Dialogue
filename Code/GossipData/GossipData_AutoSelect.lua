@@ -39,6 +39,7 @@ local AutoSelectGossip = {
     [120767] = 1,           --Nightfall Sanctum, Great Kyron
     [125516] = 1,           --Nightfall Sanctum,Nimsi Loosefire
     [131474] = 1,           --Tak-Rethan, Pamsy
+    [121566] = 1,           --The Spiral Weave, Weaver's Instructions
 };
 
 local function IsAutoSelectOption(gossipOptionID, onlyOption)
