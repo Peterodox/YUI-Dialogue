@@ -2289,7 +2289,7 @@ function DUIDialogBaseMixin:ShowUI(event, ...)
 
     TooltipFrame:Hide();
 
-    CallbackRegistry:Trigger("DialogueUI.HandleEvent", event);
+    CallbackRegistry:Trigger("DialogueUI.HandleEvent", event, self.questID);
 end
 
 function DUIDialogBaseMixin:HideUI(cancelPopupFirst)

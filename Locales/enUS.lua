@@ -336,6 +336,10 @@ L["Translator No Quest Data Format"] = "No entry found for [Quest: %s]";
 L["Translator Click To Hide Translation"] = "Click to hide the translation";
 L["Translator Click To Show Translation"] = "Click to show the translation";
 
+--AddOn Compatibility for Voiceover AddOns
+L["VO Provider Format"] = "|cffffffff%s|r is handling the voiceover";
+L["VO No File Format"] = "|cffffffff%s|r could not find the voiceover file.";
+
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K
 L["Abbrev Breakpoint 10000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";    --Reserved for Asian languages that have words for 10,000

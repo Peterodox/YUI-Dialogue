@@ -86,6 +86,8 @@ local AutoCompleteQuestID = {
     [84241] = true,     --Shoreline Stand
     [84370] = true,     --The Key to Success (Delves Weekly)
     [85113] = true,     --Special Assignment: Storm's a Brewin
+    [87419] = true,     --Worldsoul: Delves
+    [91093] = true,     --More Than Just a Phase
 };
 
 local AutoAcceptQuest = {

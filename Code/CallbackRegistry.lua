@@ -15,7 +15,7 @@ local ipairs = ipairs;
         2. Method owner:func()
 --]]
 
-function CallbackRegistry:Register(event, func, owner)
+function CallbackRegistry:Register(event, func, owner, prioritized)
     if not self.events[event] then
         self.events[event] = {};
     end
@@ -28,7 +28,11 @@ function CallbackRegistry:Register(event, func, owner)
         callbackType = 1;
     end
 
-    tinsert(self.events[event], {callbackType, func, owner})
+    if prioritized then
+        tinsert(self.events[event], 1, {callbackType, func, owner})
+    else
+        tinsert(self.events[event], {callbackType, func, owner})
+    end
 end
 
 function CallbackRegistry:Trigger(event, ...)

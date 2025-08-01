@@ -821,6 +821,18 @@ do  -- NPC Interaction
     end
     API.GetCurrentNPCInfo = GetCurrentNPCInfo;
 
+    local function GetUnitTypeAndID(unit)
+        unit = unit or "npc";
+        local guid = UnitGUID("npc");
+        if guid then
+            local unitType, id = match(guid, "^(%a+)%-0%-%d*%-%d*%-%d*%-(%d*)");
+            if unitType and id then
+                return unitType, tonumber(id)
+            end
+        end
+    end
+    API.GetUnitTypeAndID = GetUnitTypeAndID;
+
     local SkippedNPC = {
         [94398] = true,     --Fleet Command Table
         [94399] = true,     --Fleet Command Table
@@ -830,9 +842,8 @@ do  -- NPC Interaction
         [215758] = true,    --Mission Command Table
     };
     local function IsInteractingWithGameObject()
-        local guid = UnitGUID("npc");
-        if guid then
-            local unitType, id = match(guid, "^(%a+)%-0%-%d*%-%d*%-%d*%-(%d*)");
+        local unitType, id = GetUnitTypeAndID("npc");
+        if id then
             if unitType == "GameObject" or unitType == "Vehicle" then
                 return true
             elseif unitType == "Creature" and id then

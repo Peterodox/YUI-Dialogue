@@ -1,5 +1,6 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
     <Script file="TranslatorPublic.lua"/>
+    <Script file="VoiceoverPublic.lua"/>
 
     <Script file="SupportedAddOns.lua"/>
 
@@ -12,6 +13,7 @@
     <Script file="MultiLanguage.lua"/>
     <Script file="CzechQuests.lua"/>
     <Script file="WowUkrainizer.lua"/>
+    <Script file="ChattyLittleNpc.lua"/>
 
     <Script file="Platine1AddOns.lua"/>
 </Ui>

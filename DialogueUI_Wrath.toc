@@ -1,5 +1,5 @@
-## Interface: 30404
-## Version: 0.6.6
+## Interface: 30405
+## Version: 0.6.7
 
 ## Title: Dialogue UI
 
