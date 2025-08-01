@@ -325,6 +325,18 @@ L["Instruction Open Settings Keybind Format"] = "在对话界面可见时按 [%s
 L["Instruction Open Settings No Keybind"] = "你未设定打开设置界面的快捷键";
 L["HelpTip Warband Completed Quest"] = "这个图标表示你战团里的角色完成过此任务。";
 L["Got It"] = "我悟了";     --HELP_TIP_BUTTON_GOT_IT
+L["Open Settings"] = "打开设置界面";
+
+--AddOn Compatibility for Language Translator
+L["Translator"] = "翻译器";
+L["Translator Source"] = "来源：";
+L["Translator No Quest Data Format"] = "未找到条目 [Quest: %s]";
+L["Translator Click To Hide Translation"] = "点击以隐藏翻译";
+L["Translator Click To Show Translation"] = "点击以显示翻译";
+
+--AddOn Compatibility for Voiceover AddOns
+L["VO Provider Format"] = "|cffffffff%s|r 正在管理语音。";
+L["VO No File Format"] = "|cffffffff%s|r 无法找到相关的语音文件。";
 
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = "千";     --1,000 = 1K
