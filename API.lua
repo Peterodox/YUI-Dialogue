@@ -1322,7 +1322,7 @@ do  -- Quest
         if not item then return end;
         local classID, subclassID = select(6, GetItemInfoInstant(item));
         --print(item, classID, subclassID)
-        return (classID == 12) or (classID == 0 and subclassID == 8) or (classID == 15 and (subclassID == 0 or subclassID == 4))
+        return (classID == 12) or (classID == 0 and subclassID == 8) or (classID == 15 and subclassID == 4)     ---Re-ignore Junk?
     end
     API.IsQuestLoreItem = IsQuestLoreItem;
 

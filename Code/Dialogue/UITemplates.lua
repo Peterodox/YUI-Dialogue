@@ -476,6 +476,7 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
             local frameWidth = questTypeFrame:GetContentWidth();
             self.hasQuestType = true;
             self.rightFrameWidth = Round(frameWidth);
+            self:SetButtonText(questInfo.title, true);
         end
 
         local rightIcon = self:GetExtraObject("Warband");

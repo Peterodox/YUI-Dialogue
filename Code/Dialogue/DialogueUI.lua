@@ -2482,13 +2482,16 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
             CameraUtil:OnEnterCombatDuringInteraction();
         end
     elseif event == "GOSSIP_CONFIRM" then
+        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
         local gossipID, text, cost = ...
         self:RegisterEvent("GOSSIP_CONFIRM_CANCEL");
         self:HandleGossipConfirm(gossipID, text, cost);
     elseif event == "GOSSIP_CONFIRM_CANCEL" then
+        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
         self:UnregisterEvent(event);
         self:HideGossipConfirm();
     elseif event == "GOSSIP_ENTER_CODE" then
+        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
         local gossipID = ...
         self:HandleGossipEnterCode(gossipID);
     elseif event == "LOADING_SCREEN_ENABLED" then
