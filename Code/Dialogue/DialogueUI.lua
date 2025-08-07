@@ -758,6 +758,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
     elseif self.questLayout ~= false or forceUpdate then
         self.questLayout = false;
         self.questID = nil;
+        self.questIsFromGossip = nil;
         self.scrollViewHeight = self.scrollFrameBaseHeight;
         --self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", PADDING_H, -PADDING_TOP);
         self.ScrollFrame:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -42);
@@ -1552,8 +1553,6 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
         ExitButton:SetButtonDeclineQuest(self.questIsFromGossip);
     end
 
-    self.questIsFromGossip = nil;
-
     if playFadeIn then
         self:FadeInContentFrame();
     end
@@ -1685,7 +1684,6 @@ function DUIDialogBaseMixin:HandleQuestProgress(playFadeIn)
 
     local CancelButton = self:AcquireExitButton();
     CancelButton:SetButtonCancelQuestProgress(self.questIsFromGossip);
-    self.questIsFromGossip = nil;
 
     if not canComplete then
         KeyboardControl:SetAction("Confirm", CancelButton);
@@ -2292,11 +2290,16 @@ function DUIDialogBaseMixin:ShowUI(event, ...)
     CallbackRegistry:Trigger("DialogueUI.HandleEvent", event, self.questID);
 end
 
-function DUIDialogBaseMixin:HideUI(cancelPopupFirst)
+function DUIDialogBaseMixin:HideUI(cancelPopupFirst, fromPressingKey)
     if not self:IsShown() then return end;
 
     if cancelPopupFirst and self.requireGossipConfirm then
         self:OnEvent("GOSSIP_CONFIRM_CANCEL");
+        return
+    end
+
+    if fromPressingKey and self.questIsFromGossip and GetDBBool("EscapeToDeclineQuest") and (not InCombatLockdown()) then
+        DeclineQuest();
         return
     end
 
@@ -2344,7 +2347,6 @@ function DUIDialogBaseMixin:OnHide()
 
     self:CloseDialogInteraction();
     self.keepGossipHistory = false;
-    self.requireGossipConfirm = false;
     self.selectedGossipIndex = nil;
     self.consumeGossipClose = nil;
     self.questIsFromGossip = nil;
@@ -2384,6 +2386,11 @@ function DUIDialogBaseMixin:OnHide()
     if self.acknowledgeAutoAcceptQuest then
         self.acknowledgeAutoAcceptQuest = nil;
         AcknowledgeAutoAcceptQuest();
+    end
+
+    if self.requireGossipConfirm ~= nil then
+        self.requireGossipConfirm = nil;
+        API.CloseGossipStaticPopups();
     end
 end
 
@@ -2482,16 +2489,16 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
             CameraUtil:OnEnterCombatDuringInteraction();
         end
     elseif event == "GOSSIP_CONFIRM" then
-        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+        --CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
         local gossipID, text, cost = ...
         self:RegisterEvent("GOSSIP_CONFIRM_CANCEL");
         self:HandleGossipConfirm(gossipID, text, cost);
     elseif event == "GOSSIP_CONFIRM_CANCEL" then
-        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+        --CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
         self:UnregisterEvent(event);
         self:HideGossipConfirm();
     elseif event == "GOSSIP_ENTER_CODE" then
-        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+        --CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
         local gossipID = ...
         self:HandleGossipEnterCode(gossipID);
     elseif event == "LOADING_SCREEN_ENABLED" then

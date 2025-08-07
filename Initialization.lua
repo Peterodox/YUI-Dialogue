@@ -43,6 +43,7 @@ local DefaultValues = {
     UseCustomBindings = false,
     PrimaryControlKey = 1,                      --1: Space  2:Interact Key
     ScrollDownThenAcceptQuest = false,
+    EscapeToDeclineQuest = false,
     RightClickToCloseUI = true,
     CycleRewardHotkeyEnabled = false,           --Press Tab to cycle through choosable rewards
     DisableHotkeyForTeleport = false,           --Disable gossip hotkey when select teleportation

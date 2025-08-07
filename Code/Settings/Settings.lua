@@ -674,6 +674,7 @@ local Schematic = { --Scheme
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
+            {type = "Checkbox", name = L["Press Escape To Decline Quest"], description = L["Press Escape To Decline Quest Desc"], dbKey = "EscapeToDeclineQuest"},
 
             {type = "Subheader", name = L["Experimental Features"]},
             {type = "Checkbox", name = L["Mobile Device Mode"], description = L["Mobile Device Mode Desc"], dbKey = "MobileDeviceMode"},

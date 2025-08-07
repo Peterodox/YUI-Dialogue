@@ -1,4 +1,5 @@
 local _, addon = ...
+local API = addon.API;
 
 local PlaySoundFile = PlaySoundFile;
 local PlaySoundKit = PlaySound;
@@ -53,7 +54,7 @@ end
 addon.PlaySound = PlaySound;
 
 
-do  --Mute Target Lost Sound while interacting with NPC
+do  --Mute Target Lost Sound while interacting with NPC     --Mute UI open/close sound briefly
     --https://wago.tools/db2/SoundKitEntry?filter[SoundKitID]=684&page=1&sort[SoundKitID]=asc
     --local soundKitID = (SOUNDKIT and SOUNDKIT.INTERFACE_SOUND_LOST_TARGET_UNIT) or 684;
 
@@ -71,4 +72,17 @@ do  --Mute Target Lost Sound while interacting with NPC
 
     addon.CallbackRegistry:Register("DialogueUI.Show", MuteTargetLostSound);
     addon.CallbackRegistry:Register("DialogueUI.Hide", UnmuteTargetLostSound);
+
+
+    local function BrieflyMuteUIOpenHideSound()
+        --SOUNDKIT.IG_MAINMENU_OPEN, SOUNDKIT.IG_MAINMENU_CLOSE
+        local s1, s2 = 567490, 567464;
+        MuteSoundFile(s1);
+        MuteSoundFile(s2);
+        C_Timer.After(0.03, function()
+            UnmuteSoundFile(s1);
+            UnmuteSoundFile(s2);
+        end);
+    end
+    API.BrieflyMuteUIOpenHideSound = BrieflyMuteUIOpenHideSound;
 end

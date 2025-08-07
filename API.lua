@@ -3267,6 +3267,27 @@ do  -- System
     end
     CallbackRegistry:Register("DialogueUI.Show", API.ClearEditBoxFocus);
     CallbackRegistry:Register("BookUI.Show", API.ClearEditBoxFocus);
+
+
+    if StaticPopup_FindVisible then
+        function API.CloseGossipStaticPopups()
+            local whiches = {"GOSSIP_CONFIRM", "GOSSIP_ENTER_CODE"};
+            local soundUnmuted = true;
+            for _, which in ipairs(whiches) do
+                local dialog = StaticPopup_FindVisible(which);
+                if dialog then
+                    if soundUnmuted then
+                        soundUnmuted = false;
+                        API.BrieflyMuteUIOpenHideSound();
+                    end
+                    dialog:Show();
+                    dialog:Hide();
+                end
+            end
+        end
+    else
+        API.CloseGossipStaticPopups = AlwaysNil;
+    end
 end
 
 do  -- Zone -- Location -- Area

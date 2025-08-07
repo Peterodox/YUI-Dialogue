@@ -190,7 +190,8 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
             else
                 if KeyboardControl.parent.HideUI then
                     local cancelPopupFirst = true;
-                    KeyboardControl.parent:HideUI(cancelPopupFirst);
+                    local fromPressingKey = true;
+                    KeyboardControl.parent:HideUI(cancelPopupFirst, fromPressingKey);
                     processed = true;
                 else
                     KeyboardControl.parent:Hide();
