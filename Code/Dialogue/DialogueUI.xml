@@ -187,7 +187,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="DUIDialogItemButtonTemplate" mixin="DUIDialogItemButtonMixin" flattenRenderLayers="true" hidden="true" virtual="true"> <!--Display Items-->
+    <Button name="DUIDialogItemButtonTemplate" mixin="DUIDialogItemButtonMixin" flattenRenderLayers="true" hidden="true" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true"> <!--Display Items-->
         <Size x="174" y="36"/>
         <Frames>
             <Frame parentKey="AreaDefinitionItemBorder">
@@ -225,8 +225,8 @@
             <Layer level="OVERLAY" textureSubLevel="5">
                 <FontString parentKey="Name" inherits="DUIFont_Item" justifyH="LEFT" justifyV="MIDDLE" maxLines="2" spacing="2">
                     <Anchors>
-                        <Anchor point="LEFT" relativeKey="$parent" relativePoint="LEFT" x="40"/>
-                        <Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-8"/>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="40"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="-8"/>
                     </Anchors>
                 </FontString>
                 <FontString parentKey="Count" inherits="DUIFont_ItemCount" justifyH="RIGHT" justifyV="BOTTOM">
@@ -264,9 +264,9 @@
             <OnLeave method="OnLeave"/>
             <OnClick method="OnClick"/>
         </Scripts>
-    </Frame>
+    </Button>
 
-    <Frame name="DUIDialogSmallItemButtonTemplate" mixin="DUIDialogSmallItemButtonMixin" hidden="true" virtual="true"> <!--Display XP, Money-->
+    <Button name="DUIDialogSmallItemButtonTemplate" mixin="DUIDialogSmallItemButtonMixin" hidden="true" virtual="true"> <!--Display XP, Money-->
         <Size x="174" y="15"/>
         <Layers>
             <Layer level="ARTWORK">
@@ -303,7 +303,7 @@
             <OnEnter method="OnEnter"/>
             <OnLeave method="OnLeave"/>
         </Scripts>
-    </Frame>
+    </Button>
 
     <Button name="DUIDialogHeaderWidgetTemplate" virtual="true">
         <Size x="256" y="18"/>

@@ -1984,3 +1984,7 @@ ContainerItem = {
 [87540] = true,
 [87541] = true,
 }
+
+do  --Blacklist (In case player wants to hold on to it)
+    ContainerItem[237812] = nil;    --Cache of Inifite Treasure (Timerunning)
+end

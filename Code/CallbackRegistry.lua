@@ -99,6 +99,10 @@ function CallbackRegistry:RegisterTutorial(tutorialFlag, func, owner)
     self:Register(event, func, owner);
 end
 
+function CallbackRegistry:RegisterLoadingCompleteCallback(func, owner, prioritized)
+    self:Register("LOADING_SCREEN_DISABLED", func, owner, prioritized)
+end
+
 
 local Processor = CreateFrame("Frame");
 

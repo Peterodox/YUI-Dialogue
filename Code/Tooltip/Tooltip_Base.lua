@@ -67,6 +67,10 @@ function TooltipBaseMixin:InitFrame()
         self.fontStrings = {};
     end
 
+    if not self.grid then
+        self.grid = {};
+    end
+
     if not self.iconPool then
         local function CreateIcon()
             local icon = self.Content:CreateTexture(nil, "OVERLAY");
@@ -77,6 +81,7 @@ function TooltipBaseMixin:InitFrame()
             icon:ClearAllPoints();
             icon:Hide();
             icon:SetTexture(nil);
+            icon:SetTexCoord(0, 1, 0, 1);
         end
 
         self.iconPool = API.CreateObjectPool(CreateIcon, RemoveIcon);
@@ -562,6 +567,7 @@ function TooltipBaseMixin:SetGridLine(row, col, text, r, g, b, sizeIndex, alignI
 end
 
 function TooltipBaseMixin:AddIcon(file, width, height, layer, sublevel)
+    width = width or FONT_HEIGHT_MEDIUM;
     local f = self.iconPool:Acquire();
     f:ClearAllPoints();
     f:SetPoint("TOPLEFT", self.Content, "TOPLEFT", 0, 0);
@@ -688,6 +694,39 @@ function TooltipBaseMixin:OverwriteLeftLineText(row, text)
     if self.grid[row] and self.grid[row][1] then
         return self.grid[row][1]:SetText(text)
     end
+end
+
+function TooltipBaseMixin:GetLastLeftLine()
+    if self.numLines > 0 and self.grid[self.numLines] then
+        return self.grid[self.numLines][1]
+    end
+end
+
+function TooltipBaseMixin:AddTexture(file, textureInfoTable)
+    --Emulate GameTooltip Bahavior
+    --Adds a texture to the beginning of the last left line
+
+    local fs = self:GetLastLeftLine();
+    if not fs then return false end;
+
+    local width, height;
+    local l, r, t, b = 0.0625, 0.9375, 0.0625, 0.9375;
+
+    if textureInfoTable then
+        width = textureInfoTable.width;
+        height = textureInfoTable.height;
+        local coords = textureInfoTable.texCoords;
+        if coords then
+            l, r, t, b = coords.left, coords.right, coords.top, coords.bottom;
+        end
+    end
+
+    local icon = self:AddIcon(file, width, height);
+    icon:SetTexCoord(l, r, t, b);
+    fs.icon = icon;
+    icon.iconGap = SPACING_INTERNAL;
+
+    return true
 end
 
 

@@ -26,3 +26,34 @@ local function ObjectGetter()
     return TooltipFrame
 end
 addon.AddSupportedPublicCallback("TooltipSetHyperLink", ObjectGetter);
+
+
+
+local ItemLinkProcessor = {};
+do
+    local pairs = pairs;
+
+    local function Tooltip_OnSetItem(tooltip, itemID, itemLink)
+        local anyChange;
+        for processor in pairs(ItemLinkProcessor) do
+            if processor(tooltip, itemID, itemLink) then
+                anyChange = true;
+            end
+        end
+        if anyChange then
+            tooltip:Show();
+        end
+    end
+
+    local CALLBACK_ADDED = false;
+
+    local function AddItemTooltipProcessorExternal(processor)
+        if not CALLBACK_ADDED then
+            CALLBACK_ADDED = true;
+            addon.CallbackRegistry:Register("SharedTooltip.SetItem", Tooltip_OnSetItem);
+        end
+        ItemLinkProcessor[processor] = true;
+    end
+
+    DialogueUIAPI.AddItemTooltipProcessorExternal = AddItemTooltipProcessorExternal;
+end

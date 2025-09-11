@@ -74,7 +74,6 @@ local GetActiveTitle = GetActiveTitle;
 local GetSuggestedGroupSize = API.GetSuggestedGroupSize;
 local UnitExists = UnitExists;
 local UnitName = UnitName;
-local SetPortraitTexture = SetPortraitTexture;
 local AcceptQuest = AcceptQuest;
 local GetQuestPortraitGiver = GetQuestPortraitGiver;
 local GetNumQuestChoices = GetNumQuestChoices;
@@ -734,7 +733,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         end
 
         local unit = UnitExists("npc") and "npc" or "player";
-        SetPortraitTexture(self.FrontFrame.Header.Portrait, unit);
+        API.SetPortraitTexture(self.FrontFrame.Header.Portrait, unit);
 
         if ThemeUtil:IsDarkMode() then
             self.FrontFrame.Header.Portrait:SetVertexColor(1, 1, 1);

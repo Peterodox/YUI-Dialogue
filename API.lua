@@ -2077,6 +2077,41 @@ do  -- Model
         model:SetLight(enabled, lightValues);
     end
     API.SetModelLight = SetModelLight;
+
+
+    do  --UnitPortraitSetter
+        local UnitPortraitSetter = CreateFrame("Frame");
+        UnitPortraitSetter.queue = {};
+
+        function UnitPortraitSetter:SetPortraitTexture(textureObject, unit)
+            if IsUnitModelReadyForUI(unit) then
+                self.queue[textureObject] = nil;
+                SetPortraitTexture(textureObject, unit);
+            else
+                self.queue[textureObject] = unit;
+                self.t = 0;
+                self:SetScript("OnUpdate", self.OnUpdate);
+            end
+        end
+
+        function UnitPortraitSetter:OnUpdate(elapsed)
+            self.t = self.t + elapsed;
+            if self.t >= 1.0 then
+                self.t = 0;
+                self:SetScript("OnUpdate", nil);
+                for textureObject, unit in pairs(self.queue) do
+                    if textureObject:IsVisible() then
+                        SetPortraitTexture(textureObject, unit);
+                    end
+                end
+                self.queue = {};
+            end
+        end
+
+        API.SetPortraitTexture = function(textureObject, unit)
+            UnitPortraitSetter:SetPortraitTexture(textureObject, unit);
+        end
+    end
 end
 
 do  -- Faction -- Reputation

@@ -52,6 +52,7 @@ do	--Retail
 		{"QuestlineUnlock", "REWARD_QUESTLINE_UNLOCK"},
 		{"QuestlineReward", "REWARD_QUESTLINE_REWARD"},
 		{"QuestlineUnlockPart", "REWARD_QUESTLINE_UNLOCK_PART"},
+		{"PossibleReward", "REWARD_POSSIBLE_QUEST_REWARD"},
 	};
 
 	for _, info in ipairs(SpellTypes) do
@@ -79,6 +80,7 @@ local QUEST_INFO_SPELL_REWARD_TO_HEADER = {
 	[Enum.QuestCompleteSpellType.QuestlineUnlock] = REWARD_QUESTLINE_UNLOCK,
 	[Enum.QuestCompleteSpellType.QuestlineReward] = REWARD_QUESTLINE_REWARD,
 	[Enum.QuestCompleteSpellType.QuestlineUnlockPart] = REWARD_QUESTLINE_UNLOCK_PART,
+	[Enum.QuestCompleteSpellType.PossibleReward] = REWARD_POSSIBLE_QUEST_REWARD,
 };
 --]]
 
