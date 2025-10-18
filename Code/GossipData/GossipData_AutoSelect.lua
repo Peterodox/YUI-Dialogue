@@ -27,6 +27,7 @@ local AutoSelectGossip = {
     [123493] = 1,           --Delver's Guide, Dornagal
     [122660] = 1,           --Explorers' League Supplies, Dornagal
     [120910] = 1,           --Breem, Dornagal Flight Master
+    [120333] = 1,           --World Quest, Hallowfall, Reserve Rumpus
 
     [125367] = 1,           --DRIVE, Mobber
 
@@ -52,6 +53,10 @@ local AutoSelectGossip = {
     [134070] = 1,           --Xeronia, I will save them.
     [125513] = 1,           --Prospera Cogwail, (Delve)
     [134202] = 1,           --Spymaster Casnegosa, (Delve)
+    [134281] = 1,           --Spymaster Casnegosa
+    [131159] = 1,           --Craggle Fritzbrains, (Delve)
+    [120132] = 1,           --Partially-Chewed Goblin, (Delve)
+    [131312] = 1,           --Balga Wicksfix, (Delve)
 };
 
 local function IsAutoSelectOption(gossipOptionID, onlyOption)
