@@ -1,4 +1,4 @@
-## Interface: 11507
+## Interface: 11507, 11508
 ## Version: 0.6.7
 
 ## Title: Dialogue UI
