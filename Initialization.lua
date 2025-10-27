@@ -1,5 +1,5 @@
 local VERSION_TEXT = "v0.6.7";
-local VERSION_DATE = 1760800000;
+local VERSION_DATE = 1761500000;
 
 
 local addonName, addon = ...
@@ -99,6 +99,7 @@ local DefaultValues = {
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
     TTSReadTranslation = false,                 --Read original text or translation. Controlled by TTSButton modifier key
+    MuteTargetLostSound = true,                 --Mute target lost sound caused by hiding UI. Accessed through command only: /run DialogueUI_DB.MuteTargetLostSound = false
 
     --WidgetManagerPosition = {x, y};
     --QuestItemDisplayPosition = {x, y};
@@ -231,6 +232,7 @@ do
 
     addon.IS_CLASSIC = not IsToCVersionEqualOrNewerThan(100000);
     addon.IS_CATA = currentToCVersion >= 40400 and currentToCVersion < 50000;
+    addon.IS_MIDNIGHT = currentToCVersion >= 120000;
 end
 
 

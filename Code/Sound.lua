@@ -58,16 +58,21 @@ do  --Mute Target Lost Sound while interacting with NPC     --Mute UI open/close
     --https://wago.tools/db2/SoundKitEntry?filter[SoundKitID]=684&page=1&sort[SoundKitID]=asc
     --local soundKitID = (SOUNDKIT and SOUNDKIT.INTERFACE_SOUND_LOST_TARGET_UNIT) or 684;
 
+    local SHOULD_MUTE_FILE = true;
     local SOUND_FILE_ID = 567520;
     local MuteSoundFile = MuteSoundFile;
     local UnmuteSoundFile = UnmuteSoundFile;
 
     local function MuteTargetLostSound()
-        MuteSoundFile(SOUND_FILE_ID);
+        if SHOULD_MUTE_FILE then
+            MuteSoundFile(SOUND_FILE_ID);
+        end
     end
 
     local function UnmuteTargetLostSound()
-        UnmuteSoundFile(SOUND_FILE_ID);
+        if SHOULD_MUTE_FILE then
+            UnmuteSoundFile(SOUND_FILE_ID);
+        end
     end
 
     addon.CallbackRegistry:Register("DialogueUI.Show", MuteTargetLostSound);
@@ -85,4 +90,14 @@ do  --Mute Target Lost Sound while interacting with NPC     --Mute UI open/close
         end);
     end
     API.BrieflyMuteUIOpenHideSound = BrieflyMuteUIOpenHideSound;
+
+
+    local function Settings_MuteTargetLostSound(dbValue)
+        if dbValue == false then
+            SHOULD_MUTE_FILE = false;
+        else
+            SHOULD_MUTE_FILE = true;
+        end
+    end
+    addon.CallbackRegistry:Register("SettingChanged.MuteTargetLostSound", Settings_MuteTargetLostSound);
 end

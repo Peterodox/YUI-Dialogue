@@ -30,6 +30,11 @@ local function AlwaysZero(arg)
     return 0
 end
 
+local issecurevalue = issecurevalue or AlwaysFalse;
+local canaccessvalue = canaccessvalue or AlwaysTrue;
+API.issecurevalue = issecurevalue;
+API.canaccessvalue = canaccessvalue;
+
 local function CopyEnum(name)
     local tbl = {};
     if Enum and Enum[name] then
@@ -782,7 +787,7 @@ do  -- NPC Interaction
 		local hideWeapon = true;
         local useNativeForm = not inAlternateForm;
         PlayerActor:SetScale(1);
-        
+
         local result = PlayerActor:SetModelByUnit("player", sheatheWeapon, autodress, hideWeapon, useNativeForm);
         if result then
             local creatureDisplayID, _, _, isSelfMount, _, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = C_MountJournal.GetMountInfoExtraByID(mountID);
@@ -804,6 +809,8 @@ do  -- NPC Interaction
 
     local function GetCreatureIDFromGUID(guid)
         --Including Creature, Vehicle, GameObject
+        if not canaccessvalue(guid) then return end;
+
         local id = guid and match(guid, "^%a+%-0%-%d*%-%d*%-%d*%-(%d*)");
         if id then
             return tonumber(id)
@@ -824,6 +831,7 @@ do  -- NPC Interaction
     local function GetUnitTypeAndID(unit)
         unit = unit or "npc";
         local guid = UnitGUID("npc");
+        if not canaccessvalue(guid) then return end;
         if guid then
             local unitType, id = match(guid, "^(%a+)%-0%-%d*%-%d*%-%d*%-(%d*)");
             if unitType and id then

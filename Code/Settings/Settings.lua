@@ -1276,9 +1276,9 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
             optionButton = self.optionButtonPool:Acquire();
             optionButton.isParentOption = nil;
             optionButton:SetParent(self.ScrollFrame);
-            optionButton:SetData(optionData);
             optionButton:SetSize(OPTIONBUTTON_WIDTH, OPTIONBUTTON_HEIGHT);
             optionButton:SetPoint("TOPLEFT", self.ScrollFrame.Reference, "TOPLEFT", 0, (1 - numShownOptions)*OPTIONBUTTON_HEIGHT);
+            optionButton:SetData(optionData);
             if optionData.dbKey then
                 dbKeyToWidget[optionData.dbKey] = optionButton;
             end
@@ -1971,7 +1971,8 @@ do  --DropdownButton
     end
 
     function DUIDialogSettingsDropdownButtonMixin:SetText(text)
-        self.ValueText:SetText(text);
+        --self.ValueText:SetText(text);
+        addon.FontUtil:SetAutoScalingText(self.ValueText, text);
     end
 
     function DUIDialogSettingsDropdownButtonMixin:SetPadding(left)

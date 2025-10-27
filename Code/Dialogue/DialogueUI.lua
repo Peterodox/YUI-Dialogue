@@ -932,6 +932,9 @@ local GOSSIP_QUEST_LABEL = L["Gossip Quest Option Prepend"] or "(Quest)";
 
 local function SortFunc_GossipPrioritizeQuest(a, b)
     if a.flags and b.flags and (a.flags ~= b.flags) then
+        if a.flags == 1 then    --1:Quest, 4:PlayMovie?
+            return true
+        end
         return a.flags > b.flags
     end
 
@@ -1058,7 +1061,7 @@ end
 local function ConcatenateNPCName(text)
     if GetDBBool("ShowNPCNameOnPage") and UnitExists("npc") then
         local name = UnitName("npc");
-        if text and name and name ~= "" then
+        if API.canaccessvalue(name) and text and name and name ~= "" then
             return name..": "..text
         end
     end

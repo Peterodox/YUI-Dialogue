@@ -236,6 +236,9 @@ do  --Auto Downsize Font To Fit Into Region (Derivative of AutoScalingFontString
     end
 
     function AutoScalingFontStringMixin:ScaleTextToFit(fontString, minLineHeight)
+        --Important: fontstring's parent needs to have its anchor set.
+        --otherwise fontString:GetWidth() returns wrong value
+
         local baseLineHeight = self:GetFontHeight(fontString);
         local tryHeight = baseLineHeight;
         minLineHeight = minLineHeight or AUTO_SCALING_MIN_HEIGHT;

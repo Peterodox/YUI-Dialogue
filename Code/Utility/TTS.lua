@@ -45,6 +45,17 @@ local TTSButtons = {};      --DialogueUI, BookUI
 local TTSButtonMixin = {};
 
 
+local C_VoiceChat_SpeakText;
+if addon.IS_MIDNIGHT then
+    TTSUtil.IS_MIDNIGHT = true;
+    C_VoiceChat_SpeakText = C_VoiceChat.SpeakText;
+else
+    C_VoiceChat_SpeakText = function(voiceID, text, rate, volume, allowOverlappedSpeech)
+        C_VoiceChat.SpeakText(voiceID, text, DESTINATION, rate, volume, allowOverlappedSpeech);
+    end
+end
+
+
 local function AdjustTextForTTS(text)
     text = gsub(text, "[<>]", "");      --any "<>" as TTS has problems reading it
     text = gsub(text, "%-%-", ". ");    --"--" is used as an explanation but TTS treat them as a single word
@@ -168,8 +179,8 @@ function TTSUtil:SpeakText(segment)
     self:UpdateTTSSettings();
     self.contentSource = segment.contentSource;
     self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
-
-    C_VoiceChat.SpeakText(segment.voiceID, segment.text, self.destination, self.rate, self.volume);
+    local allowOverlappedSpeech = nil;
+    C_VoiceChat_SpeakText(segment.voiceID, segment.text, self.rate, self.volume, allowOverlappedSpeech);
 end
 
 function TTSUtil:ReadCurrentDialogue(fromAutoPlay)
@@ -309,7 +320,12 @@ end
 
 function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_STARTED(numConsumers, utteranceID, durationMS, destination)
     --durationMS is zero?
-    self.utteranceID = utteranceID;
+    if self.IS_MIDNIGHT then
+        --utteranceID is removed in Midnight
+        self.utteranceID = -1;
+    else
+        self.utteranceID = utteranceID;
+    end
     self:UnregisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
     self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_FINISHED");
     for _, button in ipairs(TTSButtons) do
@@ -333,7 +349,7 @@ function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_FINISHED(numConsumers, utteranceID, des
 end
 
 function TTSUtil:StopLastTTS()
-    if self.utteranceID then
+    if self.utteranceID or self.IS_MIDNIGHT then
         self:Clear();
     end
 end
@@ -688,12 +704,12 @@ do  --Voice List
 
         self:Clear();
         voiceID = voiceID or self:GetVoiceIDForNPC();
-        local destination = DESTINATION;
+
         local rate = self.defaultRate or C_TTSSettings.GetSpeechRate();
         local volume = self.defaultVolume or C_TTSSettings.GetSpeechVolume();
 
         self.pendingFunc = function()
-            C_VoiceChat.SpeakText(voiceID, TEXT_TO_SPEECH_SAMPLE_TEXT, destination, rate, volume);
+            C_VoiceChat_SpeakText(voiceID, TEXT_TO_SPEECH_SAMPLE_TEXT, rate, volume);
         end
 
         self.t = -0.2;
