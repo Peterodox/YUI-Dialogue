@@ -44,7 +44,7 @@ local QUEST_INFO_SPELL_REWARD_ORDERING = {
 	QuestCompleteSpellType.Spell,
 };
 
-local QUEST_INFO_SPELL_REWARD_TO_HEADER = {};
+local QUEST_INFO_SPELL_REWARD_TO_HEADER = {};	--Check Blizzard_UIPanels_Game/Mainline/QuestInfo.lua
 
 do	--Retail
 	local SpellTypes = {

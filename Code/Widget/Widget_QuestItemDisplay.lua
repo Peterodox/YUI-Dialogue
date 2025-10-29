@@ -590,6 +590,25 @@ function QuestItemDisplay:SetReadableItem(itemID)
     self:SetUsableItem(itemID, buttonText);
 end
 
+function QuestItemDisplay:SetOpenToQuest(questID, buttonText)
+    local ActionButton = self:GetActionButton();
+    if ActionButton then
+        ActionButton:SetPostClickCallback(function(f, button)
+            if button == "LeftButton" then
+                API.ViewQuestInQuestLog(questID);
+            end
+            self:OnMouseUp(button);
+            self:Clear();
+        end);
+        ActionButton:CoverObject(self.TextButtonBackground, 4);
+    end
+
+    self:ShowTextButton(true);
+    self.ButtonText:SetText(buttonText);
+
+    self:RegisterEvent("PLAYER_REGEN_ENABLED");
+end
+
 function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
     self.itemType = "questOffer";
     self.startQuestID = startQuestID;
@@ -610,7 +629,12 @@ function QuestItemDisplay:SetStartQuestItem(itemID, startQuestID, isOnQuest)
         end
         addon.CallbackRegistry:LoadQuest(startQuestID, OnQuestLoaded)
     end
-    self:SetUsableItem(itemID, questName);
+
+    if API.GetLogIndexForQuestID(startQuestID) then
+        self:SetOpenToQuest(startQuestID, questName);
+    else
+        self:SetUsableItem(itemID, questName);
+    end
 end
 
 function QuestItemDisplay:UpdateQueueMarkers()

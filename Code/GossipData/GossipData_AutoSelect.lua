@@ -57,6 +57,7 @@ local AutoSelectGossip = {
     [131159] = 1,           --Craggle Fritzbrains, (Delve)
     [120132] = 1,           --Partially-Chewed Goblin, (Delve)
     [131312] = 1,           --Balga Wicksfix, (Delve)
+    [120255] = 1,           --Vetiverian, (Delve)
 };
 
 local function IsAutoSelectOption(gossipOptionID, onlyOption)

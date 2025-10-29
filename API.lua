@@ -1052,6 +1052,7 @@ do  -- Quest
     API.GetQuestItemInfoLootType = GetQuestItemInfoLootType;
     API.GetTitleForQuestID = GetTitleForQuestID;
     API.IsAccountQuest = IsAccountQuest;
+    API.GetLogIndexForQuestID = GetLogIndexForQuestID;
 
     if GetAvailableQuestInfo then
         API.GetAvailableQuestInfo = GetAvailableQuestInfo;
@@ -1541,6 +1542,17 @@ do  -- Quest
         function API.GetQuestLineInfo(questID)
 
         end
+    end
+
+
+    --Open Quest Log
+    function API.ViewQuestInQuestLog(questID)
+        if not (InCombatLockdown() and GetLogIndexForQuestID(questID) and QuestMapFrame_ShowQuestDetails) then return end;
+        if C_Map.OpenWorldMap then
+            C_Map.OpenWorldMap();
+        end
+        QuestMapFrame_ShowQuestDetails(questID);
+        return true
     end
 end
 

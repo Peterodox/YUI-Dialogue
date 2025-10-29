@@ -318,11 +318,11 @@ function TTSUtil:OnEvent(event, ...)
     end
 end
 
-function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_STARTED(numConsumers, utteranceID, durationMS, destination)
+function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_STARTED(arg1, utteranceID, durationMS, destination)
     --durationMS is zero?
     if self.IS_MIDNIGHT then
-        --utteranceID is removed in Midnight
-        self.utteranceID = -1;
+        --utteranceID is the only payload in Midnight
+        self.utteranceID = arg1;
     else
         self.utteranceID = utteranceID;
     end
@@ -349,7 +349,7 @@ function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_FINISHED(numConsumers, utteranceID, des
 end
 
 function TTSUtil:StopLastTTS()
-    if self.utteranceID or self.IS_MIDNIGHT then
+    if self.utteranceID then
         self:Clear();
     end
 end
