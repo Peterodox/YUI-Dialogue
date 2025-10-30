@@ -24,6 +24,7 @@ end
 local SecureButtonContainer = CreateFrame("Frame");
 SecureButtonContainer:Hide();
 addon.SecureButtonContainer = SecureButtonContainer;
+SecureButtonContainer.isMidnight = addon.IsToCVersionEqualOrNewerThan(120000);
 
 function SecureButtonContainer:CollectButton(button)
     if not InCombatLockdown() then
@@ -53,7 +54,7 @@ end
 function SecureButtonContainer:SetPressToUseItem(key, item, ownerActionButton)
     --item: name or link
 
-    if InCombatLockdown() then
+    if InCombatLockdown() or self.isMidnight then
         return
     end
     self:ClearOverrideBinding();
@@ -74,7 +75,7 @@ function SecureButtonContainer:SetPressToUseItem(key, item, ownerActionButton)
 end
 
 function SecureButtonContainer:SetPressToCommand(key, command, ownerActionButton)
-    if InCombatLockdown() then
+    if InCombatLockdown() or self.isMidnight then
         return
     end
     self:ClearOverrideBinding();
@@ -93,7 +94,7 @@ function SecureButtonContainer:SetPressToCommand(key, command, ownerActionButton
 end
 
 function SecureButtonContainer:SetPressToClick(key, objectName, ownerActionButton)
-    if InCombatLockdown() then
+    if InCombatLockdown() or self.isMidnight then
         return
     end
     self:ClearOverrideBinding();

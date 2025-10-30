@@ -35,8 +35,8 @@ KeyboardControl:SetFrameStrata("TOOLTIP");
 KeyboardControl:SetFixedFrameStrata(true);
 addon.KeyboardControl = KeyboardControl;
 
-KeyboardControl.combatFrame = CreateFrame("Frame", nil, KeyboardControl);   --"combatFrame" doesn't change KeyProgation dynamically based on input
-KeyboardControl.combatFrame:SetPropagateKeyboardInput(true);
+KeyboardControl.combatFrame = CreateFrame("Frame", nil, KeyboardControl, "DUISetPropagateKeyboardInputTemplate");   --"combatFrame" doesn't change KeyProgation dynamically based on input
+--KeyboardControl.combatFrame:SetPropagateKeyboardInput(true);
 
 function KeyboardControl:ResetKeyActions()
     self.keyActions = {};
@@ -112,10 +112,11 @@ end
 function KeyboardControl:OnEvent(event, ...)
     if event == "PLAYER_REGEN_DISABLED" then
         self:RegisterEvent("PLAYER_REGEN_ENABLED");
-        self:SetPropagateKeyboardInput(true);
+        self:UpdateParentForCombat(true);
+        --self:SetPropagateKeyboardInput(true);
     elseif event == "PLAYER_REGEN_ENABLED" then
         if self:IsVisible() then
-
+            self:UpdateParentForCombat();
         end
     elseif event == "UPDATE_BINDINGS" then
         self.bindingDirty = true;
@@ -252,7 +253,7 @@ function KeyboardControl:OnKeyDown(key, fromGamePad)
     end
 end
 
-function KeyboardControl:SetParentFrame(frame)
+function KeyboardControl:SetParentFrame(frame, inCombat)
     self.parent = frame;
     self:SetParent(frame);
     self:Show();
@@ -261,7 +262,7 @@ function KeyboardControl:SetParentFrame(frame)
 
     local listener;
 
-    if InCombatLockdown() then
+    if inCombat or InCombatLockdown() then
         if ENABLE_KEYCONTROL_IN_COMBAT then
             listener = self.combatFrame;
         end
@@ -292,6 +293,12 @@ function KeyboardControl:StopListeningKeys()
 
     self:EnableKeyboard(false);
     self.combatFrame:EnableKeyboard(false);
+end
+
+function KeyboardControl:UpdateParentForCombat(inCombat)
+    if self.parent and self.parent:IsVisible() then
+        self:SetParentFrame(self.parent, inCombat);
+    end
 end
 
 

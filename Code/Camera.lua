@@ -50,6 +50,14 @@ UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EX
 
 local FadeHelper = CreateFrame("Frame");
 addon.UIParentFadeHelper = FadeHelper;
+FadeHelper.isMidnight = addon.IsToCVersionEqualOrNewerThan(120000);
+
+if FadeHelper.isMidnight then
+    SetUIVisibility = function(state)
+        UIParent:SetShown(state);
+    end
+end
+
 
 local OFFSET_INFO = {};
 

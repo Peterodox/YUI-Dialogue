@@ -955,7 +955,7 @@ local GOSSIP_QUEST_LABEL = L["Gossip Quest Option Prepend"] or "(Quest)";
 
 local function SortFunc_GossipPrioritizeQuest(a, b)
     if not (a and b) then
-        return a ~= nil
+        return false
     end
 
     if a.flags and b.flags and (a.flags ~= b.flags) then

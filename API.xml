@@ -7,4 +7,6 @@
             <OnModelLoaded method="OnModelLoaded"/>
         </Scripts>
     </Actor>
+
+    <Frame name="DUISetPropagateKeyboardInputTemplate" propagateKeyboardInput="true" virtual="true"/>
 </Ui>

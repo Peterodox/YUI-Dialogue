@@ -8,6 +8,7 @@ local GossipIcon = {
     --[gossipOptionID/name] = icon
     ["Gossip Red"] = ICON_PATH.."Gossip-Red.png",       --<Skip Chaptor>
     ["Gossip Quest"] = ICON_PATH.."Gossip-Quest.png",   --(Quest) flags == 1
+    ["Gossip Movie"] = ICON_PATH.."Gossip-Movie.png",   --(Quest) flags == 4
     [132053] = ICON_PATH.."Gossip.png",
     [132058] = ICON_PATH.."Trainer.png",                --Trainer
     [132060] = ICON_PATH.."Buy.png",                    --Merchant

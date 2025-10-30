@@ -371,6 +371,8 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Red"));
     elseif data.flags == 1 then
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Quest"));
+    elseif data.flags == 4 then
+        self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Movie"));
     else
         if data.overrideIconID then
             self.Icon:SetTexture(data.overrideIconID);
