@@ -197,6 +197,7 @@ addon.SetTutorialRead = SetTutorialRead;
 local EL = CreateFrame("Frame");
 EL:RegisterEvent("ADDON_LOADED");
 EL:RegisterEvent("PLAYER_ENTERING_WORLD");
+EL:RegisterEvent("LOADING_SCREEN_DISABLED");
 
 EL:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
@@ -213,6 +214,9 @@ EL:SetScript("OnEvent", function(self, event, ...)
         SetDBValue(dbKey, DB[dbKey]);
 
         addon.CallbackRegistry:Trigger("PLAYER_ENTERING_WORLD");
+    elseif event == "LOADING_SCREEN_DISABLED" then
+        self:UnregisterEvent(event);
+        addon.CallbackRegistry:Trigger("InitialLoadingComplete");
     end
 end);
 

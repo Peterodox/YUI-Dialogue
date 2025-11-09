@@ -100,7 +100,7 @@ do  --CoordTracker
         return CoordTracker:GetPlayerMapCoord(uiMapID)
     end
 
-    function YeetPlayerCoord()
+    local function YeetPlayerCoord()
         local uiMapID = GetBestMapForUnit("player");
         local x, y = CoordTracker:GetPlayerMapCoord(uiMapID);
         print(string.format("%.4f, %.4f", x, y));
@@ -162,10 +162,10 @@ do  --EL, QuestAreaTrigger
 
         self.questHandlers[handler.questID] = handler;
         self:RequestUpdateQuests();
+        self.t = -2;
     end
 
     function EL:RequestUpdateQuests()
-        self.questDirty = true;
         self.t = -0.1;
         self:SetScript("OnUpdate", self.OnUpdate);
     end
@@ -184,49 +184,46 @@ do  --EL, QuestAreaTrigger
         local activeHandler;
         local anyValidQuest;
 
-        if self.questDirty then
-            local uiMapID = GetBestMapForUnit("player");
+        local uiMapID = GetBestMapForUnit("player");    --May return the continent uiMapID during the initial login
 
-            for questID, handler in pairs(self.questHandlers) do
-                if IsOnQuest(questID) then
-                    if handler.isOnQuest == false then
-                        handler:OnAccepted();
-                    end
-                    handler.isOnQuest = true;
-                    if handler.trackQuestBlob then
-                        trackQuestBlob = true;
-                    end
-
-                    if handler.uiMapID and handler.uiMapID == uiMapID then
-                        activeHandler = handler;
-                    end
-                else
-                    if handler.isOnQuest then
-                        handler:OnRemoved();
-                    end
-                    handler.isOnQuest = false;
+        for questID, handler in pairs(self.questHandlers) do
+            if IsOnQuest(questID) then
+                if handler.isOnQuest == false then
+                    handler:OnAccepted();
+                end
+                handler.isOnQuest = true;
+                if handler.trackQuestBlob then
+                    trackQuestBlob = true;
                 end
 
-                if not IsQuestFlaggedCompleted(questID) then
-                    anyValidQuest = true;
+                if handler.uiMapID and handler.uiMapID == uiMapID then
+                    activeHandler = handler;
                 end
-            end
-
-            if trackQuestBlob then
-                self:RegisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");
             else
-                self:UnregisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");
+                if handler.isOnQuest then
+                    handler:OnRemoved();
+                end
+                handler.isOnQuest = false;
             end
 
-            CoordTracker:SetActiveHandler(activeHandler);
-
-            self:ListenEvents(anyValidQuest);
+            if not IsQuestFlaggedCompleted(questID) then
+                anyValidQuest = true;
+            end
         end
+
+        if trackQuestBlob then
+            self:RegisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");
+        else
+            self:UnregisterEvent("PLAYER_INSIDE_QUEST_BLOB_STATE_CHANGED");
+        end
+
+        CoordTracker:SetActiveHandler(activeHandler);
+
+        self:ListenEvents(anyValidQuest);
     end
 end
 
 
-local CreateQuestHandler;
 do  --QuestHandler
     local QuestHandlerMixin = {};
 

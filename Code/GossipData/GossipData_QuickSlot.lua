@@ -79,6 +79,6 @@ do
 end
 
 
-addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", function()
+addon.CallbackRegistry:RegisterLoadingCompleteCallback(function()
     QuestAreaTrigger:AddQuestHandler(Handler_86838);
 end);

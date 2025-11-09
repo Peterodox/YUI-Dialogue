@@ -100,7 +100,7 @@ function CallbackRegistry:RegisterTutorial(tutorialFlag, func, owner)
 end
 
 function CallbackRegistry:RegisterLoadingCompleteCallback(func, owner, prioritized)
-    self:Register("LOADING_SCREEN_DISABLED", func, owner, prioritized)
+    self:Register("InitialLoadingComplete", func, owner, prioritized)
 end
 
 
