@@ -155,18 +155,19 @@ do
     end
 
     function DualModelMixin:SetDisplayInfo(creatureDisplayID)
+        --Model2 (served as drop shadow) disabled due to model space change in 11.1.5
         self.Model1:SetDisplayInfo(creatureDisplayID);
-        self.Model2:SetDisplayInfo(creatureDisplayID);
+        --self.Model2:SetDisplayInfo(creatureDisplayID);
     end
 
     function DualModelMixin:SetModelByUnit(unit)
         API.SetModelByUnit(self.Model1, unit);
-        API.SetModelByUnit(self.Model2, unit);
+        --API.SetModelByUnit(self.Model2, unit);
     end
 
     function DualModelMixin:SetItem(item)
         self.Model1:SetItem(item);
-        self.Model2:SetItem(item);
+        --self.Model2:SetItem(item);
     end
 
     function DualModelMixin:FreezeAnimation(animID, variation, frame)

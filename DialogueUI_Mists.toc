@@ -1,4 +1,4 @@
-## Interface: 50500, 50501
+## Interface: 50502, 50503
 ## Version: 0.6.7
 
 ## Title: Dialogue UI

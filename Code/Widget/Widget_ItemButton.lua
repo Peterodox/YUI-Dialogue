@@ -253,6 +253,17 @@ do  --Quest Flyout ItemButton
         end
     end
 
+    function ItemButtonMixin:SetInteractable(state)
+        if state then
+            self:EnableMouse(true);
+            self:EnableMouseMotion(true);
+        else
+            self:EnableMouse(false);
+            self:EnableMouseMotion(false);
+            self:ReleaseActionButton();
+        end
+    end
+
     function ItemButtonMixin:ShowHotkey(state)
         if state then
             if not self.HotkeyFrame then

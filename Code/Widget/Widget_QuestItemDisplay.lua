@@ -337,6 +337,11 @@ function QuestItemDisplay:ShouldDeferDisplay()
 end
 
 function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
+    if API.IsPlayingCutscene() then
+        self:Clear();
+        return
+    end
+
     if self.Init then
         self:Init();
     end

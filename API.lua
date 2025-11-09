@@ -35,6 +35,15 @@ local canaccessvalue = canaccessvalue or AlwaysTrue;
 API.issecurevalue = issecurevalue;
 API.canaccessvalue = canaccessvalue;
 
+function API.DoesValueExist(v)
+    if canaccessvalue(v) then
+        if v then
+            return true
+        end
+    end
+    return false
+end
+
 local function CopyEnum(name)
     local tbl = {};
     if Enum and Enum[name] then
@@ -944,7 +953,6 @@ do  -- Quest
     local QuestHasQuestSessionBonus = C_QuestLog.QuestHasQuestSessionBonus or AlwaysFalse;
     local GetQuestItemInfoLootType = GetQuestItemInfoLootType or AlwaysZero;
     local GetTitleForQuestID = C_QuestLog.GetTitleForQuestID or C_QuestLog.GetQuestInfo or AlwaysFalse;
-    local GetQuestObjectives = C_QuestLog.GetQuestObjectives;
     local GetQuestTimeLeftSeconds = C_TaskQuest and C_TaskQuest.GetQuestTimeLeftSeconds or AlwaysNil;
     local IsQuestFlaggedCompletedOnAccount = C_QuestLog.IsQuestFlaggedCompletedOnAccount or AlwaysFalse;
     local GetLogIndexForQuestID = C_QuestLog.GetLogIndexForQuestID or GetQuestLogIndexByID or AlwaysNil;
@@ -954,6 +962,7 @@ do  -- Quest
     local IsAccountQuest = C_QuestLog.IsAccountQuest or AlwaysFalse;
 
     API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
+    API.ReadyForTurnIn = ReadyForTurnIn;
 
     local function IsPlayerOnQuest(questID)
         if questID then
@@ -1272,12 +1281,16 @@ do  -- Quest
         ["QuestBG-1027"] = "TWW-Azeroth.png",
         ["QuestBG-Rocket"] = "TWW-Rocket.png",
         ["QuestBG-Fist"] = "TWW-Fist.png",
+
+        ["QuestBG-Sky"] = "MID-DarkHeart.png",
     };
 
     local function GetQuestBackgroundDecor(questID)
         local theme = GetQuestDetailsTheme(questID);
-        --print(theme.background)
-        --theme = {background = "QuestBG-Web"};    --debug
+        if theme then
+            --print(theme.background);
+        end
+        --theme = {background = "QuestBG-Test"};    --debug
         if theme and theme.background and BackgroundDecors[theme.background] then
             return DECOR_PATH..BackgroundDecors[theme.background]
         end
@@ -2896,6 +2909,7 @@ do  -- Items
     API.GetTransmogItemInfo = GetTransmogItemInfo;
     API.GetItemInfo = GetItemInfo;
     API.IsDressableItem = IsDressableItem;
+    API.IsDecorItem = C_Item.IsDecorItem or AlwaysFalse;
 
     local function _GetItemLevel(item)
         if item then

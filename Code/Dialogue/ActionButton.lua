@@ -24,7 +24,7 @@ end
 local SecureButtonContainer = CreateFrame("Frame");
 SecureButtonContainer:Hide();
 addon.SecureButtonContainer = SecureButtonContainer;
-SecureButtonContainer.isMidnight = addon.IsToCVersionEqualOrNewerThan(120000);
+--SecureButtonContainer.isMidnight = addon.IsToCVersionEqualOrNewerThan(120000);    --debug
 
 function SecureButtonContainer:CollectButton(button)
     if not InCombatLockdown() then

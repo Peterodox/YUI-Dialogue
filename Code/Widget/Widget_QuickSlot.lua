@@ -6,12 +6,14 @@ local WidgetManager = addon.WidgetManager;
 local IsPlayingCutscene = API.IsPlayingCutscene;
 local GetItemClassification = API.GetItemClassification;
 local GetItemCount = C_Item.GetItemCount;
+local GetQuestLogSpecialItemInfo = GetQuestLogSpecialItemInfo;
 
 local COUNTDOWN_IDLE = 4;               --When the user doesn't do anything
 local COUNTDOWN_COMPLETE_AUTO = 2;      --When the item is auto equipped by game
 local COUNTDOWN_COMPLETE_MANUAL = 1;    --When the item is equipped by clicks
 
 local QuickSlotManager = CreateFrame("Frame");
+addon.QuickSlotManager = QuickSlotManager;
 WidgetManager:AddLootMessageProcessor(QuickSlotManager, "ItemLink");
 
 
@@ -133,8 +135,7 @@ function QuickSlotManager:OnItemLooted(itemLink)
     end
 end
 
-
-function QuickSlotManager:AddItemButton(itemLink, setupMethod, isActionCompleteMethod)
+function QuickSlotManager:AddAutoCloseItemButton(itemLink, setupMethod, isActionCompleteMethod)
     local countDownDuration = COUNTDOWN_IDLE;
     local disableButton;
     local allowPressKeyToUse = addon.GetDBBool("QuickSlotUseHotkey");
@@ -142,6 +143,7 @@ function QuickSlotManager:AddItemButton(itemLink, setupMethod, isActionCompleteM
     local button = self:GetItemButton();
     button[setupMethod](button, itemLink, allowPressKeyToUse);
     button:ShowButton();
+    button.CloseButton:SetInteractable(false);
 
     if isActionCompleteMethod ~= nil and button[isActionCompleteMethod](button) then
         countDownDuration = COUNTDOWN_COMPLETE_AUTO;
@@ -157,30 +159,65 @@ function QuickSlotManager:AddItemButton(itemLink, setupMethod, isActionCompleteM
     end
 end
 
+function QuickSlotManager:AddItemButton(itemLink, setupMethod, isActionCompleteMethod)
+    local allowPressKeyToUse = addon.GetDBBool("QuickSlotUseHotkey");
+
+    local button = self:GetItemButton();
+    button[setupMethod](button, itemLink, allowPressKeyToUse);
+    button:ShowButton();
+    button.CloseButton:Hide();
+
+    if button and button:IsShown() then
+        button.CloseButton:StopCountdown();
+        if false then
+            button:PlayFlyUpAnimation(false);
+        else
+            button:PlayFlyUpAnimation(true);
+        end
+    end
+end
+
 
 do  --Add Button Method
     function QuickSlotManager:AddEquipment(itemLink)
-        self:AddItemButton(itemLink, "SetEquipItem", "IsItemEquipped");
+        self:AddAutoCloseItemButton(itemLink, "SetEquipItem", "IsItemEquipped");
     end
 
     function QuickSlotManager:AddContainer(itemLink)
-        self:AddItemButton(itemLink, "SetUsableItem");
+        self:AddAutoCloseItemButton(itemLink, "SetUsableItem");
     end
 
     function QuickSlotManager:AddCosmetic(itemLink)
-        self:AddItemButton(itemLink, "SetCosmeticItem", "IsKnownCosmetic");
+        self:AddAutoCloseItemButton(itemLink, "SetCosmeticItem", "IsKnownCosmetic");
     end
 
     function QuickSlotManager:AddMount(itemLink)
-        self:AddItemButton(itemLink, "SetMountItem", "IsKnownMount");
+        self:AddAutoCloseItemButton(itemLink, "SetMountItem", "IsKnownMount");
     end
 
     function QuickSlotManager:AddPet(itemLink)
-        self:AddItemButton(itemLink, "SetPetItem", "IsKnownPet");
+        self:AddAutoCloseItemButton(itemLink, "SetPetItem", "IsKnownPet");
     end
 
     function QuickSlotManager:AddToy(itemLink)
-        self:AddItemButton(itemLink, "SetToyItem", "IsKnownToy");
+        self:AddAutoCloseItemButton(itemLink, "SetToyItem", "IsKnownToy");
+    end
+
+    function QuickSlotManager:AddUsableItemByID(itemID)
+        local itemLink = "|Hitem:"..itemID.."|h";
+        self:AddAutoCloseItemButton(itemLink, "SetUsableItem");
+    end
+
+    function QuickSlotManager:AddQuestLogSpecialItem(questID)
+        local index = API.GetLogIndexForQuestID(questID);
+        if index then
+            local itemLink, icon, charges = GetQuestLogSpecialItemInfo(index);
+            if itemLink then
+                self:AddItemButton(itemLink, "SetUsableItem");
+                return true
+            end
+        end
+        return false
     end
 end
 
@@ -360,6 +397,17 @@ do  --QuestRewardItemButtonMixin
             RewardItemButton:SetIgnoreParentAlpha(true);
         end
         return RewardItemButton
+    end
+
+    function QuickSlotManager:HideItemButton(fadeOut)
+        if RewardItemButton then
+            if fadeOut then
+                RewardItemButton:OnCountdownFinished();
+                RewardItemButton:SetInteractable(false);
+            else
+                RewardItemButton:ClearButton();
+            end
+        end
     end
 end
 

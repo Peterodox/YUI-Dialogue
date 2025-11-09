@@ -319,12 +319,20 @@ function DUIDialogBaseMixin:OnLoad()
     API.DisableSharpening(wb.Icon);
 
 
+    local tintableTextures = {};
+    self.tintableTextures = tintableTextures;
+    tinsert(tintableTextures, self.FrontFrame.FooterDivider);
+    tinsert(tintableTextures, self.FrontFrame.HeaderDivider);
+    tinsert(tintableTextures, self.FrontFrame.Header.Divider);
+
+
     --Frame Background
     self.Parchments = {};
 
     for i = 1, 3 do
         local piece = self.BackgroundFrame:CreateTexture(nil, "BACKGROUND", nil, -1);
         self.Parchments[i] = piece;
+        tinsert(tintableTextures, piece);
     end
 
     self.Parchments[1]:SetTexCoord(0, 1, 0, 256/2048);
@@ -2620,6 +2628,17 @@ function DUIDialogBaseMixin:SetHintText(hintText)
     --After clicking "Show Answer" button
     --We add the answer to the next GOSSIP_SHOW
     self.hintText = hintText;
+end
+
+function DUIDialogBaseMixin:TintBackground(r, g, b)
+    --240/255, 235/255, 255/255
+    if not (r and g and b) then
+        r, g, b = 1, 1, 1;
+    end
+
+    for _, obj in ipairs(self.tintableTextures) do
+        obj:SetVertexColor(r, g, b);
+    end
 end
 
 do  --Clipboard
