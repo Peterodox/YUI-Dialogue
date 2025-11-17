@@ -471,7 +471,7 @@
                     <Frame parentKey="QuestPortrait" mixin="DUIDialogQuestPortraitMixin" hidden="true" alpha="0" ignoreParentAlpha="true">
                         <Size x="170" y="170"/>
                         <Anchors>
-                            <Anchor point="TOP"  relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/> 
+                            <Anchor point="TOP" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="0"/> 
                         </Anchors>
                         <Layers>
                             <Layer level="OVERLAY">
@@ -500,6 +500,12 @@
                                     </Layer>
                                 </Layers>
                             </PlayerModel>
+                            <Frame parentKey="PortraitNameFrame">
+                                <Size x="80" y="40"/>
+                                <Anchors>
+                                    <Anchor point="CENTER" relativeKey="$parent.Name" relativePoint="CENTER"/>
+                                </Anchors>
+                            </Frame>
                         </Frames>
                         <Scripts>
                             <OnLoad method="OnLoad"/>

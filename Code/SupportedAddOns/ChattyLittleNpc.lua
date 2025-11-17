@@ -8,11 +8,16 @@ do
     local ADDON_NAME = "ChattyLittleNpc";
 
     local requiredMethods = {
-        "LibStub",
+        "ChattyLittleNpc",
     };
 
     local function OnAddOnLoaded()
-        local CLN = LibStub("AceAddon-3.0"):GetAddon("ChattyLittleNpc");
+        --[[    --This addon no longer uses Ace3 since v3.0.0
+        local silent = true;
+        local CLN = LibStub("AceAddon-3.0"):GetAddon("ChattyLittleNpc", silent);
+        --]]
+
+        local CLN = ChattyLittleNpc;
         if not (CLN and CLN.VoiceoverPlayer) then return end;
 
         local GetUnitTypeAndID = addon.API.GetUnitTypeAndID;

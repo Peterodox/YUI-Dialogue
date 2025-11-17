@@ -520,7 +520,7 @@ function CameraUtil:InitiateInteraction()
     if self.defaultCameraMode == 0 or (DISABLE_IN_INSTANCE and IsInInstance()) then
         self:Intro_None();
     else
-        if (self.defaultCameraMode == 1) and UnitExists("npc") and (not UnitIsUnit("npc", "player")) then
+        if (self.defaultCameraMode == 1) and API.IsQuestNPCPlayer() then
             self:Intro_FocusNPC();
         else
             self:Intro_PanCamera();

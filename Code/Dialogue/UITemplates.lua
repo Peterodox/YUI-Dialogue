@@ -371,7 +371,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Red"));
     elseif data.flags == 1 then
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Quest"));
-    elseif data.flags == 4 then
+    elseif data.flags == 4 or data.flags == 5 then
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Movie"));
     else
         if data.overrideIconID then
@@ -2413,6 +2413,20 @@ do  --Quest Portrait
         self.Model:SetScript("OnModelLoaded", OnModelLoaded);
 
         self:SetTheme(1);
+
+        self.PortraitNameFrame:SetScript("OnEnter", function()
+            if self.Name:IsTruncated() then
+                TooltipFrame:Hide();
+                TooltipFrame:SetOwner(self, "ANCHOR_NONE");
+                TooltipFrame:SetPoint("BOTTOMLEFT", self.PortraitNameFrame, "TOPLEFT", 0, 0);
+                TooltipFrame:AddLeftLine(self.Name:GetText(), 1, 1, 1);
+                TooltipFrame:Show();
+            end
+        end);
+
+        self.PortraitNameFrame:SetScript("OnLeave", function()
+            TooltipFrame:Hide();
+        end);
     end
 
     function DUIDialogQuestPortraitMixin:SetTheme(index)
@@ -2432,6 +2446,13 @@ do  --Quest Portrait
 
     function DUIDialogQuestPortraitMixin:SetPortrait(creatureDisplayID, creatureName)
         --For some reason OnModelLoaded didn't trigger in CTM
+
+        if creatureDisplayID == 137995 then
+            --My First Home, Cornerstone
+            self:FadeOut();
+            return
+        end
+
         self:Hide();
         self:Show();
         self.Model:SetDisplayInfo(creatureDisplayID);

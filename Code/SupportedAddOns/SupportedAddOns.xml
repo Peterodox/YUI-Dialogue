@@ -14,6 +14,7 @@
     <Script file="CzechQuests.lua"/>
     <Script file="WowUkrainizer.lua"/>
     <Script file="ChattyLittleNpc.lua"/>
+    <Script file="WorldFrameAddOns.lua"/>
 
     <Script file="Platine1AddOns.lua"/>
 </Ui>

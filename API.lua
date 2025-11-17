@@ -568,6 +568,18 @@ do  -- NPC Interaction
     API.GetInteractTexture = GetInteractTexture;
 
 
+    function API.IsQuestNPCPlayer()
+        if UnitExists("npc") then
+            local bool = UnitIsUnit("npc", "player");
+            if canaccessvalue(bool) then
+                return not bool
+            else
+                return false
+            end
+        end
+    end
+
+
     local IsInteractingWithNpcOfType = C_PlayerInteractionManager.IsInteractingWithNpcOfType;
     local TYPE_GOSSIP = Enum.PlayerInteractionType and Enum.PlayerInteractionType.Gossip or 3;
     local TYPE_QUEST_GIVER = Enum.PlayerInteractionType and Enum.PlayerInteractionType.QuestGiver or 4;
@@ -2171,7 +2183,12 @@ do  -- Faction -- Reputation
             factionName = p1;
         end
 
-        local isParagon = C_Reputation.IsFactionParagon and C_Reputation.IsFactionParagon(factionID);
+        local isParagon;
+        if C_Reputation.IsFactionParagonForCurrentPlayer then
+            isParagon = C_Reputation.IsFactionParagonForCurrentPlayer(factionID);
+        elseif C_Reputation.IsFactionParagon then
+            isParagon = C_Reputation.IsFactionParagon(factionID);
+        end
         local isMajorFaction = C_Reputation.IsMajorFaction and C_Reputation.IsMajorFaction(factionID);
         local repInfo = C_GossipInfo.GetFriendshipReputation(factionID);
 

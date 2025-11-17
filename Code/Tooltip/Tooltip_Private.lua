@@ -158,16 +158,19 @@ do
         --Model2 (served as drop shadow) disabled due to model space change in 11.1.5
         self.Model1:SetDisplayInfo(creatureDisplayID);
         --self.Model2:SetDisplayInfo(creatureDisplayID);
+        self:SetPreferModelCollisionBounds(false);
     end
 
     function DualModelMixin:SetModelByUnit(unit)
         API.SetModelByUnit(self.Model1, unit);
         --API.SetModelByUnit(self.Model2, unit);
+        self:SetPreferModelCollisionBounds(false);
     end
 
     function DualModelMixin:SetItem(item)
         self.Model1:SetItem(item);
         --self.Model2:SetItem(item);
+        self:SetPreferModelCollisionBounds(false);
     end
 
     function DualModelMixin:FreezeAnimation(animID, variation, frame)
@@ -220,6 +223,18 @@ do
         self.Model1:SetFrameLevel(level);
         self.Model2:SetFrameStrata(strata);
         self.Model2:SetFrameLevel(level);
+    end
+
+    function DualModelMixin:SetPreferModelCollisionBounds(state)
+        if self.Model1.SetPreferModelCollisionBounds then
+            self.Model1:SetPreferModelCollisionBounds(state);
+            self.Model2:SetPreferModelCollisionBounds(state);
+        end
+    end
+
+    function DualModelMixin:SetDecorModel(modelFileID)
+        self:SetPreferModelCollisionBounds(true);
+        self.Model1:SetModel(modelFileID);
     end
 end
 
@@ -324,6 +339,23 @@ do
 
                     else
 
+                    end
+                end
+
+                if (not displayID) and C_Item.IsDecorItem then
+                    if C_Item.IsDecorItem(itemID) then
+                        local tryGetOwnedInfo = true;
+                        local catalogEntryInfo = C_HousingCatalog.GetCatalogEntryInfoByItem(itemID, tryGetOwnedInfo);   --MIDNIGHT
+                        if catalogEntryInfo and catalogEntryInfo.asset then
+                            DualModel:SetModelSize(MODEL_WIDTH, MODEL_HEIGHT);
+                            DualModel:ClearModel();
+                            DualModel:SetCameraID(nil);
+                            DualModel:ResetPosition();
+                            DualModel:SetDecorModel(catalogEntryInfo.asset);
+                            DualModel:SetOffsetY(0.33);
+                            useTurntable = true;
+                            usePreview = true;
+                        end
                     end
                 end
 

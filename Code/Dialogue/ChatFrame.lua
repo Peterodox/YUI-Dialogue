@@ -1,6 +1,7 @@
 local _, addon = ...
 local GetDBBool = addon.GetDBBool;
 local UpdateTextureSliceScale = addon.API.UpdateTextureSliceScale;
+local canaccessvalue = addon.API.canaccessvalue;
 
 local tinsert = table.insert;
 local format = string.format;
@@ -459,6 +460,8 @@ do
 end
 
 function ChatFrame:AddMessage(text, name, event)
+    if not (canaccessvalue(text) and canaccessvalue(name)) then return end;
+
     local type = EventIndex[event];
     local prefix = ChatEventData[event].prefix;
 
@@ -605,6 +608,9 @@ function ChatFrame:OnEvent(event, ...)
     end
 
     if (not self.haltProcessing) and ChatEventData[event] ~= nil then
+        if IsInInstance() then
+            self.haltProcessing = true;
+        end
         local text, name = ...
         self:AddMessage(text, name, event);
     end
