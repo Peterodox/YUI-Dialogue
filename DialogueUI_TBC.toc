@@ -1,0 +1,36 @@
+## Interface: 20505
+## Version: 0.6.8
+
+## Title: Dialogue UI
+
+## Notes: Quest Dialogue UI
+
+## Author: Peterodox
+## SavedVariables: DialogueUI_DB, DialogueUI_Saves
+
+## IconTexture: Interface\AddOns\DialogueUI\Art\Icons\Logo
+## AddonCompartmentFunc: DialogueUI_ShowSettingsFrame
+
+
+Initialization.lua
+Locales\Localization.xml
+Fonts.xml
+API.xml
+
+Code\Utility\Utility.xml
+Code\Sound.lua
+Code\Camera.lua
+Code\SharedUITemplates\SharedUITemplates.xml
+Code\Tooltip\Tooltip.xml
+Code\Scroll\Scroll.xml
+Code\Settings\Settings.xml
+Code\GossipData\GossipDataProvider.xml
+Code\NameplateGossip.lua
+Code\Dialogue\DialogueUI.xml
+Code\Book\BookUI.xml
+Code\Widget\WidgetManager.xml
+Code\Core.lua
+
+#Code\Skimmer\Skimmer.xml
+
+Code\SupportedAddOns\SupportedAddOns.xml

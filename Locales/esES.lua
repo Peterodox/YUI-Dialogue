@@ -1,9 +1,9 @@
-
 if not (GetLocale() == "esES") then return end;
 
 
 local _, addon = ...
 local L = addon.L;
+
 
 L["Quest Frequency Daily"] = DAILY or "Diaria";
 L["Quest Frequency Weekly"] = WEEKLY or "Semanal";
@@ -55,6 +55,12 @@ L["Item Is An Upgrade"] = "Este objeto es una mejora para ti";
 L["Identical Stats"] = "Los dos objetos tienen las mismas estadísticas.";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Tu Banda Guerrera ya ha completado esta misión.");
 L["New Quest Available"] = "Nueva Misión Disponible";
+L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "Campaña";
+L["Click To Open BtWQuests"] = "Click para ver esta misión en la ventana BtWQuests.";
+L["Story Progress"] = STORY_PROGRESS or "Progreso de la historia";
+L["Quest Complete Alert"] = QUEST_WATCH_POPUP_QUEST_COMPLETE or "¡Misión completada!";
+L["Item Equipped"] = "Equipado";
+L["Collection Collected"] = COLLECTED or "Conocido";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Otorga %d de reputación con %s";
@@ -76,6 +82,11 @@ L["Format Replace Item"] = "Reemplaza %s";
 L["Format Item Level"] = "Nivel de objeto %d";   --_G.ITEM_LEVEL in Classic is different
 L["Format Breadcrumb Quests Available"] = "Misiones de camino de migas disponibles: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 L["Format Functionality Handled By"] = "Esta funcionalidad la gestiona %s";      --A functionality is provided by [another addon name] (Used in Settings.lua)
+L["Format Time Left"] = BONUS_OBJECTIVE_TIME_LEFT or "Tiempo restante: %s";
+L["Format Your Progress"] = "Your progress: |cffffffff%d/%d|r";
+L["Format And More"] = LFG_LIST_AND_MORE or "y %d más...";
+L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d Capítulos";
+L["Format Quest Progress"] = "%d/%d Misiones";
 
 --Settings
 L["UI"] = "Interfaz";
@@ -88,7 +99,7 @@ L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Activado";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Desactivado";
 L["Move Position"] = "Mover";
 L["Reset Position"] = RESET_POSITION or "Reiniciar posición";
-L["Drag To Move"] = "Click izquierdo y arrastrar para mover la ventana.";
+L["Drag To Move"] = "Clic izquierdo y arrastrar para mover la ventana.";
 L["Middle Click To Reset Position"] = "Click central para reiniciar la posición.";
 
 L["Quest"] = "Misión";
@@ -105,14 +116,26 @@ L["Size Medium"] = "Mediana";
 L["Size Large"] = "Grande";
 L["Font Size"] = "Tamaño de Fuente";
 L["Font Size Desc"] = "Establece el tamaño de la fuente de la interfaz.\n\nPor defecto: 12";
+L["Font"] = "Fuente";
+L["Font Desc"] = "Establecer la fuente para la UI.";
+L["Font Tooltip Normal"] = "Fuente actual: ";
+L["Font Tooltip Missing"] = "La fuente que has elegido no está disponible. Ahora se está utilizando la fuente predeterminada.";
+L["Default"] = "Default";
+L["Default Font"] = "Fuente predeterminada";
+L["System Font"] = "Fuente del sistema";
 L["Frame Orientation"] = "Posición";
 L["Frame Orientation Desc"] = "Posiciona la ventana a la izquierda o derecha de la pantalla";
 L["Orientation Left"] = HUD_EDIT_MODE_SETTING_BAGS_DIRECTION_LEFT or "Izquierda";
 L["Orientation Right"] = HUD_EDIT_MODE_SETTING_BAGS_DIRECTION_RIGHT or "Derecha";
 L["Hide UI"] = "Ocultar IU";
 L["Hide UI Desc"] = "Oculta la interfaz del juego cuado interactúas con un PNJ.";
+L["Show Chat Window"] = "Ventana de chat de PNJ";
+L["Show Chat Window Left Desc"] = "Muestra una ventana de chat de PNJ en la parte inferior izquierda de la pantalla.";
+L["Show Chat Window Right Desc"] = "Muestra una ventana de chat de PNJ en la parte inferior derecha de la pantalla.";
 L["Hide Unit Names"] = "Ocultar marco de unidades";
 L["Hide Unit Names Desc"] = "Oculta los nombres de jugadores y otros PNJ cuando interactúas con un PNJ.";
+L["Hide Sparkles"] = "Ocultar destellos del contorno";
+L["Hide Sparkles Desc"] = "Desactivar el efecto de contorno y brillo en los PNJ de misión.\n\nWoW automatically adds sparkles to the quest NPC's model when the UI becomes hidden.";
 L["Show Copy Text Button"] = "Mostrar Botón Copiar Texto";
 L["Show Copy Text Button Desc"] = "Muestra el botón para copiar el texto en la parte superior derecha de dialogue UI.";
 L["Show Quest Type Text"] = "Mostrar texto de tipo de misión";
@@ -135,14 +158,16 @@ L["Camera Movement"] = "Movimiento de Cámara";
 L["Camera Movement Off"] = "Sin movimiento";
 L["Camera Movement Zoom In"] = "Acercar";
 L["Camera Movement Horizontal"] = "Horizontal";
-L["Maintain Camera Position"] = "Mantener posición de cámara";
-L["Maintain Camera Position Desc"] = "Mantiene la posición de cámara brevemente tras finalizar la interacción con el PNJ.\n\nActivar esta opción reducirá el movimiento brusco de cámara causado por la latencia entre diálogos.";
+L["Maintain Camera Position"] = "Mantener la posición de la cámara";
+L["Maintain Camera Position Desc"] = "Mantiene la posición de la cámara brevemente tras finalizar la interacción con el PNJ.\n\nActivar esta opción reducirá el movimiento brusco de cámara causado por la latencia entre diálogos.";
 L["Change FOV"] = "Cambiar Campo de Visión";
 L["Change FOV Desc"] = "Reduce el campo de visión al acercar la cámara al PNJ.";
 L["Disable Camera Movement Instance"] = "Desactivar en estancias";
 L["Disable Camera Movement Instance Desc"] = "Desactiva el movimiento de cámara en una mazmorra o banda.";
 L["Maintain Offset While Mounted"] = "Mantener offset en montura";
-L["Maintain Offset While Mounted Desc"] = "Intenta mantener la posición de tu personaje en la pantalla mientras estás en una montura.\n\nAxctivar esta opción puede sobrecompensar el offset horizontal para monturas grandes.";
+L["Maintain Offset While Mounted Desc"] = "Intenta mantener la posición de tu personaje en la pantalla mientras estás en una montura.\n\nActivar esta opción puede sobrecompensar el offset horizontal para monturas grandes.";
+L["Camera Zoom Multiplier"] = "Multiplicador de zoom";
+L["Camera Zoom Multiplier Desc"] = "Cuanto menor sea el valor, más se acercará la cámara al objetivo.\n\nLa distancia también se ve afectada por el tamaño del objetivo.";
 
 L["Input Device"] = "Dispositivo de entrada";
 L["Input Device Desc"] = "Afecta a los iconos de teclas y organización de la interfaz.";
@@ -153,26 +178,36 @@ L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "Confirmar: [KEY:PS:PAD1]\nCancelar: [KEY:PS:PAD2]";
 L["Input Device Switch"] = "Intercambiar";
 L["Input Device Switch Tooltip"] = "Confirmar: [KEY:SWITCH:PAD1]\nCancelar: [KEY:SWITCH:PAD2]";
+L["Use Custom Bindings"] = "Usar bindeos personalizados";
+L["Use Custom Bindings Desc"] = "Habilita esta opción para utilizar tus propios bindeos.";
 L["Primary Control Key"] = "Confirmar";
 L["Primary Control Key Desc"] = "Presiona esta tecla para seleccionar la primera opción disponible, como Aceptar Misión."
 L["Press Button To Scroll Down"] = "Presionar Botón para deslizar verticalmente";
 L["Press Button To Scroll Down Desc"] = "Si el contenido es más alto que la ventana, presionar el botón de confirmación deslizará verticalmente la página hacia abajo en vez de aceptar la misión.";
+L["Press Escape To Decline Quest"] = "Presionar Escape para rechazar la misión";
+L["Press Escape To Decline Quest Desc"] = "Cuando veas una misión de un PNJ que tiene otros diálogos, al presionar la tecla Escape volverás a la página anterior en lugar de cerrar la interfaz.";
 L["Right Click To Close UI"] = "Click derecho para cerrar la interfaz";
 L["Right Click To Close UI Desc"] = "Click derecho en dialogue UI para cerrarlo.";
+L["Press Tab To Select Reward"] = "Presionar la tecla Tab para seleccionar la recompensa";
+L["Press Tab To Select Reward Desc"] = "Presiona [KEY:PC:TAB] para alternar entre las recompensas seleccionables cuando entregues la misión.";
+L["Disable Hokey For Teleport"] = "Desactivar teclas de acceso rápido para teletransportarse";
+L["Disable Hokey For Teleport Desc"] = "Desactiva las teclas de acceso rápido cuando eliges un destino de teletransporte.";
 L["Experimental Features"] = "Experimental";
 L["Emulate Swipe"] = "Emular Gesto de Deslizar";
 L["Emulate Swipe Desc"] = "Haz scroll arriba/abajo haciendo clic y arrastrando en la ventana.";
 L["Mobile Device Mode"] = "Modo Dispositivo Móvil";
 L["Mobile Device Mode Desc"] = "Característica Experimental:\n\nAumenta el tamaño de la interfaz y de la fuente para hacer los textos más legibles en dispositivos con tamaños de pantalla reducidos.";
 L["Mobile Device Mode Override Option"] = "Esta opción no tiene ningún efecto porque has seleccionado \"Modo Dispositivo Móvil\" en Controles.";
+L["GamePad Click First Object"] = "Click en la primera opción";
+L["GamePad Click First Object Desc"] = "Al iniciar una nueva interacción con un PNJ, pulsa el botón Confirmar para seleccionar la primera opción de diálogo.";
 
 L["Key Space"] = "Espacio";
 L["Key Interact"] = "Interactuar";
 L["Cannot Use Key Combination"] = "No se permite la combinación de teclas.";
 L["Interact Key Not Set"] = "[KEY:PC:INVALID] No has establecido una tecla de interacción."
-L["Use Default Control Key Alert"] = "Utilizaremos [KEY:PC:SPACE] como Botón de Confirmación.";
+L["Use Default Control Key Alert"] = "Utilizaremos [KEY:PC:SPACE] como Botón de confirmación.";
 L["Key Disabled"] = "Deshabilitado";
-L["Key Disabled Tooltip"] = "Botón de Confirmación deshabilitado.\n\nNo podrás aceptar misiones presionando teclas.";
+L["Key Disabled Tooltip"] = "Botón de confirmación deshabilitado.\n\nNo podrás aceptar misiones presionando teclas.";
 
 L["Auto Quest Popup"] = "Ventana emergente de Misión Automática";
 L["Auto Quest Popup Desc"] = "Si se activa automáticamente una misión al recoger un objeto de misión o al entrar en una zona, la misión se mostrará primero como una ventana emergente en vez de mostrar los detalles de la misión.\n\nLas misiones activadas al conectarse pueden no cumplir con estos criterios.";
@@ -186,13 +221,32 @@ L["Quest Item Display Hide Seen Desc"] = "Ignorar objetos que ya han sido descub
 L["Quest Item Display Await World Map"] = " Esperar al Mapa de Mundo";
 L["Quest Item Display Await World Map Desc"] = "Al abrir el Mapa de Mundo, oculta temporalmente la interfaz de Objeto de Misión y pausa el temporizador de cerrado automático.";
 L["Quest Item Display Reset Position Desc"] = "Reiniciar la posición de la ventana.";
+L["Valuable Reward Popup"] = "Ventana emergente de recompensa valiosa";
+L["Valuable Reward Popup Desc"] = "Cuando recibes un objeto valioso como una mejora, un cofre o un objeto cosmético no conocido, se muestra un botón que te permite usarlo directamente.";
+L["Auto Complete Quest"] = "Autocompletar misión";
+L["Auto Complete Quest Desc"] = "Completa automáticamente la siguiente misión y muestra el diálogo y las recompensas en una ventana separada. Si las recompensas contienen un cofre, puedes hacer click para abrirlo.\n\n- Candy Bucket (Hallow's End)\n- Khaz Algar Weekly\n- Midsummer Bonfire";
+L["Press Key To Use Item"] = "Presionar el botón para usar";
+L["Press Key To Use Item Desc PC"] = "Presiona [KEY:PC:SPACE] para usar el item cuando estás fuera de combate.";
+L["Press Key To Use Item Desc Xbox"] = "Presiona [KEY:XBOX:PAD3] para usar el item cuando estás fuera de combate.";
+L["Press Key To Use Item Desc PlayStation"] = "Presiona [KEY:PS:PAD3] para usar el item cuando estás fuera de combate.";
+L["Press Key To Use Item Desc Switch"] = "Presiona [KEY:SWITCH:PAD3] para usar el item cuando estás fuera de combate.";
 L["Auto Select"] = "Auto Selecccionar";
 L["Auto Select Gossip"] = "Auto Seleccionar Opción";
 L["Auto Select Gossip Desc"] = "Selecciona automáticamente la mejor opción de diálogo al interactuar con ciertos PNJ.";
 L["Force Gossip"] = "Forzar Charla";
 L["Force Gossip Desc"] = "Por defecto, el juego a veces selecciona automáticamente la primera opción sin mostrar el diálogo. Activando Forzar Charla, el diálogo será visible.";
+L["Skip GameObject"] = "Skip GameObject";   --Sub-option of Force Gossip
+L["Skip GameObject Desc"] = "Dot not reveal the hidden dialogue of GameObject like Crafting Tables.";
+L["Show Hint"] = "Mostrar sugerencia";
+L["Show Hint Desc"] = "Añade un botón que selecciona la respuesta correcta si es posible.\n\nActualmente solo se admite el cuestionario durante el Paseo en el tiempo.";
 L["Nameplate Dialog"] = "Mostrar Diálogo en Placa de Unidades";
 L["Nameplate Dialog Desc"] = "Muestra el diálogo en la Placa de Unidades del PNJ si no hay otra opción.\n\nEsta opción modifica CVar \"SoftTarget Nameplate Interact\".";
+L["Compatibility"] = "Compatibilidad";
+L["Disable DUI In Instance"] = "Usar la interfaz predeterminada del juego en estancias";
+L["Disable DUI In Instance Desc"] = "Desactiva la interfaz de diálogo y usa la predeterminada del juego cuando estás en una mazmorra o banda.";
+
+L["Disable UI Motions"] = "Reducir movimientos de la interfaz de usuario";
+L["Disable UI Motions Desc"] = "Reduce los movimientos de la interfaz de usuario, como desplegar la interfaz o mover el texto de los botones.";
 
 L["TTS"] = TEXT_TO_SPEECH or "Texto a voz";
 L["TTS Desc"] = "Lee el diálogo en voz alta al hacer clic en el botón en la parte superior izquierda de la interfaz.\n\nVoz, volumen y velocidad utilizan la configuración de Texto a voz del juego.";
@@ -206,6 +260,8 @@ L["TTS Auto Play"] = "Inciar automáticamente";
 L["TTS Auto Play Desc"] = "Iniciar automáticamente la lectura de textos de diálogo.";
 L["TTS Skip Recent"] = "Saltar textos leídos recientemente";
 L["TTS Skip Recent Desc"] = "Salta los textos leídos recientemente.";
+L["TTS Auto Play Delay"] = "Retraso en la lectura";
+L["TTS Auto Play Delay Desc"] = "Añade un breve retraso antes de la lectura automática para que no se superponga con la voz en off del propio PNJ.";
 L["TTS Auto Stop"] = "Parar al abandonar";
 L["TTS Auto Stop Desc"] = "Para la lectura de Texto a voz cuando abandonas al PNJ.";
 L["TTS Stop On New"] = "Parar en Nuevo Diálogo";
@@ -223,17 +279,72 @@ L["TTS Volume Desc"] = "Ajusta el volumen de lectura.";
 L["TTS Rate"] = "Ritmo de lectura";
 L["TTS Rate Desc"] = "Ajusta el ritmo de lecture.";
 L["TTS Include Content"] = "Incluir contenido";
-L["TTS Content NPC Name"] = "Nombre de PnJ";
-L["TTS Content Quest Name"] = "Título de Misión";
-L["TTS Content Objective"] = "Objetivos de Misión";
+L["TTS Content NPC Name"] = "Nombre del PNJ";
+L["TTS Content Quest Name"] = "Título de la misión";
+L["TTS Content Objective"] = "Objetivos de la misión";
+L["TTS Button Read Original"] = "Cambiar a leer el texto original";
+L["TTS Button Read Translation"] = "Cambiar a leer traducción";
+
+--Book UI and Settings
+L["Readables"] = "Legibles";   --Readable Objects
+L["Readable Objects"] = "Objetos legibles";     --Used as a label for a setting in Accessibility-TTS
+L["BookUI Enable"] = "Usar la nueva interfaz de usuario para objetos legibles";
+L["BookUI Enable Desc"] = "Utiliza la nueva interfaz de usuario para objetos legibles, como libros, cartas y notas.";
+L["BookUI Frame Size Desc"] = "Establecer el tamaño del libro de la UI.";
+L["BookUI Keep UI Open"] = "Mantener la ventana abierta";
+L["BookUI Keep UI Open Desc"] = "Mantiene la ventana abierta cuando te alejas del objeto.\n\nPresiona Escape o has click derecho en la interfaz de usuario para cerrarla.";
+L["BookUI Show Location"] = "Mostrar ubicación";
+L["BookUI Show Location Desc"] = "Mostrar la ubicación del objeto en el encabezado.\n\nSolo funciona con objetos del juego, no con los items que llevas en tus bolsas.";
+L["BookUI Show Item Description"] = "Mostrar descripción del item";
+L["BookUI Show Item Description Desc"] = "Si el elemento tiene alguna descripción en su información emergente, se mostrará en la parte superior de la interfaz.";
+L["BookUI Darken Screen"] = "Oscurecer pantalla";
+L["BookUI Darken Screen Desc"] = "Oscurece el área debajo de la interfaz de usuario para ayudarte a concentrarte en el contenido.";
+L["BookUI TTS Voice"] = "Voz";
+L["BookUI TTS Voice Desc"] = "Utilizar esta voz para objetos legibles:";
+L["BookUI TTS Click To Read"] = "Click en el párrafo para leer";
+L["BookUI TTS Click To Read Desc"] = "Click en un párrafo para leerlo.\n\nClick en un párrafo que se está leyendo actualmente para detener la lectura.";
+
+--Keybinding Action
+L["Bound To"] = "Vinculado a: ";
+L["Hotkey Colon"] = "Hotkey: ";
+L["Not Bound"] = NOT_BOUND or "Sin vincular";
+L["Action Confirm"] = "Confirmar";
+L["Action Settings"] = "Alternar configuración";
+L["Action Option1"] = "Opción 1";
+L["Action Option2"] = "Opción 2";
+L["Action Option3"] = "Opción 3";
+L["Action Option4"] = "Opción 4";
+L["Action Option5"] = "Opción 5";
+L["Action Option6"] = "Opción 6";
+L["Action Option7"] = "Opción 7";
+L["Action Option8"] = "Opción 8";
+L["Action Option9"] = "Opción 9";
 
 --Tutorial
-L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para abrir la Configuración";     --Shown when interacting with an NPC with this addon for the first time
-L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para abrir la Configuración";   --Use this if gamepad enabled
-L["Instruction Open Settings"] = "Para abrir la Configuración, presiona [KEY:PC:F1] mientras interactúas con un PNJ.";    --Used in Game Menu - AddOns
-L["Instruction Open Settings Console"] = "Para abrir la Configuración, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un PNJ.";
+L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para abrir la configuración";     --Shown when interacting with an NPC with this addon for the first time
+L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para abrir la configuración";   --Use this if gamepad enabled
+L["Instruction Open Settings"] = "Para abrir la configuración, presiona [KEY:PC:F1] mientras interactúas con un PNJ.";    --Used in Game Menu - AddOns
+L["Instruction Open Settings Console"] = "Para abrir la configuración, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un PNJ.";
+L["Instruction Open Settings Keybind Format"] = "Puedes abrir la configuración presionando [%s] cuando la ventana de diálogo esté activa.";
+L["Instruction Open Settings No Keybind"] = "No has configurado ninguna tecla para abrir la configuración.";
+L["HelpTip Warband Completed Quest"] = "Este icono indica que tu banda guerrera ha completado la misión.";
+L["Got It"] = HELP_TIP_BUTTON_GOT_IT or "Entendido";
+L["Open Settings"] = "Abrir configuración";
+
+--AddOn Compatibility for Language Translator
+L["Translator"] = "Traductor";
+L["Translator Source"] = "Fuente: ";
+L["Translator No Quest Data Format"] = "No se encontró ninguna entrada para [Quest: %s]";
+L["Translator Click To Hide Translation"] = "Click para ocultar la traducción";
+L["Translator Click To Show Translation"] = "Click para mostrar la traducción";
+
+--AddOn Compatibility for Voiceover AddOns
+L["VO Provider Format"] = "|cffffffff%s|r se encarga de la voz en off";
+L["VO No File Format"] = "|cffffffff%s|r no se ha encontrado el archivo de voz en off.";
 
 --DO NOT TRANSLATE
+L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K
+L["Abbrev Breakpoint 10000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";    --Reserved for Asian languages that have words for 10,000
 L["Match Stat Armor"] = "([,%d%.]+) armadura";
 L["Match Stat Stamina"] = "([,%d%.]+) aguante";
 L["Match Stat Strengh"] = "([,%d%.]+) fuerza";
@@ -265,3 +376,8 @@ L["Pin Profession Trainer"] = "Instructor de profesión";
 L["Pin Rostrum"] = "Podio de transformación";
 L["Pin Stable Master"] = "Maestro de establos";
 L["Pin Trading Post"] = "Puesto comercial";
+L["Pin Transmogrifier"] = MINIMAP_TRACKING_TRANSMOGRIFIER or "Transmogrifier";
+L["Pin Class Trainer"] = MINIMAP_TRACKING_TRAINER_CLASS or "Instructor de clase";
+L["Pin Transmogrification"] = TRANSMOGRIFICATION or "Transfiguración";
+L["Pin Void Storage"] = VOID_STORAGE or "Depósito del Vacío";
+L["Pin Vendor"] = BATTLE_PET_SOURCE_3 or "Vendedor";
