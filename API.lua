@@ -30,6 +30,7 @@ local function AlwaysZero(arg)
     return 0
 end
 
+--12.0 Secrets
 local issecurevalue = issecurevalue or AlwaysFalse;
 local canaccessvalue = canaccessvalue or AlwaysTrue;
 API.issecurevalue = issecurevalue;
@@ -2276,6 +2277,9 @@ do  -- Faction -- Reputation
 end
 
 do  -- Chat Message
+    local StripHyperlinks = C_StringUtil and C_StringUtil.StripHyperlinks or StripHyperlinks;
+    API.StripHyperlinks = StripHyperlinks;
+
     local ADDON_ICON = "|TInterface\\AddOns\\DialogueUI\\Art\\Icons\\Logo:0:0|t";
     local function PrintMessage(header, msg)
         if not msg then

@@ -3,6 +3,7 @@
 
 local _, addon = ...
 local GossipDataProvider = addon.GossipDataProvider;
+local GetInteractType = addon.API.GetInteractType;
 --local IsTargetAdventureMap = addon.API.IsTargetAdventureMap;
 
 local ShowUIGossip = {
@@ -25,4 +26,21 @@ function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)
     --end
 
     return gossipOptionID and ShowUIGossip[gossipOptionID] == true
+end
+
+if PetStableFrame then
+    --Classic: PetStableFrame and ClassTrainerFrame become unresponsive if then are brought up when IsVisible() == false
+    local ShoUIInteractType = {
+        ["Cursor Stablemaster"] = true,
+        ["Cursor Trainer"] = true,
+    };
+
+    function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)
+        local interactType = GetInteractType("npc");
+        if interactType and ShoUIInteractType[interactType] then
+            return true
+        end
+
+        return gossipOptionID and ShowUIGossip[gossipOptionID] == true
+    end
 end

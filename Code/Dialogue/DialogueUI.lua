@@ -2955,11 +2955,11 @@ do  --Clipboard
         local str = self:GetContentForClipboard();
 
         if str then
-            if StripHyperlinks then
+            if API.StripHyperlinks then
                 --We remove the atlas/texture since it messes up spacing
                 local maintainColor = true;
                 local maintainBrackets = true;
-                str = StripHyperlinks(str, true, true);
+                str = API.StripHyperlinks(str, true, true);
             end
             addon.Clipboard:ShowContent(str, self.CopyTextButton);
         end
