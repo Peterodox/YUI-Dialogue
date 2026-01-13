@@ -65,7 +65,7 @@ L["Collection Collected"] = COLLECTED or "Gesammelt";
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Ihr erhaltet %d Ruf bei %s";
 L["Format You Have X"] = "- Ihr habt |cffffffff%s|r";
-L["Format You Have X And Y In Bank"] = "- Irh habt |cffffffff%s|r (|cffffffff%s|r in Eurer Bank)";
+L["Format You Have X And Y In Bank"] = "- Ihr habt |cffffffff%s|r (|cffffffff%s|r in Eurer Bank)";
 L["Format Suggested Players"] = QUEST_SUGGESTED_GROUP_NUM or "Empfohlene Spieler [%d]";
 L["Format Current Skill Level"] = "Aktuelle Stufe: |cffffffff%d/%d|r";
 L["Format Reward Title"] = HONOR_REWARD_TITLE or "Titel: %s";
@@ -103,7 +103,7 @@ L["Drag To Move"] = "Verschiebt das Fenster mit einem Linksklick.";
 L["Middle Click To Reset Position"] = "Die Position mit einem mittleren Mausklick zurücksetzen.";
 
 L["Quest"] = "Quest";
-L["Gossip"] = "Sonstiges";
+L["Gossip"] = "Sonstiges";    --DE_Notes: Since the options listed here are more than just “show gossip menu”, I decided to rename it to Other. Translating he word Gossip (Tratsch) wouldn’t have made sense in context here.
 L["Theme"] = "Farbschema";
 L["Theme Desc"] = "Ändert das Farbschema des Addons.";
 L["Theme Brown"] = "Braun";
