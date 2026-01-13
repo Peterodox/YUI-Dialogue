@@ -170,7 +170,7 @@ L["Camera Zoom Multiplier"] = "Zoom-Faktor";
 L["Camera Zoom Multiplier Desc"] = "Je kleiner dieser Wert ist, desto näher rückt die Kamera an das Ziel heran.\n\nDie Kameradistanz hängt von der Größe des Ziels ab.";
 
 L["Input Device"] = "Eingabegerät";
-L["Input Device Desc"] = "Dies beeinflusst die Tastenkombinationen swie das Benutzerinterface.";
+L["Input Device Desc"] = "Dies beeinflusst die Tastenkombinationen sowie das Benutzerinterface.";
 L["Input Device KBM"] = "KB&M";
 L["Input Device Xbox"] = "Xbox";
 L["Input Device Xbox Tooltip"] = "Bestätigungstaste: [KEY:XBOX:PAD1]\nAbbruchtaste: [KEY:XBOX:PAD2]";
