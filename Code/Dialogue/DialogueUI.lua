@@ -2788,9 +2788,6 @@ do  --Clipboard
                 content.body = body;
                 content.objective = objective;
             else
-                local GetGossipText = API.GetGossipText;
-                local GetQuestText = API.GetQuestText;
-
                 local questID = GetQuestID();
                 if questID and questID ~= 0 then
                     content.title = GetQuestTitle();
@@ -2833,6 +2830,7 @@ do  --Clipboard
     function DUIDialogBaseMixin:GetContentForClipboard()
         local str;
 
+        --Use unmodified APIs
         local GetGossipText = API.GetGossipText;
         local GetQuestText = API.GetQuestText;
 
