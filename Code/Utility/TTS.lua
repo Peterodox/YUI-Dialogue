@@ -968,3 +968,10 @@ do  --CallbackRegistry
     end
     CallbackRegistry:Register("BookUI.Hide", BookUI_OnHide);
 end
+
+
+do  --Temp Fix For FCF_GetCurrentFullScreenFrame missing on TBC
+    if addon.IS_TBC and not _G.FCF_GetCurrentFullScreenFrame then
+        _G.FCF_GetCurrentFullScreenFrame = function() end;
+    end
+end

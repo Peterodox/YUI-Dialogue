@@ -237,6 +237,7 @@ do
     addon.IS_CLASSIC = not IsToCVersionEqualOrNewerThan(100000);
     addon.IS_CATA = currentToCVersion >= 40400 and currentToCVersion < 50000;
     addon.IS_MIDNIGHT = currentToCVersion >= 120000;
+    addon.IS_TBC = C_AddOns.GetAddOnMetadata(addonName, "X-Expansion") == "TBC";
 end
 
 
