@@ -1,6 +1,6 @@
 ## X-Expansion: VANILLA
 ## Interface: 11508
-## Version: 0.6.8
+## Version: 0.6.9
 
 ## Title: Dialogue UI
 
