@@ -729,6 +729,12 @@ do  --Loot Message Processor
     function LootMessageProcessorMixin:CHAT_MSG_LOOT_RETAIL(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid)
         --Payloads are different on Classic!
         if canaccessvalue(guid) and canaccessvalue(text) then
+            if not canaccessvalue(PLAYER_GUID) then
+                GetPlayerGUID();
+            end
+            if not canaccessvalue(PLAYER_GUID) then
+                return
+            end
             if guid ~= PLAYER_GUID then return end;
             self:ProcessLootMessage(text);
         end
@@ -736,6 +742,12 @@ do  --Loot Message Processor
 
     function LootMessageProcessorMixin:CHAT_MSG_LOOT_CLASSIC(text, _, _, _, playerName)
         if canaccessvalue(playerName) and canaccessvalue(text) then
+            if not canaccessvalue(PLAYER_NAME) then
+                GetPlayerGUID();
+            end
+            if not canaccessvalue(PLAYER_NAME) then
+                return
+            end
             if playerName ~= PLAYER_NAME then return end;
             self:ProcessLootMessage(text);
         end
