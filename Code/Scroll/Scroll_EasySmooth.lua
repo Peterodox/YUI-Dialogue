@@ -225,6 +225,13 @@ do
         end
     end
 
+    function ScrollFrameMixin:StopSteadScroll()
+        if self.isSteadyScrolling then
+            self:SetScript("OnUpdate", nil);
+            self.isSteadyScrolling = nil;
+        end
+    end
+
     function ScrollFrameMixin:IsAtPageTop()
         --local offset = self:GetVerticalScroll();
         return self.value <= 0.1

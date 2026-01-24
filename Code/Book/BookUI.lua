@@ -1452,10 +1452,7 @@ do  --Main UI
         EL:RegisterEvent("PLAYER_REGEN_ENABLED");
         EL:RegisterEvent("PLAYER_REGEN_DISABLED");
         EL.inCombat = InCombatLockdown();
-        self:SetScript("OnKeyDown", self.OnKeyDown);
-        self:EnableGamePadStick(true);
-        self:SetScript("OnGamePadStick", self.OnGamePadStick);
-        self:SetScript("OnGamePadButtonDown", self.OnGamePadButtonDown);
+        self:EnableControls(true);
         addon.SharedVignette:TryShow();
         CallbackRegistry:Trigger("BookUI.Show");
     end
@@ -1463,12 +1460,7 @@ do  --Main UI
     function DUIBookUIMixin:OnHide()
         EL:UnregisterEvent("PLAYER_REGEN_ENABLED");
         EL:UnregisterEvent("PLAYER_REGEN_DISABLED");
-        self:SetScript("OnKeyDown", nil);
-        if not InCombatLockdown() then
-            self:EnableGamePadStick(false);
-        end
-        self:SetScript("OnGamePadStick", nil);
-        self:SetScript("OnGamePadButtonDown", nil);
+        self:EnableControls(false);
         CloseItemText();
         self:ReleaseAllObjects();
         Cache:ClearObjectCache();
@@ -1724,6 +1716,22 @@ end
 do  --Keyboard Control, In Combat Behavior
     local IsModifierKeyDown = IsModifierKeyDown;
 
+    function DUIBookUIMixin:EnableControls(state)
+        if state and not InCombatLockdown() then
+            self:SetScript("OnKeyDown", self.OnKeyDown);
+            self:SetScript("OnGamePadStick", self.OnGamePadStick);
+            self:SetScript("OnGamePadButtonDown", self.OnGamePadButtonDown);
+            self:SetScript("OnGamePadButtonUp", self.OnGamePadButtonUp);
+            self:EnableGamePadStick(true);
+        else
+            self:SetScript("OnKeyDown", nil);
+            self:SetScript("OnGamePadStick", nil);
+            self:SetScript("OnGamePadButtonDown", nil);
+            self:SetScript("OnGamePadButtonUp", nil);
+            self:EnableGamePadStick(false);
+        end
+    end
+
     function DUIBookUIMixin:OnKeyDown(key)
         local valid = false;
 
@@ -1772,12 +1780,12 @@ do  --Keyboard Control, In Combat Behavior
     function DUIBookUIMixin:OnGamePadButtonDown(button)
         local valid = false;
 
-        if button == "PADLSHOULDER" then
+        if button == "PADLSHOULDER" or button == "PADDLEFT" then
             if self.scrollable then
                 valid = true;
                 self:ScrollToNearPrevPage();
             end
-        elseif button == "PADRSHOULDER" then
+        elseif button == "PADRSHOULDER" or button == "PADDRIGHT" then
             if self.scrollable then
                 valid = true;
                 self:ScrollToNearNextPage();
@@ -1795,10 +1803,37 @@ do  --Keyboard Control, In Combat Behavior
         elseif button == "PADLTRIGGER" and (not IsModifierKeyDown()) and GetDBBool("TTSEnabled") and GetDBBool("TTSUseHotkey") then
             valid = true;
             addon.TTSUtil:ToggleSpeaking("book");
+        elseif button == "PADDUP" then
+            if self.scrollable then
+                valid = true;
+                self.ScrollFrame:SteadyScroll(-0.8);
+            end
+        elseif button == "PADDDOWN" then
+            if self.scrollable then
+                valid = true;
+                self.ScrollFrame:SteadyScroll(0.8);
+            end
         end
 
         if not EL.inCombat then
             self:SetPropagateKeyboardInput(not valid);
+        end
+    end
+
+    function DUIBookUIMixin:OnGamePadButtonUp(button)
+        if self.scrollable then
+            local valid;
+            if button == "PADDUP" then
+                valid = true;
+                self.ScrollFrame:StopSteadScroll();
+            elseif button == "PADDDOWN" then
+                valid = true;
+                self.ScrollFrame:StopSteadScroll();
+            end
+
+            if not EL.inCombat then
+                self:SetPropagateKeyboardInput(not valid);
+            end
         end
     end
 end
@@ -1908,18 +1943,15 @@ do  --EventListener
 
         elseif event == "PLAYER_REGEN_DISABLED" then
             self.inCombat = true;
-            self:SetPropagateKeyboardInput(true);
-            self:EnableGamePadStick(false);
-            self:SetScript("OnGamePadStick", nil);
-            self:SetScript("OnGamePadButtonDown", nil);
+            MainFrame:SetPropagateKeyboardInput(true);
+            MainFrame:EnableControls(false);
             if self:IsShown() then
                 addon.CameraUtil:OnEnterCombatDuringInteraction();
             end
         elseif event == "PLAYER_REGEN_ENABLED" then
             self.inCombat = false;
             if MainFrame:IsVisible() then
-                self:SetScript("OnGamePadStick", self.OnGamePadStick);
-                self:SetScript("OnGamePadButtonDown", self.OnGamePadButtonDown);
+                MainFrame:EnableControls(true);
             end
         end
 
