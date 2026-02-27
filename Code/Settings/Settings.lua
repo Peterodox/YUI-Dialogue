@@ -669,7 +669,7 @@ local Schematic = { --Scheme
 
             {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Checkbox", name = L["Press Tab To Select Reward"], description = L["Press Tab To Select Reward Desc"], dbKey = "CycleRewardHotkeyEnabled", requiredParentValueAnd = {InputDevice = 1}},
-            {type = "Checkbox", name = L["Disable Hokey For Teleport"], description = L["Disable Hokey For Teleport Desc"], dbKey = "DisableHotkeyForTeleport", requiredParentValueAnd = {InputDevice = 1}},
+            {type = "Checkbox", name = L["Disable Hotkey For Teleport"], description = L["Disable Hotkey For Teleport Desc"], dbKey = "DisableHotkeyForTeleport", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Checkbox", name =L["GamePad Click First Object"], description = L["GamePad Click First Object Desc"], dbKey = "GamePadClickFirstObject", requiredParentValueAnd = {InputDevice = {2, 3, 4}}},
 
             {type = "Subheader", name = L["Quest"]},
