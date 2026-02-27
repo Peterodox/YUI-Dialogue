@@ -719,7 +719,7 @@ function SharedTooltip:OnEvent(event, ...)
 		end
     elseif event == "MODIFIER_STATE_CHANGED" then
         local key, down = ...
-        if key == "LSHIFT" and down == 1 then
+        if (key == "LSHIFT" or key == "RSHIFT") and down == 1 then
             self:ToggleAlternateInfo();
         end
     elseif event == "UPDATE_INSTANCE_INFO" then
