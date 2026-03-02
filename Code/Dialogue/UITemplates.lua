@@ -1335,11 +1335,11 @@ function ItemButtonSharedMixin:GetClipboardOutput()
     elseif self.objectType == "reputation" then
         idFormat = "[FactionID: %s]";
         id = self.factionID;
-        name = self.factionName.." "..self.rewardAmount;
+        name = self.factionName.." "..(self.rewardAmount or "");
     elseif self.objectType == "currency" then
         idFormat = "[CurrencyID: %s]";
         id = self.currencyID;
-        name = self.Name:GetText().." "..self.rewardAmount;
+        name = self.Name:GetText().." "..(self.rewardAmount or "");
     elseif self.objectType == "skill" then
         local skillName, skillIcon, skillPoints = GetRewardSkillPoints();
         name = skillName .. " "..skillPoints;
