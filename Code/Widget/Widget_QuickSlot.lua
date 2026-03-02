@@ -30,6 +30,7 @@ local SupportedItemTypes = {
     mount = true,
     pet = true,
     toy =  true,
+    decor = true,
 };
 
 function QuickSlotManager:ListenLootEvent(state)
@@ -107,6 +108,9 @@ function QuickSlotManager:AddItemButtonByType(itemClassification, itemLink)
     elseif itemClassification == "toy" then
         success = true;
         self:AddToy(itemLink);
+    elseif itemClassification == "decor" then
+        success = true;
+        self:AddDecor(itemLink);
     end
     return success
 end
@@ -201,6 +205,10 @@ do  --Add Button Method
 
     function QuickSlotManager:AddToy(itemLink)
         self:AddAutoCloseItemButton(itemLink, "SetToyItem", "IsKnownToy");
+    end
+
+    function QuickSlotManager:AddDecor(itemLink)
+        self:AddAutoCloseItemButton(itemLink, "SetDecorItem", "IsKnownDecor");
     end
 
     function QuickSlotManager:AddUsableItemByID(itemID)
@@ -335,7 +343,7 @@ do  --QuestRewardItemButtonMixin
         if disableButton then
             self:UnregisterAllEvents();
             self:SetButtonEnabled(false);
-            if (self.type == "cosmetic" or self.type == "mount" or self.type == "pet" or self.type == "toy") and (UIParent:IsShown()) then
+            if (self.type == "cosmetic" or self.type == "mount" or self.type == "pet" or self.type == "toy" or self.type == "decor") and (UIParent:IsShown()) then
                 --No Countdown because WoW has AlertFrame for them
                 hideDirectly = true;
             else
@@ -388,7 +396,9 @@ do  --QuestRewardItemButtonMixin
 
 
     function QuickSlotManager:GetItemButton()
-        if not RewardItemButton then
+        if RewardItemButton then
+            self:HideItemButton();
+        else
             RewardItemButton = API.CreateItemActionButton(nil, QuestRewardItemButtonMixin);
             RewardItemButton:Hide();
             RewardItemButton:SetFrameStrata("FULLSCREEN_DIALOG");

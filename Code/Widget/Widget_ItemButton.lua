@@ -417,6 +417,14 @@ do  --Event Handler, Lazy Update
             else
                 self:SetToyItem(self.itemID, allowPressKeyToUse);
             end
+        elseif self.type == "decor" then
+            if self:IsKnownDecor() then
+                self:SetButtonEnabled(false);
+                self:SetSuccessText(L["Collection Collected"]);
+                self:OnItemKnown();
+            else
+                self:SetDecorItem(self.itemID, allowPressKeyToUse);
+            end
         end
     end
 
@@ -467,7 +475,7 @@ do  --Event Handler, Lazy Update
         elseif event == "PLAYER_EQUIPMENT_CHANGED" then
             local equipmentSlot, isEmpty = ...
             self:RequestUpdateBag();
-        elseif event == "TRANSMOG_COSMETIC_COLLECTION_SOURCE_ADDED" or event == "NEW_MOUNT_ADDED" or event == "NEW_PET_ADDED" or event == "NEW_TOY_ADDED" then
+        elseif event == "TRANSMOG_COSMETIC_COLLECTION_SOURCE_ADDED" or event == "NEW_MOUNT_ADDED" or event == "NEW_PET_ADDED" or event == "NEW_TOY_ADDED" or event == "NEW_HOUSING_ITEM_ACQUIRED" then
             self:RequestUpdateBag();
         end
 
@@ -583,6 +591,18 @@ do  --Actions Types
             self:RegisterEvent("NEW_TOY_ADDED");
         end
     end
+
+    function ItemButtonMixin:SetDecorItem(item, allowPressKeyToUse)
+        self:SetUsableItem(item, allowPressKeyToUse);
+        self.type = "decor";
+        if self:IsKnownToy() then
+            self:SetButtonEnabled(false);
+            self:SetSuccessText(L["Collection Collected"]);
+            self:OnItemKnown();
+        else
+            self:RegisterEvent("NEW_HOUSING_ITEM_ACQUIRED");
+        end
+    end
 end
 
 
@@ -625,6 +645,20 @@ do  --Determine if the item is learned/used
     function ItemButtonMixin:IsKnownToy()
         if self.itemID then
             return PlayerHasToy(self.itemID)
+        end
+    end
+
+    local AddedDecors = {};
+
+    function ItemButtonMixin:IsKnownDecor()
+        --Always false during the first inquery because you can collect multiple instances of the same decor
+        if self.itemID then
+            if AddedDecors[self.itemID] then
+                return true
+            else
+                AddedDecors[self.itemID] = true;
+                return false
+            end
         end
     end
 end

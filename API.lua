@@ -2917,6 +2917,7 @@ end
 do  -- Items
     local IsEquippableItem = C_Item.IsEquippableItem or IsEquippableItem or AlwaysFalse;
     local IsCosmeticItem = C_Item.IsCosmeticItem or IsCosmeticItem or AlwaysFalse;
+    local IsDecorItem = C_Item.IsDecorItem or AlwaysFalse;
     local GetTransmogItemInfo = (C_TransmogCollection and C_TransmogCollection.GetItemInfo) or AlwaysFalse;
     local GetItemLevel = C_Item.GetDetailedItemLevelInfo or GetDetailedItemLevelInfo or AlwaysZero;
     local GetItemInfoInstant = C_Item.GetItemInfoInstant;
@@ -2990,6 +2991,10 @@ do  -- Items
         local toyItemID = GetToyInfo(itemID);
         if toyItemID then
             return "toy"
+        end
+
+        if IsDecorItem (itemID) then
+            return "decor"
         end
     end
     API.GetItemClassification = GetItemClassification;

@@ -2398,6 +2398,7 @@ function DUIDialogBaseMixin:CloseDialogInteraction()
 end
 
 function DUIDialogBaseMixin:OnHide()
+    self:Hide();
     CameraUtil:Restore();
 
     self:CloseDialogInteraction();
@@ -2452,7 +2453,6 @@ end
 function DUIDialogBaseMixin:OnMouseUp(button)
     if button == "RightButton" and GetDBBool("RightClickToCloseUI") and self:IsMouseMotionFocus() then
         self:Hide();
-        --self:CloseDialogInteraction();
     end
 end
 
