@@ -1463,6 +1463,10 @@ function DUIDialogItemButtonMixin:OnClick(button)
                     CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
                     DressUpVisual(link);
                     return
+                elseif C_Item.IsDecorItem and C_Item.IsDecorItem(link) then
+                    CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+                    DressUpLink(link);
+                    return
                 end
             end
         end
@@ -1883,6 +1887,53 @@ function DUIDialogItemButtonMixin:SetRewardFollower(followerID)
     self:SetItemName(name);
     self:SetItemCount(nil);
     self:SetItemOverlay(quality);
+end
+
+function DUIDialogItemButtonMixin:OnEnter()
+    ItemButtonSharedMixin.OnEnter(self);
+
+    local canPreviewLink;
+    local link = self.objectType == "item" and GetQuestItemLink(self.type, self.index);
+
+    if link then
+        if API.IsDressableItem(link) then
+            canPreviewLink = true;
+        elseif C_Item.IsDecorItem and C_Item.IsDecorItem(link) then
+            canPreviewLink = true;
+        end
+    end
+
+    if canPreviewLink then
+        self:RegisterEvent("MODIFIER_STATE_CHANGED");
+        self:SetScript("OnEvent", self.OnEvent);
+        if IsControlKeyDown() then
+            SetCursor("INSPECT_CURSOR");
+        end
+    end
+end
+
+function DUIDialogItemButtonMixin:OnLeave()
+    ItemButtonSharedMixin.OnLeave(self);
+    self:UnregisterEvent("MODIFIER_STATE_CHANGED");
+    self:SetScript("OnEvent", nil);
+    ResetCursor();
+end
+
+function DUIDialogItemButtonMixin:OnEvent(event, ...)
+    if event == "MODIFIER_STATE_CHANGED" then
+        if not self:IsMouseMotionFocus() then
+           self:UnregisterEvent(event);
+           self:SetScript("OnEvent", nil);
+           return
+        end
+
+        local key, down = ...
+        if down == 1 and (key == "LCTRL" or key == "RCTRL") and (not InCombatLockdown()) then
+            SetCursor("INSPECT_CURSOR");
+        else
+            ResetCursor();
+        end
+    end
 end
 
 
