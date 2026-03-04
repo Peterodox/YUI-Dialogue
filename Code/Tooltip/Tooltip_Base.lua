@@ -234,7 +234,7 @@ function TooltipBaseMixin:Hide()
     self:ClearLines();
 end
 
-local TOPLINE_MAX_ROW = 2;
+local TOPLINE_MAX_ROW = 4;
 
 function TooltipBaseMixin:Layout()
     local textWidth, textHeight, lineWidth;
