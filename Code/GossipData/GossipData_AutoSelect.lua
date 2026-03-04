@@ -4,6 +4,13 @@ local _, addon = ...
 
 local AutoSelectGossip = {
     --[gossipOptionID] = true(always), 1(select when it's the only option)
+    --Midnight
+
+    --Den of Nalorakk
+    [135009] = 1,           --Ethereal Pyre, teleport from entrance to the start of the first area
+    [135010] = 1,           --Ethereal Pyre, teleport back to entrance from the first area (sharing the same optionID as the Pyre at the end of the zone)
+
+
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra
     [109275] = true,        --Reporting to duty (Time Rift)
