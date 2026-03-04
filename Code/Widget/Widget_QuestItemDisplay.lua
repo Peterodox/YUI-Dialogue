@@ -865,10 +865,8 @@ function QuestItemDisplay:SetDynamicFrameStrata(state, userInput)
         self.dynamicFrameStrata = true;
         if not self.worldmapHooked then
             self.worldmapHooked = true;
-            if WorldMapFrame and WorldMapFrame.RegisterCallback then
-                EventRegistry:RegisterCallback("WorldMapOnShow", self.LowerFrameStrata, self);
-                WorldMapFrame:RegisterCallback("WorldMapOnHide", self.RaiseFrameStrata, self);
-            end
+            EventRegistry:RegisterCallback("WorldMapOnShow", self.LowerFrameStrata, self);
+            EventRegistry:RegisterCallback("WorldMapOnHide", self.RaiseFrameStrata, self);
         end
         if userInput then
             if WorldMapFrame:IsVisible() then
