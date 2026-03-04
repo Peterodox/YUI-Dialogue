@@ -1,6 +1,6 @@
 ## X-Expansion: CATA
 ## Interface: 40402
-## Version: 1.0.0
+## Version: 1.0.1
 
 ## Title: Dialogue UI
 

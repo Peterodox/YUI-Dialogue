@@ -1,6 +1,6 @@
 ## X-Expansion: TBC
 ## Interface: 20505
-## Version: 1.0.0
+## Version: 1.0.1
 
 ## Title: Dialogue UI
 
