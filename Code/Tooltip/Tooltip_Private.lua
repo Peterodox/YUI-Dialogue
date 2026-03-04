@@ -32,7 +32,7 @@ local pairs = pairs;
 local format = string.format;
 
 
-local DualModelMixin = {};
+local PreviewModelMixin = {};
 do
     local PI2 = math.floor(1000*math.pi*2)/1000;
     local Model_ApplyUICamera = Model_ApplyUICamera;
@@ -52,7 +52,19 @@ do
         self:SetFacing(self.yaw);
     end
 
-    function DualModelMixin:Init(parent)
+    local function ModelScene_Turntable_OnUpdate(self, elapsed)
+        self.yaw = self.yaw + elapsed * PI2 * 0.1;
+        if self.yaw > PI2 then
+            self.yaw = self.yaw - PI2;
+        end
+        if self.ActiveActor then
+            self.ActiveActor:SetYaw(self.yaw);
+        else
+            self:SetScript("OnUpdate", nil);
+        end
+    end
+
+    function PreviewModelMixin:Init(parent)
         local model = CreateFrame("DressUpModel", nil, parent);
         self.Model1 = model;
         model.parent = self;
@@ -64,6 +76,10 @@ do
         model:SetDoBlend(false);
         model:SetScript("OnModelLoaded", PreviewModel_OnModelLoaded);
 
+
+        --Model2 (served as drop shadow) disabled due to model space change in 11.1.5
+        --And unlike ModelSceneActor, old model widgets don't have "SetAllowOverlappedModels"
+        --[[
         local modelShadow = CreateFrame("DressUpModel", nil, parent);
         self.Model2 = modelShadow;
         modelShadow.parent = self;
@@ -79,40 +95,45 @@ do
         local a = 0;
         modelShadow:SetFogColor(a, a, a);
         modelShadow:SetParticlesEnabled(false);
+        --]]
 
-        --local inset = 12;
-        --model:SetViewInsets(inset, inset, inset, inset);  --Push model farther
-        --modelShadow:SetViewInsets(inset, inset, inset, inset);
+
+        --Use ModelScene for Decor because it has a smarter camera (SetPreferModelCollisionBounds)
+        local ModelScene = CreateFrame("ModelScene", nil, parent, "PanningModelSceneMixinTemplate");
+        self.ModelScene = ModelScene;
+        ModelScene:SetPoint("CENTER", model, "CENTER", 0, 0);
+        ModelScene:Hide();
     end
 
-    function DualModelMixin:SetModelSize(width, height)
+    function PreviewModelMixin:SetModelSize(width, height)
         self.width, self.height = width, height;
         self.Model1:SetSize(width, height);
-        self.Model2:SetSize(width, height);
+        --self.Model2:SetSize(width, height);
+        self.ModelScene:SetSize(width, height);
     end
 
-    function DualModelMixin:GetWidth()
+    function PreviewModelMixin:GetWidth()
         return self.width
     end
 
-    function DualModelMixin:SetAnimation(animID)
+    function PreviewModelMixin:SetAnimation(animID)
         self.animID = animID;
         self:SyncAnimation();
     end
 
-    function DualModelMixin:SyncAnimation()
+    function PreviewModelMixin:SyncAnimation()
         if self.animID then
             self.Model1:SetAnimation(self.animID, 0);
-            self.Model2:SetAnimation(self.animID, 0);
+            --self.Model2:SetAnimation(self.animID, 0);
         end
     end
 
-    function DualModelMixin:UseModelCenterToTransform(state)
+    function PreviewModelMixin:UseModelCenterToTransform(state)
         self.Model1:UseModelCenterToTransform(state);
-        self.Model2:UseModelCenterToTransform(state);
+        --self.Model2:UseModelCenterToTransform(state);
     end
 
-    function DualModelMixin:SetPoint(point, relativeTo, relativePoint, x, y)
+    function PreviewModelMixin:SetPoint(point, relativeTo, relativePoint, x, y)
         self.point = point;
         self.relativeTo = relativeTo;
         self.relativePoint = relativePoint;
@@ -121,96 +142,102 @@ do
         self.Model1:SetPoint(point, relativeTo, relativePoint, x, y);
     end
 
-    function DualModelMixin:SetOffsetY(ratio)
+    function PreviewModelMixin:SetOffsetY(ratio)
         local y = self.height * ratio;
         self.y = y;
         self:SetPoint(self.point, self.relativeTo, self.relativePoint, self.x, y);
     end
 
-    function DualModelMixin:ClearModel()
+    function PreviewModelMixin:ClearModel()
         if self.hasModel then
             self.hasModel = false;
             self.Model1:ClearModel();
-            self.Model2:ClearModel();
+            --self.Model2:ClearModel();
         end
     end
 
-    function DualModelMixin:SetCameraID(cameraID)
+    function PreviewModelMixin:SetCameraID(cameraID)
         self.Model1.cameraID = cameraID;
-        self.Model2.cameraID = cameraID;
+        --self.Model2.cameraID = cameraID;
     end
 
-    function DualModelMixin:ResetPosition()
+    function PreviewModelMixin:ResetPosition()
         self.Model1:SetPosition(0, 0, 0);
         self.Model1:SetPitch(0);
         self.Model1:SetRoll(0);
-        self.Model2:SetPosition(0, 0, 0);
-        self.Model2:SetPitch(0);
-        self.Model2:SetRoll(0);
+        --self.Model2:SetPosition(0, 0, 0);
+        --self.Model2:SetPitch(0);
+        --self.Model2:SetRoll(0);
     end
 
-    function DualModelMixin:SetYaw(yaw)
+    function PreviewModelMixin:SetYaw(yaw)
         self.Model1:SetFacing(yaw);
-        self.Model2:SetFacing(yaw);
+        --self.Model2:SetFacing(yaw);
     end
 
-    function DualModelMixin:SetDisplayInfo(creatureDisplayID)
-        --Model2 (served as drop shadow) disabled due to model space change in 11.1.5
+    function PreviewModelMixin:SetDisplayInfo(creatureDisplayID)
+        self.Model1:Show();
         self.Model1:SetDisplayInfo(creatureDisplayID);
         --self.Model2:SetDisplayInfo(creatureDisplayID);
-        self:SetPreferModelCollisionBounds(false);
+        self.ModelScene:Hide();
     end
 
-    function DualModelMixin:SetModelByUnit(unit)
+    function PreviewModelMixin:SetModelByUnit(unit)
+        self.Model1:Show();
         API.SetModelByUnit(self.Model1, unit);
         --API.SetModelByUnit(self.Model2, unit);
-        self:SetPreferModelCollisionBounds(false);
+        self.ModelScene:Hide();
     end
 
-    function DualModelMixin:SetItem(item)
+    function PreviewModelMixin:SetItem(item)
+        self.Model1:Show();
         self.Model1:SetItem(item);
         --self.Model2:SetItem(item);
-        self:SetPreferModelCollisionBounds(false);
+        self.ModelScene:Hide();
     end
 
-    function DualModelMixin:FreezeAnimation(animID, variation, frame)
+    function PreviewModelMixin:FreezeAnimation(animID, variation, frame)
         self.Model1:FreezeAnimation(animID, variation, frame);
-        self.Model2:FreezeAnimation(animID, variation, frame);
+        --self.Model2:FreezeAnimation(animID, variation, frame);
     end
 
-    function DualModelMixin:TryOn(item)
+    function PreviewModelMixin:TryOn(item)
         self.Model1:TryOn(item);
-        self.Model2:TryOn(item);
+        --self.Model2:TryOn(item);
     end
 
-    function DualModelMixin:SetUseTransmogChoices(state)
+    function PreviewModelMixin:SetUseTransmogChoices(state)
         self.Model1:SetUseTransmogChoices(state);
-        self.Model2:SetUseTransmogChoices(state);
+        --self.Model2:SetUseTransmogChoices(state);
 
         self.Model1:SetUseTransmogSkin(state);
-        self.Model2:SetUseTransmogSkin(state);
+        --self.Model2:SetUseTransmogSkin(state);
     end
 
-    function DualModelMixin:SetUseTurntable(useTurntable)
+    function PreviewModelMixin:SetUseTurntable(useTurntable)
         if useTurntable then
             self.Model1.yaw = -0.78;
             self.Model1:SetScript("OnUpdate", PreviewModel_Turntable_OnUpdate);
-            self.Model2.yaw = -0.78;
-            self.Model2:SetScript("OnUpdate", PreviewModel_Turntable_OnUpdate);
+            --self.Model2.yaw = -0.78;
+            --self.Model2:SetScript("OnUpdate", PreviewModel_Turntable_OnUpdate);
+            self.ModelScene.yaw = -1.42;
+            self.ModelScene:SetScript("OnUpdate", ModelScene_Turntable_OnUpdate);
         else
-            self.Model1:SetScript("OnUpdate", nil);
-            self.Model2:SetScript("OnUpdate", nil);
             self.Model1.yaw = 0;
-            self.Model2.yaw = 0;
+            self.Model1:SetScript("OnUpdate", nil);
+            --self.Model2.yaw = 0;
+            --self.Model2:SetScript("OnUpdate", nil);
+            self.ModelScene.yaw = 0;
+            self.ModelScene:SetScript("OnUpdate", nil);
         end
     end
 
-    function DualModelMixin:SetModelAlpha(alpha)
+    function PreviewModelMixin:SetModelAlpha(alpha)
         self.Model1:SetModelAlpha(alpha);
-        self.Model2:SetModelAlpha(0.8 * alpha);
+        --self.Model2:SetModelAlpha(0.8 * alpha);
     end
 
-    function DualModelMixin:SetUseParentLevel(parent, containerFrame)
+    function PreviewModelMixin:SetUseParentLevel(parent, containerFrame)
         local level = parent:GetFrameLevel();
         local strata = parent:GetFrameStrata();
 
@@ -221,20 +248,27 @@ do
 
         self.Model1:SetFrameStrata(strata);
         self.Model1:SetFrameLevel(level);
-        self.Model2:SetFrameStrata(strata);
-        self.Model2:SetFrameLevel(level);
+        --self.Model2:SetFrameStrata(strata);
+        --self.Model2:SetFrameLevel(level);
+        self.ModelScene:SetFrameStrata(strata);
+        self.ModelScene:SetFrameLevel(level);
     end
 
-    function DualModelMixin:SetPreferModelCollisionBounds(state)
-        if self.Model1.SetPreferModelCollisionBounds then
-            self.Model1:SetPreferModelCollisionBounds(state);
-            self.Model2:SetPreferModelCollisionBounds(state);
+    function PreviewModelMixin:SetDecorModel(catalogEntryInfo)
+        self.Model1:Hide();
+        --self.Model2:Hide();
+
+		local modelSceneID = catalogEntryInfo.uiModelSceneID or Constants.HousingCatalogConsts.HOUSING_CATALOG_DECOR_MODELSCENEID_DEFAULT;
+		self.ModelScene:TransitionToModelSceneID(modelSceneID, 1, 1, true);
+        local actor = self.ModelScene:GetActorByTag("decor");
+        self.ModelScene.ActiveActor = actor;
+        if actor then
+            actor:SetPreferModelCollisionBounds(true);
+            actor:SetModelByFileID(catalogEntryInfo.asset);
+            self.ModelScene:Show();
+        else
+            self.ModelScene:Hide();
         end
-    end
-
-    function DualModelMixin:SetDecorModel(modelFileID)
-        self:SetPreferModelCollisionBounds(true);
-        self.Model1:SetModel(modelFileID);
     end
 end
 
@@ -247,12 +281,12 @@ function SharedTooltip:Init()
         self.modelWidth, self.modelHeight = MODEL_WIDTH, MODEL_HEIGHT;
         self.PreviewFrame:SetSize(MODEL_WIDTH, MODEL_HEIGHT);
 
-        self.DualModel = API.CreateFromMixins(DualModelMixin);
-        self.DualModel:Init(self.PreviewFrame);
-        self.DualModel:SetModelSize(MODEL_WIDTH, MODEL_HEIGHT);
-        self.DualModel:SetPoint("TOPRIGHT", self, "TOPRIGHT", -TOOLTIP_PADDING, 0.33*MODEL_HEIGHT);
+        self.PreviewModel = API.CreateFromMixins(PreviewModelMixin);
+        self.PreviewModel:Init(self.PreviewFrame);
+        self.PreviewModel:SetModelSize(MODEL_WIDTH, MODEL_HEIGHT);
+        self.PreviewModel:SetPoint("TOPRIGHT", self, "TOPRIGHT", -TOOLTIP_PADDING, 0.33*MODEL_HEIGHT);
 
-        self.DualModel:SetUseParentLevel(self, self.PreviewFrame);
+        self.PreviewModel:SetUseParentLevel(self, self.PreviewFrame);
     end
 
     self:InitFrame();
@@ -276,7 +310,7 @@ do
         local usePreview;
 
         if itemID then
-            local DualModel = self.DualModel;
+            local PreviewModel = self.PreviewModel;
             local useTurntable;
 
             if IsDressableItemByID(itemID) then
@@ -288,21 +322,21 @@ do
                     if API.IsHoldableItem(itemID) then  --Weapons
                         local cameraID = C_TransmogCollection.GetAppearanceCameraIDBySource(sourceID);
 
-                        DualModel:SetCameraID(cameraID);
-                        DualModel:SetItem(itemID, sourceID);
+                        PreviewModel:SetCameraID(cameraID);
+                        PreviewModel:SetItem(itemID, sourceID);
                     else    --Armor
                         local cameraID = C_TransmogCollection.GetAppearanceCameraIDBySource(sourceID);
 
                         local useTransmogSkin, setupGear = API.GetTransmogSetup(itemID);
-                        DualModel:SetUseTransmogChoices(useTransmogSkin);
-                        DualModel:SetCameraID(cameraID);
-                        DualModel:SetModelByUnit("player");
-                        DualModel:FreezeAnimation(0, 0, 0);
-                        DualModel:TryOn(sourceID);
+                        PreviewModel:SetUseTransmogChoices(useTransmogSkin);
+                        PreviewModel:SetCameraID(cameraID);
+                        PreviewModel:SetModelByUnit("player");
+                        PreviewModel:FreezeAnimation(0, 0, 0);
+                        PreviewModel:TryOn(sourceID);
 
                         if setupGear then
                             for _, v in ipairs(setupGear) do
-                                DualModel:TryOn(v);
+                                PreviewModel:TryOn(v);
                             end
                         end
                     end
@@ -310,13 +344,13 @@ do
                     useTurntable = true;
                     local detailsCameraID, vendorCameraID = C_TransmogSets.GetCameraIDs()
 
-                    DualModel:SetCameraID(vendorCameraID);
-                    DualModel:SetModelByUnit("player");
-                    DualModel:FreezeAnimation(0, 0, 0);
-                    DualModel:TryOn("item:"..itemID);
+                    PreviewModel:SetCameraID(vendorCameraID);
+                    PreviewModel:SetModelByUnit("player");
+                    PreviewModel:FreezeAnimation(0, 0, 0);
+                    PreviewModel:TryOn("item:"..itemID);
                 end
-                DualModel:SetModelSize(MODEL_WIDTH, MODEL_HEIGHT);
-                DualModel:SetOffsetY(0.33);
+                PreviewModel:SetModelSize(MODEL_WIDTH, MODEL_HEIGHT);
+                PreviewModel:SetOffsetY(0.33);
             else
                 local mountID = C_MountJournal.GetMountFromItem(itemID);
                 local displayID;
@@ -326,16 +360,16 @@ do
                     local creatureDisplayID, description, _, isSelfMount, _, modelSceneID, animID, spellVisualKitID, disablePlayerMountPreview = C_MountJournal.GetMountInfoExtraByID(mountID);
                     displayID = creatureDisplayID;
                     if isSelfMount then
-                        DualModel:SetAnimation(618);
+                        PreviewModel:SetAnimation(618);
                     else
-                        DualModel:SetAnimation(0);
+                        PreviewModel:SetAnimation(0);
                     end
                 else
                     local _, _, _, creatureID, _, description, _, _, _, _, _, creatureDisplayID, speciesID = C_PetJournal.GetPetInfoByItemID(itemID);
                     if creatureDisplayID then
                         displayID = creatureDisplayID;
                         usePreview = true;
-                        DualModel:SetAnimation(0);
+                        PreviewModel:SetAnimation(0);
 
                     else
 
@@ -347,12 +381,12 @@ do
                         local tryGetOwnedInfo = true;
                         local catalogEntryInfo = C_HousingCatalog.GetCatalogEntryInfoByItem(itemID, tryGetOwnedInfo);   --MIDNIGHT
                         if catalogEntryInfo and catalogEntryInfo.asset then
-                            DualModel:SetModelSize(MODEL_WIDTH, MODEL_HEIGHT);
-                            DualModel:ClearModel();
-                            DualModel:SetCameraID(nil);
-                            DualModel:ResetPosition();
-                            DualModel:SetDecorModel(catalogEntryInfo.asset);
-                            DualModel:SetOffsetY(0.33);
+                            PreviewModel:SetModelSize(MODEL_WIDTH, MODEL_HEIGHT);
+                            PreviewModel:ClearModel();
+                            PreviewModel:SetCameraID(nil);
+                            PreviewModel:ResetPosition();
+                            PreviewModel:SetDecorModel(catalogEntryInfo);
+                            PreviewModel:SetOffsetY(0.33);
                             useTurntable = true;
                             usePreview = true;
                         end
@@ -361,18 +395,18 @@ do
 
                 if displayID then
                     useTurntable = true;
-                    DualModel:ClearModel();
-                    DualModel:SetCameraID(nil);
-                    DualModel:UseModelCenterToTransform(false);
-                    DualModel:SetModelSize(MODEL_HEIGHT, MODEL_HEIGHT); --Square
-                    DualModel:ResetPosition();
-                    DualModel:SetDisplayInfo(displayID);
-                    DualModel:SetOffsetY(0.5);
-                    --DualModel:SetYaw(0.44);
+                    PreviewModel:ClearModel();
+                    PreviewModel:SetCameraID(nil);
+                    PreviewModel:UseModelCenterToTransform(false);
+                    PreviewModel:SetModelSize(MODEL_HEIGHT, MODEL_HEIGHT); --Square
+                    PreviewModel:ResetPosition();
+                    PreviewModel:SetDisplayInfo(displayID);
+                    PreviewModel:SetOffsetY(0.5);
+                    --PreviewModel:SetYaw(0.44);
                 end
             end
 
-            DualModel:SetUseTurntable(useTurntable);
+            PreviewModel:SetUseTurntable(useTurntable);
         end
 
         if usePreview then

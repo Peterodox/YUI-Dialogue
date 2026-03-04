@@ -135,9 +135,9 @@ function TooltipBaseMixin:ClearLines()
         end
     end
 
-    if self.DualModel and self.usePreviewModel then
+    if self.PreviewModel and self.usePreviewModel then
         self.usePreviewModel = false;
-        self.DualModel:ClearModel();
+        self.PreviewModel:ClearModel();
     end
 
     if self.PreviewFrame then
@@ -184,8 +184,8 @@ end
 
 function TooltipBaseMixin:SetFrameAlpha(alpha)
     self:SetAlpha(alpha);
-    if self.DualModel then
-        self.DualModel:SetModelAlpha(alpha);
+    if self.PreviewModel then
+        self.PreviewModel:SetModelAlpha(alpha);
     end
 end
 
@@ -407,8 +407,8 @@ function TooltipBaseMixin:Layout()
     local contentWidth = Round(maxLineWidth);
     self.Content:SetWidth(contentWidth);
 
-    if usePreviewModel and self.DualModel then
-        local modelWidth = self.DualModel:GetWidth();
+    if usePreviewModel and self.PreviewModel then
+        local modelWidth = self.PreviewModel:GetWidth();
         topLinesWidth = topLinesWidth or 0;
         topLinesWidth = topLinesWidth + modelWidth + TOOLTIP_PADDING;
         contentWidth = max(topLinesWidth, maxLineWidth);
