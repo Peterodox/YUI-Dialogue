@@ -3083,10 +3083,11 @@ do  --Quest Rewards
                 offsetY = fromOffsetY + (itemButtonHeight + ITEM_BUTTON_SPACING) * numRows - ITEM_BUTTON_SPACING;
                 offsetY = offsetY + PARAGRAPH_SPACING;
 
-                if #rewardList > 1 then
-                    offsetY = self:InsertText(offsetY, REWARD_ITEMS);	--You will also receive
-                    offsetY = offsetY + ITEM_BUTTON_SPACING;
-                end
+                --Title is already added to the rewardList
+                --if #rewardList > 1 then
+                    --offsetY = self:InsertText(offsetY, REWARD_ITEMS);	--You will also receive
+                    --offsetY = offsetY + ITEM_BUTTON_SPACING;
+                --end
 
                 if isChoosingReward then
                     self:RequestSellPrice();
