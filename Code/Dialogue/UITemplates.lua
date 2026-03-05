@@ -1138,11 +1138,11 @@ function DUIDialogHotkeyFrameMixin:SetKey(key)
 end
 
 function DUIDialogHotkeyFrameMixin:SetKeyByFunction(keyFunction)
-    if HotkeyIcons[keyFunction] then
-        self:SetKey(keyFunction);
-    else
-        local key = addon.DeviceUtil:GetKeyByFunction(keyFunction);
+    local key = addon.DeviceUtil:GetKeyByFunction(keyFunction);
+    if key then
         self:SetKey(key);
+    elseif HotkeyIcons[keyFunction] then
+        self:SetKey(keyFunction);
     end
 end
 

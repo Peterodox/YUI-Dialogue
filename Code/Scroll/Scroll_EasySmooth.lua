@@ -153,7 +153,7 @@ do
     end
 
     function ScrollFrameMixin:ResetScroll()
-        self:SnapTo(0);
+        self:SnapTo(0, true);
     end
 
     function ScrollFrameMixin:GetScrollTarget()
