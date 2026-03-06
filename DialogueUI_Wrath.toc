@@ -1,6 +1,6 @@
 ## X-Expansion: WRATH
 ## Interface: 30405
-## Version: 1.0.1
+## Version: 1.0.2
 
 ## Title: Dialogue UI
 

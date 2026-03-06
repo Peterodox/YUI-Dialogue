@@ -1,6 +1,6 @@
 ## X-Expansion: MISTS
 ## Interface: 50503
-## Version: 1.0.0
+## Version: 1.0.2
 
 ## Title: Dialogue UI
 
