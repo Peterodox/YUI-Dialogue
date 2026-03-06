@@ -614,12 +614,16 @@ local function ShowUIParent(state)
 
     if state then
         if ShouldShowUIParent() then
-            -- Use securecallfunction to avoid propagating addon taint to
-            -- Blizzard frames. Without this, PetFrame:Show() triggers
+            -- Defer to next frame to start a new execution stack, breaking
+            -- the addon taint chain. Without this, PetFrame:Show() triggers
             -- UnitFrameHealPredictionBars_Update which fails comparing
             -- maxHealth as a "secret number value tainted by DialogueUI".
-            securecallfunction(UIParent.Show, UIParent);
-            securecallfunction(SetUIVisibility, true);
+            C_Timer.After(0, function()
+                if not InCombatLockdown() and ShouldShowUIParent() then
+                    UIParent:Show();
+                    SetUIVisibility(true);
+                end
+            end);
         else
             MovieFrame.uiParentShown = true;
         end
@@ -642,7 +646,7 @@ function FadeHelper:HideUIParentInstantly()
     if not InCombatLockdown() then
         self.fadeDelta = -1;
         UIParent:SetAlpha(1);
-        securecallfunction(SetUIVisibility, false);
+        SetUIVisibility(false);
         if HIDE_UI and HIDE_SPARKLES then
             self.t = 2;
             self:SetScript("OnUpdate", self.HideSparkles_OnUpdate);
