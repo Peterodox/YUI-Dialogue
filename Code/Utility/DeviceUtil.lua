@@ -87,3 +87,17 @@ function DeviceUtil:GetKeyByFunction(keyFunction)
         return self:GetModKey();
     end
 end
+
+
+--- Process "MODIFIER_STATE_CHANGED" event
+function DeviceUtil.IsShiftDown(key, down)
+    return down == 1 and (key == "LSHIFT" or key == "RSHIFT")
+end
+
+function DeviceUtil.IsCtrlDown(key, down)
+    return down == 1 and (key == "LCTRL" or key == "RCTRL")
+end
+
+function DeviceUtil.IsAltDown(key, down)
+    return down == 1 and (key == "LALT" or key == "RALT")
+end

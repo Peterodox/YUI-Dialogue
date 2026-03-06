@@ -4,6 +4,7 @@ local _, addon = ...
 local CallbackRegistry = addon.CallbackRegistry;
 local GetDBBool = addon.GetDBBool;
 local L = addon.L;
+local IsShiftDown = addon.DeviceUtil.IsShiftDown;
 
 local TTSUtil = CreateFrame("Frame");
 addon.TTSUtil = TTSUtil;
@@ -569,7 +570,7 @@ do  --TTS Play Button
     end
 
     function TTSButtonMixin:OnModiferStateChanged(event, key, down)
-        if (key == "LSHIFT" or key == "RSHIFT") and down == 1 then
+        if IsShiftDown(key, down) then
             if self:IsMouseMotionFocus() then
                 local userInput = true;
                 addon.FlipDBBool("TTSReadTranslation", userInput);

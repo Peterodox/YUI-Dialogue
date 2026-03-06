@@ -12,6 +12,7 @@ local C_TooltipInfo = addon.TooltipAPI;
 local C_TransmogCollection = C_TransmogCollection;
 local IsDressableItemByID = C_Item.IsDressableItemByID;
 local GetItemInfoInstant = C_Item.GetItemInfoInstant;
+local IsShiftDown = addon.DeviceUtil.IsShiftDown;
 
 local SharedTooltip = addon.CreateTooltipBase();
 addon.SharedTooltip = SharedTooltip;
@@ -752,8 +753,7 @@ function SharedTooltip:OnEvent(event, ...)
 			self:ProcessInfo(self.tooltipInfo);
 		end
     elseif event == "MODIFIER_STATE_CHANGED" then
-        local key, down = ...
-        if (key == "LSHIFT" or key == "RSHIFT") and down == 1 then
+        if IsShiftDown(...) then
             self:ToggleAlternateInfo();
         end
     elseif event == "UPDATE_INSTANCE_INFO" then

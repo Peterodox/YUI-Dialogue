@@ -5,11 +5,12 @@ local CallbackRegistry = addon.CallbackRegistry;
 local PixelUtil = addon.PixelUtil;
 local TooltipFrame = addon.SharedTooltip;
 local GossipDataProvider = addon.GossipDataProvider;
-local PlaySound = addon.PlaySound;
+--local PlaySound = addon.PlaySound;
 local ThemeUtil = addon.ThemeUtil;
 local RewardTooltipCode = addon.RewardTooltipCode;
 local SwipeEmulator = addon.SwipeEmulator;
 local BindingUtil = addon.BindingUtil;
+local IsCtrlDown = addon.DeviceUtil.IsCtrlDown;
 
 -- User Settings
 local SHOW_QUEST_TYPE_TEXT = true;
@@ -57,7 +58,6 @@ local DeclineQuest = DeclineQuest;
 local GetQuestItemInfo = GetQuestItemInfo;
 local GetQuestCurrency = API.GetQuestCurrency;
 local GetNumQuestChoices = GetNumQuestChoices;
-local GetQuestReward = GetQuestReward;
 local SelectActiveQuest = SelectActiveQuest;        --QUEST_GREETING
 local SelectAvailableQuest = SelectAvailableQuest;  --QUEST_GREETING
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
@@ -1927,8 +1927,7 @@ function DUIDialogItemButtonMixin:OnEvent(event, ...)
            return
         end
 
-        local key, down = ...
-        if down == 1 and (key == "LCTRL" or key == "RCTRL") and (not InCombatLockdown()) then
+        if IsCtrlDown(...) and (not InCombatLockdown()) then
             SetCursor("INSPECT_CURSOR");
         else
             ResetCursor();
