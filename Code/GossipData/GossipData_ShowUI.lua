@@ -18,6 +18,7 @@ local ShowUIGossip = {
     [124311] = true,    --(Lorewalking) What stories can you tell me?
     [131481] = true,    --Overcharged Titan Console, <View overcharged console discs.>
     [132979] = true,    --I want to empower my Reshii Wraps.
+    [134809] = true,    --(Quest) Saddle me up! Ranger Valsarin [Quest: 91347] Strider Stampede (Avoid taint)
 };
 
 function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)
