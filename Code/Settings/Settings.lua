@@ -708,6 +708,7 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["Valuable Reward Popup"], description = L["Valuable Reward Popup Desc"], dbKey = "QuickSlotQuestReward", preview = "QuickSlotQuestReward", ratio = 2},
             {type = "Checkbox", name = L["Always-On Loot Popup"], description = L["Always-On Loot Popup Desc"], dbKey = "QuickSlotAlwaysOn", requiredParentValueAnd = {QuickSlotQuestReward = true}},
             {type = "Checkbox", name = L["Upgrades And Containers Only"], description = L["Upgrades And Containers Only Desc"], dbKey = "QuickSlotPriorityOnly", requiredParentValueAnd = {QuickSlotQuestReward = true, QuickSlotAlwaysOn = true}},
+            {type = "Checkbox", name = L["Include Collectibles"], description = L["Include Collectibles Desc"], dbKey = "QuickSlotCollectibleHighPriority", requiredParentValueAnd = {QuickSlotQuestReward = true, QuickSlotAlwaysOn = true}},
             {type = "Checkbox", name = L["Auto Complete Quest"], description = L["Auto Complete Quest Desc"], dbKey = "AutoCompleteQuest", preview = "QuestAutoComplete", ratio = 2},
             {type = "Checkbox", name = L["Press Key To Use Item"], tooltip = UseItemHotkey_Tooltip, dbKey = "QuickSlotUseHotkey", requiredParentValueOr = {QuickSlotQuestReward = true, AutoCompleteQuest = true}, branchLevel = 0},
 
