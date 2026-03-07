@@ -93,6 +93,105 @@ do
     end
 end
 
+local QueueManager = {};
+do
+    local highQueue = {};   -- equipment upgrades, containers
+    local lowQueue = {};    -- cosmetics, mounts, pets, toys, decor
+    local isProcessing = false;
+
+    local HIGH_PRIORITY_TYPES = {
+        equipment = true,
+        container = true,
+    };
+
+    function QueueManager:Enqueue(itemLink, classification)
+        local entry = {
+            itemLink = itemLink,
+            classification = classification,
+            enqueueTime = GetTime(),
+        };
+
+        if HIGH_PRIORITY_TYPES[classification] then
+            table.insert(highQueue, entry);
+            DebugLog("Enqueued HIGH:", classification, itemLink);
+        else
+            table.insert(lowQueue, entry);
+            DebugLog("Enqueued LOW:", classification, itemLink);
+        end
+
+        if not isProcessing then
+            self:ProcessNext();
+        end
+    end
+
+    function QueueManager:Peek()
+        return highQueue[1] or lowQueue[1]
+    end
+
+    function QueueManager:Dequeue()
+        if #highQueue > 0 then
+            return table.remove(highQueue, 1)
+        elseif #lowQueue > 0 then
+            return table.remove(lowQueue, 1)
+        end
+    end
+
+    function QueueManager:IsEmpty()
+        return #highQueue == 0 and #lowQueue == 0
+    end
+
+    function QueueManager:Clear()
+        wipe(highQueue);
+        wipe(lowQueue);
+        isProcessing = false;
+    end
+
+    -- Revalidate: item still in bags, still an upgrade (for equipment), still usable.
+    function QueueManager:IsStillEligible(entry)
+        if not HasItem(entry.itemLink) then
+            DebugLog("Revalidation failed (not in bags):", entry.itemLink);
+            return false
+        end
+        if entry.classification == "equipment" then
+            local isUpgrade = API.IsItemAnUpgrade_External(entry.itemLink);
+            if not isUpgrade then
+                DebugLog("Revalidation failed (no longer upgrade):", entry.itemLink);
+                return false
+            end
+        end
+        return true
+    end
+
+    function QueueManager:ProcessNext()
+        while not self:IsEmpty() do
+            local entry = self:Dequeue();
+            if entry and self:IsStillEligible(entry) then
+                isProcessing = true;
+                DebugLog("Showing popup:", entry.classification, entry.itemLink);
+                QuickSlotManager:AddItemButtonByType(entry.classification, entry.itemLink);
+                return
+            else
+                DebugLog("Skipped on revalidation:", entry and entry.itemLink or "nil");
+            end
+        end
+        isProcessing = false;
+        DebugLog("Queue drained");
+    end
+
+    function QueueManager:OnPopupDismissed(itemLink)
+        isProcessing = false;
+        if itemLink then
+            CandidateFilter:RecordHandled(itemLink);
+        end
+        CandidateFilter:Prune();
+        self:ProcessNext();
+    end
+
+    function QueueManager:SetProcessing(state)
+        isProcessing = state;
+    end
+end
+
 function QuickSlotManager:ListenLootEvent(state)
     if state then
         self:RegisterEvent("CHAT_MSG_LOOT");
