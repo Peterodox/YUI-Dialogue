@@ -409,6 +409,7 @@ function QuickSlotManager:AddAutoCloseItemButton(itemLink, setupMethod, isAction
     local allowPressKeyToUse = addon.GetDBBool("QuickSlotUseHotkey");
 
     local button = self:GetItemButton();
+    button.currentItemLink = itemLink;
     button[setupMethod](button, itemLink, allowPressKeyToUse);
     button:ShowButton();
     button.CloseButton:SetInteractable(false);
@@ -629,8 +630,11 @@ do  --QuestRewardItemButtonMixin
     end
 
     function QuestRewardItemButtonMixin:OnCountdownFinished()
+        local itemLink = self.currentItemLink;
+        self.currentItemLink = nil;
         self:FadeOut(0);
         self:UnregisterAllEvents();
+        QueueManager:OnPopupDismissed(itemLink);
     end
 
     function QuestRewardItemButtonMixin:SetCountdown(second, disableButton)
@@ -682,11 +686,16 @@ do  --QuestRewardItemButtonMixin
     end
 
     function QuestRewardItemButtonMixin:OnItemEquipped()
+        local itemLink = self.currentItemLink;
+        self.currentItemLink = nil;
         self:ShowUpgradeIcon(false);
         self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
+        -- Queue advances when countdown finishes
     end
 
     function QuestRewardItemButtonMixin:OnItemKnown()
+        local itemLink = self.currentItemLink;
+        self.currentItemLink = nil;
         self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
     end
 
@@ -707,11 +716,14 @@ do  --QuestRewardItemButtonMixin
 
     function QuickSlotManager:HideItemButton(fadeOut)
         if RewardItemButton then
+            local itemLink = RewardItemButton.currentItemLink;
+            RewardItemButton.currentItemLink = nil;
             if fadeOut then
                 RewardItemButton:OnCountdownFinished();
                 RewardItemButton:SetInteractable(false);
             else
                 RewardItemButton:ClearButton();
+                QueueManager:OnPopupDismissed(itemLink);
             end
         end
     end
