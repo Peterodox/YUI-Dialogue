@@ -12,6 +12,19 @@ local COUNTDOWN_IDLE = 4;               --When the user doesn't do anything
 local COUNTDOWN_COMPLETE_AUTO = 2;      --When the item is auto equipped by game
 local COUNTDOWN_COMPLETE_MANUAL = 1;    --When the item is equipped by clicks
 
+local DUPLICATE_SUPPRESS_SECONDS = 5;
+local DISMISSED_COOLDOWN_SECONDS = 30;
+local DEFERRED_RETRY_INTERVAL = 0.5;
+local DEFERRED_MAX_RETRIES = 3;
+
+local DEBUG_QUICKSLOT = false;
+
+local function DebugLog(...)
+    if DEBUG_QUICKSLOT then
+        print("|cfffe6100[QuickSlot]|r", ...);
+    end
+end
+
 local QuickSlotManager = CreateFrame("Frame");
 addon.QuickSlotManager = QuickSlotManager;
 WidgetManager:AddLootMessageProcessor(QuickSlotManager, "ItemLink");
@@ -32,6 +45,53 @@ local SupportedItemTypes = {
     toy =  true,
     decor = true,
 };
+
+local CandidateFilter = {};
+do
+    local recent_loot = {};     -- [itemLink] = lastSeenTime
+    local recently_handled = {}; -- [itemLink] = lastDismissedOrEquippedTime
+
+    function CandidateFilter:IsRecentLoot(itemLink)
+        local lastSeen = recent_loot[itemLink];
+        if lastSeen and (GetTime() - lastSeen < DUPLICATE_SUPPRESS_SECONDS) then
+            DebugLog("Rejected duplicate:", itemLink);
+            return true
+        end
+        return false
+    end
+
+    function CandidateFilter:IsRecentlyHandled(itemLink)
+        local lastHandled = recently_handled[itemLink];
+        if lastHandled and (GetTime() - lastHandled < DISMISSED_COOLDOWN_SECONDS) then
+            DebugLog("Rejected recently handled:", itemLink);
+            return true
+        end
+        return false
+    end
+
+    function CandidateFilter:RecordLoot(itemLink)
+        recent_loot[itemLink] = GetTime();
+    end
+
+    function CandidateFilter:RecordHandled(itemLink)
+        recently_handled[itemLink] = GetTime();
+    end
+
+    -- Prune stale entries periodically to avoid unbounded growth.
+    function CandidateFilter:Prune()
+        local now = GetTime();
+        for link, t in pairs(recent_loot) do
+            if now - t > DUPLICATE_SUPPRESS_SECONDS then
+                recent_loot[link] = nil;
+            end
+        end
+        for link, t in pairs(recently_handled) do
+            if now - t > DISMISSED_COOLDOWN_SECONDS then
+                recently_handled[link] = nil;
+            end
+        end
+    end
+end
 
 function QuickSlotManager:ListenLootEvent(state)
     if state then
