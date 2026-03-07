@@ -654,7 +654,11 @@ do  --QuestRewardItemButtonMixin
         end
 
         if hideDirectly then
+            local itemLink = self.currentItemLink;
+            self.currentItemLink = nil;
             self:ClearButton();
+            QueueManager:OnPopupDismissed(itemLink);
+            return
         else
             self.CloseButton:SetCountdown(second);
         end
@@ -686,16 +690,11 @@ do  --QuestRewardItemButtonMixin
     end
 
     function QuestRewardItemButtonMixin:OnItemEquipped()
-        local itemLink = self.currentItemLink;
-        self.currentItemLink = nil;
         self:ShowUpgradeIcon(false);
         self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
-        -- Queue advances when countdown finishes
     end
 
     function QuestRewardItemButtonMixin:OnItemKnown()
-        local itemLink = self.currentItemLink;
-        self.currentItemLink = nil;
         self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
     end
 
@@ -716,12 +715,12 @@ do  --QuestRewardItemButtonMixin
 
     function QuickSlotManager:HideItemButton(fadeOut)
         if RewardItemButton then
-            local itemLink = RewardItemButton.currentItemLink;
-            RewardItemButton.currentItemLink = nil;
             if fadeOut then
                 RewardItemButton:OnCountdownFinished();
                 RewardItemButton:SetInteractable(false);
             else
+                local itemLink = RewardItemButton.currentItemLink;
+                RewardItemButton.currentItemLink = nil;
                 RewardItemButton:ClearButton();
                 QueueManager:OnPopupDismissed(itemLink);
             end
