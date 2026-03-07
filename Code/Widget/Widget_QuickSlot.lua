@@ -93,16 +93,32 @@ do
     end
 end
 
+local HIGH_PRIORITY_TYPES = {
+    equipment = true,
+    container = true,
+};
+
+local COLLECTIBLE_TYPES = {
+    toy = true,
+    pet = true,
+    decor = true,
+};
+
+local function IsHighPriority(classification)
+    if HIGH_PRIORITY_TYPES[classification] then
+        return true
+    end
+    if COLLECTIBLE_TYPES[classification] and addon.GetDBBool("QuickSlotCollectibleHighPriority") then
+        return true
+    end
+    return false
+end
+
 local QueueManager = {};
 do
-    local highQueue = {};   -- equipment upgrades, containers
+    local highQueue = {};   -- equipment upgrades, containers (+ optionally toys, pets, decor)
     local lowQueue = {};    -- cosmetics, mounts, pets, toys, decor
     local isProcessing = false;
-
-    local HIGH_PRIORITY_TYPES = {
-        equipment = true,
-        container = true,
-    };
 
     function QueueManager:Enqueue(itemLink, classification)
         local entry = {
@@ -111,7 +127,7 @@ do
             enqueueTime = GetTime(),
         };
 
-        if HIGH_PRIORITY_TYPES[classification] then
+        if IsHighPriority(classification) then
             table.insert(highQueue, entry);
             DebugLog("Enqueued HIGH:", classification, itemLink);
         else
@@ -240,8 +256,7 @@ do
 
             if shouldAdd then
                 local priorityOnly = addon.GetDBBool("QuickSlotPriorityOnly");
-                local isHighPriority = (itemClassification == "equipment" or itemClassification == "container");
-                if (not priorityOnly) or isHighPriority then
+                if (not priorityOnly) or IsHighPriority(itemClassification) then
                     DebugLog("Deferred resolved:", itemClassification, entry.itemLink);
                     QueueManager:Enqueue(entry.itemLink, itemClassification);
                 end
@@ -390,8 +405,7 @@ function QuickSlotManager:OnItemLooted(itemLink)
 
     -- Priority filtering
     local priorityOnly = addon.GetDBBool("QuickSlotPriorityOnly");
-    local isHighPriority = (itemClassification == "equipment" or itemClassification == "container");
-    if priorityOnly and (not isHighPriority) then
+    if priorityOnly and not IsHighPriority(itemClassification) then
         DebugLog("Rejected (low priority suppressed):", itemClassification, itemLink);
         return
     end

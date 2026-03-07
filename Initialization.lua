@@ -59,6 +59,7 @@ local DefaultValues = {
     QuickSlotQuestReward = false,
     QuickSlotAlwaysOn = false,
     QuickSlotPriorityOnly = false,
+    QuickSlotCollectibleHighPriority = false,
     AutoCompleteQuest = false,
         QuickSlotUseHotkey = true,
     AutoSelectGossip = false,
