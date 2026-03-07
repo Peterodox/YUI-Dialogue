@@ -192,6 +192,79 @@ do
     end
 end
 
+local DeferredResolver = {};
+do
+    local pending = {}; -- { itemLink, retryCount, classification }
+
+    function DeferredResolver:Add(itemLink)
+        table.insert(pending, {
+            itemLink = itemLink,
+            retryCount = 0,
+            classification = nil,
+        });
+        DebugLog("Deferred:", itemLink);
+        self:EnsureTimer();
+    end
+
+    function DeferredResolver:EnsureTimer()
+        if not self.timer then
+            self.timer = C_Timer.NewTicker(DEFERRED_RETRY_INTERVAL, function()
+                self:Resolve();
+            end);
+        end
+    end
+
+    function DeferredResolver:StopTimer()
+        if self.timer then
+            self.timer:Cancel();
+            self.timer = nil;
+        end
+    end
+
+    function DeferredResolver:Resolve()
+        local stillPending = {};
+
+        for _, entry in ipairs(pending) do
+            entry.retryCount = entry.retryCount + 1;
+            local itemClassification = GetItemClassification(entry.itemLink);
+            local shouldAdd = itemClassification and SupportedItemTypes[itemClassification];
+
+            if itemClassification == "equipment" then
+                local isUpgrade, isReady = API.IsItemAnUpgrade_External(entry.itemLink);
+                if not isReady then
+                    shouldAdd = nil; -- still not ready
+                else
+                    shouldAdd = isUpgrade;
+                end
+            end
+
+            if shouldAdd then
+                local priorityOnly = addon.GetDBBool("QuickSlotPriorityOnly");
+                local isHighPriority = (itemClassification == "equipment" or itemClassification == "container");
+                if (not priorityOnly) or isHighPriority then
+                    DebugLog("Deferred resolved:", itemClassification, entry.itemLink);
+                    QueueManager:Enqueue(entry.itemLink, itemClassification);
+                end
+            elseif entry.retryCount < DEFERRED_MAX_RETRIES and not itemClassification then
+                -- Still no classification data; keep retrying
+                table.insert(stillPending, entry);
+            else
+                DebugLog("Deferred dropped after", entry.retryCount, "retries:", entry.itemLink);
+            end
+        end
+
+        pending = stillPending;
+        if #pending == 0 then
+            self:StopTimer();
+        end
+    end
+
+    function DeferredResolver:Clear()
+        wipe(pending);
+        self:StopTimer();
+    end
+end
+
 function QuickSlotManager:ListenLootEvent(state)
     if state then
         self:RegisterEvent("CHAT_MSG_LOOT");
