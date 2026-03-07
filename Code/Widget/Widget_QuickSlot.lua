@@ -273,9 +273,12 @@ function QuickSlotManager:ListenLootEvent(state)
     else
         self.t = nil;
         self.pendingItemLink = nil;
-        self.itemClassification = nil;
+        self.pendingClassification = nil;
         self:SetScript("OnUpdate", nil);
-        self:UnregisterEvent("CHAT_MSG_LOOT");
+        -- Don't unregister CHAT_MSG_LOOT if always-on mode is active
+        if not addon.GetDBBool("QuickSlotAlwaysOn") then
+            self:UnregisterEvent("CHAT_MSG_LOOT");
+        end
         self:UnregisterEvent("BAG_UPDATE_DELAYED");
     end
 end
@@ -284,21 +287,27 @@ function QuickSlotManager:OnEvent(event, ...)
     if event == "CHAT_MSG_LOOT" then
         self:CHAT_MSG_LOOT(...);
     elseif event == "BAG_UPDATE_DELAYED" then
-        if self.pendingItemLink and self.itemClassification then
-            local success;
-
+        if self.pendingItemLink then
             if HasItem(self.pendingItemLink) then
-                success = self:AddItemButtonByType(self.itemClassification, self.pendingItemLink);
-            end
-
-            if success then
                 self:UnregisterEvent(event);
+
+                if self.pendingClassification then
+                    QueueManager:Enqueue(self.pendingItemLink, self.pendingClassification);
+                else
+                    -- Classification was unknown at loot time; try deferred resolution
+                    DeferredResolver:Add(self.pendingItemLink);
+                end
+
                 self.pendingItemLink = nil;
-                self.itemClassification = nil;
+                self.pendingClassification = nil;
             end
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
-        self:PLAYER_ENTERING_WORLD(...);
+        self:UnregisterEvent(event);
+        if addon.GetDBBool("QuickSlotQuestReward") and addon.GetDBBool("QuickSlotAlwaysOn") then
+            self:RegisterEvent("CHAT_MSG_LOOT");
+            DebugLog("Always-on loot listener initialized");
+        end
     end
 end
 QuickSlotManager:SetScript("OnEvent", QuickSlotManager.OnEvent);
@@ -313,7 +322,7 @@ end
 function QuickSlotManager:WatchBagItem(itemLink, itemClassification)
     self:RegisterEvent("BAG_UPDATE_DELAYED");
     self.pendingItemLink = itemLink;
-    self.itemClassification = itemClassification;
+    self.pendingClassification = itemClassification;
     if self.t then
         --Extend unregister countdown in case of lags
         self.t = self.t - 1;
@@ -350,24 +359,47 @@ end
 function QuickSlotManager:OnItemLooted(itemLink)
     --Fired after CHAT_MSG_LOOT, but the item may have not been pushed into the bags yet
 
-    if IsPlayingCutscene() then
+    if IsPlayingCutscene() then return end;
+
+    -- Duplicate/cooldown suppression
+    if CandidateFilter:IsRecentLoot(itemLink) then return end;
+    if CandidateFilter:IsRecentlyHandled(itemLink) then return end;
+    CandidateFilter:RecordLoot(itemLink);
+
+    local itemClassification = GetItemClassification(itemLink);
+    local shouldAdd = itemClassification and SupportedItemTypes[itemClassification];
+
+    if itemClassification == "equipment" then
+        local isUpgrade, isReady = API.IsItemAnUpgrade_External(itemLink);
+        if not isReady then
+            -- Item data not cached yet; defer evaluation
+            if HasItem(itemLink) then
+                DeferredResolver:Add(itemLink);
+            else
+                self:WatchBagItem(itemLink, nil); -- watch for bag arrival, then defer
+            end
+            return
+        end
+        shouldAdd = isUpgrade;
+    end
+
+    if not shouldAdd then
+        DebugLog("Rejected (not eligible):", itemClassification, itemLink);
         return
     end
 
-    local itemClassification = GetItemClassification(itemLink);
-    --print(itemClassification, itemLink);  --debug
-
-    local shouldAddItem = itemClassification and SupportedItemTypes[itemClassification];
-    if itemClassification == "equipment" then
-        shouldAddItem = API.IsItemAnUpgrade_External(itemLink);
+    -- Priority filtering
+    local priorityOnly = addon.GetDBBool("QuickSlotPriorityOnly");
+    local isHighPriority = (itemClassification == "equipment" or itemClassification == "container");
+    if priorityOnly and (not isHighPriority) then
+        DebugLog("Rejected (low priority suppressed):", itemClassification, itemLink);
+        return
     end
 
-    if shouldAddItem then
-        if HasItem(itemLink) then
-            self:AddItemButtonByType(itemClassification, itemLink);
-        else
-            self:WatchBagItem(itemLink, itemClassification);
-        end
+    if HasItem(itemLink) then
+        QueueManager:Enqueue(itemLink, itemClassification);
+    else
+        self:WatchBagItem(itemLink, itemClassification);
     end
 end
 
@@ -492,6 +524,38 @@ do
         end
     end
     CallbackRegistry:Register("SettingChanged.QuickSlotQuestReward", Settings_QuickSlotQuestReward);
+
+    local ALWAYS_ON_ENABLED = false;
+
+    local function Settings_QuickSlotAlwaysOn(state)
+        if state and addon.GetDBBool("QuickSlotQuestReward") then
+            if not ALWAYS_ON_ENABLED then
+                ALWAYS_ON_ENABLED = true;
+                QuickSlotManager:RegisterEvent("CHAT_MSG_LOOT");
+                DebugLog("Always-on loot listener enabled");
+            end
+        else
+            if ALWAYS_ON_ENABLED then
+                ALWAYS_ON_ENABLED = false;
+                -- Only unregister if the quest-completion listener isn't active
+                if not QuickSlotManager.t then
+                    QuickSlotManager:UnregisterEvent("CHAT_MSG_LOOT");
+                end
+                QueueManager:Clear();
+                DeferredResolver:Clear();
+                DebugLog("Always-on loot listener disabled");
+            end
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.QuickSlotAlwaysOn", Settings_QuickSlotAlwaysOn);
+
+    -- Also re-evaluate when the parent setting changes
+    CallbackRegistry:Register("SettingChanged.QuickSlotQuestReward", function(state)
+        Settings_QuickSlotAlwaysOn(addon.GetDBBool("QuickSlotAlwaysOn"));
+    end);
+
+    -- Initialize on login
+    QuickSlotManager:RegisterEvent("PLAYER_ENTERING_WORLD");
 end
 
 
