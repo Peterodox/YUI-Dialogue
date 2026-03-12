@@ -15,6 +15,8 @@ local MiscUsableItem = {
     --Some items don't align to the pattern (Flags_0 is 0x0)
     [142447] = true,        --Torn Sack of Pet Supplies
     [184866] = true,        --Grummlepouch
+    [257023] = true,        --Preyseeker's Adventurer Chest
+    [264274] = true,        --Fabled Adventurer's Cache
 };
 
 function API.IsContainerItem(itemID)

@@ -106,6 +106,7 @@ local DefaultValues = {
 
     --WidgetManagerPosition = {x, y};
     --QuestItemDisplayPosition = {x, y};
+    --QuickSlotPosition = {x, y};
 
 
     --Deprecated:

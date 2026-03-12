@@ -239,11 +239,19 @@ do  --Quest Flyout ItemButton
             ActionButton:SetFrameLevel(self:GetFrameLevel() + 5);
             ActionButton.onEnterCombatCallback = function()
                 self:SetButtonEnabled(false);
+                self:SetCombatNotice(true);
+                if self.UpdatePauseState then
+                    self:UpdatePauseState();
+                end
             end;
             self:SetButtonEnabled(true);
+            self:SetCombatNotice(false);
             return ActionButton
         else
             self:SetButtonEnabled(false);
+            if InCombatLockdown() then
+                self:SetCombatNotice(true);
+            end
         end
     end
 
@@ -320,6 +328,7 @@ do  --Quest Flyout ItemButton
             self:SetScript("OnUpdate", nil);
             self:UnregisterAllEvents();
             self:ReleaseActionButton();
+            self:SetCombatNotice(false);
             self:OnButtonHide();
         end
     end
@@ -353,6 +362,22 @@ do  --Quest Flyout ItemButton
     function ItemButtonMixin:SetFailedText(text)
         self.ButtonText:SetText(text);
         ThemeUtil:SetFontColor(self.ButtonText, "WarningRed");
+    end
+
+    function ItemButtonMixin:SetCombatNotice(show)
+        if show then
+            if not self.CombatNoticeText then
+                local f = self:CreateFontString(nil, "OVERLAY");
+                f:SetFontObject("DUIFont_Tooltip_Small");
+                f:SetPoint("TOP", self, "BOTTOM", 0, -4);
+                self.CombatNoticeText = f;
+            end
+            ThemeUtil:SetFontColor(self.CombatNoticeText, "WarningRed");
+            self.CombatNoticeText:SetText(L["Popup Usable After Combat"]);
+            self.CombatNoticeText:Show();
+        elseif self.CombatNoticeText then
+            self.CombatNoticeText:Hide();
+        end
     end
 end
 
@@ -401,14 +426,8 @@ do  --Event Handler, Lazy Update
             else
                 self:SetMountItem(self.itemID, allowPressKeyToUse);
             end
-        elseif self.type == "pet" then
-            if self:IsKnownPet() then
-                self:SetButtonEnabled(false);
-                self:SetSuccessText(L["Collection Collected"]);
-                self:OnItemKnown();
-            else
-                self:SetPetItem(self.itemID, allowPressKeyToUse);
-            end
+        elseif self.type == "pet" and self.itemID then
+            self:SetPetItem(self.itemID, allowPressKeyToUse);
         elseif self.type == "toy" then
             if self:IsKnownToy() then
                 self:SetButtonEnabled(false);
@@ -454,6 +473,17 @@ do  --Event Handler, Lazy Update
                 self:SetEquipItem(self.hyperlink, allowPressKeyToUse);
             elseif self.type == "cosmetic" and self.itemID then
                 self:SetCosmeticItem(self.itemID, allowPressKeyToUse);
+            elseif self.type == "pet" and self.itemID then
+                self:SetPetItem(self.itemID, allowPressKeyToUse);
+            elseif self.type == "mount" and self.itemID then
+                self:SetMountItem(self.itemID, allowPressKeyToUse);
+            elseif self.type == "toy" and self.itemID then
+                self:SetToyItem(self.itemID, allowPressKeyToUse);
+            elseif self.type == "decor" and self.itemID then
+                self:SetDecorItem(self.itemID, allowPressKeyToUse);
+            end
+            if self.UpdatePauseState then
+                self:UpdatePauseState();
             end
         elseif event == "GLOBAL_MOUSE_DOWN" then
             if self.allowRightClickToClose then
@@ -568,16 +598,97 @@ do  --Actions Types
         end
     end
 
+    local PET_RARITY_COLORS = {
+        [1] = "ff9d9d9d",  --Poor (gray)
+        [2] = "ffffffff",  --Common (white)
+        [3] = "ff1eff00",  --Uncommon (green)
+        [4] = "ff0070dd",  --Rare (blue)
+        [5] = "ffa335ee",  --Epic (purple)
+        [6] = "ffff8000",  --Legendary (orange)
+    };
+
+    --Pet rarity from GetPetStats is 1-indexed; maps to item quality via rarity-1
+    local PET_RARITY_TO_QUALITY = { [1] = 0, [2] = 1, [3] = 2, [4] = 3, [5] = 4, [6] = 5 };
+
+    local function GetPetCollectionInfo(itemID)
+        if not (C_PetJournal and C_PetJournal.GetPetInfoByItemID) then return end;
+
+        local speciesID = select(13, C_PetJournal.GetPetInfoByItemID(itemID));
+        if not speciesID or speciesID == 0 then return end;
+
+        local owned, maxOwned = C_PetJournal.GetNumCollectedInfo(speciesID);
+        if not owned then return end;
+
+        local qualities = {};
+        if owned > 0 then
+            local numPets = C_PetJournal.GetNumPets();
+            for i = 1, numPets do
+                local petID, sid = C_PetJournal.GetPetInfoByIndex(i);
+                if sid == speciesID and petID then
+                    local _, _, _, _, rarity = C_PetJournal.GetPetStats(petID);
+                    if rarity then
+                        qualities[#qualities + 1] = rarity;
+                    end
+                end
+            end
+            table.sort(qualities);
+        end
+
+        return owned, maxOwned, qualities, speciesID;
+    end
+
+    local function BuildPetCollectionText(name, owned, maxOwned, qualities)
+        local pips = "";
+        -- Filled pips for owned qualities
+        for _, rarity in ipairs(qualities) do
+            local color = PET_RARITY_COLORS[rarity] or "ffffffff";
+            pips = pips .. "|c" .. color .. "\226\128\162|r";  --• filled (U+2022)
+        end
+        -- Empty pips for remaining capacity
+        for _ = 1, maxOwned - owned do
+            pips = pips .. "|cff666666\226\128\162|r";  --• empty (U+2022)
+        end
+        if pips ~= "" then
+            pips = pips .. " ";
+        end
+        return string.format("%s  %s%d/%d", name or "", pips, owned, maxOwned);
+    end
+
     function ItemButtonMixin:SetPetItem(item, allowPressKeyToUse)
         self:SetUsableItem(item, allowPressKeyToUse);
         self.type = "pet";
-        if self:IsKnownPet() then
-            self:SetButtonEnabled(false);
-            self:SetSuccessText(L["Collection Collected"]);
-            self:OnItemKnown();
-        else
-            self:RegisterEvent("NEW_PET_ADDED");
+
+        if self.itemID then
+            local owned, maxOwned, qualities, speciesID = GetPetCollectionInfo(self.itemID);
+            if owned and maxOwned then
+                local name = GetItemNameByID(self.itemID) or "";
+                if owned >= maxOwned then
+                    --Maxed out on this species
+                    self:SetButtonEnabled(false);
+                    self:ReleaseActionButton();
+                    self:SetButtonText(BuildPetCollectionText(name, owned, maxOwned, qualities));
+                    ThemeUtil:SetFontColor(self.ButtonText, "WarningRed");
+
+                    --Use the highest owned quality for the button color
+                    local bestRarity = qualities[#qualities];
+                    if bestRarity then
+                        self:SetColorByQuality(PET_RARITY_TO_QUALITY[bestRarity] or 1);
+                    end
+                    return;
+                elseif owned > 0 then
+                    --Has some but not maxed
+                    self:SetButtonText(BuildPetCollectionText(name, owned, maxOwned, qualities));
+
+                    --Color the button border by the best owned quality
+                    local bestRarity = qualities[#qualities];
+                    if bestRarity then
+                        self:SetColorByQuality(PET_RARITY_TO_QUALITY[bestRarity] or 1);
+                    end
+                end
+            end
         end
+
+        self:RegisterEvent("NEW_PET_ADDED");
     end
 
     function ItemButtonMixin:SetToyItem(item, allowPressKeyToUse)
@@ -630,16 +741,6 @@ do  --Determine if the item is learned/used
         end
         local isCollected = select(11, C_MountJournal.GetMountInfoByID(self.mountID));
         return isCollected
-    end
-
-    function ItemButtonMixin:IsKnownPet()
-        if self.itemID then
-            local creatureName = C_PetJournal.GetPetInfoByItemID(self.itemID);
-            if creatureName then
-                local _, petGUID = C_PetJournal.FindPetIDByName(creatureName);
-                return petGUID ~= nil
-            end
-        end
     end
 
     function ItemButtonMixin:IsKnownToy()
