@@ -61,6 +61,7 @@ L["Story Progress"] = STORY_PROGRESS or "Story Progress";
 L["Quest Complete Alert"] = QUEST_WATCH_POPUP_QUEST_COMPLETE or "Quest Complete!";
 L["Item Equipped"] = "Equipped";
 L["Collection Collected"] = COLLECTED or "Collected";
+L["Popup Usable After Combat"] = "Usable after combat";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -101,6 +102,7 @@ L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Disabled";
 L["Move Position"] = "Move";
 L["Reset Position"] = RESET_POSITION or "Reset Position";
 L["Drag To Move"] = "Left-click and drag to move the window.";
+L["Right Click To Dismiss"] = "Right-click to dismiss.";
 L["Middle Click To Reset Position"] = "Middle-click to reset position.";
 
 L["Quest"] = "Quest";

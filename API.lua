@@ -2505,7 +2505,33 @@ do  -- Tooltip
     end
     API.GetRewardItemLevelDelta = GetRewardItemLevelDelta;
 
+    -- Armor subClassID: 1=Cloth, 2=Leather, 3=Mail, 4=Plate
+    local CLASS_ARMOR_TYPE = {
+        WARRIOR = 4, PALADIN = 4, DEATHKNIGHT = 4,
+        HUNTER = 3, SHAMAN = 3, EVOKER = 3,
+        ROGUE = 2, MONK = 2, DRUID = 2, DEMONHUNTER = 2,
+        MAGE = 1, PRIEST = 1, WARLOCK = 1,
+    };
+
+    local function IsEquipmentForPlayerClass(item)
+        local _, _, _, _, _, classID, subClassID = GetItemInfoInstant(item);
+        -- For armor pieces with a specific armor type (cloth/leather/mail/plate),
+        -- reject items that don't match the player's armor proficiency
+        if classID == 4 and subClassID >= 1 and subClassID <= 4 then
+            local _, playerClass = UnitClass("player");
+            local expectedType = playerClass and CLASS_ARMOR_TYPE[playerClass];
+            if expectedType and subClassID ~= expectedType then
+                return false
+            end
+        end
+        return true
+    end
+    API.IsEquipmentForPlayerClass = IsEquipmentForPlayerClass;
+
     local function IsItemAnUpgrade(newLink)
+        if not IsEquipmentForPlayerClass(newLink) then
+            return false, true
+        end
         local delta, isReady = GetMaxEquippedItemLevelDelta(newLink)
         return (delta and delta > 0), isReady
     end
