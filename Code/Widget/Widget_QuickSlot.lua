@@ -439,6 +439,9 @@ function QuickSlotManager:AddAutoCloseItemButton(itemLink, setupMethod, isAction
         else
             button:PlayFlyUpAnimation(true);
         end
+        if InCombatLockdown() then
+            button:UpdatePauseState();
+        end
     end
 end
 
@@ -479,7 +482,7 @@ do  --Add Button Method
     end
 
     function QuickSlotManager:AddPet(itemLink)
-        self:AddAutoCloseItemButton(itemLink, "SetPetItem", "IsKnownPet");
+        self:AddAutoCloseItemButton(itemLink, "SetPetItem");
     end
 
     function QuickSlotManager:AddToy(itemLink)
@@ -607,7 +610,45 @@ do  --QuestRewardItemButtonMixin
         self:SetAllowRightClickToClose(true);
     end
 
+    function QuestRewardItemButtonMixin:UpdatePauseState()
+        self.CloseButton:PauseAutoCloseTimer(self:IsFocused() or InCombatLockdown());
+    end
+
+    local Round = function(v) return math.floor(v + 0.5) end;
+
+    function QuestRewardItemButtonMixin:LoadPosition()
+        local position = addon.GetDBValue("QuickSlotPosition");
+        self:ClearAllPoints();
+        if position then
+            self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", position[1], position[2]);
+        else
+            self:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 196);
+        end
+    end
+
+    function QuestRewardItemButtonMixin:SavePosition()
+        local x = self:GetLeft();
+        local _, y = self:GetCenter();
+        if x and y then
+            addon.SetDBValue("QuickSlotPosition", {Round(x), Round(y)});
+        end
+    end
+
+    function QuestRewardItemButtonMixin:ResetPosition()
+        addon.SetDBValue("QuickSlotPosition", nil);
+        self:LoadPosition();
+    end
+
+    function QuestRewardItemButtonMixin:IsUsingCustomPosition()
+        return addon.GetDBValue("QuickSlotPosition") ~= nil
+    end
+
     function QuestRewardItemButtonMixin:OnButtonEnter()
+        if self.isEditMode then
+            self.tooltipText = L["Drag To Move"].."\n"..L["Right Click To Dismiss"];
+            addon.SharedTooltip.ShowWidgetTooltip(self);
+            return
+        end
         if self.hyperlink then
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
             local tooltip;
@@ -621,26 +662,41 @@ do  --QuestRewardItemButtonMixin
                 addon.RewardTooltipCode:ShowHyperlink(self, self.hyperlink)
             end
         end
-        self.CloseButton:PauseAutoCloseTimer(true);
+        self:UpdatePauseState();
     end
 
     function QuestRewardItemButtonMixin:OnButtonLeave()
+        if self.isEditMode then
+            addon.SharedTooltip.HideTooltip();
+            return
+        end
         addon.RewardTooltipCode:OnLeave();
         self:UnregisterEvent("MODIFIER_STATE_CHANGED");
-        self.CloseButton:PauseAutoCloseTimer(false);
+        self:UpdatePauseState();
     end
 
     function QuestRewardItemButtonMixin:OnButtonMouseDown(button)
-
+        if button == "LeftButton" and (self.isEditMode or IsShiftKeyDown()) and not InCombatLockdown() then
+            self:StartMoving();
+            self.isMoving = true;
+        end
     end
 
     function QuestRewardItemButtonMixin:OnButtonMouseUp(button)
-
+        if button == "LeftButton" and self.isMoving then
+            self:StopMovingOrSizing();
+            self.isMoving = nil;
+            self:SavePosition();
+        elseif button == "RightButton" and self.isEditMode then
+            self.isEditMode = nil;
+            self:ClearButton();
+        end
     end
 
     function QuestRewardItemButtonMixin:OnButtonHide()
         self.CloseButton:StopCountdown();
         self.UpgradeArrow:Hide();
+        self.isEditMode = nil;
     end
 
     function QuestRewardItemButtonMixin:OnCountdownFinished()
@@ -683,6 +739,15 @@ do  --QuestRewardItemButtonMixin
             if self:IsFocused() then
                 self:OnEnter();
             end
+        elseif event == "NEW_PET_ADDED" and self.type == "pet" then
+            --Pet cage consumed; fade out immediately
+            self:SetButtonEnabled(false);
+            self:SetSuccessText(L["Collection Collected"]);
+            local itemLink = self.currentItemLink;
+            self.currentItemLink = nil;
+            self:FadeOut(0);
+            self:UnregisterAllEvents();
+            QueueManager:OnPopupDismissed(itemLink);
         end
     end
 
@@ -720,7 +785,9 @@ do  --QuestRewardItemButtonMixin
             RewardItemButton = API.CreateItemActionButton(nil, QuestRewardItemButtonMixin);
             RewardItemButton:Hide();
             RewardItemButton:SetFrameStrata("FULLSCREEN_DIALOG");
-            RewardItemButton:SetPoint("BOTTOM", nil, "BOTTOM", 0, 196);
+            RewardItemButton:SetMovable(true);
+            RewardItemButton:SetClampedToScreen(true);
+            RewardItemButton:LoadPosition();
             RewardItemButton:SetIgnoreParentScale(true);
             RewardItemButton:SetIgnoreParentAlpha(true);
         end
@@ -739,6 +806,35 @@ do  --QuestRewardItemButtonMixin
                 QueueManager:OnPopupDismissed(itemLink);
             end
         end
+    end
+
+    function QuickSlotManager:ToggleEditMode()
+        if RewardItemButton and RewardItemButton.isEditMode and RewardItemButton:IsShown() then
+            RewardItemButton.isEditMode = nil;
+            RewardItemButton:ClearButton();
+            return
+        end
+
+        local button = self:GetItemButton();
+        button.isEditMode = true;
+        button:SetIcon(134400);
+        button:SetButtonText(L["Drag To Move"]);
+        button:SetButtonEnabled(false);
+        button:EnableMouse(true);
+        button:EnableMouseMotion(true);
+        button.CloseButton:StopCountdown();
+        button:ShowButton();
+        button:PlayFlyUpAnimation(true);
+    end
+
+    function QuickSlotManager:ResetPosition()
+        if RewardItemButton then
+            RewardItemButton:ResetPosition();
+        end
+    end
+
+    function QuickSlotManager:IsUsingCustomPosition()
+        return addon.GetDBValue("QuickSlotPosition") ~= nil
     end
 end
 
