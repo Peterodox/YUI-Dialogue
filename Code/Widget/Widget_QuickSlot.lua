@@ -444,6 +444,9 @@ function QuickSlotManager:AddAutoCloseItemButton(itemLink, setupMethod, isAction
         else
             button:PlayFlyUpAnimation(true);
         end
+        if InCombatLockdown() then
+            button:UpdatePauseState();
+        end
     end
 end
 
@@ -484,7 +487,7 @@ do  --Add Button Method
     end
 
     function QuickSlotManager:AddPet(itemLink)
-        self:AddAutoCloseItemButton(itemLink, "SetPetItem", "IsKnownPet");
+        self:AddAutoCloseItemButton(itemLink, "SetPetItem");
     end
 
     function QuickSlotManager:AddToy(itemLink)
@@ -613,6 +616,10 @@ do  --QuestRewardItemButtonMixin
         self:SetAllowRightClickToClose(true);
     end
 
+    function QuestRewardItemButtonMixin:UpdatePauseState()
+        self.CloseButton:PauseAutoCloseTimer(self:IsFocused() or InCombatLockdown());
+    end
+
     function QuestRewardItemButtonMixin:OnButtonEnter()
         if self.hyperlink then
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
@@ -627,13 +634,13 @@ do  --QuestRewardItemButtonMixin
                 addon.RewardTooltipCode:ShowHyperlink(self, self.hyperlink)
             end
         end
-        self.CloseButton:PauseAutoCloseTimer(true);
+        self:UpdatePauseState();
     end
 
     function QuestRewardItemButtonMixin:OnButtonLeave()
         addon.RewardTooltipCode:OnLeave();
         self:UnregisterEvent("MODIFIER_STATE_CHANGED");
-        self.CloseButton:PauseAutoCloseTimer(false);
+        self:UpdatePauseState();
     end
 
     function QuestRewardItemButtonMixin:OnButtonMouseDown(button)
@@ -692,6 +699,15 @@ do  --QuestRewardItemButtonMixin
             if self:IsFocused() then
                 self:OnEnter();
             end
+        elseif event == "NEW_PET_ADDED" and self.type == "pet" then
+            --Pet cage consumed; fade out immediately
+            self:SetButtonEnabled(false);
+            self:SetSuccessText(L["Collection Collected"]);
+            local itemLink = self.currentItemLink;
+            self.currentItemLink = nil;
+            self:FadeOut(0);
+            self:UnregisterAllEvents();
+            QueueManager:OnPopupDismissed(itemLink);
         end
     end
 
