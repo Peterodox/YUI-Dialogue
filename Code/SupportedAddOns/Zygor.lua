@@ -34,6 +34,13 @@ do
             end
             local isUpgrade, slot, change, score, comment = Upgrades:IsUpgrade(itemLink);
             if comment == "not scored" or comment == "no link" then
+                -- For unscored trinkets, fall back to ilvl-based comparison.
+                -- Zygor does not score trinkets, but ilvl is a useful proxy.
+                -- This does not imply full stat/effect evaluation.
+                local itemDetails = ItemScore:GetItemDetails(itemLink, "temporary");
+                if itemDetails and itemDetails.type == "INVTYPE_TRINKET" then
+                    return API.IsItemAnUpgrade(itemLink)
+                end
                 return nil, false
             end
             return isUpgrade, true
@@ -106,7 +113,33 @@ do
                 end
             else
                 if item.type == "INVTYPE_TRINKET" then
-                    self:AddLeftLine("  Trinkets are not part of the scoring system.", 0.6, 0.6, 0.6, true, nil, 2);
+                    -- Zygor does not score trinkets; fall back to item level comparison.
+                    -- This does not imply full stat/effect evaluation.
+                    local newIlvl = API.GetItemLevel(itemLink);
+                    if newIlvl and newIlvl > 0 then
+                        self:AddLeftLine("  Trinket comparison (item level):", 0.6, 0.6, 0.6, true, nil, 2);
+                        for i, slotID in ipairs({13, 14}) do
+                            local label = "  Trinket " .. i .. ": ";
+                            local equippedLink = GetInventoryItemLink("player", slotID);
+                            if equippedLink then
+                                local equippedIlvl = API.GetItemLevel(equippedLink);
+                                if equippedIlvl and equippedIlvl > 0 then
+                                    local delta = newIlvl - equippedIlvl;
+                                    if delta > 0 then
+                                        self:AddLeftLine(label .. "Upgrade: +" .. delta .. " ilvl", 0, 1, 0, false, nil, 2);
+                                    elseif delta < 0 then
+                                        self:AddLeftLine(label .. "Downgrade: " .. delta .. " ilvl", 1, 0, 0, false, nil, 2);
+                                    else
+                                        self:AddLeftLine(label .. "No change", 0.6, 0.6, 0.6, false, nil, 2);
+                                    end
+                                end
+                            else
+                                self:AddLeftLine(label .. "Upgrade: empty slot", 0, 1, 0, false, nil, 2);
+                            end
+                        end
+                    else
+                        self:AddLeftLine("  Trinkets are not part of the scoring system.", 0.6, 0.6, 0.6, true, nil, 2);
+                    end
                 else
                     local specName = ItemScore.playerspecName or (ItemScore.ActiveRuleSet and ItemScore.ActiveRuleSet.specname) or "current spec";
                     self:AddLeftLine("  Not valid for " .. specName, 1, 0, 0, false, nil, 2);
