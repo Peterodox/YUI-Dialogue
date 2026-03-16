@@ -1,18 +1,13 @@
 local _, addon = ...
 local DoesGlobalObjectExist = addon.API.DoesGlobalObjectExist;
 
-local f = CreateFrame("Frame");
+local List = {};
 
-f.list = {};
-
-f:SetScript("OnEvent", function(self, event)
-    self:SetScript("OnEvent", nil);
-    self:UnregisterEvent(event);
-
+local function CheckSupportedAddOns()
     local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
     local addonName, addonLoaded, requiredMethods;
 
-    for _, data in ipairs(f.list) do
+    for _, data in ipairs(List) do
         addonName, addonLoaded, requiredMethods = data[1], data[2], data[3];
         if (addonName and IsAddOnLoaded(addonName)) or (not addonName) then
             local requirementMet = addonName and true;
@@ -33,13 +28,15 @@ f:SetScript("OnEvent", function(self, event)
         end
     end
 
-    f.list = nil;
-end);
+    List = nil;
+end
+
 
 local function AddSupportedAddOn(addonName, onLoadedCallback, requiredMethods)
     --Allows nillable addonName
-    table.insert(f.list, {addonName, onLoadedCallback, requiredMethods});
+    table.insert(List, {addonName, onLoadedCallback, requiredMethods});
 end
 addon.AddSupportedAddOn = AddSupportedAddOn;
 
-f:RegisterEvent("PLAYER_ENTERING_WORLD");
+
+addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", CheckSupportedAddOns);
