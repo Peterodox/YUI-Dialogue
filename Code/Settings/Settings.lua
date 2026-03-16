@@ -500,7 +500,16 @@ end
 local function RPAddOn_ReplaceName_Tooltip()
     local addOnName = addon.GetInstalledRPAddOnName();
     if addOnName then
-        return L["Format Functionality Handled By"]:format(addOnName);
+        local desc = L["Format Functionality Handled By"]:format(addOnName);
+
+        if addon.GetRoleplayName then
+            local rpName = addon.GetRoleplayName();
+            if rpName and rpName ~= "" then
+                desc = desc .. "\n\n"..L["Format RP Name Example"]:format(rpName);
+            end
+        end
+
+        return desc
     end
 end
 

@@ -87,6 +87,7 @@ L["Format Your Progress"] = "你的进度：|cffffffff%d/%d|r";
 L["Format And More"] = "更多%d……";
 L["Format Chapter Progress"] = "%d/%d 章";
 L["Format Quest Progress"] = "%d/%d 任务";
+L["Format RP Name Example"] = "你将被称作：\n%s";
 
 --Settings
 L["UI"] = "界面";

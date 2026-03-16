@@ -81,12 +81,13 @@ L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Level %d";
 L["Format Replace Item"] = "Replace %s";
 L["Format Item Level"] = "Item Level %d";   --_G.ITEM_LEVEL in Classic is different
 L["Format Breadcrumb Quests Available"] = "Available Breadcrumb Quests: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
-L["Format Functionality Handled By"] = "This functionality is handled by %s";      --A functionality is provided by [another addon name] (Used in Settings.lua)
+L["Format Functionality Handled By"] = "This functionality is handled by %s.";      --A functionality is provided by [another addon name] (Used in Settings.lua)
 L["Format Time Left"] = BONUS_OBJECTIVE_TIME_LEFT or "Time Left: %s";
 L["Format Your Progress"] = "Your progress: |cffffffff%d/%d|r";
 L["Format And More"] = LFG_LIST_AND_MORE or "and %d more...";
 L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d Chapters";
 L["Format Quest Progress"] = "%d/%d Quests";
+L["Format RP Name Example"] = "Your will be referred as:\n%s";
 
 --Settings
 L["UI"] = "UI";
