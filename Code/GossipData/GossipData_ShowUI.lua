@@ -19,6 +19,7 @@ local ShowUIGossip = {
     [131481] = true,    --Overcharged Titan Console, <View overcharged console discs.>
     [132979] = true,    --I want to empower my Reshii Wraps.
     [134809] = true,    --(Quest) Saddle me up! Ranger Valsarin [Quest: 91347] Strider Stampede (Avoid taint)
+    [136916] = true,    --Delver's Guide (Show UI immediately otherwise Journey UI won't open Delves)
 };
 
 function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)
