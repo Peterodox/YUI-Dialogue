@@ -5,10 +5,14 @@ local _, addon = ...
 local AutoSelectGossip = {
     --[gossipOptionID] = true(always), 1(select when it's the only option)
     --Midnight
+    [136916] = 1,           --Delver's Guide
 
     --Den of Nalorakk
     [135009] = 1,           --Ethereal Pyre, teleport from entrance to the start of the first area
     [135010] = 1,           --Ethereal Pyre, teleport back to entrance from the first area (sharing the same optionID as the Pyre at the end of the zone)
+    [136086] = 1,           --(Delve) I'll take care of this! Null-Theorist Selune
+    [134949] = 1,           --(Delve) Sounds like a plan. Lysikas
+    [136318] = 1,           --(Delve) I will save them! Fleek
 
 
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
