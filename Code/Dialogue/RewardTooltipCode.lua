@@ -209,6 +209,7 @@ local function GameTooltip_OnEnter(self)
     local tooltip = GameTooltip;
     tooltip:Hide();
     tooltip:SetOwner(self, "ANCHOR_NONE");
+    tooltip:ClearAllPoints();   --Usually don't need this but one user reported anchor family connection
     tooltip:SetPoint("BOTTOMLEFT", self.Icon, "TOPRIGHT", 0, 2);
 
     if self.objectType == "item" then
