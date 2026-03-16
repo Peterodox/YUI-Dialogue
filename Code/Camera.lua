@@ -35,14 +35,11 @@ local IsInteractingWithNpcOfType = C_PlayerInteractionManager.IsInteractingWithN
 local GetCameraZoom = GetCameraZoom;
 local CameraZoomIn = CameraZoomIn;
 local CameraZoomOut = CameraZoomOut;
-local UnitExists = UnitExists;
-local UnitIsUnit = UnitIsUnit;
 local ConsoleExec = ConsoleExec;
 local SetUIVisibility = SetUIVisibility;
 local InCombatLockdown = InCombatLockdown;
 local IsMounted = IsMounted;
 local IsInInstance = IsInInstance;
-local IsIndoors = IsIndoors;
 
 
 local UIParent = UIParent;
@@ -619,6 +616,7 @@ local function ShowUIParent(state)
         else
             MovieFrame.uiParentShown = true;
         end
+        FadeHelper:RestoreAlternatePowerBar();
     else
         FadeHelper:HideUIParentInstantly();
     end
@@ -643,6 +641,9 @@ function FadeHelper:HideUIParentInstantly()
             self.t = 2;
             self:SetScript("OnUpdate", self.HideSparkles_OnUpdate);
         end
+        C_Timer.After(0, function()
+            FadeHelper:RestoreAlternatePowerBar();
+        end);
     end
 end
 
@@ -659,7 +660,6 @@ function FadeHelper:HideSparkles_OnUpdate(elapsed)
         end
     end
 end
-
 
 
 local ALPHA_UPDATE_INTERVAL = 1/30;
@@ -772,6 +772,21 @@ end
 
 function FadeHelper:SetOwner(owner)
     self.owner = owner;
+end
+
+function FadeHelper:RestoreAlternatePowerBar()
+    --Due to SecureFrame, SetUIVisibility in a timer causes the AlternatePowerBar to disappear
+
+    local f = AlternatePowerBar;
+    local hasVehicleUI = UnitHasVehiclePlayerFrameUI and UnitHasVehiclePlayerFrameUI("player")
+
+    if InCombatLockdown() or (not f) or f:IsShown() or API.DoesValueExist(hasVehicleUI) then
+        return
+    end
+
+    if f.isEnabled then
+        f:Show();
+    end
 end
 
 
