@@ -3537,7 +3537,7 @@ do  --Generic Settings Registry
         end
         MainFrame:OnSettingsChanged();
     end
-    CallbackRegistry:Register("SettingChanged.UseRoleplayName", Settings_UseRoleplayName);
+    CallbackRegistry:Register("UseRoleplayName", Settings_UseRoleplayName);
 
     local function GenericOnSettingsChanged(dbValue)
         MainFrame:OnSettingsChanged();
