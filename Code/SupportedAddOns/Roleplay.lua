@@ -5,6 +5,11 @@ local _, addon = ...
 local INSTALLED_RP_ADDON;
 
 
+local function EnableUseRoleplayName()
+    addon.CallbackRegistry:Trigger("UseRoleplayName", true);
+end
+
+
 do  --Total RP 3: RP Name in Quest Text
     local ADDON_NAME = "tRP3_RPNameInQuests";
     --https://www.curseforge.com/wow/addons/trp3-rpnameinquests
@@ -15,7 +20,7 @@ do  --Total RP 3: RP Name in Quest Text
             if testRun and testRun ~= "" then
                 INSTALLED_RP_ADDON = ADDON_NAME;
                 addon.SetDialogueTextModifier(TRP3_RPNameInQuests_CompleteRename);
-                addon.SetDBValue("UseRoleplayName", true);
+                EnableUseRoleplayName();
             end
         end
     end
@@ -29,18 +34,16 @@ do  --Eavesdropper
     --https://www.curseforge.com/wow/addons/eavesdropper
 
     local function OnAddOnLoaded()
-        local func = ED and ED.ModifyPlayerNameInQuest;
+        local func = addon.API.GetGlobalObject("ED.QuestText.SubstitutePlayerPreferredName");
         if func then
             local testRun = func("Test");
             if testRun and testRun ~= "" then
                 INSTALLED_RP_ADDON = ADDON_NAME;
                 addon.SetDialogueTextModifier(func);
-                addon.SetDBValue("UseRoleplayName", true);
+                EnableUseRoleplayName();
             end
 
-            if ED.GetPreferredName then
-                addon.GetRoleplayName = ED.GetPreferredName;
-            end
+            addon.GetRoleplayName = addon.API.GetGlobalObject("ED.QuestText.GetPlayerPreferredName");
         end
     end
 
