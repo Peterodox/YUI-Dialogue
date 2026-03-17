@@ -87,7 +87,7 @@ L["Format Your Progress"] = "Your progress: |cffffffff%d/%d|r";
 L["Format And More"] = LFG_LIST_AND_MORE or "and %d more...";
 L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d Chapters";
 L["Format Quest Progress"] = "%d/%d Quests";
-L["Format RP Name Example"] = "Your will be referred as:\n%s";
+L["Format RP Name Example"] = "You will be referred to as:\n%s";
 
 --Settings
 L["UI"] = "UI";
