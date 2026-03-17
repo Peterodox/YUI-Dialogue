@@ -57,6 +57,9 @@ local DefaultValues = {
         QuestItemDisplayHideSeen = false,
         QuestItemDisplayDynamicFrameStrata = false,
     QuickSlotQuestReward = false,
+    QuickSlotAlwaysOn = false,
+    QuickSlotPriorityOnly = false,
+    QuickSlotCollectibleHighPriority = false,
     AutoCompleteQuest = false,
         QuickSlotUseHotkey = true,
     AutoSelectGossip = false,
@@ -103,6 +106,7 @@ local DefaultValues = {
 
     --WidgetManagerPosition = {x, y};
     --QuestItemDisplayPosition = {x, y};
+    --QuickSlotPosition = {x, y};
 
 
     --Deprecated:

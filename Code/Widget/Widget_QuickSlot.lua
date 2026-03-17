@@ -12,6 +12,19 @@ local COUNTDOWN_IDLE = 4;               --When the user doesn't do anything
 local COUNTDOWN_COMPLETE_AUTO = 2;      --When the item is auto equipped by game
 local COUNTDOWN_COMPLETE_MANUAL = 1;    --When the item is equipped by clicks
 
+local DUPLICATE_SUPPRESS_SECONDS = 5;
+local DISMISSED_COOLDOWN_SECONDS = 30;
+local DEFERRED_RETRY_INTERVAL = 0.5;
+local DEFERRED_MAX_RETRIES = 3;
+
+local DEBUG_QUICKSLOT = false;
+
+local function DebugLog(...)
+    if DEBUG_QUICKSLOT then
+        print("|cfffe6100[QuickSlot]|r", ...);
+    end
+end
+
 local QuickSlotManager = CreateFrame("Frame");
 addon.QuickSlotManager = QuickSlotManager;
 WidgetManager:AddLootMessageProcessor(QuickSlotManager, "ItemLink");
@@ -33,6 +46,240 @@ local SupportedItemTypes = {
     decor = true,
 };
 
+local CandidateFilter = {};
+do
+    local recent_loot = {};     -- [itemLink] = lastSeenTime
+    local recently_handled = {}; -- [itemLink] = lastDismissedOrEquippedTime
+
+    function CandidateFilter:IsRecentLoot(itemLink)
+        local lastSeen = recent_loot[itemLink];
+        if lastSeen and (GetTime() - lastSeen < DUPLICATE_SUPPRESS_SECONDS) then
+            DebugLog("Rejected duplicate:", itemLink);
+            return true
+        end
+        return false
+    end
+
+    function CandidateFilter:IsRecentlyHandled(itemLink)
+        local lastHandled = recently_handled[itemLink];
+        if lastHandled and (GetTime() - lastHandled < DISMISSED_COOLDOWN_SECONDS) then
+            DebugLog("Rejected recently handled:", itemLink);
+            return true
+        end
+        return false
+    end
+
+    function CandidateFilter:RecordLoot(itemLink)
+        recent_loot[itemLink] = GetTime();
+    end
+
+    function CandidateFilter:RecordHandled(itemLink)
+        recently_handled[itemLink] = GetTime();
+    end
+
+    -- Prune stale entries periodically to avoid unbounded growth.
+    function CandidateFilter:Prune()
+        local now = GetTime();
+        for link, t in pairs(recent_loot) do
+            if now - t > DUPLICATE_SUPPRESS_SECONDS then
+                recent_loot[link] = nil;
+            end
+        end
+        for link, t in pairs(recently_handled) do
+            if now - t > DISMISSED_COOLDOWN_SECONDS then
+                recently_handled[link] = nil;
+            end
+        end
+    end
+end
+
+local HIGH_PRIORITY_TYPES = {
+    equipment = true,
+    container = true,
+};
+
+local COLLECTIBLE_TYPES = {
+    toy = true,
+    pet = true,
+    decor = true,
+};
+
+local function IsHighPriority(classification)
+    if HIGH_PRIORITY_TYPES[classification] then
+        return true
+    end
+    if COLLECTIBLE_TYPES[classification] and addon.GetDBBool("QuickSlotCollectibleHighPriority") then
+        return true
+    end
+    return false
+end
+
+local QueueManager = {};
+do
+    local highQueue = {};   -- equipment upgrades, containers (+ optionally toys, pets, decor)
+    local lowQueue = {};    -- cosmetics, mounts, pets, toys, decor
+    local isProcessing = false;
+
+    function QueueManager:Enqueue(itemLink, classification)
+        local entry = {
+            itemLink = itemLink,
+            classification = classification,
+            enqueueTime = GetTime(),
+        };
+
+        if IsHighPriority(classification) then
+            table.insert(highQueue, entry);
+            DebugLog("Enqueued HIGH:", classification, itemLink);
+        else
+            table.insert(lowQueue, entry);
+            DebugLog("Enqueued LOW:", classification, itemLink);
+        end
+
+        if not isProcessing then
+            self:ProcessNext();
+        end
+    end
+
+    function QueueManager:Peek()
+        return highQueue[1] or lowQueue[1]
+    end
+
+    function QueueManager:Dequeue()
+        if #highQueue > 0 then
+            return table.remove(highQueue, 1)
+        elseif #lowQueue > 0 then
+            return table.remove(lowQueue, 1)
+        end
+    end
+
+    function QueueManager:IsEmpty()
+        return #highQueue == 0 and #lowQueue == 0
+    end
+
+    function QueueManager:Clear()
+        wipe(highQueue);
+        wipe(lowQueue);
+        isProcessing = false;
+    end
+
+    -- Revalidate: item still in bags, still an upgrade (for equipment), still usable.
+    function QueueManager:IsStillEligible(entry)
+        if not HasItem(entry.itemLink) then
+            DebugLog("Revalidation failed (not in bags):", entry.itemLink);
+            return false
+        end
+        if entry.classification == "equipment" then
+            local isUpgrade = API.IsItemAnUpgrade_External(entry.itemLink);
+            if not isUpgrade then
+                DebugLog("Revalidation failed (no longer upgrade):", entry.itemLink);
+                return false
+            end
+        end
+        return true
+    end
+
+    function QueueManager:ProcessNext()
+        while not self:IsEmpty() do
+            local entry = self:Dequeue();
+            if entry and self:IsStillEligible(entry) then
+                isProcessing = true;
+                DebugLog("Showing popup:", entry.classification, entry.itemLink);
+                QuickSlotManager:AddItemButtonByType(entry.classification, entry.itemLink);
+                return
+            else
+                DebugLog("Skipped on revalidation:", entry and entry.itemLink or "nil");
+            end
+        end
+        isProcessing = false;
+        DebugLog("Queue drained");
+    end
+
+    function QueueManager:OnPopupDismissed(itemLink)
+        isProcessing = false;
+        if itemLink then
+            CandidateFilter:RecordHandled(itemLink);
+        end
+        CandidateFilter:Prune();
+        self:ProcessNext();
+    end
+
+    function QueueManager:SetProcessing(state)
+        isProcessing = state;
+    end
+end
+
+local DeferredResolver = {};
+do
+    local pending = {}; -- { itemLink, retryCount, classification }
+
+    function DeferredResolver:Add(itemLink)
+        table.insert(pending, {
+            itemLink = itemLink,
+            retryCount = 0,
+            classification = nil,
+        });
+        DebugLog("Deferred:", itemLink);
+        self:EnsureTimer();
+    end
+
+    function DeferredResolver:EnsureTimer()
+        if not self.timer then
+            self.timer = C_Timer.NewTicker(DEFERRED_RETRY_INTERVAL, function()
+                self:Resolve();
+            end);
+        end
+    end
+
+    function DeferredResolver:StopTimer()
+        if self.timer then
+            self.timer:Cancel();
+            self.timer = nil;
+        end
+    end
+
+    function DeferredResolver:Resolve()
+        local stillPending = {};
+
+        for _, entry in ipairs(pending) do
+            entry.retryCount = entry.retryCount + 1;
+            local itemClassification = GetItemClassification(entry.itemLink);
+            local shouldAdd = itemClassification and SupportedItemTypes[itemClassification];
+
+            if itemClassification == "equipment" then
+                local isUpgrade, isReady = API.IsItemAnUpgrade_External(entry.itemLink);
+                if not isReady then
+                    shouldAdd = nil; -- still not ready
+                else
+                    shouldAdd = isUpgrade;
+                end
+            end
+
+            if shouldAdd then
+                local priorityOnly = addon.GetDBBool("QuickSlotPriorityOnly");
+                if (not priorityOnly) or IsHighPriority(itemClassification) then
+                    DebugLog("Deferred resolved:", itemClassification, entry.itemLink);
+                    QueueManager:Enqueue(entry.itemLink, itemClassification);
+                end
+            elseif entry.retryCount < DEFERRED_MAX_RETRIES and not itemClassification then
+                -- Still no classification data; keep retrying
+                table.insert(stillPending, entry);
+            else
+                DebugLog("Deferred dropped after", entry.retryCount, "retries:", entry.itemLink);
+            end
+        end
+
+        pending = stillPending;
+        if #pending == 0 then
+            self:StopTimer();
+        end
+    end
+
+    function DeferredResolver:Clear()
+        wipe(pending);
+        self:StopTimer();
+    end
+end
+
 function QuickSlotManager:ListenLootEvent(state)
     if state then
         self:RegisterEvent("CHAT_MSG_LOOT");
@@ -41,9 +288,12 @@ function QuickSlotManager:ListenLootEvent(state)
     else
         self.t = nil;
         self.pendingItemLink = nil;
-        self.itemClassification = nil;
+        self.pendingClassification = nil;
         self:SetScript("OnUpdate", nil);
-        self:UnregisterEvent("CHAT_MSG_LOOT");
+        -- Don't unregister CHAT_MSG_LOOT if always-on mode is active
+        if not addon.GetDBBool("QuickSlotAlwaysOn") then
+            self:UnregisterEvent("CHAT_MSG_LOOT");
+        end
         self:UnregisterEvent("BAG_UPDATE_DELAYED");
     end
 end
@@ -52,21 +302,27 @@ function QuickSlotManager:OnEvent(event, ...)
     if event == "CHAT_MSG_LOOT" then
         self:CHAT_MSG_LOOT(...);
     elseif event == "BAG_UPDATE_DELAYED" then
-        if self.pendingItemLink and self.itemClassification then
-            local success;
-
+        if self.pendingItemLink then
             if HasItem(self.pendingItemLink) then
-                success = self:AddItemButtonByType(self.itemClassification, self.pendingItemLink);
-            end
-
-            if success then
                 self:UnregisterEvent(event);
+
+                if self.pendingClassification then
+                    QueueManager:Enqueue(self.pendingItemLink, self.pendingClassification);
+                else
+                    -- Classification was unknown at loot time; try deferred resolution
+                    DeferredResolver:Add(self.pendingItemLink);
+                end
+
                 self.pendingItemLink = nil;
-                self.itemClassification = nil;
+                self.pendingClassification = nil;
             end
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
-        self:PLAYER_ENTERING_WORLD(...);
+        self:UnregisterEvent(event);
+        if addon.GetDBBool("QuickSlotQuestReward") and addon.GetDBBool("QuickSlotAlwaysOn") then
+            self:RegisterEvent("CHAT_MSG_LOOT");
+            DebugLog("Always-on loot listener initialized");
+        end
     end
 end
 QuickSlotManager:SetScript("OnEvent", QuickSlotManager.OnEvent);
@@ -81,7 +337,7 @@ end
 function QuickSlotManager:WatchBagItem(itemLink, itemClassification)
     self:RegisterEvent("BAG_UPDATE_DELAYED");
     self.pendingItemLink = itemLink;
-    self.itemClassification = itemClassification;
+    self.pendingClassification = itemClassification;
     if self.t then
         --Extend unregister countdown in case of lags
         self.t = self.t - 1;
@@ -118,24 +374,46 @@ end
 function QuickSlotManager:OnItemLooted(itemLink)
     --Fired after CHAT_MSG_LOOT, but the item may have not been pushed into the bags yet
 
-    if IsPlayingCutscene() then
+    if IsPlayingCutscene() then return end;
+
+    -- Duplicate/cooldown suppression
+    if CandidateFilter:IsRecentLoot(itemLink) then return end;
+    if CandidateFilter:IsRecentlyHandled(itemLink) then return end;
+    CandidateFilter:RecordLoot(itemLink);
+
+    local itemClassification = GetItemClassification(itemLink);
+    local shouldAdd = itemClassification and SupportedItemTypes[itemClassification];
+
+    if itemClassification == "equipment" then
+        local isUpgrade, isReady = API.IsItemAnUpgrade_External(itemLink);
+        if not isReady then
+            -- Item data not cached yet; defer evaluation
+            if HasItem(itemLink) then
+                DeferredResolver:Add(itemLink);
+            else
+                self:WatchBagItem(itemLink, nil); -- watch for bag arrival, then defer
+            end
+            return
+        end
+        shouldAdd = isUpgrade;
+    end
+
+    if not shouldAdd then
+        DebugLog("Rejected (not eligible):", itemClassification, itemLink);
         return
     end
 
-    local itemClassification = GetItemClassification(itemLink);
-    --print(itemClassification, itemLink);  --debug
-
-    local shouldAddItem = itemClassification and SupportedItemTypes[itemClassification];
-    if itemClassification == "equipment" then
-        shouldAddItem = API.IsItemAnUpgrade_External(itemLink);
+    -- Priority filtering
+    local priorityOnly = addon.GetDBBool("QuickSlotPriorityOnly");
+    if priorityOnly and not IsHighPriority(itemClassification) then
+        DebugLog("Rejected (low priority suppressed):", itemClassification, itemLink);
+        return
     end
 
-    if shouldAddItem then
-        if HasItem(itemLink) then
-            self:AddItemButtonByType(itemClassification, itemLink);
-        else
-            self:WatchBagItem(itemLink, itemClassification);
-        end
+    if HasItem(itemLink) then
+        QueueManager:Enqueue(itemLink, itemClassification);
+    else
+        self:WatchBagItem(itemLink, itemClassification);
     end
 end
 
@@ -145,6 +423,7 @@ function QuickSlotManager:AddAutoCloseItemButton(itemLink, setupMethod, isAction
     local allowPressKeyToUse = addon.GetDBBool("QuickSlotUseHotkey");
 
     local button = self:GetItemButton();
+    button.currentItemLink = itemLink;
     button[setupMethod](button, itemLink, allowPressKeyToUse);
     button:ShowButton();
     button.CloseButton:SetInteractable(false);
@@ -159,6 +438,9 @@ function QuickSlotManager:AddAutoCloseItemButton(itemLink, setupMethod, isAction
             button:PlayFlyUpAnimation(false);
         else
             button:PlayFlyUpAnimation(true);
+        end
+        if InCombatLockdown() then
+            button:UpdatePauseState();
         end
     end
 end
@@ -200,7 +482,7 @@ do  --Add Button Method
     end
 
     function QuickSlotManager:AddPet(itemLink)
-        self:AddAutoCloseItemButton(itemLink, "SetPetItem", "IsKnownPet");
+        self:AddAutoCloseItemButton(itemLink, "SetPetItem");
     end
 
     function QuickSlotManager:AddToy(itemLink)
@@ -260,6 +542,38 @@ do
         end
     end
     CallbackRegistry:Register("SettingChanged.QuickSlotQuestReward", Settings_QuickSlotQuestReward);
+
+    local ALWAYS_ON_ENABLED = false;
+
+    local function Settings_QuickSlotAlwaysOn(state)
+        if state and addon.GetDBBool("QuickSlotQuestReward") then
+            if not ALWAYS_ON_ENABLED then
+                ALWAYS_ON_ENABLED = true;
+                QuickSlotManager:RegisterEvent("CHAT_MSG_LOOT");
+                DebugLog("Always-on loot listener enabled");
+            end
+        else
+            if ALWAYS_ON_ENABLED then
+                ALWAYS_ON_ENABLED = false;
+                -- Only unregister if the quest-completion listener isn't active
+                if not QuickSlotManager.t then
+                    QuickSlotManager:UnregisterEvent("CHAT_MSG_LOOT");
+                end
+                QueueManager:Clear();
+                DeferredResolver:Clear();
+                DebugLog("Always-on loot listener disabled");
+            end
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.QuickSlotAlwaysOn", Settings_QuickSlotAlwaysOn);
+
+    -- Also re-evaluate when the parent setting changes
+    CallbackRegistry:Register("SettingChanged.QuickSlotQuestReward", function(state)
+        Settings_QuickSlotAlwaysOn(addon.GetDBBool("QuickSlotAlwaysOn"));
+    end);
+
+    -- Initialize on login
+    QuickSlotManager:RegisterEvent("PLAYER_ENTERING_WORLD");
 end
 
 
@@ -296,7 +610,45 @@ do  --QuestRewardItemButtonMixin
         self:SetAllowRightClickToClose(true);
     end
 
+    function QuestRewardItemButtonMixin:UpdatePauseState()
+        self.CloseButton:PauseAutoCloseTimer(self:IsFocused() or InCombatLockdown());
+    end
+
+    local Round = function(v) return math.floor(v + 0.5) end;
+
+    function QuestRewardItemButtonMixin:LoadPosition()
+        local position = addon.GetDBValue("QuickSlotPosition");
+        self:ClearAllPoints();
+        if position then
+            self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", position[1], position[2]);
+        else
+            self:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 196);
+        end
+    end
+
+    function QuestRewardItemButtonMixin:SavePosition()
+        local x = self:GetLeft();
+        local _, y = self:GetCenter();
+        if x and y then
+            addon.SetDBValue("QuickSlotPosition", {Round(x), Round(y)});
+        end
+    end
+
+    function QuestRewardItemButtonMixin:ResetPosition()
+        addon.SetDBValue("QuickSlotPosition", nil);
+        self:LoadPosition();
+    end
+
+    function QuestRewardItemButtonMixin:IsUsingCustomPosition()
+        return addon.GetDBValue("QuickSlotPosition") ~= nil
+    end
+
     function QuestRewardItemButtonMixin:OnButtonEnter()
+        if self.isEditMode then
+            self.tooltipText = L["Drag To Move"].."\n"..L["Right Click To Dismiss"];
+            addon.SharedTooltip.ShowWidgetTooltip(self);
+            return
+        end
         if self.hyperlink then
             self:RegisterEvent("MODIFIER_STATE_CHANGED");
             local tooltip;
@@ -310,31 +662,49 @@ do  --QuestRewardItemButtonMixin
                 addon.RewardTooltipCode:ShowHyperlink(self, self.hyperlink)
             end
         end
-        self.CloseButton:PauseAutoCloseTimer(true);
+        self:UpdatePauseState();
     end
 
     function QuestRewardItemButtonMixin:OnButtonLeave()
+        if self.isEditMode then
+            addon.SharedTooltip.HideTooltip();
+            return
+        end
         addon.RewardTooltipCode:OnLeave();
         self:UnregisterEvent("MODIFIER_STATE_CHANGED");
-        self.CloseButton:PauseAutoCloseTimer(false);
+        self:UpdatePauseState();
     end
 
     function QuestRewardItemButtonMixin:OnButtonMouseDown(button)
-
+        if button == "LeftButton" and (self.isEditMode or IsShiftKeyDown()) and not InCombatLockdown() then
+            self:StartMoving();
+            self.isMoving = true;
+        end
     end
 
     function QuestRewardItemButtonMixin:OnButtonMouseUp(button)
-
+        if button == "LeftButton" and self.isMoving then
+            self:StopMovingOrSizing();
+            self.isMoving = nil;
+            self:SavePosition();
+        elseif button == "RightButton" and self.isEditMode then
+            self.isEditMode = nil;
+            self:ClearButton();
+        end
     end
 
     function QuestRewardItemButtonMixin:OnButtonHide()
         self.CloseButton:StopCountdown();
         self.UpgradeArrow:Hide();
+        self.isEditMode = nil;
     end
 
     function QuestRewardItemButtonMixin:OnCountdownFinished()
+        local itemLink = self.currentItemLink;
+        self.currentItemLink = nil;
         self:FadeOut(0);
         self:UnregisterAllEvents();
+        QueueManager:OnPopupDismissed(itemLink);
     end
 
     function QuestRewardItemButtonMixin:SetCountdown(second, disableButton)
@@ -354,7 +724,11 @@ do  --QuestRewardItemButtonMixin
         end
 
         if hideDirectly then
+            local itemLink = self.currentItemLink;
+            self.currentItemLink = nil;
             self:ClearButton();
+            QueueManager:OnPopupDismissed(itemLink);
+            return
         else
             self.CloseButton:SetCountdown(second);
         end
@@ -365,6 +739,15 @@ do  --QuestRewardItemButtonMixin
             if self:IsFocused() then
                 self:OnEnter();
             end
+        elseif event == "NEW_PET_ADDED" and self.type == "pet" then
+            --Pet cage consumed; fade out immediately
+            self:SetButtonEnabled(false);
+            self:SetSuccessText(L["Collection Collected"]);
+            local itemLink = self.currentItemLink;
+            self.currentItemLink = nil;
+            self:FadeOut(0);
+            self:UnregisterAllEvents();
+            QueueManager:OnPopupDismissed(itemLink);
         end
     end
 
@@ -402,7 +785,9 @@ do  --QuestRewardItemButtonMixin
             RewardItemButton = API.CreateItemActionButton(nil, QuestRewardItemButtonMixin);
             RewardItemButton:Hide();
             RewardItemButton:SetFrameStrata("FULLSCREEN_DIALOG");
-            RewardItemButton:SetPoint("BOTTOM", nil, "BOTTOM", 0, 196);
+            RewardItemButton:SetMovable(true);
+            RewardItemButton:SetClampedToScreen(true);
+            RewardItemButton:LoadPosition();
             RewardItemButton:SetIgnoreParentScale(true);
             RewardItemButton:SetIgnoreParentAlpha(true);
         end
@@ -415,9 +800,41 @@ do  --QuestRewardItemButtonMixin
                 RewardItemButton:OnCountdownFinished();
                 RewardItemButton:SetInteractable(false);
             else
+                local itemLink = RewardItemButton.currentItemLink;
+                RewardItemButton.currentItemLink = nil;
                 RewardItemButton:ClearButton();
+                QueueManager:OnPopupDismissed(itemLink);
             end
         end
+    end
+
+    function QuickSlotManager:ToggleEditMode()
+        if RewardItemButton and RewardItemButton.isEditMode and RewardItemButton:IsShown() then
+            RewardItemButton.isEditMode = nil;
+            RewardItemButton:ClearButton();
+            return
+        end
+
+        local button = self:GetItemButton();
+        button.isEditMode = true;
+        button:SetIcon(134400);
+        button:SetButtonText(L["Drag To Move"]);
+        button:SetButtonEnabled(false);
+        button:EnableMouse(true);
+        button:EnableMouseMotion(true);
+        button.CloseButton:StopCountdown();
+        button:ShowButton();
+        button:PlayFlyUpAnimation(true);
+    end
+
+    function QuickSlotManager:ResetPosition()
+        if RewardItemButton then
+            RewardItemButton:ResetPosition();
+        end
+    end
+
+    function QuickSlotManager:IsUsingCustomPosition()
+        return addon.GetDBValue("QuickSlotPosition") ~= nil
     end
 end
 

@@ -493,6 +493,18 @@ local function QuestItemDisplayPosition_Validation()
     return f and f:IsUsingCustomPosition()
 end
 
+local function QuickSlot_Move_OnClick()
+    addon.QuickSlotManager:ToggleEditMode();
+end
+
+local function QuickSlot_Reset_OnClick()
+    addon.QuickSlotManager:ResetPosition();
+end
+
+local function QuickSlotPosition_Validation()
+    return addon.QuickSlotManager:IsUsingCustomPosition()
+end
+
 local function RPAddOn_Validation()
     return addon.GetInstalledRPAddOnName() ~= nil
 end
@@ -706,6 +718,11 @@ local Schematic = { --Scheme
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Valuable Reward Popup"], description = L["Valuable Reward Popup Desc"], dbKey = "QuickSlotQuestReward", preview = "QuickSlotQuestReward", ratio = 2},
+            {type = "Checkbox", name = L["Always-On Loot Popup"], description = L["Always-On Loot Popup Desc"], dbKey = "QuickSlotAlwaysOn", requiredParentValueAnd = {QuickSlotQuestReward = true}},
+            {type = "Checkbox", name = L["Upgrades And Containers Only"], description = L["Upgrades And Containers Only Desc"], dbKey = "QuickSlotPriorityOnly", requiredParentValueAnd = {QuickSlotQuestReward = true, QuickSlotAlwaysOn = true}},
+            {type = "Checkbox", name = L["Include Collectibles"], description = L["Include Collectibles Desc"], dbKey = "QuickSlotCollectibleHighPriority", requiredParentValueAnd = {QuickSlotQuestReward = true, QuickSlotAlwaysOn = true}},
+            {type = "Custom", name = L["Move Position"], icon = "Settings-Move.png", onClickFunc = QuickSlot_Move_OnClick, requiredParentValueAnd = {QuickSlotQuestReward = true}},
+            {type = "Custom", name = L["Reset Position"], icon = "Settings-Reset.png", validationFunc = QuickSlotPosition_Validation, onClickFunc = QuickSlot_Reset_OnClick, requireSameParentValue = true},
             {type = "Checkbox", name = L["Auto Complete Quest"], description = L["Auto Complete Quest Desc"], dbKey = "AutoCompleteQuest", preview = "QuestAutoComplete", ratio = 2},
             {type = "Checkbox", name = L["Press Key To Use Item"], tooltip = UseItemHotkey_Tooltip, dbKey = "QuickSlotUseHotkey", requiredParentValueOr = {QuickSlotQuestReward = true, AutoCompleteQuest = true}, branchLevel = 0},
 
