@@ -11,6 +11,44 @@ local GetQuestName = addon.API.GetQuestName;
 local AutoCompleteQuestName = {};
 
 local AutoCompleteQuestID = {
+    --Midnight Meta
+    [93909] = true,
+    [93910] = true,
+    [93911] = true,
+    [93912] = true,
+    [93913] = true,
+    [93766] = true,
+    [93767] = true,
+    [93769] = true,
+    [93889] = true,
+    [93890] = true,
+    [93891] = true,
+    [93892] = true,
+    [94457] = true,
+
+
+    --Fortify the Runestones
+    [90573] = true,
+    [90574] = true,
+    [90575] = true,
+    [90576] = true,
+
+
+    [89354] = true,     --Preparing for Battle
+    [89507] = true,     --Abundant Offerings
+    [93784] = true,     --A Gnawing Void of Curiosity
+
+
+    --Harandar WANTED
+    [91982] = true,
+    [91970] = true,
+    [91980] = true,
+    [91998] = true,
+    [92010] = true,
+    [92012] = true,
+    [92013] = true,
+
+
     --Darkmoon Faire
     [29506] = true,     --Alchemy
     [29508] = true,     --Blacksmithing
