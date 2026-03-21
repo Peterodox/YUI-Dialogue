@@ -1903,7 +1903,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         local questID = GetActiveQuestID(i);
 
         if GetDBBool("AutoCompleteQuest") then
-            if GossipDataProvider:ShouldAutoCompleteQuest(questID) and SelectActiveQuest then
+            if GossipDataProvider:ShouldAutoCompleteQuest(questID) and SelectActiveQuest and API.ReadyForTurnIn(questID) then
                 SelectActiveQuest(i);
                 return false
             end
