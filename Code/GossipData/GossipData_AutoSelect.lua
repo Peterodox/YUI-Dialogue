@@ -5,6 +5,7 @@ local _, addon = ...
 local AutoSelectGossip = {
     --[gossipOptionID] = true(always), 1(select when it's the only option)
     --Midnight
+
     [136916] = 1,           --Delver's Guide
 
     --Den of Nalorakk
@@ -13,6 +14,8 @@ local AutoSelectGossip = {
     [136086] = 1,           --(Delve) I'll take care of this! Null-Theorist Selune
     [134949] = 1,           --(Delve) Sounds like a plan. Lysikas
     [136318] = 1,           --(Delve) I will save them! Fleek
+    [135798] = 1,           --(Delve) I'll stop this invasion!
+    [136275] = 1,           --(Delve) I'll deal with this mess!
 
 
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
