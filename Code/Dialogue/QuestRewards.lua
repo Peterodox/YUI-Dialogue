@@ -213,6 +213,7 @@ local function BuildRewardList(questComplete)
 	end
 
 	local anyPreviousHeader = false;
+	local alsoRecieveHeaderAdded = false;
 
 	-- Setup spell rewards
 	local spellIndex = 100;		--order_spell
@@ -228,8 +229,9 @@ local function BuildRewardList(questComplete)
 						local header = QUEST_INFO_SPELL_REWARD_TO_HEADER[spellBucketType];
 						if header then
 							anyPreviousHeader = true;
-						elseif anyPreviousHeader then
+						elseif anyPreviousHeader or (numQuestChoices > 0 and not alsoRecieveHeaderAdded) then
 							anyPreviousHeader = false;
+							alsoRecieveHeaderAdded = true;
 							header = REWARD_ITEMS;	--You will also receive
 						end
 						if header then
@@ -254,8 +256,9 @@ local function BuildRewardList(questComplete)
 		end
 	end
 
-	if anyPreviousHeader then
+	if anyPreviousHeader or (numQuestChoices > 0 and not alsoRecieveHeaderAdded) then
 		anyPreviousHeader = false;
+		alsoRecieveHeaderAdded = true;
 		local header = REWARD_ITEMS;	--You will also receive
 		if header and totalRewards > 0 then		--totalRewards don't include Spell rewards
 			spellIndex = spellIndex + 1;
