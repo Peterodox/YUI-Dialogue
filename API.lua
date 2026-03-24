@@ -1529,12 +1529,18 @@ do  -- Quest
         local TextModifier = TextModifier_None;
 
         local function GetModifiedQuestText(method)
-            return TextModifier(GetQuestText(method))
+            local text = GetQuestText(method);
+            if text then
+                return TextModifier(text)
+            end
         end
         API.GetModifiedQuestText = GetModifiedQuestText;
 
         local function GetModifiedGossipText()
-            return TextModifier(GetGossipText());
+            local text = GetGossipText();
+            if text then
+                return TextModifier(text)
+            end
         end
         API.GetModifiedGossipText = GetModifiedGossipText;
 
