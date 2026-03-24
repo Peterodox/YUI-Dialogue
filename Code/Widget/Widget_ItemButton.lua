@@ -269,9 +269,11 @@ do  --Quest Flyout ItemButton
             if not self.HotkeyFrame then
                 local f = CreateFrame("Frame", nil, self, "DUIDialogHotkeyTemplate");
                 self.HotkeyFrame = f;
+                f:SetUseDarkTheme(true);
                 f:SetTheme(2);
             end
-            self.HotkeyFrame:SetKeyByFunction("Action");
+            local useDarkTheme = true;
+            self.HotkeyFrame:SetKeyByFunction("Action", useDarkTheme);
             self.HotkeyFrame:Show();
             self.HotkeyFrame:UseCompactMode();
         else

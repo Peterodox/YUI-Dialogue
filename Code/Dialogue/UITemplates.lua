@@ -1071,7 +1071,7 @@ function DUIDialogHotkeyFrameMixin:SetKey(key)
 
     if key ~= self.key then
         self.key = key;
-    else
+    elseif not self.useDarkTheme then
         return true
     end
 
@@ -1082,7 +1082,7 @@ function DUIDialogHotkeyFrameMixin:SetKey(key)
             local iconData = HotkeyIcons[key];
             local filterMode = (iconData.trilinear and "TRILINEAR") or "LINEAR";
 
-            if iconData.themed then
+            if iconData.themed and not self.useDarkTheme then
                 self.Icon:SetTexture(ThemeUtil:GetTextureFile(iconData.file), nil, nil, filterMode);
             else
                 local prefix = "Interface/AddOns/DialogueUI/Art/Keys/";
@@ -1139,10 +1139,10 @@ end
 
 function DUIDialogHotkeyFrameMixin:SetKeyByFunction(keyFunction)
     local key = addon.DeviceUtil:GetKeyByFunction(keyFunction);
-    if key then
-        self:SetKey(key);
-    elseif HotkeyIcons[keyFunction] then
+    if HotkeyIcons[keyFunction] then
         self:SetKey(keyFunction);
+    elseif key then
+        self:SetKey(key);
     end
 end
 
@@ -1169,6 +1169,10 @@ function DUIDialogHotkeyFrameMixin:UseCompactMode()
     self.defaultIconSize = iconSize;
     self.Icon:SetSize(iconSize, iconSize);
     self:ReloadKey();
+end
+
+function DUIDialogHotkeyFrameMixin:SetUseDarkTheme(useDarkTheme)
+    self.useDarkTheme = useDarkTheme;
 end
 
 
@@ -2821,6 +2825,10 @@ do  --Settings, CallbackRegistry
             HotkeyIcons.Cancel = HotkeyIcons[prefix.."PAD2"];
             HotkeyIcons.Action = HotkeyIcons[prefix.."PAD3"];
             HotkeyIcons.Mod = HotkeyIcons[prefix.."PAD4"];
+
+            for i = 1, 4 do
+                HotkeyIcons["PAD"..i] = HotkeyIcons[prefix.."PAD"..i];
+            end
         else
             --ANIM_OFFSET_H_BUTTON_HOVER = 8;
             HotkeyIcons.Esc = nil;
