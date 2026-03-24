@@ -55,9 +55,9 @@ local FADE_MULTIPLIER_MSG_OUT = FADE_MULTIPLIER_MSG_OUT_AUTO;
 
 local FONTSTRING_WDITH = FRAME_WIDTH - FRAME_INSET_LEFT - 32;
 
-local FORMAT_SAY = CHAT_MONSTER_SAY_GET or "%s says: ";
-local FORMAT_YELL = CHAT_MONSTER_YELL_GET or "%s yells: ";
-local FORMAT_WHISPER = CHAT_MONSTER_WHISPER_GET or "%s whispers: ";
+--local FORMAT_SAY = CHAT_MONSTER_SAY_GET or "%s says: ";
+--local FORMAT_YELL = CHAT_MONSTER_YELL_GET or "%s yells: ";
+--local FORMAT_WHISPER = CHAT_MONSTER_WHISPER_GET or "%s whispers: ";
 
 local FORMAT_COLOR_NAME = "|cffffffff%s: |r";
 
@@ -101,6 +101,11 @@ local ChatEventData = {
     --]]
 
 };
+
+
+local function TextModifier(text)
+    return text
+end
 
 
 local EventIndex = {};
@@ -473,13 +478,20 @@ function ChatFrame:AddMessage(text, name, event)
         end
     end
 
-    if prefix then
+    if text then
+        text = TextModifier(text);
+    end
+
+    if prefix and text then
         text = format(prefix, name) .. text;
     end
-    --print(text);
-    ScrollViewDataProvider:AddContent(
-        {text, type, GetRelativeTime()}
-    );
+
+    if text then
+        --print(text);
+        ScrollViewDataProvider:AddContent(
+            {text, type, GetRelativeTime()}
+        );
+    end
 end
 
 
@@ -644,7 +656,6 @@ do  --Hide ChatFrame when UIParent is visible
     function ChatFrame:UpdateVisibility(uiParentShown)
         if self.isEnabled then
             if uiParentShown == nil then
-                --uiParentShown = UIParent:IsShown();
                 uiParentShown = false;
             end
             if uiParentShown then
@@ -656,8 +667,16 @@ do  --Hide ChatFrame when UIParent is visible
         end
     end
 
-    addon.CallbackRegistry:Register("UIParent.Show", ChatFrame.UpdateVisibility, ChatFrame);
-    --addon.CallbackRegistry:Register("UIParent.Hide", ChatFrame.UpdateVisibility, ChatFrame);
+    local function UIParent_OnShow()
+        ChatFrame:UpdateVisibility(true);
+    end
+
+    local function UIParent_OnHide()
+        ChatFrame:UpdateVisibility(false);
+    end
+
+    addon.CallbackRegistry:Register("UIParent.Show", UIParent_OnShow);
+    addon.CallbackRegistry:Register("UIParent.Hide", UIParent_OnHide);
     addon.CallbackRegistry:Register("DialogueUI.Show", ChatFrame.UpdateVisibility, ChatFrame);
 end
 
@@ -699,6 +718,11 @@ do
     end
     addon.CallbackRegistry:Register("SettingChanged.HideUI", Settings_HideUI);
     addon.CallbackRegistry:Register("SettingChanged.ShowChatWindow", Settings_HideUI);
+
+
+    addon.CallbackRegistry:Register("SetChatTextModifier", function(chatTextModifier)
+        TextModifier = chatTextModifier;
+    end);
 end
 
 
