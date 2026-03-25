@@ -1533,18 +1533,12 @@ do  -- Quest
         local TextModifier = TextModifier_None;
 
         local function GetModifiedQuestText(method)
-            local text = GetQuestText(method);
-            if text then
-                return TextModifier(text)
-            end
+            return TextModifier(GetQuestText(method))
         end
         API.GetModifiedQuestText = GetModifiedQuestText;
 
         local function GetModifiedGossipText()
-            local text = GetGossipText();
-            if text then
-                return TextModifier(text)
-            end
+            return TextModifier(GetGossipText());
         end
         API.GetModifiedGossipText = GetModifiedGossipText;
 
@@ -1552,11 +1546,6 @@ do  -- Quest
             TextModifier = modifierFunc or TextModifier_None;
         end
         addon.SetDialogueTextModifier = SetDialogueTextModifier;
-
-        addon.SetChatTextModifier = function(modifierFunc)
-            modifierFunc("test");
-            CallbackRegistry:Trigger("SetChatTextModifier", modifierFunc or TextModifier_None);
-        end
     end
 
 
