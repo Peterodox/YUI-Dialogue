@@ -772,6 +772,10 @@ do  --QuestRewardItemButtonMixin
         self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
     end
 
+    function QuestRewardItemButtonMixin:OnItemConsumed()
+        self:SetCountdown(COUNTDOWN_COMPLETE_MANUAL, true);
+    end
+
 
     function QuickSlotManager:GetItemButton()
         if RewardItemButton then
