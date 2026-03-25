@@ -400,10 +400,13 @@ do  --Event Handler, Lazy Update
     function ItemButtonMixin:UpdateItem()
         local allowPressKeyToUse = self:HasHotkey();
         if self.type == "use" then
-            if self.itemID then
+            if self.itemID and GetItemCount(self.itemID) > 0 then
                 self:SetUsableItem(self.itemID, allowPressKeyToUse);
             else
                 self:SetButtonEnabled(false);
+                if self.OnItemConsumed then
+                    self:OnItemConsumed();
+                end
             end
         elseif self.type == "equip" then
             if self:IsItemEquipped() then
