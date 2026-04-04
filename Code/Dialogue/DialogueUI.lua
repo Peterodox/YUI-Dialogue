@@ -1799,7 +1799,9 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     if GetDBBool("AutoCompleteQuest") and (not self.chooseItems) then
         local questID = GetQuestID();
         local title = GetQuestTitle();
-        if GossipDataProvider:ShouldAutoCompleteQuest(questID, title) then
+        local preyQuestID = C_QuestLog.GetActivePreyQuest and C_QuestLog.GetActivePreyQuest();
+
+        if (preyQuestID and preyQuestID == questID) or GossipDataProvider:ShouldAutoCompleteQuest(questID, title) then
             local completionText = GetQuestText("Complete");
             local questData = {
                 questID = questID,
