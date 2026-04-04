@@ -16,7 +16,14 @@ local AutoSelectGossip = {
     [136318] = 1,           --(Delve) I will save them! Fleek
     [135798] = 1,           --(Delve) I'll stop this invasion!
     [136275] = 1,           --(Delve) I'll deal with this mess!
-
+    [137619] = 1,           --(Quest) Looting and killing, understood!
+    [135634] = 1,           --(Quest) I'll take care of it!
+    [135708] = 1,           --(Delve) I'll get rid of these weeds!
+    [136317] = 1,           --(Delve) I'll get rid of these totems!
+    [136446] = 1,           --(Delve) I'll drive back the attackers.
+    [138317] = 1,           --(Quest) Deal with the big ogre. On it!
+    [136385] = 1,           --(Delve) I'll break the hexes and set your kin free.
+    [136279] = 1,           --(Delve) I'll take care of this!
 
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra
