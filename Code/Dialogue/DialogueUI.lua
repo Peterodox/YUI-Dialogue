@@ -1504,6 +1504,14 @@ function DUIDialogBaseMixin:HandleGossip()
 end
 
 function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
+    local questID = GetQuestID();
+    if GossipDataProvider:ShouldAutoAcceptQuest(questID) then
+        if not API.IsPlayerOnQuest(questID) then
+            self:ScrollDownOrAcceptQuest(true);
+        end
+        return false;
+    end
+
     self:ReleaseAllObjects();
     local isQuestChanged = self:UseQuestLayout(true);
     playFadeIn = playFadeIn or isQuestChanged;

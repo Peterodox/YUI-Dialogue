@@ -171,3 +171,33 @@ local function RequestQuestNames()
     end
 end
 addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", RequestQuestNames);
+
+
+do  --Add AdventureMap quests such as Prey to AutoAcceptQuest
+    --Because people already see the quest details when clicking the quest offer pin.
+
+    local EL = CreateFrame("Frame");
+    EL:RegisterEvent("ADVENTURE_MAP_QUEST_UPDATE");
+    EL:RegisterEvent("ADVENTURE_MAP_UPDATE_POIS");
+
+    EL:SetScript("OnEvent", function(self, event, ...)
+        self.t = 0;
+        self:SetScript("OnUpdate", self.OnUpdate);
+    end);
+
+    function EL:OnUpdate(elapsed)
+        self.t = self.t + elapsed;
+        if self.t > 0.5 then
+            self.t = 0;
+            self:SetScript("OnUpdate", nil);
+            local total = C_AdventureMap.GetNumQuestOffers();
+            if not total then return; end
+            for offerIndex = 1, total do
+                local questID = C_AdventureMap.GetQuestOfferInfo(offerIndex);
+                if questID then
+                    AutoAcceptQuest[questID] = true;
+                end
+            end
+        end
+    end
+end
