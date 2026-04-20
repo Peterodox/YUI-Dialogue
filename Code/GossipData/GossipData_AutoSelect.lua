@@ -7,6 +7,8 @@ local AutoSelectGossip = {
     --Midnight
 
     [136916] = 1,           --Delver's Guide
+    [137576] = 1,           --Research Console <Commune with the Console.>
+	[138824] = 1,			--Ritual Site Reports
 
     --Den of Nalorakk
     [135009] = 1,           --Ethereal Pyre, teleport from entrance to the start of the first area
@@ -24,6 +26,8 @@ local AutoSelectGossip = {
     [138317] = 1,           --(Quest) Deal with the big ogre. On it!
     [136385] = 1,           --(Delve) I'll break the hexes and set your kin free.
     [136279] = 1,           --(Delve) I'll take care of this!
+    [135865] = 1,           --(Delve) I'll deal with this!
+    [137389] = 1,           --(Quest) Deal with the big ones. Got it.
 
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra
