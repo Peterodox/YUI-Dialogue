@@ -141,6 +141,17 @@ do  --UIParent OnShow/OnHide
     frame:SetScript("OnHide", function()
         CallbackRegistry:Trigger("UIParent.Hide");
     end);
+
+
+    if addon.IS_MIDNIGHT then
+        local function TempFix_RestoreActionBarEndCaps()
+            --Something happened in 12.0.5 causing EndCaps (gryphons) to appear after Hide/Show UI
+            --BorderArt seems unaffected
+
+            MainActionBar.EndCaps:SetShown(MainActionBar.BorderArt:IsShown());
+        end
+        CallbackRegistry:Register("UIParent.Show", TempFix_RestoreActionBarEndCaps);
+    end
 end
 
 
