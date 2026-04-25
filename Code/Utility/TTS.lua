@@ -38,7 +38,6 @@ local UnitExists = UnitExists;
 local UnitSex = UnitSex;
 local C_VoiceChat = C_VoiceChat;
 local C_TTSSettings = C_TTSSettings;
-local StopSpeakingText = C_VoiceChat.StopSpeakingText;
 local After = C_Timer.After;
 local gsub = string.gsub;
 
@@ -79,12 +78,21 @@ function TTSUtil:OnUpdate_InitialDelay(elapsed)
     end
 end
 
+function TTSUtil:TryStopSpeaking()
+    if self:IsSpeaking() then
+        C_VoiceChat.StopSpeakingText();
+        if self.IS_MIDNIGHT then
+            self:VOICE_CHAT_TTS_PLAYBACK_FINISHED();
+        end
+    end
+end
+
 function TTSUtil:Clear()
     self.t = nil;
     self.queue = nil;
     self.nextSegment = nil;
     self:SetScript("OnUpdate", nil);
-    StopSpeakingText();
+    self:TryStopSpeaking();
 end
 
 function TTSUtil:ProcessQueue()
@@ -93,8 +101,10 @@ function TTSUtil:ProcessQueue()
         if self:IsSpeaking() then
             return
         end
+
         local segment = table.remove(self.queue, 1);
         self:StopThenPlay(segment);
+
         if TTS_AUTO_PLAY and GetDBBool("TTSAutoPlayDelay") then
             self.t = -2;
         end
@@ -119,7 +129,7 @@ function TTSUtil:QueueText(text, voiceID, identifier, contentSource)
         end
         -- if TTS is currently reading and currentle read segment (self.nextSegment) does not belog to the same quest, stop reading
         if self:IsSpeaking() and self.nextSegment and self.nextSegment.identifier ~= identifier then
-            StopSpeakingText();
+            self:TryStopSpeaking();
         end
     end
 
@@ -146,7 +156,7 @@ function TTSUtil:OnUpdate_StopThenPlay(elapsed)
 end
 
 function TTSUtil:StopThenPlay(segment)
-    StopSpeakingText();
+    self:TryStopSpeaking();
     self.t = -0.1;
     self.nextSegment = segment;
     self:SetScript("OnUpdate", self.OnUpdate_StopThenPlay);
@@ -180,7 +190,7 @@ function TTSUtil:SpeakText(segment)
     self:UpdateTTSSettings();
     self.contentSource = segment.contentSource;
     self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
-    local allowOverlappedSpeech = nil;
+    local allowOverlappedSpeech = false;
     C_VoiceChat_SpeakText(segment.voiceID, segment.text, self.rate, self.volume, allowOverlappedSpeech);
 end
 
@@ -976,3 +986,64 @@ do  --Temp Fix For FCF_GetCurrentFullScreenFrame missing on TBC
         _G.FCF_GetCurrentFullScreenFrame = function() end;
     end
 end
+
+
+--[[
+do  --Debug for 12.0.5 VOICE_CHAT_TTS_PLAYBACK_FINISHED issue
+    local f = CreateFrame("Frame");
+    f:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
+    f:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_FAILED");
+    f:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_FINISHED");
+    f:SetScript("OnEvent", function(self, event, ...)
+        print(event, ...);
+        if event == "VOICE_CHAT_TTS_PLAYBACK_FINISHED" then
+            if self.callback then
+                self.callback();
+            end
+        end
+    end);
+
+    -- SpeakText API is different on Retail/Classic
+    local SpeakText;
+    local tocVersion = select(4, GetBuildInfo());
+
+    if tocVersion > 120000 then
+        SpeakText = C_VoiceChat.SpeakText;
+    else
+        SpeakText = function(voiceID, text, rate, volume, overlap)
+            local destination = Enum.VoiceTtsDestination.LocalPlayback;
+            C_VoiceChat.SpeakText(voiceID, text, destination, rate, volume, overlap);
+        end
+    end
+
+    -- FINISHED and FAILED won't fire when we interrupt the speech
+    function TTSTest1()
+        local voices = C_VoiceChat.GetTtsVoices();
+        local voiceID = voices and voices[1].voiceID or 0;
+        local text = TEXT_TO_SPEECH_SAMPLE_TEXT;
+        local rate = 0;
+        local volume = 100;
+        local overlap = false;
+
+        SpeakText(voiceID, text, rate, volume, overlap);
+
+        C_Timer.After(1, function()
+            print("C_VoiceChat.StopSpeakingText");
+            C_VoiceChat.StopSpeakingText();
+        end);
+    end
+
+    -- Game crashes when we StopSpeakingText on FINISHED
+    function TTSTest2()
+        local voices = C_VoiceChat.GetTtsVoices();
+        local voiceID = voices and voices[1].voiceID or 0;
+        local text = "fatality";
+        local rate = 0;
+        local volume = 100;
+        local overlap = false;
+
+        f.callback = C_VoiceChat.StopSpeakingText;
+        SpeakText(voiceID, text, rate, volume, overlap);
+    end
+end
+--]]
