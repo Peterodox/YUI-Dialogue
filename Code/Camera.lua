@@ -383,6 +383,9 @@ function CameraUtil:GetBestZoomForNPC()
 end
 
 function CameraUtil:OnModelEvaluationComplete(modelHeight)
+    -- Used by "DUIUtilityActorMixin" in API.lua to determine zoom-in distance
+    -- Unavailable in instance due to Secret in 12.0.5
+
     if not (self.isActive and self.cameraMode == 1) then return end;
 
     local zoom;
@@ -469,7 +472,12 @@ function CameraUtil:Intro_FocusNPC()
     self.oldZoom = GetCameraZoom();
     self.t = 0;
     self:SetScript("OnUpdate", ZoomIn_FocusNPC_OnUpdate);
-    API.EvaluateNPCSize();
+
+    local success = API.EvaluateNPCSize();
+    if not success then
+        -- Use fallback value if failed (due to unit identity being secret or other reasons)
+        self:OnModelEvaluationComplete(3);
+    end
 end
 
 function CameraUtil:Intro_PanCamera()

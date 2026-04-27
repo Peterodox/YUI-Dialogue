@@ -35,6 +35,7 @@ local issecurevalue = issecurevalue or AlwaysFalse;
 local canaccessvalue = canaccessvalue or AlwaysTrue;
 API.issecurevalue = issecurevalue;
 API.canaccessvalue = canaccessvalue;
+API.ShouldUnitIdentityBeSecret = C_Secrets and C_Secrets.ShouldUnitIdentityBeSecret or AlwaysFalse;
 
 function API.DoesValueExist(v)
     if canaccessvalue(v) then
@@ -775,13 +776,17 @@ do  -- NPC Interaction
     local function EvaluateUnitSize(unit)
         CreateModelScene();
 
+        if API.ShouldUnitIdentityBeSecret(unit) then
+            return false
+        end
+
         if not NPCActor then
             NPCActor = ModelScene:CreateActor(nil, "DUIUtilityActorTemplate");
             NPCActor.onModelLoadedCallback = NPCActor.EvaluateNPCHeight;
         end
 
-        local success = NPCActor:SetModelByUnit(unit);
-        return success
+        NPCActor:SetModelByUnit(unit);
+        return true
     end
 
     local function EvaluateNPCSize()
