@@ -116,21 +116,26 @@ end
 -- Added voice for the text to be read with and some identifier for dialog the text belong to as there could be more segments of text to be read from the same quest
 function TTSUtil:QueueText(text, voiceID, identifier, contentSource)
     --"identifier" determines which quest/gossip the queued text belongs to
-    if not self.queue then
-        self.queue = {};
-    end
+
     -- if "Stop reading on opening dialod" is enabled
     if TTS_STOP_ON_NEW then
         -- remove every entry from speech queue that does not belong to the same quest
-        for i = #self.queue, 1, -1 do
-            if self.queue[i].identifier ~= identifier then
-                table.remove(self.queue, i)
+        if self.queue then
+            for i = #self.queue, 1, -1 do
+                if self.queue[i].identifier ~= identifier then
+                    table.remove(self.queue, i)
+                end
             end
         end
+
         -- if TTS is currently reading and currentle read segment (self.nextSegment) does not belog to the same quest, stop reading
         if self:IsSpeaking() and self.nextSegment and self.nextSegment.identifier ~= identifier then
             self:TryStopSpeaking();
         end
+    end
+
+    if not self.queue then
+        self.queue = {};
     end
 
     -- insert new entry into queue
