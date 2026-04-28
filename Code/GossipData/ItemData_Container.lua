@@ -7,6 +7,18 @@ local API = addon.API;
 local ContainerItem = {};   --Auto-generated
 
 local MiscUsableItem = {
+    [263454] = true,        --Thalassian Alchemist's Notebook
+    [263455] = true,        --Thalassian Blacksmith's Journal
+    [263456] = true,        --Thalassian Engineer's Notepad
+    [263457] = true,        --Thalassian Scribe's Journal
+    [263458] = true,        --Thalassian Jewelcrafter's Notebook
+    [263459] = true,        --Thalassian Leatherworker's Journal
+    [263460] = true,        --Thalassian Tailor's Notebook
+    [263461] = true,        --Thalassian Skinner's Notes
+    [263462] = true,        --Thalassian Herbalist's Notes
+    [263463] = true,        --Thalassian Miner's Notes
+    [263464] = true,        --Thalassian Enchanter's Folio
+
     [224817] = true,        --Algari Herbalist's Notes
     [224818] = true,        --Algari Miner's Notes
     [224807] = true,        --Algari Skinner's Notes

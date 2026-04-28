@@ -28,6 +28,7 @@ local AutoSelectGossip = {
     [136279] = 1,           --(Delve) I'll take care of this!
     [135865] = 1,           --(Delve) I'll deal with this!
     [137389] = 1,           --(Quest) Deal with the big ones. Got it.
+    [136141] = 1,           --(Quest) I'll help you restore the ley lines... and show these cultists a thing or two!
 
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra
