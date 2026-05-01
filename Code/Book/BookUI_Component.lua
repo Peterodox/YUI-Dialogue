@@ -301,18 +301,21 @@ do  --Header / Book Title
     end
 
     function HeaderFrameMixin:QueryLetterSender(itemGUID)
-        self.itemGUID = itemGUID;
-        local tooltipData = itemGUID and addon.TooltipAPI.GetItemByGUID(itemGUID);
-        if tooltipData then
-            self.dataInstanceID = tooltipData.dataInstanceID;
-            if self.dataInstanceID then
-                self:RegisterEvent("TOOLTIP_DATA_UPDATE");
-                self:SetScript("OnEvent", self.OnEvent);
-                self:ProcessTooltipData(tooltipData);
+        if API.canaccessvalue(itemGUID) then
+            self.itemGUID = itemGUID;
+            local tooltipData = itemGUID and addon.TooltipAPI.GetItemByGUID(itemGUID);
+            if tooltipData then
+                self.dataInstanceID = tooltipData.dataInstanceID;
+                if self.dataInstanceID then
+                    self:RegisterEvent("TOOLTIP_DATA_UPDATE");
+                    self:SetScript("OnEvent", self.OnEvent);
+                    self:ProcessTooltipData(tooltipData);
+                    return;
+                end
             end
-        else
-            self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
         end
+        self.itemGUID = nil;
+        self:UnregisterEvent("TOOLTIP_DATA_UPDATE");
     end
 
     function HeaderFrameMixin:ProcessTooltipData(tooltipData)

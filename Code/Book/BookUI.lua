@@ -111,6 +111,10 @@ end
 
 
 local function GetObjectTypeAndID(guid)
+    if not API.canaccessvalue(guid) then
+        return;
+    end
+
     local type = match(guid, "^(%a+)%-");
     if type == "GameObject" then
         local id = match(guid, "GameObject%-%d+%-%d+%-%d+%-%d+%-(%d+)");
