@@ -9,6 +9,7 @@ local AutoSelectGossip = {
     [136916] = 1,           --Delver's Guide
     [137576] = 1,           --Research Console <Commune with the Console.>
 	[138824] = 1,			--Ritual Site Reports
+    [136045] = 1,           --(Quest) Let's spar! Armies of Darkness
 
     --Den of Nalorakk
     [135009] = 1,           --Ethereal Pyre, teleport from entrance to the start of the first area
