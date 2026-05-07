@@ -107,7 +107,22 @@ do  --Legacy Raid (LFR) show boss name and status in this wing
 
 
     LFRGossipOptions = {
-        --[gossipOptionID] = {dungeonID, mapID, difficultyID, {journalEncounteID1, dungeonEncounterID1}, {journalEncounteID2, dungeonEncounterID2}, ...}
+        --[gossipOptionID] = {dungeonID, mapID, difficultyID, {journalEncounterID1, dungeonEncounterID1}, {journalEncounteID2, dungeonEncounterID2}, ...}
+
+        --Dragonflight (npc: 262873)
+        [139380] = {2370, 2522, DIFFICULTY_LFR, {2480, 2587}, {2486, 2590}, {2502, 2635}},      --Primal Bulwark
+        [139392] = {2371, 2522, DIFFICULTY_LFR, {2500, 2639}, {2482, 2592}, {2491, 2605}},      --Caverns of Infusion
+        [139391] = {2372, 2522, DIFFICULTY_LFR, {2493, 2614}, {2499, 2607}},      --Fury of the Storm
+
+        [139390] = {2399, 2569, DIFFICULTY_LFR, {2522, 2688}, {2529, 2687}, {2530, 2693}},      --Discarded Works
+        [139389] = {2400, 2569, DIFFICULTY_LFR, {2524, 2682}, {2525, 2680}, {2532, 2689}},      --Fury of Giants
+        [139388] = {2401, 2569, DIFFICULTY_LFR, {2527, 2683}, {2523, 2684}},      --Neltharion's Shadow
+        [139387] = {2402, 2569, DIFFICULTY_LFR, {2520, 2685}},      --Edge of the Void
+
+        [139386] = {2466, 2549, DIFFICULTY_LFR, {2466, 2820}, {2554, 2709}, {2563, 2824}},      --Incarnate's Wake
+        [139385] = {2468, 2549, DIFFICULTY_LFR, {2557, 2737}, {2553, 2731}},      --Molten Incursion
+        [139384] = {2467, 2549, DIFFICULTY_LFR, {2555, 2728}, {2556, 2708}},      --The Viridian Weave
+        [139383] = {2469, 2549, DIFFICULTY_LFR, {2565, 2786}, {2519, 2677}},      --Fate of Amirdrassil
 
         --Shadowlands (npc: 205959)
         [110020] = {2090, 2296, DIFFICULTY_LFR, {2429, 2418}, {2428, 2383}, {2420, 2406}},      --The Leeching Vaults
