@@ -450,7 +450,6 @@ do  -- String
     local match = string.match;
     local gmatch = string.gmatch;
     local gsub = string.gsub;
-    local tinsert = table.insert;
 
     local function SplitParagraph(text)
         local tbl = {};

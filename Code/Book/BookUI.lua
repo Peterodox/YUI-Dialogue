@@ -1119,6 +1119,7 @@ do  --Formatter
         text = gsub(text, "<[^<>]+>$", "", 1);
         text = gsub(text, "<[^<>]+>$", "", 1);
         text = gsub(text, "<[^<>]+>$", "", 1);
+        text = gsub(text, "<BR/>", "\n");
         return text
     end
 
