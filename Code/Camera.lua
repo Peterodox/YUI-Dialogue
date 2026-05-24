@@ -47,11 +47,31 @@ UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EX
 
 local FadeHelper = CreateFrame("Frame");
 addon.UIParentFadeHelper = FadeHelper;
-FadeHelper.isMidnight = addon.IsToCVersionEqualOrNewerThan(120000);
 
-if FadeHelper.isMidnight then
+CameraUtil.isMidnight = addon.IsToCVersionEqualOrNewerThan(120000);
+
+local IsDynamicFlying; -- Avoid changing FOV when mounted to prevent FOV stuck at over normal max due to Skyriding Speed Effects
+
+if CameraUtil.isMidnight then
     SetUIVisibility = function(state)
         UIParent:SetShown(state);
+    end
+
+    IsDynamicFlying = function()
+        if IsMounted() then
+            return true
+        end
+
+        local isGliding, canGlide = C_PlayerInfo.GetGlidingInfo();
+        if isGliding or canGlide then
+            return true
+        end
+
+        return false
+    end
+else
+    IsDynamicFlying = function()
+        return false
     end
 end
 
@@ -126,7 +146,7 @@ function CameraUtil:ChangeCVars()
         end
     end
 
-    if CHANGE_FOV then
+    if CHANGE_FOV and not IsDynamicFlying() then
         FOV_DEFAULT = GetCVar("cameraFov") or 90;
         BackupAndSetCVar("cameraFov", nil);
     end
@@ -161,6 +181,16 @@ function CameraUtil:RestoreCombatCVar()
                 SetCVar(cvar, value);
                 CVar_Backup[cvar] = nil;
             end
+        end
+    end
+end
+
+function CameraUtil:RestoreCameraFOVIfMounted()
+    if IsDynamicFlying() then
+        local cvar = "cameraFov";
+        if CVar_Backup[cvar] then
+            SetCVar(cvar, CVar_UnitText[cvar]);
+            CVar_UnitText[cvar] = nil;
         end
     end
 end
@@ -204,6 +234,9 @@ end
 function CameraUtil:OnEvent(event, ...)
     if event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
         self:OnMountChanged();
+        self:RestoreCameraFOVIfMounted();
+    elseif event == "PLAYER_IS_GLIDING_CHANGED" then
+        self:RestoreCameraFOVIfMounted();
     elseif event == "UPDATE_SHAPESHIFT_FORM" then
         self:RequestUpdateShapeshiftForm(0.0);
     else    --Logout
@@ -333,6 +366,9 @@ function CameraUtil:ListenEvent(state)
         if PLAYER_IS_SHAPESHIFTER then
             self:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
         end
+        if self.isMidnight then
+            self:RegisterEvent("PLAYER_IS_GLIDING_CHANGED");
+        end
         self:SetScript("OnEvent", self.OnEvent);
     else
         self:UnregisterEvent("PLAYER_LOGOUT");
@@ -341,6 +377,9 @@ function CameraUtil:ListenEvent(state)
         self:UnregisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED");
         if PLAYER_IS_SHAPESHIFTER then
             self:UnregisterEvent("UPDATE_SHAPESHIFT_FORM");
+        end
+        if self.isMidnight then
+            self:UnregisterEvent("PLAYER_IS_GLIDING_CHANGED");
         end
         self:SetScript("OnEvent", nil);
     end
@@ -444,7 +483,7 @@ local function ZoomIn_FocusNPC_OnUpdate(self, elapsed)
         self:SetScript("OnUpdate", nil);
     end
 
-    if CHANGE_FOV then
+    if CHANGE_FOV and not self.isDynamicFlying then
         ZoomIn_Fov_OnUpdate(self, elapsed);
     end
 
@@ -515,6 +554,7 @@ function CameraUtil:InitiateInteraction()
     self.isActive = true;
 
     self:UpdateMounted();
+    self.isDynamicFlying = IsDynamicFlying();
 
     if PLAYER_IS_SHAPESHIFTER then
         self:UpdateShapeshiftForm();
@@ -578,8 +618,9 @@ function CameraUtil:OnFovSettingsChanged()
     if not (self.isActive and self.cameraMode == 1) then return end;
 
     local cvar = "cameraFov";
+    self.isDynamicFlying = IsDynamicFlying();
 
-    if CHANGE_FOV then
+    if CHANGE_FOV and not self.isDynamicFlying then
         if not self.fovChanged then
             self.fovChanged = true;
             BackupAndSetCVar(cvar, FOV_ZOOMED_IN);
