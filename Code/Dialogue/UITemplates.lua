@@ -2834,9 +2834,9 @@ do  --Settings, CallbackRegistry
             HotkeyIcons.Esc = nil;
             HotkeyIcons.Shift = nil;
             GAME_PAD_CONFIRM_KEY = nil;
-            HotkeyIcons.Confirm = HotkeyIcons["SPACE"];
+            HotkeyIcons.Confirm = nil;
             HotkeyIcons.Cancel = nil;
-            HotkeyIcons.Action = HotkeyIcons["SPACE"];
+            HotkeyIcons.Action = nil;
             HotkeyIcons.Mod = nil;
         end
 
