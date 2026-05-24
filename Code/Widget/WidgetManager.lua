@@ -583,6 +583,14 @@ do  --Change Main Anchor Position
         Text:SetShadowColor(1, 1, 1, 0.5);
         Text:SetShadowOffset(2, -2);
         Text:SetText(L["Popup Position"]);
+
+        self.tooltipText = L["Drag To Move"].."\n"..L["Right Click To Dismiss"];
+        self:SetScript("OnEnter", function(s)
+            TooltipFrame.ShowWidgetTooltip(s);
+        end);
+        self:SetScript("OnLeave", function()
+            TooltipFrame.HideTooltip();
+        end);
     end
 
     function AnchorPosition:OnMouseUp(button)
