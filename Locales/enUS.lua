@@ -227,6 +227,7 @@ L["Valuable Reward Popup Desc"] = "When you receive a valuable item like an upgr
 L["Auto Complete Quest"] = "Auto Complete Quest";
 L["Auto Complete Quest Desc"] = "Auto complete the following quest then display the dialogue and rewards in a separate window. If the rewards contain a chest, you can click to open it.\n\n- Candy Bucket (Hallow's End)\n- Khaz Algar Weekly\n- Midsummer Bonfire";
 L["Press Key To Use Item"] = "Press Button To Use";
+L["Press Key To Use Item Desc Generic"] = "Press the Confirm Button (current: %s) to use the item when you are out of combat.";
 L["Press Key To Use Item Desc PC"] = "Press [KEY:PC:SPACE] to use the item when you are out of combat.";
 L["Press Key To Use Item Desc Xbox"] = "Press [KEY:XBOX:PAD3] to use the item when you are out of combat.";
 L["Press Key To Use Item Desc PlayStation"] = "Press [KEY:PS:PAD3] to use the item when you are out of combat.";

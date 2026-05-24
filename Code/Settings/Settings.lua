@@ -542,7 +542,12 @@ local function UseItemHotkey_Tooltip()
     elseif deviceID == 4 then
         return L["Press Key To Use Item Desc Switch"]
     else
-        return L["Press Key To Use Item Desc PC"]
+        local key = addon.DeviceUtil:GetKeyByFunction("Action");
+        if key == "SPACE" then
+            return L["Press Key To Use Item Desc PC"]
+        else
+            return L["Press Key To Use Item Desc Generic"]:format(key or L["Not Bound"])
+        end
     end
 end
 

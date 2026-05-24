@@ -429,13 +429,13 @@ do  --debug
     function QuickSlotManager:PLAYER_ENTERING_WORLD()
         if false then return end;
 
-        local case = "link";   --equipment container cosmetic link
+        local case = "equipment";   --equipment container cosmetic link
 
         C_Timer.After(3, function()
             local button = self:GetItemButton();
             local allowPressKeyToUse = true;
             if case == "equipment" then
-                local itemID = 6070;    --172137 226734 6070
+                local itemID = 200318;    --172137 226734 6070
                 local itemLink = "item:"..itemID;
                 button:SetCountdown(COUNTDOWN_IDLE);
                 button:SetEquipItem(itemLink, allowPressKeyToUse);
