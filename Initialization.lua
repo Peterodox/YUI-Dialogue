@@ -99,6 +99,7 @@ local DefaultValues = {
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
     TTSReadTranslation = false,                 --Read original text or translation. Controlled by TTSButton modifier key
+    TranslatorShowOriginalText = true,          --If true, display both original text and the translation
     MuteTargetLostSound = true,                 --Mute target lost sound caused by hiding UI. Accessed through command only: /run DialogueUI_DB.MuteTargetLostSound = false
 
     --WidgetManagerPosition = {x, y};

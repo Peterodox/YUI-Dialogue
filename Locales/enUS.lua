@@ -337,8 +337,10 @@ L["Open Settings"] = "Open Settings";
 L["Translator"] = "Translator";
 L["Translator Source"] = "Source: ";
 L["Translator No Quest Data Format"] = "No entry found for [Quest: %s]";
-L["Translator Click To Hide Translation"] = "Click to hide the translation";
-L["Translator Click To Show Translation"] = "Click to show the translation";
+L["Translator Click To Hide Translation"] = "Left click to hide the translation.";
+L["Translator Click To Show Translation"] = "Left click to show the translation.";
+L["Translator Click To Hide Original"] = "Right click to hide original texts.";
+L["Translator Click To Show Original"] = "Right click to show original texts.";
 
 --AddOn Compatibility for Voiceover AddOns
 L["VO Provider Format"] = "|cffffffff%s|r is handling the voiceover";

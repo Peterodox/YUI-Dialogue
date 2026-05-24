@@ -1059,17 +1059,27 @@ function DUIDialogBaseMixin:FormatDualParagraph(offsetY, text1, text2)
     --For Dual-language addons
     --Format: paragraph1, translatedPargraph1, paragraph2, translatedPargraph2, ...
 
+    local showOriginal = GetDBBool("TranslatorShowOriginalText");
+
     local paragraphs2 = text2 and API.SplitParagraph(text2);
     if paragraphs2 and #paragraphs2 > 0 then
         local paragraphs1 = API.SplitParagraph(text1);
         if paragraphs1 and #paragraphs1 > 0 then
             local firstObject, lastObject;
-            local maxIndex = math.max(#paragraphs1, #paragraphs2);
-            local sources = {paragraphs1, paragraphs2};
+            local maxIndex, sources;
+
+            if showOriginal then
+                maxIndex = math.max(#paragraphs1, #paragraphs2);
+                sources = {paragraphs1, paragraphs2};
+            else
+                maxIndex = #paragraphs2
+                sources = {nil, paragraphs2};
+            end
+
             for i = 1, maxIndex do
                 for j = 1, 2 do
                     local para = sources[j];
-                    if para[i] then
+                    if para and para[i] then
                         local fs = self:AcquireLeftFontString((j == 2 and "DUIFont_Quest_MultiLanguage") or "DUIFont_Quest_Paragraph");
                         if not firstObject then
                             firstObject = fs;
@@ -1083,7 +1093,9 @@ function DUIDialogBaseMixin:FormatDualParagraph(offsetY, text1, text2)
                     end
                 end
             end
+
             offsetY = offsetY - PARAGRAPH_SPACING;
+
             return offsetY, firstObject, lastObject
         else
             return self:FormatParagraph(offsetY, text1)

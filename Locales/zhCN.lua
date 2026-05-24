@@ -335,8 +335,10 @@ L["Open Settings"] = "打开设置界面";
 L["Translator"] = "翻译器";
 L["Translator Source"] = "来源：";
 L["Translator No Quest Data Format"] = "未找到条目 [Quest: %s]";
-L["Translator Click To Hide Translation"] = "点击以隐藏翻译";
-L["Translator Click To Show Translation"] = "点击以显示翻译";
+L["Translator Click To Hide Translation"] = "左键点击以隐藏翻译。";
+L["Translator Click To Show Translation"] = "左键点击以显示翻译。";
+L["Translator Click To Hide Original"] = "右键点击以隐藏原文。";
+L["Translator Click To Show Original"] = "右键点击以显示原文。";
 
 --AddOn Compatibility for Voiceover AddOns
 L["VO Provider Format"] = "|cffffffff%s|r 正在管理语音。";

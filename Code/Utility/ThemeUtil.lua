@@ -128,6 +128,8 @@ function ThemeUtil:SetThemeByID(themeID)
     end
 
     addon.CallbackRegistry:Trigger("ThemeChanged", themeID);
+
+    ThemeUtil:UpdateMultiLanguageFontColor();
 end
 
 function ThemeUtil:GetTexturePath()
@@ -176,6 +178,24 @@ function ThemeUtil:AdjustTextColor(text)
     return AdjustTextColor(text);
 end
 
+function ThemeUtil:UpdateMultiLanguageFontColor(showOriginal)
+    local colorIndex = THEME_ID == 2 and 2 or 1;
+    local colors;
+
+    if showOriginal == nil then
+        showOriginal = true;
+    end
+
+    if showOriginal then
+        colors = FONT_OBJECT_COLOR.DUIFont_Quest_MultiLanguage;
+    else
+        colors = FONT_OBJECT_COLOR.DUIFont_Quest_Paragraph;
+    end
+
+    local fontName = "DUIFont_Quest_MultiLanguage";
+    SetFontColor(_G[fontName], colors[colorIndex]);
+end
+
 
 do
     ThemeUtil:SetThemeByID(1);
@@ -190,4 +210,6 @@ do
         ThemeUtil:SetThemeByID(themeID);
     end
     addon.CallbackRegistry:Register("SettingChanged.Theme", Settings_Theme);
+
+    addon.CallbackRegistry:Register("SettingChanged.TranslatorShowOriginalText", ThemeUtil.UpdateMultiLanguageFontColor, ThemeUtil);
 end

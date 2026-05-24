@@ -43,6 +43,7 @@ end
 local function CreateTranslatorButton(parent, onClickFunc)
     local b = CreateFrame("Button", nil, parent);
     b:SetSize(BUTTON_SIZE, BUTTON_SIZE);
+    b:RegisterForClicks("LeftButtonUp", "RightButtonUp");
 
     b.Icon = b:CreateTexture(nil, "OVERLAY");
     b.Icon:SetSize(ICON_SIZE, ICON_SIZE);

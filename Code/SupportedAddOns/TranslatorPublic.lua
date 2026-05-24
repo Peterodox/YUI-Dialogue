@@ -145,7 +145,15 @@ function OnTranslatorLoaded()
     end
 
     local function TranslatorButton_OnClick(button)
-        ENABLE_TRANSLATION = not ENABLE_TRANSLATION;
+        if button == "RightButton" then
+            if not ENABLE_TRANSLATION then
+                return
+            end
+            local userInput = true;
+            addon.FlipDBBool("TranslatorShowOriginalText", userInput);
+        else
+            ENABLE_TRANSLATION = not ENABLE_TRANSLATION;
+        end
         MainFrame:OnSettingsChanged();
     end
 
@@ -171,6 +179,11 @@ function OnTranslatorLoaded()
                 TooltipFrame:AddLeftLine(L["Translator Source"]..TranslatorName, 1, 1, 1, true);
                 if ENABLE_TRANSLATION then
                     TooltipFrame:AddLeftLine(L["Translator Click To Hide Translation"], 1, 0.82, 0);
+                    if addon.GetDBBool("TranslatorShowOriginalText") then
+                        TooltipFrame:AddLeftLine(L["Translator Click To Hide Original"], 1, 0.82, 0);
+                    else
+                        TooltipFrame:AddLeftLine(L["Translator Click To Show Original"], 1, 0.82, 0);
+                    end
                 else
                     TooltipFrame:AddLeftLine(L["Translator Click To Show Translation"], 1, 0.82, 0);
                 end
