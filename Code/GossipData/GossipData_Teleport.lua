@@ -10,6 +10,7 @@ local GossipDataProvider = addon.GossipDataProvider;
 local IsTeleportNPC = {
     --[creatureID] = true,
 
+    [656192] = true,        --Lightforged Beacon (12.0.7 Val)
     [231541] = true,        --Sky-Captain Cableclamp (Siren Isle to Dornogal)
     [475936] = true,        --Mole Machine Transport (Siren Isle to Gundargaz)
     [125433] = true,        --Carli Joyride, <Board the drill to the Ringing Deeps.>
