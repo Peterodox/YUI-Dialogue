@@ -282,21 +282,32 @@ end
 
 function DropdownMenuMixin:SetMenuData(menuData)
     self:Release();
-
-    local total = menuData and #menuData.buttons or 0;
-    local maxPage = math.ceil(total / MAX_BUTTON_PER_PAGE);
     self.menuData = menuData;
 
+    local total;
+    local buttonWidth, buttonHeight;
     local minMenuWidth = self.owner and (self.owner:GetWidth() + 4);
-    local buttonWidth = menuData.buttonWidth or minMenuWidth or (self:GetWidth());
-    buttonWidth = API.Round(buttonWidth);
-    local buttonHeight = menuData.buttonHeight or BUTTON_HEIGHT;
-    local menuWidth = API.Round(minMenuWidth);
+
+    if menuData and menuData.buttons then
+        total = #menuData.buttons;
+        buttonWidth = menuData.buttonWidth or minMenuWidth;
+        buttonHeight = menuData.buttonHeight;
+        self.reloadPage = menuData.reloadPage or false;
+        self.NoContentAlert:Hide();
+    else
+        total = 0;
+        self.reloadPage = false;
+        self.NoContentAlert:Show();
+    end
+
+    buttonWidth = API.Round(buttonWidth or (self:GetWidth()));
+    buttonHeight = buttonHeight or BUTTON_HEIGHT;
+
+    local menuWidth = API.Round(minMenuWidth or buttonWidth);
 
     self.buttonWidth = buttonWidth;
     self.buttonHeight = buttonHeight;
     self.menuWidth = menuWidth;
-    self.reloadPage = menuData.reloadPage or false;
 
     local selectedID = self:UpdateSelectedID();
     local bestPage = 1;
@@ -310,14 +321,13 @@ function DropdownMenuMixin:SetMenuData(menuData)
                 end
             end
         end
+        self:SetMaxPage(math.ceil(total / MAX_BUTTON_PER_PAGE));
     else
-        total = 2;
-        self:Hide();    --TEMP
-        return
+        total = 1;
+        self:SetMaxPage(1);
     end
 
     self.totalButtons = total;
-    self:SetMaxPage(maxPage);
     self:SetPage(bestPage);
 end
 
@@ -377,24 +387,27 @@ function DropdownMenuMixin:SetPage(page, fromReload)
     self.page = page;
     self.PageNav.PageText:SetText(page.." / "..self.maxPage);
 
+    local buttonWidth = self.buttonWidth;
+    local buttonHeight = self.buttonHeight;
+    local menuWidth = self.menuWidth;
+
     local menuData = self.menuData;
     if not menuData then
-        self:Hide();
+        self:SetSize(menuWidth, 2 * buttonHeight + MENU_BUTTON_PADDING + MENU_BUTTON_PADDING);
+        EnableArrowButton(self.PageNav.LeftArrow, false);
+        EnableArrowButton(self.PageNav.RightArrow, false);
         return
     end
 
     EnableArrowButton(self.PageNav.LeftArrow, page > 1);
     EnableArrowButton(self.PageNav.RightArrow, page < self.maxPage);
 
-    local buttonWidth = self.buttonWidth;
-    local buttonHeight = self.buttonHeight;
     local selectedID = self:UpdateSelectedID();
     local fitWidth = menuData.fitWidth == true;
     local autoScaling = menuData.autoScaling == true;
     local matchFound = selectedID == nil;
     local textWidth;
     local maxTextWidth = 0;
-    local menuWidth = self.menuWidth;
     local fromIndex = (page - 1) * MAX_BUTTON_PER_PAGE;
 
     self:Release();
@@ -528,6 +541,8 @@ local function CreateDropdownMenu(parent)
     f:SetScript("OnEvent", f.OnEvent);
     f:UpdatePixel();
     addon.PixelUtil:AddPixelPerfectObject(f);
+
+    f.NoContentAlert:SetText(addon.L["No Available Choice"]);
 
 
     --Scroll on the DropdownButton will propagate to the menu

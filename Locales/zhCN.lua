@@ -102,6 +102,7 @@ L["Move Position"] = "移动";
 L["Reset Position"] = "重置位置";
 L["Drag To Move"] = "左键点击并拖拽以移动该窗口。";
 L["Middle Click To Reset Position"] = "中键点击以重置位置。";
+L["No Available Choice"] = "无有效选项";
 
 L["Quest"] = "任务";
 L["Gossip"] = "对话";
