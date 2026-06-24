@@ -23,11 +23,11 @@ local DEFAULT_FONT_FILE = {
     russian = "Interface/AddOns/DialogueUI/Fonts/frizqt___cyr.ttf",
 };
 
-local NUMBER_FONT_FILE = {
+local NUMBER_FONT_FILE = { -- Number12Font
     roman = "Interface/AddOns/DialogueUI/Fonts/ARIALN.ttf",
     korean = "Fonts/2002.TTF",
     simplifiedchinese = "Fonts/ARHei.ttf",
-    traditionalchinese = "Fonts/arheiuhk_bd.TTF",
+    traditionalchinese = "Fonts/bHEI01B.TTF",
     russian = "Interface/AddOns/DialogueUI/Fonts/ARIALN.ttf",
 };
 
