@@ -32,6 +32,8 @@ local AutoSelectGossip = {
     [136141] = 1,           --(Quest) I'll help you restore the ley lines... and show these cultists a thing or two!
     [135811] = 1,           --(Delve) Drink this if the Bound Loa gets close? But what's it taste like?
     [134669] = 1,           --(Quest) I'll take the devices into the portal and shut them down!
+    [135239] = 1,           --(Quest) Alright... pardon! I'll just step around you...
+    [138009] = 1,           --(Quest) I will re-align the conduits and restore the energy.
 
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra

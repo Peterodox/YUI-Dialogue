@@ -2007,7 +2007,11 @@ do  --DropdownButton
 
     function DUIDialogSettingsDropdownButtonMixin:SetValueTextByID(id)
         if self.valueTextFormatter then
-            self.valueTextFormatter(self, self.choices[id].dbValue, INPUT_DEVICE_GAME_PAD);
+            if self.choices and self.choices[id] then
+                self.valueTextFormatter(self, self.choices[id].dbValue, INPUT_DEVICE_GAME_PAD);
+            else
+                self.ValueText:SetText("-"); -- Invalid Choice
+            end
         else
             self.ValueText:SetText(id);
         end

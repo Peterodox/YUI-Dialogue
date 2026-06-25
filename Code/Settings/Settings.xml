@@ -150,6 +150,13 @@
                     </Anchors>
                 </Texture>
             </Layer>
+            <Layer level="OVERLAY">
+                <FontString parentKey="NoContentAlert" inherits="DUIFont_MenuButton_Normal" justifyH="CENTER" justifyV="MIDDLE" hidden="true">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeKey="$parent" relativePoint="CENTER" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
         </Layers>
         <Frames>
             <Frame parentKey="BottomShadow" useParentLevel="true">

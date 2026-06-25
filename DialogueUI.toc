@@ -1,5 +1,5 @@
 ## X-Expansion: MAINLINE
-## Interface: 120005, 120007
+## Interface: 120007, 120100
 ## Version: 1.0.4
 
 ## Title: Dialogue UI
