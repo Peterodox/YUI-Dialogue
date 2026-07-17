@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v1.0.4 c";
-local VERSION_DATE = 1779600000;
+local VERSION_TEXT = "v1.0.4 e";
+local VERSION_DATE = 1784200000;
 
 
 local addonName, addon = ...
@@ -239,6 +239,7 @@ do
     addon.IS_CATA = currentToCVersion >= 40400 and currentToCVersion < 50000;
     addon.IS_MIDNIGHT = currentToCVersion >= 120000;
     addon.IS_TBC = C_AddOns.GetAddOnMetadata(addonName, "X-Expansion") == "TBC";
+    addon.IS_VANILLA = C_AddOns.GetAddOnMetadata(addonName, "X-Expansion") == "VANILLA";
 end
 
 

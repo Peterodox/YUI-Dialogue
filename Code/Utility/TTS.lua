@@ -46,8 +46,8 @@ local TTSButtonMixin = {};
 
 
 local C_VoiceChat_SpeakText;
-if addon.IS_MIDNIGHT then
-    TTSUtil.IS_MIDNIGHT = true;
+if not addon.IS_VANILLA then
+    TTSUtil.USE_NEW_API = true;
     C_VoiceChat_SpeakText = C_VoiceChat.SpeakText;
 else
     C_VoiceChat_SpeakText = function(voiceID, text, rate, volume, allowOverlappedSpeech)
@@ -81,7 +81,7 @@ end
 function TTSUtil:TryStopSpeaking()
     if self:IsSpeaking() then
         C_VoiceChat.StopSpeakingText();
-        if self.IS_MIDNIGHT then
+        if self.USE_NEW_API then
             self:VOICE_CHAT_TTS_PLAYBACK_FINISHED();
         end
     end
@@ -336,7 +336,8 @@ end
 
 function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_STARTED(arg1, utteranceID, durationMS, destination)
     --durationMS is zero?
-    if self.IS_MIDNIGHT then
+    --print(arg1, utteranceID, durationMS, destination)
+    if self.USE_NEW_API then
         --utteranceID is the only payload in Midnight
         self.utteranceID = arg1;
     else
@@ -725,7 +726,9 @@ do  --Voice List
         local volume = self.defaultVolume or C_TTSSettings.GetSpeechVolume();
 
         self.pendingFunc = function()
-            C_VoiceChat_SpeakText(voiceID, TEXT_TO_SPEECH_SAMPLE_TEXT, rate, volume);
+            self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
+            local allowOverlappedSpeech = false;
+            C_VoiceChat_SpeakText(voiceID, TEXT_TO_SPEECH_SAMPLE_TEXT, rate, volume, allowOverlappedSpeech);
         end
 
         self.t = -0.2;
