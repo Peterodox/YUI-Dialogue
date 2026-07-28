@@ -287,6 +287,10 @@ end
 
 
 function DUIDialogSettingsMixin:DisplayOptionInfo(optionData, choiceTooltip)
+    if not optionData then
+        optionData = {};
+    end
+
     local hasPreview;
 
     if optionData.preview then
@@ -1427,6 +1431,7 @@ end
 function DUIDialogSettingsOptionMixin:OnLeave()
     if not self:IsMouseOver() then
         MainFrame:HighlightButton(nil);
+        MainFrame:DisplayOptionInfo();
     end
 end
 
