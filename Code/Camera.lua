@@ -940,6 +940,9 @@ end
 
 
 do  --DynamicCam
+    -- Note: Currently it's impossible to let DynamicCam's NPC Interaction situation (situationID = "300") to take over the camera movement.
+    -- Because DynamicCam tracks the visibility of QuestFrame and GossipFrame, and DUI nullifies these two frames.
+
     local function CheckRequiredMethods()
         if not (C_AddOns.IsAddOnLoaded("DynamicCam") and DynamicCam) then return end;
 
