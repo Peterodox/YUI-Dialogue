@@ -1080,3 +1080,10 @@ do  --Update Parameters Based On Player Form
         self.updator:SetScript("OnUpdate", Updator_OnUpdate);
     end
 end
+
+
+do  --Disable EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED due to 12.1.0 changes
+    if GameEvent and GameEvent.UnregisterInternalEvent then
+        GameEvent.UnregisterInternalEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");
+    end
+end
