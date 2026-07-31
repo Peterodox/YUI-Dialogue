@@ -121,9 +121,8 @@ local function OnClickFunc_SelectOption(gossipButton)
     gossipButton.owner:SetConsumeGossipClose(false);
     gossipButton.owner:SetSelectedGossipIndex(gossipButton.id);     --For Dialogue History: Grey out other buttons
 
-    --Classic
-    if gossipButton.isSpecialIcon or GossipDataProvider:DoesOptionOpenUI(gossipButton.gossipOptionID) then
-        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+    if gossipButton.shouldShowUIOnClick or GossipDataProvider:DoesOptionOpenUI(gossipButton.gossipOptionID) then
+        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true); -- Some UI breaks if shown while UIParent is hidden
     end
 
     C_GossipInfo.SelectOptionByIndex(gossipButton.id);
@@ -363,6 +362,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self.gossipOptionID = data.gossipOptionID;
 
     local name = GossipDataProvider:GetOverrideName(self.gossipOptionID) or data.name;
+    local shouldShowUIOnClick;
 
     local hasColor = false;
     name, hasColor = ThemeUtil:AdjustTextColor(name);
@@ -372,6 +372,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     elseif data.flags == 1 then
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Quest"));
     elseif data.flags == 4 or data.flags == 5 then
+        shouldShowUIOnClick = true;
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Movie"));
     else
         if data.overrideIconID then
@@ -397,8 +398,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self:SetButtonArt(0);
     self:Enable();
 
-    --Classic
-    self.isSpecialIcon = data.icon ~= 132053;
+    self.shouldShowUIOnClick = shouldShowUIOnClick or data.icon ~= 132053; --Classic Trainer
 end
 
 function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
@@ -422,7 +422,7 @@ function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
     self:SetButtonText(name, false);
     self:SetButtonArt(0);
     self:Enable();
-    self.isSpecialIcon = false;
+    self.shouldShowUIOnClick = false;
 end
 
 function DUIDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
