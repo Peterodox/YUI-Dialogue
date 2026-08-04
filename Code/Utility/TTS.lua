@@ -200,6 +200,7 @@ function TTSUtil:SpeakText(segment)
     self:RegisterEvent("VOICE_CHAT_TTS_PLAYBACK_STARTED");
     local allowOverlappedSpeech = false;
     C_VoiceChat_SpeakText(segment.voiceID, segment.text, self.rate, self.volume, allowOverlappedSpeech);
+    self.nextSegment = nil;
 end
 
 function TTSUtil:ReadCurrentDialogue(fromAutoPlay)
@@ -369,7 +370,7 @@ function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_FINISHED(numConsumers, utteranceID, des
 end
 
 function TTSUtil:StopLastTTS()
-    if self.utteranceID then
+    if self.utteranceID or self.queue or self.nextSegment then
         self:Clear();
     end
 end
