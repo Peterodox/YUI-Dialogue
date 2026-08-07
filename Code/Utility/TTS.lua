@@ -369,7 +369,7 @@ function TTSUtil:VOICE_CHAT_TTS_PLAYBACK_FINISHED(numConsumers, utteranceID, des
 end
 
 function TTSUtil:StopLastTTS()
-    if self.utteranceID then
+    if self.utteranceID or self.queue or self.nextSegment then
         self:Clear();
     end
 end
