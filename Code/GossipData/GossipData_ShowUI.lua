@@ -22,6 +22,8 @@ local ShowUIGossip = {
     [136916] = true,    --Delver's Guide (Show UI immediately otherwise Journey UI won't open Delves)
     [138803] = true,    --<Peruse its pages.> Index of Anguish
     [138824] = true,    --Ritual Site Reports
+    [139923] = true,    --<Review information on your current delve progress.> (Season 2)
+    [141839] = true,    --<Recite from the Corrosive Codex.>
 };
 
 function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)
@@ -32,15 +34,19 @@ function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)
     return gossipOptionID and ShowUIGossip[gossipOptionID] == true
 end
 
-if PetStableFrame then
+if true then -- PetStableFrame
     --Classic: PetStableFrame and ClassTrainerFrame become unresponsive if then are brought up when IsVisible() == false
+    --Retail:  12.1 Altar of Corrosion requires the UI to be shown.
+
     local ShoUIInteractType = {
         ["Cursor Stablemaster"] = true,
         ["Cursor Trainer"] = true,
+        ["Cursor Crosshair_Trainer_64"] = true,
     };
 
     function GossipDataProvider:DoesOptionOpenUI(gossipOptionID)
         local interactType = GetInteractType("npc");
+
         if interactType and ShoUIInteractType[interactType] then
             return true
         end

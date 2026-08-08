@@ -121,9 +121,8 @@ local function OnClickFunc_SelectOption(gossipButton)
     gossipButton.owner:SetConsumeGossipClose(false);
     gossipButton.owner:SetSelectedGossipIndex(gossipButton.id);     --For Dialogue History: Grey out other buttons
 
-    --Classic
-    if gossipButton.isSpecialIcon or GossipDataProvider:DoesOptionOpenUI(gossipButton.gossipOptionID) then
-        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+    if gossipButton.shouldShowUIOnClick or GossipDataProvider:DoesOptionOpenUI(gossipButton.gossipOptionID) then
+        CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true); -- Some UI breaks if shown while UIParent is hidden
     end
 
     C_GossipInfo.SelectOptionByIndex(gossipButton.id);
@@ -363,6 +362,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self.gossipOptionID = data.gossipOptionID;
 
     local name = GossipDataProvider:GetOverrideName(self.gossipOptionID) or data.name;
+    local shouldShowUIOnClick;
 
     local hasColor = false;
     name, hasColor = ThemeUtil:AdjustTextColor(name);
@@ -372,6 +372,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     elseif data.flags == 1 then
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Quest"));
     elseif data.flags == 4 or data.flags == 5 then
+        shouldShowUIOnClick = true;
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Movie"));
     else
         if data.overrideIconID then
@@ -397,8 +398,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self:SetButtonArt(0);
     self:Enable();
 
-    --Classic
-    self.isSpecialIcon = data.icon ~= 132053;
+    self.shouldShowUIOnClick = shouldShowUIOnClick or data.icon ~= 132053; --Classic Trainer
 end
 
 function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
@@ -422,7 +422,7 @@ function DUIDialogOptionButtonMixin:SetGossipHint(data, hotkey)
     self:SetButtonText(name, false);
     self:SetButtonArt(0);
     self:Enable();
-    self.isSpecialIcon = false;
+    self.shouldShowUIOnClick = false;
 end
 
 function DUIDialogOptionButtonMixin:FlagAsPreviousGossip(selectedGossipID)
@@ -1441,6 +1441,28 @@ function DUIDialogItemButtonMixin:UpdatePixel(scale)
     API.UpdateTextureSliceScale(self.ItemBorder);
 end
 
+local function CanPreviewLink(link)
+    if not link then return false; end
+
+    if API.IsDressableItem(link) then
+        return true
+    else
+        local itemID = C_Item.GetItemIDForItemInfo(link);
+        if itemID then
+            local canPreview;
+            if C_Item.IsDecorItem and C_Item.IsDecorItem(link) then
+                canPreview = true;
+            elseif C_MountJournal and C_MountJournal.GetMountFromItem and C_MountJournal.GetMountFromItem(itemID) then
+                canPreview = true;
+            elseif C_PetJournal and C_PetJournal.GetPetInfoByItemID then
+                local _, _, _, creatureID, _, _, _, _, _, _, _, displayID = C_PetJournal.GetPetInfoByItemID(itemID);
+                canPreview = creatureID and displayID and true;
+            end
+            return canPreview
+        end
+    end
+end
+
 function DUIDialogItemButtonMixin:OnClick(button)
     if button == "RightButton" and addon.GetDBBool("RightClickToCloseUI") then
         addon.DialogueUI:Hide();
@@ -1463,11 +1485,7 @@ function DUIDialogItemButtonMixin:OnClick(button)
                     return
                 end
             elseif modifiedAction == 2 then
-                if API.IsDressableItem(link) then
-                    CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
-                    DressUpVisual(link);
-                    return
-                elseif C_Item.IsDecorItem and C_Item.IsDecorItem(link) then
+                if CanPreviewLink(link) then
                     CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
                     DressUpLink(link);
                     return
@@ -1899,15 +1917,7 @@ function DUIDialogItemButtonMixin:OnEnter()
     local canPreviewLink;
     local link = self.objectType == "item" and GetQuestItemLink(self.type, self.index);
 
-    if link then
-        if API.IsDressableItem(link) then
-            canPreviewLink = true;
-        elseif C_Item.IsDecorItem and C_Item.IsDecorItem(link) then
-            canPreviewLink = true;
-        end
-    end
-
-    if canPreviewLink then
+    if CanPreviewLink(link) then
         self:RegisterEvent("MODIFIER_STATE_CHANGED");
         self:SetScript("OnEvent", self.OnEvent);
         if IsControlKeyDown() then
