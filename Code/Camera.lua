@@ -55,6 +55,15 @@ local IsDynamicFlying; -- Avoid changing FOV when mounted to prevent FOV stuck a
 if CameraUtil.isMidnight then
     SetUIVisibility = function(state)
         UIParent:SetShown(state);
+        --[[
+        if state then
+            UIParent:SetAlpha(1);
+            Minimap:Show();
+        else
+            UIParent:SetAlpha(0);
+            Minimap:Hide();
+        end
+        --]]
     end
 
     IsDynamicFlying = function()
@@ -1082,8 +1091,30 @@ do  --Update Parameters Based On Player Form
 end
 
 
-do  --Disable EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED due to 12.1.0 changes
+do  -- For 12.1.0: Disable EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED due to changes.
     if GameEvent and GameEvent.UnregisterInternalEvent then
         GameEvent.UnregisterInternalEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");
     end
+end
+
+
+do  -- For 12.1.0: Disable "CloseAllWindows()" for "UI.TopLevelParentShown" (See Interface/AddOns/Blizzard_Game/Shared/Game.lua)
+    -- Otherwise UIs like MerchantFrame will not appear if they are opened while the UIParent is hidden.
+    -- This approach might taint EventRegistry, but it's the best workaround for now.
+    -- Systems that uses "UI.TopLevelParentShown" seem to be of low importance:
+    -- LowHealthFrame and ActionStatus (the container that shows Screen Captured)
+
+    local function UnregisterCallbackWidthNoOwner(callbackType, event)
+        if EventRegistry.callbackTables and EventRegistry.callbackTables[callbackType] then
+            local callbacks = EventRegistry.callbackTables[callbackType][event];
+            if callbacks then
+                for owner in pairs(EventRegistry.callbackTables[callbackType][event]) do
+                    if type(owner) == "number" then
+                        callbacks[owner] = nil;
+                    end
+                end
+            end
+        end
+    end
+    UnregisterCallbackWidthNoOwner(2, "UI.TopLevelParentShown");
 end
