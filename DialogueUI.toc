@@ -1,5 +1,4 @@
-## X-Expansion: MAINLINE
-## Interface: 120100, 120105
+## Interface: 120105, 120100, 16001, 50504, 40402, 38002, 30405, 20506, 11509
 ## Version: 1.0.5
 
 ## Title: Dialogue UI

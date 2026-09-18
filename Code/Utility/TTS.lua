@@ -48,7 +48,7 @@ local TTSButtonMixin = {};
 local C_VoiceChat_SpeakText = C_VoiceChat.SpeakText;
 TTSUtil.USE_NEW_API = true;
 --[[ -- All game versions now use the same TTS API. (2026.7.28)
-if not addon.IS_VANILLA then
+if not addon.IS_CLASSIC then
     TTSUtil.USE_NEW_API = true;
     C_VoiceChat_SpeakText = C_VoiceChat.SpeakText;
 else

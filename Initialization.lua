@@ -236,13 +236,19 @@ do
     end
     addon.IsToCVersionEqualOrNewerThan = IsToCVersionEqualOrNewerThan;
 
-    addon.IS_CLASSIC = not IsToCVersionEqualOrNewerThan(100000);
-    addon.IS_CATA = currentToCVersion >= 40400 and currentToCVersion < 50000;
-    addon.IS_MIDNIGHT = currentToCVersion >= 120000;
-    addon.IS_TBC = C_AddOns.GetAddOnMetadata(addonName, "X-Expansion") == "TBC";
-    addon.IS_VANILLA = C_AddOns.GetAddOnMetadata(addonName, "X-Expansion") == "VANILLA";
-end
+    addon.IS_CLASSIC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE;
+    addon.IS_CATA = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC;
+    addon.IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and currentToCVersion >= 120000;
+    addon.IS_TBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC;
+    addon.IS_FOREVER = currentToCVersion >= 16000 and currentToCVersion < 20000;
+    addon.IS_MISTS = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC;
+    addon.IS_WRATH = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC;
 
+    addon.IS_CLASSIC = addon.IS_CLASSIC and not addon.IS_FOREVER;
+
+    -- _G.DUI_Debug = addon; -- This is for testing if version does proper checks, keep commented out otherwise:
+	-- /run print(DUI_Debug.IS_CLASSIC, DUI_Debug.IS_RETAIL, DUI_Debug.IS_FOREVER, DUI_Debug.IS_CATA, DUI_Debug.IS_TBC, DUI_Debug.IS_WRATH, DUI_Debug.IS_MISTS)
+end
 
 local function GetDBBool(dbKey)
     if DB then
