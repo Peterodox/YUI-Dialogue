@@ -3,13 +3,12 @@
 -- We use the NPC's ID to determine if teleport is available
 
 local _, addon = ...
-local L = addon.L;
-local API = addon.API;
 local GossipDataProvider = addon.GossipDataProvider;
 
 local IsTeleportNPC = {
     --[creatureID] = true,
 
+    [232267] = true,        --Delve-O-Bot 7001
     [656192] = true,        --Lightforged Beacon (12.0.7 Val)
     [231541] = true,        --Sky-Captain Cableclamp (Siren Isle to Dornogal)
     [475936] = true,        --Mole Machine Transport (Siren Isle to Gundargaz)
