@@ -956,6 +956,17 @@ function DUIDialogBaseMixin:SetQuestTextRange(questTextRange)
 end
 
 local function SortFunc_GossipOrder(a, b)
+    local override1 = GossipDataProvider:GetOverrideOrder(a.gossipOptionID);
+    local override2 = GossipDataProvider:GetOverrideOrder(b.gossipOptionID);
+
+    if override1 and override2 and override1 ~= override2 then
+        return override1 < override2;
+    elseif override1 and not override2 then
+        return true;
+    elseif (not override1) and override2 then
+        return false;
+    end
+
 	return a.orderIndex < b.orderIndex;
 end
 
@@ -987,7 +998,7 @@ local function SortFunc_GossipPrioritizeQuest(a, b)
         return a.icon ~= 132053
     end
 
-	return a.orderIndex < b.orderIndex
+	return SortFunc_GossipOrder(a, b);
 end
 addon.SortFunc_GossipPrioritizeQuest = SortFunc_GossipPrioritizeQuest;
 
