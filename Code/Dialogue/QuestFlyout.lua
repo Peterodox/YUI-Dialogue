@@ -202,7 +202,9 @@ do
             end
         end
 
-        if anyContainer then
+        if not anyContainer then
+            -- Some reward data (Prey turn-in) might not be available immediately
+            addon.CallbackRegistry:Trigger("TriggerQuestFinished", false);
         end
     end
 

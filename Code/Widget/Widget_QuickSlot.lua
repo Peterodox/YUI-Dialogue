@@ -242,7 +242,11 @@ do
 
     local CallbackRegistry = addon.CallbackRegistry;
 
+    ---@param isAutoComplete boolean `true` if the quest is auto-completed by DUIDialogBaseMixin:HandleQuestComplete()
     local function WatchQuestReward(isAutoComplete)
+        -- For isAutoComplete quest, the reward items are first tracked by QuestFlyout.
+        -- However, some reward data might not be ready right away, in such case...
+        -- QuestFlyout will call this function to track loot events.
         if MODULE_ENABLED and (not isAutoComplete) then
             QuickSlotManager:ListenLootEvent(true);
         end
