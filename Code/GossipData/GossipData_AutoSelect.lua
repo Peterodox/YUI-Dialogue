@@ -40,6 +40,10 @@ local AutoSelectGossip = {
     [139635] = 1,           --They'll never know what hit them. Artolla
     [141485] = 1,           --(Quest) Clear the pylons and destroy the eggs before they hatch. Got it.
     [140366] = 1,           --(Quest) Snakes and Toxic Clouds? Must be Ula'tek...
+    [139462] = 1,           --Rescue the elderly and grab supplies. On it!
+    [138592] = 1,           --(Delve) Never did enjoy homework.
+    [137248] = 1,           --(Quest) Release the moths near Lightbloom patches on the ground and they'll eat it. Seems easy enough.
+    [134668] = 1,           --(Delve) I can play the villain.
 
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra
