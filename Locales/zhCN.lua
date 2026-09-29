@@ -286,6 +286,8 @@ L["TTS Include Content"] = "朗读以下内容";
 L["TTS Content NPC Name"] = "NPC名字";
 L["TTS Content Quest Name"] = "任务名称";
 L["TTS Content Objective"] = "任务目标";
+L["TTS Button Read Original"] = "改为朗读原始文本";
+L["TTS Button Read Translation"] = "改为朗读翻译版本";
 
 --Book UI and Settings
 L["Readables"] = "可阅读物品";   --Readable Objects
