@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Latest releases
+    url: https://github.com/Peterodox/YUI-Dialogue/releases
+    about: Check that you are on the latest version before reporting a bug.
