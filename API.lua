@@ -3208,7 +3208,7 @@ do  -- Spell
     end
     API.GetGlyphIDForSpell = GetGlyphIDForSpell;
 
-    if addon.IsToCVersionEqualOrNewerThan(110000) then
+    if C_Spell.GetSpellInfo then
         local GetSpellInfo_Table = C_Spell.GetSpellInfo;    --{"name", "rank", "iconID", "castTime", "minRange", "maxRange", "spellID", "originalIconID"}
 
         local function GetSpellName(spellID)
