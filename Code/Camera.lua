@@ -48,7 +48,7 @@ UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EX
 local FadeHelper = CreateFrame("Frame");
 addon.UIParentFadeHelper = FadeHelper;
 
-CameraUtil.isMidnight = addon.IsToCVersionEqualOrNewerThan(120000);
+CameraUtil.isMidnight = addon.IS_MODERN;
 
 local IsDynamicFlying; -- Avoid changing FOV when mounted to prevent FOV stuck at over normal max due to Skyriding Speed Effects
 
