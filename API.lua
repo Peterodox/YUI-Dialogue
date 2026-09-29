@@ -2614,7 +2614,7 @@ do  -- Tooltip
         TP:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", 0, -128);
         TP:Show();
         TP:SetScript("OnUpdate", nil);
-        TP.shouldManuallyAddItemLevel = not addon.IsToCVersionEqualOrNewerThan(50500);
+        TP.shouldManuallyAddItemLevel = addon.IS_VANILLA or addon.IS_TBC;
 
 
         local UpdateFrame = CreateFrame("Frame");
