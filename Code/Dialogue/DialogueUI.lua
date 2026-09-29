@@ -313,7 +313,7 @@ function DUIDialogBaseMixin:OnLoad()
     --Warband Completed Alert
     local wb = headerFrame.WarbandCompleteAlert;
     self.WarbandCompleteAlert = wb;
-    wb.tooltipText = L["Quest Completed On Account"];
+    wb.tooltipText = addon.IS_RETAIL and L["Quest Completed On Account"] or L["Quest Completed On Alt"];
     wb:SetScript("OnEnter", TooltipFrame.ShowWidgetTooltip);
     wb:SetScript("OnLeave", TooltipFrame.HideTooltip);
     API.DisableSharpening(wb.Icon);

@@ -54,6 +54,7 @@ L["TTS Button Tooltip"] = "Left Click: Play/Stop Reading.\nRight Click: Toggle A
 L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
+L["Quest Completed On Alt"] = "You have previously completed this quest with another character."; -- The pre-Warband version
 L["New Quest Available"] = "New Quest Available";
 L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "Campaign";
 L["Click To Open BtWQuests"] = "Click to view this quest in BtWQuests window.";
@@ -336,6 +337,7 @@ L["Instruction Open Settings Console"] = "You can open settings by pressing [KEY
 L["Instruction Open Settings Keybind Format"] = "You can open settings by pressing [%s] when the dialogue window is active.";
 L["Instruction Open Settings No Keybind"] = "You did not set a keybind to open settings.";
 L["HelpTip Warband Completed Quest"] = "This icon indicates the quest has been completed by your Warband.";
+L["HelpTip Alt Completed Quest"] = "This icon indicates you have completed the quest with another character."; -- The pre-Warband version
 L["Got It"] = HELP_TIP_BUTTON_GOT_IT or "Got It";
 L["Open Settings"] = "Open Settings";
 

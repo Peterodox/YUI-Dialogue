@@ -345,7 +345,7 @@ end
 
 do  --Load Tips (TipPresets);
     TipPresets.WarbandCompletedQuest = {
-        helpText = L["HelpTip Warband Completed Quest"],
+        helpText = addon.IS_RETAIL and L["HelpTip Warband Completed Quest"] or L["HelpTip Alt Completed Quest"],
         event = "WarbandCompleteAlert.Show",
         helpFlag = "WarbandCompletedQuest",
     };
