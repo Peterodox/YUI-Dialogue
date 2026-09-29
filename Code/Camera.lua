@@ -915,7 +915,7 @@ do
     CallbackRegistry:Register("SettingChanged.FrameOrientation", Settings_FrameOrientation);
 
     local function Settings_HideOutlineSparkles(dbValue, userInput)
-        HIDE_SPARKLES = (dbValue == true) and addon.IsToCVersionEqualOrNewerThan(110000);
+        HIDE_SPARKLES = (dbValue == true) and addon.IS_RETAIL;  --Forever has no NPC outline for now
         if userInput and CameraUtil.isActive then
             Settings_HideUI(HIDE_UI, userInput);
             if HIDE_UI then
