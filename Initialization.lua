@@ -236,18 +236,19 @@ do
     end
     addon.IsToCVersionEqualOrNewerThan = IsToCVersionEqualOrNewerThan;
 
-    addon.IS_CLASSIC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE;
-    addon.IS_FOREVER = currentToCVersion >= 16000 and currentToCVersion < 20000; -- In future, this will be WOW_PROJECT_ID == 18
-    addon.IS_MISTS = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC;
-    addon.IS_TBC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC;
-    addon.IS_VANILLA = currentToCVersion < 20000 and not addon.IS_FOREVER;
-    addon.IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and currentToCVersion >= 120000;
-    addon.IS_CATA = currentToCVersion >= 40400 and currentToCVersion < 50000;
-    addon.IS_MIDNIGHT = currentToCVersion >= 120000;
+    local game = C_AddOns.GetAddOnMetadata(addonName, "X-Game");
 
-    -- Family checks, distinguish forever from classic and modern (Standard & Forever) have Secrets, etc.
-    addon.IS_CLASSIC = addon.IS_CLASSIC and not addon.IS_FOREVER;
+    -- TODO: "Camelot" / WOW_PROJECT_CAMELOT will be renamed to "Forever"
+    addon.IS_FOREVER = game == "Camelot" or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT;
+    addon.IS_MISTS = game == "Mists" or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC;
+    addon.IS_TBC = game == "TBC" or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC;
+    addon.IS_VANILLA = game == "Vanilla" or WOW_PROJECT_ID == WOW_PROJECT_CLASSIC;
+    addon.IS_RETAIL = game == "Standard" or WOW_PROJECT_ID == WOW_PROJECT_MAINLINE;
+    addon.IS_CATA = game == "Cata" or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC;
+
+    -- Modern (Standard & Forever) have Secrets, etc.
     addon.IS_MODERN = addon.IS_RETAIL or addon.IS_FOREVER;
+    addon.IS_CLASSIC = not addon.IS_MODERN;
 end
 
 

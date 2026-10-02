@@ -2,7 +2,7 @@
 
 
 local _, addon = ...
-if not addon.IS_MIDNIGHT then return end;
+if not addon.IS_RETAIL then return end;
 
 
 local QuestAreaTrigger = addon.QuestAreaTrigger;
