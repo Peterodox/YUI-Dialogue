@@ -1,7 +1,7 @@
 if not (C_RaidLocks and C_LFGInfo and EJ_GetEncounterInfo) then return end;
 
 local _, addon = ...
-if not addon.IsToCVersionEqualOrNewerThan(100000) then return end;
+if not addon.IS_RETAIL then return end;
 
 local IsEncounterComplete = C_RaidLocks.IsEncounterComplete;        --RequestRaidInfo(), UPDATE_INSTANCE_INFO
 local GetDungeonInfo = C_LFGInfo.GetDungeonInfo;

@@ -733,7 +733,21 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
     self.hyperlink = tooltipData.hyperlink;
 
     self:RegisterEvent("TOOLTIP_DATA_UPDATE");
-    self:ProcessTooltipDataLines(tooltipData.lines, 1);
+
+    local lines = tooltipData.lines;
+    if addon.IS_FOREVER and tooltipData.isItem then
+        --Forever's tooltip data has no item level line, so we add it below the item name
+        local link = tooltipData.hyperlink;
+        local itemLevel = link and API.IsEquippableItem(link) and API.GetItemLevel(link);
+        if itemLevel and itemLevel > 0 then
+            lines = {lines[1], {leftText = L["Format Item Level"]:format(itemLevel), leftColor = CreateColor(1, 0.82, 0)}};
+            for i = 2, #tooltipData.lines do
+                lines[i + 1] = tooltipData.lines[i];
+            end
+        end
+    end
+
+    self:ProcessTooltipDataLines(lines, 1);
 
     if tooltipData.isItem then
         self:ShowItemComparison();

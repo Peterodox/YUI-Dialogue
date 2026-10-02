@@ -35,7 +35,7 @@ local READING_SPEED_LETTER = 180 * 5;   --WPM * avg. word length
 local AUTOHIDE_DELAY_MIN = 5;
 local REQUERY_DELAY = 0.5;              --Increased to 1.0 on Classic
 
-if not addon.IsToCVersionEqualOrNewerThan(110000) then
+if not addon.IS_MODERN then
     REQUERY_DELAY = 1.0;
 end
 

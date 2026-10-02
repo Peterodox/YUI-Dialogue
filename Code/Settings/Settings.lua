@@ -547,7 +547,7 @@ local function ChatWindowTooltip()
 end
 
 local function OutlineSparklesSupported_Validation()
-    return addon.IsToCVersionEqualOrNewerThan(110000)
+    return addon.IS_RETAIL  --Forever has no NPC outline for now
 end
 
 local function UseItemHotkey_Tooltip()

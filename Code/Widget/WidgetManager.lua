@@ -802,7 +802,7 @@ do  --Loot Message Processor
         end
     end
 
-    if addon.IsToCVersionEqualOrNewerThan(100000) then
+    if addon.IS_MODERN then
         LootMessageProcessorMixin.CHAT_MSG_LOOT = LootMessageProcessorMixin.CHAT_MSG_LOOT_RETAIL;
     else
         LootMessageProcessorMixin.CHAT_MSG_LOOT = LootMessageProcessorMixin.CHAT_MSG_LOOT_CLASSIC;

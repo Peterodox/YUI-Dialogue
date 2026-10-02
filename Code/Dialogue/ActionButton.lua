@@ -24,7 +24,6 @@ end
 local SecureButtonContainer = CreateFrame("Frame");
 SecureButtonContainer:Hide();
 addon.SecureButtonContainer = SecureButtonContainer;
---SecureButtonContainer.isMidnight = addon.IsToCVersionEqualOrNewerThan(120000);    --debug
 
 function SecureButtonContainer:CollectButton(button)
     if not InCombatLockdown() then
@@ -358,29 +357,3 @@ local function AcquireSecureActionButton(privateKey)
     end
 end
 addon.AcquireSecureActionButton = AcquireSecureActionButton;
-
-
-
-
---[[
-if addon.IsToCVersionEqualOrNewerThan(110000) then
-    --TWW: MacroText is banned
-    --Update: Unbanned
-
-    function SecureButtonMixin:SetUseItemByName(itemName, mouseButton)
-        if itemName then
-            self:SetTriggerMouseButton(mouseButton, "item");
-            self:SetAttribute("item", itemName);
-        end
-    end
-
-    function SecureButtonMixin:SetUseItemByID(itemID, mouseButton, itemName)
-        if itemID then
-            if (not itemName) or itemName == "" then
-                itemName = GetItemNameByID(itemID);
-            end
-            self:SetUseItemByName(itemName, mouseButton);
-        end
-    end
-end
---]]
