@@ -1908,6 +1908,15 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         local title = GetAvailableTitle(i);
         local isTrivial, frequency, isRepeatable, isLegendary, questID = GetAvailableQuestInfo(i);
 
+        if type(frequency) == "number" then
+            -- For Retail Enum.QuestFrequency.Daily = 1
+            -- For Classic LE_QUEST_FREQUENCY_DAILY = 2
+            -- Not many quests use QUEST_GREETING in Retail,
+            -- so we can't confirm if the frequency from GetAvailableQuestInfo and C_GossipInfo.GetAvailableQuests are the same.
+            -- Let's assume they are not
+            frequency = frequency - 1;
+        end
+
         local questInfo = {
             index = i,
             title = title,

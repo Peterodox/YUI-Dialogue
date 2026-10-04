@@ -1084,7 +1084,7 @@ do  -- Quest
         API.GetAvailableQuestInfo = GetAvailableQuestInfo;
     else
         API.GetAvailableQuestInfo = function()
-            return false, 0, false, false, 0
+            return false, 1, false, false, 0
         end
     end
 
