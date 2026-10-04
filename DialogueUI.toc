@@ -1,13 +1,13 @@
 ## Interface: 120100, 120105, 50504, 20506, 11509, 16001
 ## X-Game: [Game]
 ## X-Family: [Family]
-## Version: 1.0.5 g
+## Version: 1.0.6
 
 ## Title: Dialogue UI
 
 ## Notes: Quest Dialogue UI
 
-## Author: Peterodox
+## Author: Raenore, Peterodox
 ## SavedVariables: DialogueUI_DB, DialogueUI_Saves
 
 ## IconTexture: Interface\AddOns\DialogueUI\Art\Icons\Logo
