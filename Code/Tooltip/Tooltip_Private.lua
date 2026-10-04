@@ -740,10 +740,8 @@ function SharedTooltip:ProcessTooltipData(tooltipData)
         local link = tooltipData.hyperlink;
         local itemLevel = link and API.IsEquippableItem(link) and API.GetItemLevel(link);
         if itemLevel and itemLevel > 0 then
-            lines = {lines[1], {leftText = L["Format Item Level"]:format(itemLevel), leftColor = CreateColor(1, 0.82, 0)}};
-            for i = 2, #tooltipData.lines do
-                lines[i + 1] = tooltipData.lines[i];
-            end
+            lines = {unpack(lines)};    --Copy the lines, so the stored tooltip data isn't modified
+            table.insert(lines, 2, {leftText = L["Format Item Level"]:format(itemLevel), leftColor = CreateColor(1, 0.82, 0)});
         end
     end
 
