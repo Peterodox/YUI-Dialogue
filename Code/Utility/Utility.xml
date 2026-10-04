@@ -7,6 +7,7 @@
     <Script file="TTS.lua"/>
     <Script file="ActionThrottler.lua"/>
     <Script file="Keybindings.lua"/>
+    <Script file="QuestMuter.lua"/>
     <!--Script file="InteractionManager.lua"/-->
     <Script file="DevTool.lua"/>
 

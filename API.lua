@@ -1509,15 +1509,6 @@ do  -- Quest
     end
     API.GetRecurringQuestTimeLeft = GetRecurringQuestTimeLeft;
 
-    local function ShouldMuteQuestDetail(questID)
-        --Fix for WoW offering a quest that you're ready on
-        if IsOnQuest(questID) then
-            return true
-        else
-            return false
-        end
-    end
-    API.ShouldMuteQuestDetail = ShouldMuteQuestDetail;
 
     do
         --Replace player name with RP name:
