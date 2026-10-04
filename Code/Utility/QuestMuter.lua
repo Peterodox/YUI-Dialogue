@@ -1,11 +1,11 @@
--- Fix for WoW repeatedly offering a quest that you're ready on, such as:
+-- Fix for WoW repeatedly offering a quest that you're already on, such as:
 -- (in TWW, possibly fixed now) Certain weekly quests popped up when you flew around.
--- "A New Adventure Awaits": When you reach Chromie Time level cap.
+-- "A New Adventure Awaits": When you reach the Chromie Time level cap.
 -- The incident seems rare and usually goes away after /reload. But it can be quite annoying when it happens, as our UI constantly shows/hides.
 
 -- The fix: after QUEST_DETAIL fires, check if the quest is already accepted.
 -- The catch: certain auto-accepted quests (like the ones in starting zones post CATA), can become "isOnQuest == true" before QUEST_DETAIL fires if the quest data is yet loaded during the game session.
--- so we track when the quest was accepted, and ignore those that have been accepted long before.
+-- so we track when the quest was accepted and ignore those that have been accepted long before.
 
 
 local _, addon = ...
