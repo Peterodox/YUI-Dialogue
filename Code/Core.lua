@@ -46,15 +46,10 @@ local MapEvents = {
 
 local CloseDialogEvents = {};
 
-if not addon.IsToCVersionEqualOrNewerThan(50000) then
-    local ClassicEvents = {
-        "CONFIRM_TALENT_WIPE", "CONFIRM_TALENT_WIPE",
-    };
-
-    for _, event in ipairs(ClassicEvents) do
-        table.insert(GossipEvents, event);
-        CloseDialogEvents[event] = true;
-    end
+if C_EventUtils.IsEventValid("CONFIRM_TALENT_WIPE") then
+    --Talent reset at class trainers: close our UI so the confirmation popup shows
+    table.insert(GossipEvents, "CONFIRM_TALENT_WIPE");
+    CloseDialogEvents["CONFIRM_TALENT_WIPE"] = true;
 end
 
 local DeclinedQuests = {};
@@ -390,10 +385,10 @@ do  --Unlisten events from default UI
         PORTRAITS_UPDATED = true,
     };
 
-    if addon.IsToCVersionEqualOrNewerThan(50000) then
+    if C_EventUtils.IsEventValid("LEARNED_SPELL_IN_SKILL_LINE") then
         Muter.questEvents.LEARNED_SPELL_IN_SKILL_LINE = true;
-    else
-        Muter.questEvents.LEARNED_SPELL_IN_TAB = true;            --Classic
+    elseif C_EventUtils.IsEventValid("LEARNED_SPELL_IN_TAB") then
+        Muter.questEvents.LEARNED_SPELL_IN_TAB = true;            --Old Classic
     end
 
     local function SetUseDialogueUI(state)

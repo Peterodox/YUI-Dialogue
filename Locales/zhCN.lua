@@ -54,6 +54,7 @@ L["TTS Button Tooltip"] = "左键点击： 播放/停止阅读\n右键点击： 
 L["Item Is An Upgrade"] = "这件装备对你有提升";
 L["Identical Stats"] = "这两件装备的属性相同";
 L["Quest Completed On Account"] = "你的战团此前已经完成了这个任务。";
+L["Quest Completed On Alt"] = "你已用其他角色完成了这个任务。"; -- The pre-Warband version
 L["New Quest Available"] = "发现新任务";
 L["Campaign Quest"] =  "战役";
 L["Click To Open BtWQuests"] = "点击以在BtWQuests窗口中查看此任务。";
@@ -285,6 +286,8 @@ L["TTS Include Content"] = "朗读以下内容";
 L["TTS Content NPC Name"] = "NPC名字";
 L["TTS Content Quest Name"] = "任务名称";
 L["TTS Content Objective"] = "任务目标";
+L["TTS Button Read Original"] = "改为朗读原始文本";
+L["TTS Button Read Translation"] = "改为朗读翻译版本";
 
 --Book UI and Settings
 L["Readables"] = "可阅读物品";   --Readable Objects
@@ -334,6 +337,7 @@ L["Instruction Open Settings Console"] = "在对话界面可见时按 [KEY:PC:F1
 L["Instruction Open Settings Keybind Format"] = "在对话界面可见时按 [%s] 来打开设置";
 L["Instruction Open Settings No Keybind"] = "你未设定打开设置界面的快捷键";
 L["HelpTip Warband Completed Quest"] = "这个图标表示你战团里的角色完成过此任务。";
+L["HelpTip Alt Completed Quest"] = "这个图标表示你已用其他角色完成过此任务。"; -- The pre-Warband version
 L["Got It"] = "我悟了";     --HELP_TIP_BUTTON_GOT_IT
 L["Open Settings"] = "打开设置界面";
 

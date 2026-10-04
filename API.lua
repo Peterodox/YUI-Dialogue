@@ -2614,7 +2614,7 @@ do  -- Tooltip
         TP:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", 0, -128);
         TP:Show();
         TP:SetScript("OnUpdate", nil);
-        TP.shouldManuallyAddItemLevel = not addon.IsToCVersionEqualOrNewerThan(50500);
+        TP.shouldManuallyAddItemLevel = addon.IS_VANILLA or addon.IS_TBC;
 
 
         local UpdateFrame = CreateFrame("Frame");
@@ -3208,7 +3208,7 @@ do  -- Spell
     end
     API.GetGlyphIDForSpell = GetGlyphIDForSpell;
 
-    if addon.IsToCVersionEqualOrNewerThan(110000) then
+    if C_Spell.GetSpellInfo then
         local GetSpellInfo_Table = C_Spell.GetSpellInfo;    --{"name", "rank", "iconID", "castTime", "minRange", "maxRange", "spellID", "originalIconID"}
 
         local function GetSpellName(spellID)
