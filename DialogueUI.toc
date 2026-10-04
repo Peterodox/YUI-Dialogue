@@ -1,7 +1,7 @@
 ## Interface: 120100, 120105, 50504, 20506, 11509, 16001
 ## X-Game: [Game]
 ## X-Family: [Family]
-## Version: 1.0.5
+## Version: 1.0.5 g
 
 ## Title: Dialogue UI
 
