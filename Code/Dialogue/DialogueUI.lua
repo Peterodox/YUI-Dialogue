@@ -247,6 +247,10 @@ function DUIDialogBaseMixin:UpdateFrameSize()
     self.ContentFrame:SetPoint("BOTTOMRIGHT", self.ScrollFrame, "BOTTOMRIGHT", 0, 0);
     self.contentWidth = contentWidth;
 
+    --Force UseQuestLayout and SetScrollable to re-apply (frame may be hidden, so no handler re-run)
+    self.questLayout = nil;
+    self.ContentFrame.scrollable = nil;
+
     self.InputBox:ClearAllPoints();
     self.InputBox:SetPoint("LEFT", self, "LEFT", PADDING_H, 0);
     self.InputBox:SetPoint("RIGHT", self, "RIGHT", -PADDING_H, 0);
@@ -898,7 +902,7 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ContentFrame:SetPoint("TOPLEFT", self.ScrollFrame.ScrollChild, "TOPLEFT", 0, 0);
         self.ContentFrame:SetWidth(self.contentWidth);
 
-    elseif (not scrollable) and (self.ContentFrame.scrollable or forceUpdate) then
+    elseif (not scrollable) and (self.ContentFrame.scrollable ~= false or forceUpdate) then
         self.ContentFrame.scrollable = false;
         self.ContentFrame:ClearAllPoints();
         self.ContentFrame:SetParent(self);
