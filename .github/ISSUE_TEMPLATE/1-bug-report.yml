@@ -1,0 +1,124 @@
+name: Bug Report
+description: Create a report to help us improve
+title: "[BUG]: "
+labels: ["bug", "needs triage"]
+body:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: dropdown
+    id: flavors
+    attributes:
+      label: WoW flavor(s)
+      description: Select every flavor where you've seen this bug. If you've only tested one, just pick that one.
+      multiple: true
+      options:
+        - Retail
+        - Forever
+        - Classic (Era)
+        - Classic TBC
+        - MoP Classic
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Dialogue UI version
+      description: |
+        The version shown in the addon list or on CurseForge/Wago.
+        Latest version: https://www.curseforge.com/wow/addons/dialogueui/files
+      placeholder: e.g. 1.0.5
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      description: Which part of Dialogue UI is affected? Pick "Not sure" if unsure.
+      options:
+        - Quest dialogue
+        - Gossip / NPC interaction
+        - Books / readable items
+        - Tooltips / item comparison
+        - Other UI elements (quick slot, settings, etc.)
+        - Audio / Text-to-Speech
+        - Controls (keyboard, mouse, gamepad)
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: npc
+    attributes:
+      label: NPC / quest / item involved
+      description: If it only happens with a specific NPC, quest, or item, tell us which (name and zone, or a Wowhead link).
+      placeholder: e.g. Skyriding race NPC in Valdrakken
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Current Behavior
+      description: A concise description of what you're experiencing.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Issue checklist
+      description: Please select any applicable options.
+      options:
+        - label: The issue occurs with the latest version of the addon.
+        - label: The issue occurs with Dialogue UI as the only enabled addon.
+        - label: The issue occurs only with other addon(s) enabled (please list them below).
+        - label: The issue does not occur with Dialogue UI disabled.
+  - type: textarea
+    id: other-addons
+    attributes:
+      label: Other addons involved
+      description: If the issue only happens alongside other addons (especially UI suites, unit frames, minimap or tooltip addons), list them here.
+      placeholder: e.g. ElvUI, Danders Frames, BasicMinimap
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Talk to '....'
+        3. Click on '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: lua-error
+    attributes:
+      label: Lua error
+      description: |
+        If you got a Lua error, paste the full text here, including locals if available. It will be formatted as code automatically.
+        To capture errors, we recommend BugSack: https://www.curseforge.com/wow/addons/bugsack
+        If the error mentions "Interface action failed because of an AddOn", please say so in the description.
+      render: text
+    validations:
+      required: false
+  - type: upload
+    id: attachments
+    attributes:
+      label: Attach files (screenshots, videos, crash logs)
+      description: Upload any relevant files such as screenshots, videos, or crash logs.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any extra context about the issue or the attached files.
+    validations:
+      required: false
