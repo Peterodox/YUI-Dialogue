@@ -11,28 +11,47 @@ local TEXTURE_PATH;
 local THEME_ID;
 
 
-local function AdjustRedText(text)
-    local count;
-    text, count = gsub(text, "|[cC][fF][fF][fF][fF]0000", "|cff9B2020");
+local ColorAdjustment = {
+    ---Used to replace Red for Brown theme
+    Red = {
+        pattern = {
+            "|cnRED_FONT_COLOR:",
+            "|cnWARNING_FONT_COLOR:",
+            "|[cC][fF][fF][fF][fF]0000",
+            "|[cC][fF][fF][fF][fF]4040",
+        },
+        replaceBy = "|cff9B2020",
+    },
 
-    if count == 0 then
-        text, count = gsub(text, "|cnRED_FONT_COLOR:", "|cff9B2020");
+    ---Used to replace Blue for Dark theme
+    Blue = {
+        pattern = {
+            "|cnPURE_BLUE_COLOR:",
+            "|[cC][fF][fF]0000[fF][fF]",
+        },
+        replaceBy = "|cff0078FF",
+    }
+};
+
+
+local ActiveColorLookup = ColorAdjustment.Red;
+
+---Used in Brown theme. Adjust red text color to increase legibility.
+---@return string adjustedText
+---@return boolean redColorFound
+local function AdjustTextColor(text)
+    local count = 0;
+
+    for _, pattern in ipairs(ActiveColorLookup.pattern) do
+        text, count = gsub(text, pattern, ActiveColorLookup.replaceBy);
+        if count > 0 then
+            break;
+        end
     end
 
-    if count == 0 then
-        text, count = gsub(text, "|[cC][fF][fF][fF][fF]4040", "|cff9B2020");
-    end
-
-    return text, (count and count > 0)  --2nd payload used for replacing the gossip icon
+    return text, count > 0;
 end
 
-local function AdjustBlueText(text)
-    local count;
-    text, count = gsub(text, "|[cC][fF][fF]0000[fF][fF]", "|cff0078FF");
-    return text, false
-end
-
-local AdjustTextColor = AdjustRedText;
 
 local COLORS = {
     --ColorKey = {r, g, b}
@@ -95,12 +114,12 @@ function ThemeUtil:SetThemeByID(themeID)
     if themeID == 2 then    --Dark
         colorIndex = 2;
         TEXTURE_PATH = "Interface/AddOns/DialogueUI/Art/Theme_Dark/";
-        AdjustTextColor = AdjustBlueText;
+        ActiveColorLookup = ColorAdjustment.Blue;
     else
         themeID = 1;
         colorIndex = 1;
         TEXTURE_PATH = "Interface/AddOns/DialogueUI/Art/Theme_Brown/";
-        AdjustTextColor = AdjustRedText;
+        ActiveColorLookup = ColorAdjustment.Red;
     end
 
     THEME_ID = themeID;
