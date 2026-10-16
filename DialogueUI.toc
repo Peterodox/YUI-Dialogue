@@ -1,6 +1,9 @@
-## Interface: 120100, 120105, 50504, 20506, 11509, 16001
-## X-Game: [Game]
-## X-Family: [Family]
+## Interface: 120107, 120105, 50504, 20506, 11509, 16001
+## X-GameType: Camelot [AllowLoadGameType camelot]
+## X-GameType: Standard [AllowLoadGameType standard]
+## X-GameType: Vanilla [AllowLoadGameType vanilla]
+## X-GameType: TBC [AllowLoadGameType tbc]
+## X-GameType: Mists [AllowLoadGameType mists]
 ## Version: 1.0.6
 
 ## Title: Dialogue UI

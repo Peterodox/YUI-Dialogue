@@ -236,7 +236,7 @@ do
     end
     addon.IsToCVersionEqualOrNewerThan = IsToCVersionEqualOrNewerThan;
 
-    local game = C_AddOns.GetAddOnMetadata(addonName, "X-Game");
+    local game = C_AddOns.GetAddOnMetadata(addonName, "X-GameType");
 
     -- TODO: "Camelot" / WOW_PROJECT_CAMELOT will be renamed to "Forever"
     addon.IS_FOREVER = game == "Camelot" or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT;
