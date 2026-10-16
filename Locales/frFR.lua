@@ -1,19 +1,14 @@
 --Contributors: Brainc3ll, Zazou89
 if not (GetLocale() == "frFR") then return end;
-
 local _, addon = ...
 local L = addon.L;
-
-
 L["Quest Frequency Daily"] = DAILY or "Journalière";
 L["Quest Frequency Weekly"] = WEEKLY or "Hebdomadaire";
-
 L["Quest Type Repeatable"] = "Répétable";
 L["Quest Type Trivial"] = "Bas niveau";    --Low-level quest
 L["Quest Type Dungeon"] = LFG_TYPE_DUNGEON or "Donjon";
 L["Quest Type Raid"] = LFG_TYPE_RAID or "Raid";
 L["Quest Type Covenant Calling"] = "Appel de Congrégation";
-
 L["Accept"] = ACCEPT or "Accepter";
 L["Continue"] = CONTINUE or "Continuer";
 L["Complete Quest"] = COMPLETE_QUEST or "Terminer la quête";
@@ -61,7 +56,6 @@ L["Story Progress"] = STORY_PROGRESS or "Progression de l'histoire";
 L["Quest Complete Alert"] = QUEST_WATCH_POPUP_QUEST_COMPLETE or "Quête terminée !";
 L["Item Equipped"] = "Équipé";
 L["Collection Collected"] = COLLECTED or "Collecté";
-
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Récompense %d de réputation avec les %s";
 L["Format You Have X"] = "- Vous avez |cffffffff%s|r";
@@ -88,14 +82,12 @@ L["Format And More"] = LFG_LIST_AND_MORE or "et %d autres...";
 L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d Chapitres";
 L["Format Quest Progress"] = "%d/%d Quêtes";
 L["Format RP Name Example"] = "Vous serez appelé :\n%s";
-
 --Settings
 L["UI"] = "UI";
 L["Camera"] = "Camera";
 L["Control"] = "Contrôle";
 L["Gameplay"] = SETTING_GROUP_GAMEPLAY or "Jeu";
 L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accessibilité";
-
 L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Activé";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Désactivé";
 L["Move Position"] = "Déplacer";
@@ -103,7 +95,6 @@ L["Reset Position"] = RESET_POSITION or "Réinitialiser la position";
 L["Drag To Move"] = "Cliquez avec le bouton gauche de la souris et faites glisser pour déplacer la fenêtre.";
 L["Middle Click To Reset Position"] = "Cliquez sur le bouton du milieu pour réinitialiser la position.";
 L["No Available Choice"] = "Aucun choix disponible";
-
 L["Quest"] = "Quête";
 L["Gossip"] = "Discussion";
 L["Theme"] = "Thème";
@@ -155,7 +146,6 @@ L["Use Blizzard Tooltip Desc"] = "Utilise l'infobulle de Blizzard pour le bouton
 L["Roleplaying"] = GDAPI_REALMTYPE_RP or "JDR";
 L["Use RP Name In Dialogues"] = "Utiliser votre nom JDR dans les dialogues";
 L["Use RP Name In Dialogues Desc"] = "Remplace le nom de votre personnage dans les dialogues par votre nom JDR.";
-
 L["Camera Movement"] = "Mouvement de la caméra";
 L["Camera Movement Off"] = "DÉSACTIVÉ";
 L["Camera Movement Zoom In"] = "Zoomer";
@@ -170,7 +160,6 @@ L["Maintain Offset While Mounted"] = "Maintenir le décalage sur une monture";
 L["Maintain Offset While Mounted Desc"] = "Tente de maintenir la position de votre personnage à l’écran lorsqu’il est sur une monture.\n\nL’activation de cette option peut surcompenser le décalage horizontal pour les montures de grande taille.";
 L["Camera Zoom Multiplier"] = "Multiplicateur de zoom";
 L["Camera Zoom Multiplier Desc"] = "Plus la valeur est petite, plus la caméra se rapproche de la cible.\n\nLa distance est également affectée par la taille de la cible.";
-
 L["Input Device"] = "Périphérique d'entrée";
 L["Input Device Desc"] = "Affecte les icônes de raccourci clavier et la disposition de l'UI.";
 L["Input Device KBM"] = "Clavier";
@@ -202,7 +191,6 @@ L["Mobile Device Mode Desc"] = "Fonctionnalité expérimentale:\n\nAugmente la t
 L["Mobile Device Mode Override Option"] = "Cette option n'a actuellement aucun effet car vous avez activé la fonction \"Mode appareil mobile\" dans Contrôle.";
 L["GamePad Click First Object"] = "Cliquer sur la première option";
 L["GamePad Click First Object Desc"] = "Lors d'une nouvelle interaction avec un PNJ, appuyez sur le bouton de confirmation pour choisir la première option de dialogue.";
-
 L["Key Space"] = "Espace";
 L["Key Interact"] = "Interagir";
 L["Cannot Use Key Combination"] = "La combinaison de touches n'est pas prise en charge.";
@@ -210,7 +198,6 @@ L["Interact Key Not Set"] = "Vous n'avez pas défini de raccourci pour Interagir
 L["Use Default Control Key Alert"] = "[KEY:PC:SPACE] sera toujours utilisé comme bouton de confirmation.";
 L["Key Disabled"] = "Désactivé";
 L["Key Disabled Tooltip"] = "le bouton de confirmation est désactivé.\n\nVous ne pourrez pas accepter de quêtes avec une touche.";
-
 L["Auto Quest Popup"] = "Pop-ups de quête automatique";
 L["Auto Quest Popup Desc"] = "Si une nouvelle quête est déclenchée automatiquement en ramassant un objet ou en entrant dans une zone, la quête sera d'abord affichée dans une fenêtre contextuelle au lieu d'afficher les détails de la quête.\n\nLes quêtes déclenchées lors de la connexion peuvent ne pas répondre à ce critère.";
 L["Popup Position"] = "Position du pop-up";    --Pop-up window position
@@ -247,10 +234,8 @@ L["Nameplate Dialog Desc"] = "Affiche le dialogue sur la barre d'info du PNJ s'i
 L["Compatibility"] = "Compatibilité";
 L["Disable DUI In Instance"] = "Utiliser l'interface par défaut de WoW en instance";
 L["Disable DUI In Instance Desc"] = "Désactive Dialogue UI et utilise l'interface par défaut de WoW lorsque vous êtes dans un donjon ou un raid.";
-
 L["Disable UI Motions"] = "Réduire les mouvements de l'interface";
 L["Disable UI Motions Desc"] = "Réduit les mouvements de l'interface tels que le déploiement de l'interface ou le décalage du texte des boutons.";
-
 L["TTS"] = TEXT_TO_SPEECH or "Synthèse vocale (TTS)";
 L["TTS Desc"] = "Lis le texte du dialogue à haute voix.";
 L["TTS Use Hotkey"] = "Utiliser un raccourci";
@@ -287,7 +272,6 @@ L["TTS Content Quest Name"] = "Titre de la quête";
 L["TTS Content Objective"] = "Objectifs de quête";
 L["TTS Button Read Original"] = "Lire le texte original";
 L["TTS Button Read Translation"] = "Lire la traduction";
-
 --Book UI and Settings
 L["Readables"] = "Documents";   --Readable Objects
 L["Readable Objects"] = "Objets lisibles";      --Used as a label for a setting in Accessibility-TTS
@@ -306,7 +290,6 @@ L["BookUI TTS Voice"] = "Voix";
 L["BookUI TTS Voice Desc"] = "Utiliser cette voix pour les objets lisibles :";
 L["BookUI TTS Click To Read"] = "Cliquer sur un paragraphe pour le lire";
 L["BookUI TTS Click To Read Desc"] = "Cliquez sur un paragraphe pour le lire.\n\nCliquez sur un paragraphe en cours de lecture pour l'arrêter.";
-
 --Keybinding Action
 L["Bound To"] = "Lié à : ";
 L["Hotkey Colon"] = "Raccourci : ";
@@ -322,7 +305,6 @@ L["Action Option6"] = "Option 6";
 L["Action Option7"] = "Option 7";
 L["Action Option8"] = "Option 8";
 L["Action Option9"] = "Option 9";
-
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Utilisez [KEY:PC:F1] pour afficher les options";
 L["Tutorial Settings Hotkey Console"] = "Utilisez [KEY:PC:F1] ou [KEY:CONSOLE:MENU] pour afficher les options";   --Use this if gamepad enabled
@@ -333,7 +315,6 @@ L["Instruction Open Settings No Keybind"] = "Vous n'avez défini aucun raccourci
 L["HelpTip Warband Completed Quest"] = "Cette icône indique que la quête a été accomplie par votre bataillon.";
 L["Got It"] = HELP_TIP_BUTTON_GOT_IT or "Compris";
 L["Open Settings"] = "Ouvrir les paramètres";
-
 --AddOn Compatibility for Language Translator
 L["Translator"] = "Traducteur";
 L["Translator Source"] = "Source : ";
@@ -342,11 +323,9 @@ L["Translator Click To Hide Translation"] = "Clic gauche pour masquer la traduct
 L["Translator Click To Show Translation"] = "Clic gauche pour afficher la traduction.";
 L["Translator Click To Hide Original"] = "Clic droit pour masquer le texte original.";
 L["Translator Click To Show Original"] = "Clic droit pour afficher le texte original.";
-
 --AddOn Compatibility for Voiceover AddOns
 L["VO Provider Format"] = "|cffffffff%s|r gère les voix";
 L["VO No File Format"] = "|cffffffff%s|r n'a pas pu trouver le fichier vocal.";
-
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K
 L["Abbrev Breakpoint 10000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";    --Reserved for Asian languages that have words for 10,000
@@ -357,13 +336,11 @@ L["Match Stat Agility"] = "([,%d%.%-]+) Agilité";
 L["Match Stat Intellect"] = "([,%d%.%-]+) Intelligence";
 L["Match Stat Spirit"] = "([,%d%.%-]+) Esprit";
 L["Match Stat DPS"] = "([,%d%.%-]+) dégâts par seconde";
-
 L["Show Answer"] = "Voir la solution.";
 L["Quest Failed Pattern"] = "^Impossible de rendre";
 L["AutoCompleteQuest HallowsEnd"] = "Un seau de bonbons";     --Quest:28981
 L["AutoCompleteQuest Midsummer"] = "Honorer la flamme";   --Quest:29031
 L["AutoCompleteQuest Midsummer2"] = "Désacralisez ce feu !";     --Quest:11580
-
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "Hôtel des ventes";
 L["Pin Bank"] = "Banque";
@@ -386,3 +363,8 @@ L["Pin Class Trainer"] = MINIMAP_TRACKING_TRAINER_CLASS or "Maître de classe";
 L["Pin Transmogrification"] = TRANSMOGRIFICATION or "Transmogrification";
 L["Pin Void Storage"] = VOID_STORAGE or "Chambre du Vide";
 L["Pin Vendor"] = BATTLE_PET_SOURCE_3 or "Vendeur";
+L["Block Auto Pushed Quest Alert Format"] = "YUI-Dialogue a bloqué la quête automatique %s car vous l'avez refusée deux fois cette session.";
+L["Click To Unblock Quest"] = "Cliquez pour débloquer";
+L["HelpTip Alt Completed Quest"] = "Cet icône indique que vous avez déjà terminé cette quête avec un autre personnage.";
+L["Quest Completed On Alt"] = "Vous avez déjà terminé cette quête avec un autre personnage.";
+L["Quest Unblocked Alert"] = "Quête débloquée. La fenêtre de quête apparaîtra la prochaine fois que le jeu vous proposera automatiquement cette quête.";
