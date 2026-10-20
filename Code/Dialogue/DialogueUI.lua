@@ -1915,7 +1915,7 @@ function DUIDialogBaseMixin:HandleQuestGreeting()
         if type(frequency) == "number" then
             -- For Retail Enum.QuestFrequency.Daily = 1
             -- For Classic LE_QUEST_FREQUENCY_DAILY = 2
-            -- Not many quests use QUEST_GREETING in Retail,
+            -- Not many quests use QUEST_GREETING in Retail (Test Candiate: Kul'amara the Fierce, 57.9, 46.7, Coiled Isle)
             -- so we can't confirm if the frequency from GetAvailableQuestInfo and C_GossipInfo.GetAvailableQuests are the same.
             -- Let's assume they are not
             frequency = frequency - 1;
