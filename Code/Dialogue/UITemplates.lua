@@ -479,7 +479,7 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
             local frameWidth = questTypeFrame:GetContentWidth();
             self.hasQuestType = true;
             self.rightFrameWidth = Round(frameWidth);
-            self:SetButtonText(questInfo.title, true);
+            self:SetQuestName(questInfo);
         end
 
         local rightIcon = self:GetExtraObject("Warband");
@@ -521,7 +521,7 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
     self.rightFrameWidth = BUTTON_HEIGHT_LARGE;     --Reserved for displaying quest type on the right, such as Trivial, Weekly...
     API.BuildQuestInfo(questInfo);
     self:SetQuestVisual(questInfo);
-    self:SetButtonText(questInfo.title, true);
+    self:SetQuestName(questInfo);
 
     if API.IsQuestFlaggedCompletedOnAccount(self.questID) then
         self:ShowWarbandCompletedIcon();
@@ -534,6 +534,15 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
         end
     end
     CallbackRegistry:LoadQuest(self.questID, OnQuestLoaded);
+end
+
+function DUIDialogOptionButtonMixin:SetQuestName(questInfo)
+    local questLevel, diff = API.GetQuestLevel(questInfo.questID);
+    if questLevel then
+        self:SetButtonText(string.format("[%d] %s", questLevel, questInfo.title), true);
+    else
+        self:SetButtonText(questInfo.title, true);
+    end
 end
 
 function DUIDialogOptionButtonMixin:IsQuestButton()

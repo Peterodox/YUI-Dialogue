@@ -950,6 +950,23 @@ do  -- Easing
 end
 
 do  -- Quest
+    local CAN_SHOW_QUEST_LEVEL = (not addon.IS_RETAIL) and UnitQuestTrivialLevelRangeScaling ~= nil and C_QuestLog.GetQuestDifficultyLevel ~= nil;
+    addon.CAN_SHOW_QUEST_LEVEL = CAN_SHOW_QUEST_LEVEL;
+    if CAN_SHOW_QUEST_LEVEL then
+        ---@return number? questLevel
+        ---@return number? questLevelDiff questLevel - playerLevel
+        function API.GetQuestLevel(questID)
+            local playerLevel = UnitLevel("player");
+            local questLevel = C_QuestLog.GetQuestDifficultyLevel(questID);
+            if questLevel then
+                return questLevel, questLevel - playerLevel;
+            end
+        end
+
+    else
+        API.GetQuestLevel = AlwaysNil;
+    end
+
     local ICON_PATH = "Interface/AddOns/DialogueUI/Art/Icons/";
     local Enum_QuestClassification = CopyEnum("QuestClassification");
 
