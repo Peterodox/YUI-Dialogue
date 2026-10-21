@@ -13,6 +13,12 @@ L["Quest Type Trivial"] = "Trivial";    --Low-level quest
 L["Quest Type Dungeon"] = LFG_TYPE_DUNGEON or "Dungeon";
 L["Quest Type Raid"] = LFG_TYPE_RAID or "Raid";
 L["Quest Type Covenant Calling"] = "Covenant Calling";
+L["Quest Difficulty VeryDifficult"] = "Very Difficult";
+L["Quest Difficulty Difficult"] = "Difficult";
+L["Quest Difficulty Easy"] = "Easy";
+L["Quest Difficulty Trivial"] = "Low Level";
+L["Your Level"] = "Your Level";
+L["Quest Level"] = "Quest Level";
 
 L["Accept"] = ACCEPT or "Accpet";
 L["Continue"] = CONTINUE or "Continue";

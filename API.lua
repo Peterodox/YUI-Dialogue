@@ -963,8 +963,25 @@ do  -- Quest
             end
         end
 
+        function API.GetQuestDifficultyLabel(questID)
+            local _, diff = API.GetQuestLevel(questID);
+            if diff then
+                if diff >= 5 then
+                    return L["Quest Difficulty VeryDifficult"];
+                elseif diff >= 3 then
+                    return L["Quest Difficulty Difficult"];
+                elseif diff >= -1 then
+                    return;
+                elseif diff >= -5 then
+                    return L["Quest Difficulty Easy"];
+                else
+                    return L["Quest Difficulty Trivial"];
+                end
+            end
+        end
     else
         API.GetQuestLevel = AlwaysNil;
+        API.GetQuestDifficultyLabel = AlwaysNil;
     end
 
     local ICON_PATH = "Interface/AddOns/DialogueUI/Art/Icons/";
