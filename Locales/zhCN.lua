@@ -69,6 +69,7 @@ L["Story Progress"] = "故事进度";
 L["Quest Complete Alert"] = "任务完成！";
 L["Item Equipped"] = "已装备";
 L["Collection Collected"] = "已收集";
+L["Forever New Quest"] = "《魔兽世界：永恒》新任务";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";

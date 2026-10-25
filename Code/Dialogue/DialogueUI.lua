@@ -124,6 +124,7 @@ local Schematic = {
     ["FrontFrame.Header.Title"] = {point = "LEFT", relativePoint = "LEFT", x = 53, y = 2},
     ["FrontFrame.Header.TopLight"] = {width = 358, height = 34},
     ["FrontFrame.Header.WarbandCompleteAlert"] = {width = 44, height = 44, point = "CENTER", relativePoint = "TOPRIGHT", x = -25, y = -20},
+    ["FrontFrame.Header.ForeverQuestAlert"] = {width = 44, height = 44, point = "CENTER", relativePoint = "TOPRIGHT", x = -25, y = -16},
 
     ["FrontFrame.QuestPortrait"] = {maxSizeMultiplier = 1.1, width = 170, height = 170, point = "TOP", relativePoint = "TOPRIGHT", x = 66, y = -64},
     ["FrontFrame.QuestPortrait.Model"] = {maxSizeMultiplier = 1.1, width = 78, height = 78, point = "CENTER", relativePoint = "TOP", x = 0, y = -71},
@@ -322,6 +323,13 @@ function DUIDialogBaseMixin:OnLoad()
     wb:SetScript("OnLeave", TooltipFrame.HideTooltip);
     API.DisableSharpening(wb.Icon);
 
+    --New Forever Quest Alert
+    local fq = headerFrame.ForeverQuestAlert;
+    self.ForeverQuestAlert = fq;
+    fq.tooltipText = L["Forever New Quest"];
+    fq:SetScript("OnEnter", TooltipFrame.ShowWidgetTooltip);
+    fq:SetScript("OnLeave", TooltipFrame.HideTooltip);
+    API.DisableSharpening(fq.Icon);
 
     local tintableTextures = {};
     self.tintableTextures = tintableTextures;
@@ -542,6 +550,9 @@ function DUIDialogBaseMixin:LoadTheme()
     self.WarbandCompleteAlert.Icon:SetTexture(parchmentFile);
     self.WarbandCompleteAlert.Icon:SetTexCoord(0.71875, 0.8125, 0.56640625, 0.61328125);
 
+    self.ForeverQuestAlert.Icon:SetTexture(parchmentFile);
+    self.ForeverQuestAlert.Icon:SetTexCoord(0.8125, 0.90625, 0.56640625, 0.61328125);
+
     self.RewardSelection.FrontTexture:SetTexture(prefix.."RewardChoice-Highlight.png");
     self.RewardSelection.BackTexture:SetTexture(prefix.."RewardChoice-Highlight-Back.png");
     self.RewardSelection.BackTexture:SetVertexColor(0.65, 0, 0);
@@ -757,14 +768,29 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         self.hasActiveGossipQuests = false;
         self.activeQuestButtons = {};
 
-        if questID and API.IsQuestFlaggedCompletedOnAccount(questID) then
-            self.WarbandCompleteAlert:Show();
-            self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -56, 2);
-            CallbackRegistry:TriggerOnNextUpdate("WarbandCompleteAlert.Show", self.FrontFrame.Header, self.WarbandCompleteAlert);
+        --WarbandCompleted or ForeverNewQuest
+        local anyRightIcon;
+
+        if API.IsForeverNewQuest(questID) then
+            anyRightIcon = true;
+            self.ForeverQuestAlert:Show();
         else
-            self.WarbandCompleteAlert:Hide();
-            self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", -8, 2);
+            self.ForeverQuestAlert:Hide();
         end
+
+        if anyRightIcon then
+            self.WarbandCompleteAlert:Hide();
+        else
+            if API.ShouldShowWarbandCompletedIcon(questID) then
+                anyRightIcon = true;
+                self.WarbandCompleteAlert:Show();
+                CallbackRegistry:TriggerOnNextUpdate("WarbandCompleteAlert.Show", self.FrontFrame.Header, self.WarbandCompleteAlert);
+            else
+                self.WarbandCompleteAlert:Hide();
+            end
+        end
+
+        self.FrontFrame.Header.Title:SetPoint("RIGHT", self.FrontFrame.Header, "RIGHT", (anyRightIcon and -56) or -8, 2);
 
     elseif self.questLayout ~= false or forceUpdate then
         self.questLayout = false;
@@ -777,6 +803,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         self.BackgroundDecor:Hide();
         self.FrontFrame.QuestPortrait:FadeOut();
         self.WarbandCompleteAlert:Hide();
+        self.ForeverQuestAlert:Hide();
         CallbackRegistry:Trigger("StopViewingQuest");
     end
 
