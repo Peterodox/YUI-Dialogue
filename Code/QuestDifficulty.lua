@@ -118,6 +118,8 @@ API.GetQuestDifficultyLabelForQuestButton = GetQuestDifficultyLabelForQuestButto
 
 
 function API.GetColorizedQuestLevel(questID)
+    if not Def.ShowQuestLevel then return; end
+
     if not IsQuestLevelCached(questID) then
         return "   "; -- Use space as placeholder in case the title become to long after adding level
     end
@@ -149,5 +151,12 @@ addon.CallbackRegistry:Register("ThemeChanged", function(themeID)
         ActiveDifficultyColors = QuestDifficultyColors.Dark;
     else
         ActiveDifficultyColors = QuestDifficultyColors.Bright;
+    end
+end);
+
+addon.CallbackRegistry:Register("SettingChanged.QuestDifficultyStyle", function(dbValue, userInput)
+    Def.ShowQuestLevel = dbValue ~= 2;
+    if userInput then
+        addon.DialogueUI:OnSettingsChanged();
     end
 end);

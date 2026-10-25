@@ -163,6 +163,12 @@ L["Use Blizzard Tooltip Desc"] = "使用暴雪自带的鼠标提示来显示任�
 L["Roleplaying"] = "角色扮演";
 L["Use RP Name In Dialogues"] = "对话中使用RP名字";
 L["Use RP Name In Dialogues Desc"] = "将对话文本中出现的本名替换为你RP角色的名字。";
+L["Quest Difficulty Option"] = "任务难度";
+L["Quest Difficulty Option Desc"] = "选择任务列表界面上任务难度的显示方式。";
+L["QuestDifficultyStyle Level"] = "任务等级";
+L["QuestDifficultyStyle Level Desc"] = "在任务名称的左侧显示任务等级。";
+L["QuestDifficultyStyle Name"] = "难度名称";
+L["QuestDifficultyStyle Name Desc"] = "如果任务不在推荐等级范围内，在任务按钮的最右侧显示难度名称。\n（推荐范围为只比你角色高两级或低一级以内）";
 
 L["Camera Movement"] = "镜头运动";
 L["Camera Movement Off"] = "关";

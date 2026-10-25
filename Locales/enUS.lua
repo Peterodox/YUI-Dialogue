@@ -163,6 +163,12 @@ L["Use Blizzard Tooltip Desc"] = "Use Blizzard tooltip for the quest reward butt
 L["Roleplaying"] = GDAPI_REALMTYPE_RP or "Roleplaying";
 L["Use RP Name In Dialogues"] = "Use RP Name In Dialogues";
 L["Use RP Name In Dialogues Desc"] = "Replace your character's name in dialogue texts with your RP name.";
+L["Quest Difficulty Option"] = "Quest Difficulty";
+L["Quest Difficulty Option Desc"] = "Choose how quest difficulty is displayed when the NPC offers you a list of quests.";
+L["QuestDifficultyStyle Level"] = "Level";
+L["QuestDifficultyStyle Level Desc"] = "Display the quest level to the left of the quest title.";
+L["QuestDifficultyStyle Name"] = "Name";
+L["QuestDifficultyStyle Name Desc"] = "Display the difficulty name on the right of the quest button if the quest level is outside the recommended range.\n(The quest level is +3 or -1 from your character level)";
 
 L["Camera Movement"] = "Camera Movement";
 L["Camera Movement Off"] = "OFF";
