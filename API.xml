@@ -2,6 +2,7 @@
     <Script file="Code\CallbackRegistry.lua"/>
     <Script file="API.lua"/>
     <Script file="Code\QuestAreaTrigger.lua"/>
+    <Script file="Code\QuestDifficulty.lua"/>
 
     <Actor name="DUIUtilityActorTemplate" mixin="DUIUtilityActorMixin" virtual="true">
         <Scripts>

@@ -140,11 +140,12 @@ do  --HeaderWidgetManger
         self:RemoveWidgetByType("QuestLine");
     end
 
-    function HeaderWidgetManger:TryAddQuestDifficulty(questID)
+    function HeaderWidgetManger:AddQuestDifficulty(questID)
         local label = API.GetQuestDifficultyLabel(questID);
         if label then
             local f = self.buttonPool:Acquire();
             f:SetQuestDifficulty(questID, label);
+            return true;
         end
     end
 
@@ -193,7 +194,9 @@ do  --HeaderWidgetManger
         self:OnHide();
         self.questID = questID;
 
+        local needRequery;
         local anyChange;
+
         if (not self:DoesWidgetExist("Account")) and API.IsAccountQuest(questID) then
             self:AddAccountQuest();
             anyChange = true;
@@ -206,14 +209,26 @@ do  --HeaderWidgetManger
                     self:AddQuestLineQuest(questLineName, questLineID, questID, uiMapID, achievementID);
                     anyChange = true;
                 end
-            elseif not isRequery then
-                local function OnQuestLoaded(id)
-                    if self.questID == id then
-                        self:RequestQuestData(questID, true);
-                    end
-                end
-                addon.CallbackRegistry:LoadQuest(questID, OnQuestLoaded);
+            else
+                needRequery = true;
             end
+        end
+
+        if API.IsQuestLevelCached(questID) then
+            if self:AddQuestDifficulty(questID) then
+                anyChange = true;
+            end
+        else
+            needRequery = true;
+        end
+
+        if needRequery and not isRequery then
+            local function OnQuestLoaded(id)
+                if self.questID == id then
+                    self:RequestQuestData(questID, true);
+                end
+            end
+            addon.CallbackRegistry:LoadQuest(questID, OnQuestLoaded);
         end
 
         if anyChange then

@@ -13,6 +13,13 @@ L["Quest Type Trivial"] = "低等级";    --Low-level quest
 L["Quest Type Dungeon"] = "地下城任务";
 L["Quest Type Raid"] = "团本任务";
 L["Quest Type Covenant Calling"] = "盟约使命";
+L["Quest Difficulty VeryHard"] = "非常困难";
+L["Quest Difficulty Hard"] = "困难";
+L["Quest Difficulty Normal"] = "普通";
+L["Quest Difficulty Easy"] = "简单";
+L["Quest Difficulty Trivial"] = "低等级";
+L["Your Level"] = "你的等级";
+L["Quest Level"] = "人物等级";
 
 L["Accept"] = "接受"
 L["Continue"] = "继续";

@@ -448,7 +448,11 @@ end
 function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     local typeText;
 
-    if questInfo.isTrivial then
+    local difficultyLabel = API.GetQuestDifficultyLabelForQuestButton(questInfo.questID);
+
+    if difficultyLabel then
+        typeText = difficultyLabel;
+    elseif questInfo.isTrivial then
         typeText = L["Quest Type Trivial"];
     else
         if SHOW_QUEST_TYPE_TEXT then
@@ -479,7 +483,6 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
             local frameWidth = questTypeFrame:GetContentWidth();
             self.hasQuestType = true;
             self.rightFrameWidth = Round(frameWidth);
-            self:SetQuestName(questInfo);
         end
 
         local rightIcon = self:GetExtraObject("Warband");
@@ -488,6 +491,10 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
         end
     else
         self:RemoveQuestTypeText();
+    end
+
+    if addon.CAN_SHOW_QUEST_LEVEL then
+        self:SetQuestName(questInfo);
     end
 end
 
@@ -523,7 +530,7 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
     self:SetQuestVisual(questInfo);
     self:SetQuestName(questInfo);
 
-    if API.IsQuestFlaggedCompletedOnAccount(self.questID) then
+    if API.ShouldShowWarbandCompletedIcon(self.questID) then
         self:ShowWarbandCompletedIcon();
     end
 
@@ -537,9 +544,10 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
 end
 
 function DUIDialogOptionButtonMixin:SetQuestName(questInfo)
-    local questLevel, diff = API.GetQuestLevel(questInfo.questID);
-    if questLevel then
-        self:SetButtonText(string.format("[%d] %s", questLevel, questInfo.title), true);
+    --local questLevel, diff = API.GetQuestLevel(questInfo.questID);
+    local qusetLevelText = API.GetColorizedQuestLevel(questInfo.questID);
+    if qusetLevelText then
+        self:SetButtonText(string.format("%s %s", qusetLevelText, questInfo.title), true);
     else
         self:SetButtonText(questInfo.title, true);
     end

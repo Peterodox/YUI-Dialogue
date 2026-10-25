@@ -844,8 +844,6 @@ function DUIDialogBaseMixin:UpdateQuestTitle(method)
 
     CallbackRegistry:Trigger("ViewingQuest", questID, method);
 
-    HeaderWidgetManger:TryAddQuestDifficulty(questID);
-
     HeaderWidgetManger:LayoutWidgets();
 
     return 6 * (FRAME_SIZE_MULTIPLIER)   --Accounted for Header Size
