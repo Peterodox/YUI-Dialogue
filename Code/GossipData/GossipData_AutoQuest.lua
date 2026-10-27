@@ -25,6 +25,7 @@ local AutoCompleteQuestID = {
     [93891] = true,
     [93892] = true,
     [94457] = true,
+    [98172] = true,     --Trailing Xal'atath
 
 
     --Fortify the Runestones
