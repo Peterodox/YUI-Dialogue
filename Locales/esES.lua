@@ -1,13 +1,19 @@
+--Contributors: anon1231823
 if not (GetLocale() == "esES") then return end;
+
 local _, addon = ...
 local L = addon.L;
+
+
 L["Quest Frequency Daily"] = DAILY or "Diaria";
 L["Quest Frequency Weekly"] = WEEKLY or "Semanal";
+
 L["Quest Type Repeatable"] = "Repetible";
 L["Quest Type Trivial"] = "Trivial";    --Low-level quest
 L["Quest Type Dungeon"] = LFG_TYPE_DUNGEON or "Mazmorra";
 L["Quest Type Raid"] = LFG_TYPE_RAID or "Banda";
 L["Quest Type Covenant Calling"] = "Llamamiento de Pacto";
+
 L["Accept"] = ACCEPT or "Aceptar";
 L["Continue"] = CONTINUE or "Continuar";
 L["Complete Quest"] = COMPLETE_QUEST or "Completar misión";
@@ -48,6 +54,7 @@ L["TTS Button Tooltip"] = "Click izquierdo: Iniciar/Parar lectura.\nClick derech
 L["Item Is An Upgrade"] = "Este objeto es una mejora para ti";
 L["Identical Stats"] = "Los dos objetos tienen las mismas estadísticas.";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Tu Banda Guerrera ya ha completado esta misión.");
+L["Quest Completed On Alt"] = "Você já completou esta missão com outro personagem."; -- The pre-Warband version
 L["New Quest Available"] = "Nueva Misión Disponible";
 L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "Campaña";
 L["Click To Open BtWQuests"] = "Click para ver esta misión en la ventana BtWQuests.";
@@ -55,6 +62,7 @@ L["Story Progress"] = STORY_PROGRESS or "Progreso de la historia";
 L["Quest Complete Alert"] = QUEST_WATCH_POPUP_QUEST_COMPLETE or "¡Misión completada!";
 L["Item Equipped"] = "Equipado";
 L["Collection Collected"] = COLLECTED or "Conocido";
+
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Otorga %d de reputación con %s";
 L["Format You Have X"] = "- Tienes |cffffffff%s|r";
@@ -80,18 +88,22 @@ L["Format Your Progress"] = "Your progress: |cffffffff%d/%d|r";
 L["Format And More"] = LFG_LIST_AND_MORE or "y %d más...";
 L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d Capítulos";
 L["Format Quest Progress"] = "%d/%d Misiones";
+L["Format RP Name Example"] = "Se te referirán como:\n%s";
+
 --Settings
 L["UI"] = "Interfaz";
 L["Camera"] = "Cámara";
 L["Control"] = "Controles";
 L["Gameplay"] = SETTING_GROUP_GAMEPLAY or "Jugabilidad";
 L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accesibilidad";
+
 L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Activado";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Desactivado";
 L["Move Position"] = "Mover";
 L["Reset Position"] = RESET_POSITION or "Reiniciar posición";
 L["Drag To Move"] = "Clic izquierdo y arrastrar para mover la ventana.";
 L["Middle Click To Reset Position"] = "Click central para reiniciar la posición.";
+
 L["Quest"] = "Misión";
 L["Gossip"] = "Charla";
 L["Theme"] = "Tema";
@@ -143,6 +155,7 @@ L["Use Blizzard Tooltip Desc"] = "Utiliza el tooltip de Blizzard para las recomp
 L["Roleplaying"] = GDAPI_REALMTYPE_RP or "Juego de Rol";
 L["Use RP Name In Dialogues"] = "Utilizar nombre de JdR en Diálogos";
 L["Use RP Name In Dialogues Desc"] = "Reemplaza el nombre de tu personaje con tu nombre de JdR.";
+
 L["Camera Movement"] = "Movimiento de Cámara";
 L["Camera Movement Off"] = "Sin movimiento";
 L["Camera Movement Zoom In"] = "Acercar";
@@ -157,6 +170,7 @@ L["Maintain Offset While Mounted"] = "Mantener offset en montura";
 L["Maintain Offset While Mounted Desc"] = "Intenta mantener la posición de tu personaje en la pantalla mientras estás en una montura.\n\nActivar esta opción puede sobrecompensar el offset horizontal para monturas grandes.";
 L["Camera Zoom Multiplier"] = "Multiplicador de zoom";
 L["Camera Zoom Multiplier Desc"] = "Cuanto menor sea el valor, más se acercará la cámara al objetivo.\n\nLa distancia también se ve afectada por el tamaño del objetivo.";
+
 L["Input Device"] = "Dispositivo de entrada";
 L["Input Device Desc"] = "Afecta a los iconos de teclas y organización de la interfaz.";
 L["Input Device KBM"] = "Teclado y ratón";
@@ -188,6 +202,7 @@ L["Mobile Device Mode Desc"] = "Característica Experimental:\n\nAumenta el tama
 L["Mobile Device Mode Override Option"] = "Esta opción no tiene ningún efecto porque has seleccionado \"Modo Dispositivo Móvil\" en Controles.";
 L["GamePad Click First Object"] = "Click en la primera opción";
 L["GamePad Click First Object Desc"] = "Al iniciar una nueva interacción con un PNJ, pulsa el botón Confirmar para seleccionar la primera opción de diálogo.";
+
 L["Key Space"] = "Espacio";
 L["Key Interact"] = "Interactuar";
 L["Cannot Use Key Combination"] = "No se permite la combinación de teclas.";
@@ -195,6 +210,7 @@ L["Interact Key Not Set"] = "[KEY:PC:INVALID] No has establecido una tecla de in
 L["Use Default Control Key Alert"] = "Utilizaremos [KEY:PC:SPACE] como Botón de confirmación.";
 L["Key Disabled"] = "Deshabilitado";
 L["Key Disabled Tooltip"] = "Botón de confirmación deshabilitado.\n\nNo podrás aceptar misiones presionando teclas.";
+
 L["Auto Quest Popup"] = "Ventana emergente de Misión Automática";
 L["Auto Quest Popup Desc"] = "Si se activa automáticamente una misión al recoger un objeto de misión o al entrar en una zona, la misión se mostrará primero como una ventana emergente en vez de mostrar los detalles de la misión.\n\nLas misiones activadas al conectarse pueden no cumplir con estos criterios.";
 L["Popup Position"] = "Posición de la Ventana emergente";    --Pop-up window position
@@ -212,6 +228,7 @@ L["Valuable Reward Popup Desc"] = "Cuando recibes un objeto valioso como una mej
 L["Auto Complete Quest"] = "Autocompletar misión";
 L["Auto Complete Quest Desc"] = "Completa automáticamente la siguiente misión y muestra el diálogo y las recompensas en una ventana separada. Si las recompensas contienen un cofre, puedes hacer click para abrirlo.\n\n- Candy Bucket (Hallow's End)\n- Khaz Algar Weekly\n- Midsummer Bonfire";
 L["Press Key To Use Item"] = "Presionar el botón para usar";
+L["Press Key To Use Item Desc Generic"] = "Pressione o botão de confirmação (atual: %s) para usar o item quando estiver fora de combate.";
 L["Press Key To Use Item Desc PC"] = "Presiona [KEY:PC:SPACE] para usar el item cuando estás fuera de combate.";
 L["Press Key To Use Item Desc Xbox"] = "Presiona [KEY:XBOX:PAD3] para usar el item cuando estás fuera de combate.";
 L["Press Key To Use Item Desc PlayStation"] = "Presiona [KEY:PS:PAD3] para usar el item cuando estás fuera de combate.";
@@ -232,6 +249,7 @@ L["Disable DUI In Instance"] = "Usar la interfaz predeterminada del juego en est
 L["Disable DUI In Instance Desc"] = "Desactiva la interfaz de diálogo y usa la predeterminada del juego cuando estás en una mazmorra o banda.";
 L["Disable UI Motions"] = "Reducir movimientos de la interfaz de usuario";
 L["Disable UI Motions Desc"] = "Reduce los movimientos de la interfaz de usuario, como desplegar la interfaz o mover el texto de los botones.";
+
 L["TTS"] = TEXT_TO_SPEECH or "Texto a voz";
 L["TTS Desc"] = "Lee el diálogo en voz alta al hacer clic en el botón en la parte superior izquierda de la interfaz.\n\nVoz, volumen y velocidad utilizan la configuración de Texto a voz del juego.";
 L["TTS Use Hotkey"] = "Utilizar Atajo de teclado";
@@ -268,6 +286,7 @@ L["TTS Content Quest Name"] = "Título de la misión";
 L["TTS Content Objective"] = "Objetivos de la misión";
 L["TTS Button Read Original"] = "Cambiar a leer el texto original";
 L["TTS Button Read Translation"] = "Cambiar a leer traducción";
+
 --Book UI and Settings
 L["Readables"] = "Legibles";   --Readable Objects
 L["Readable Objects"] = "Objetos legibles";     --Used as a label for a setting in Accessibility-TTS
@@ -286,6 +305,12 @@ L["BookUI TTS Voice"] = "Voz";
 L["BookUI TTS Voice Desc"] = "Utilizar esta voz para objetos legibles:";
 L["BookUI TTS Click To Read"] = "Click en el párrafo para leer";
 L["BookUI TTS Click To Read Desc"] = "Click en un párrafo para leerlo.\n\nClick en un párrafo que se está leyendo actualmente para detener la lectura.";
+
+--Quest Popups
+L["Block Auto Pushed Quest Alert Format"] = "YUI-Dialogue bloqueou a missão automática %s porque você recusou duas vezes nesta sessão.";
+L["Quest Unblocked Alert"] = "Missão desbloqueada. A janela de missão aparecerá na próxima vez que o jogo oferecer automaticamente esta missão.";
+L["Click To Unblock Quest"] = "Clique para desbloquear";   --Will be used in a clickable link []
+
 --Keybinding Action
 L["Bound To"] = "Vinculado a: ";
 L["Hotkey Colon"] = "Hotkey: ";
@@ -301,6 +326,7 @@ L["Action Option6"] = "Opción 6";
 L["Action Option7"] = "Opción 7";
 L["Action Option8"] = "Opción 8";
 L["Action Option9"] = "Opción 9";
+
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para abrir la configuración";     --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para abrir la configuración";   --Use this if gamepad enabled
@@ -309,17 +335,23 @@ L["Instruction Open Settings Console"] = "Para abrir la configuración, presiona
 L["Instruction Open Settings Keybind Format"] = "Puedes abrir la configuración presionando [%s] cuando la ventana de diálogo esté activa.";
 L["Instruction Open Settings No Keybind"] = "No has configurado ninguna tecla para abrir la configuración.";
 L["HelpTip Warband Completed Quest"] = "Este icono indica que tu banda guerrera ha completado la misión.";
+L["HelpTip Alt Completed Quest"] = "Este icono indica que ya completaste esta misión con otro personaje.";
 L["Got It"] = HELP_TIP_BUTTON_GOT_IT or "Entendido";
 L["Open Settings"] = "Abrir configuración";
+
 --AddOn Compatibility for Language Translator
 L["Translator"] = "Traductor";
 L["Translator Source"] = "Fuente: ";
 L["Translator No Quest Data Format"] = "No se encontró ninguna entrada para [Quest: %s]";
 L["Translator Click To Hide Translation"] = "Click para ocultar la traducción";
 L["Translator Click To Show Translation"] = "Click para mostrar la traducción";
+L["Translator Click To Hide Original"] = "Clique com o botão direito para ocultar textos originais.";
+L["Translator Click To Show Original"] = "Clique com o botão direito para mostrar textos originais.";
+
 --AddOn Compatibility for Voiceover AddOns
 L["VO Provider Format"] = "|cffffffff%s|r se encarga de la voz en off";
 L["VO No File Format"] = "|cffffffff%s|r no se ha encontrado el archivo de voz en off.";
+
 --DO NOT TRANSLATE
 L["Abbrev Breakpoint 1000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";     --1,000 = 1K
 L["Abbrev Breakpoint 10000"] = FIRST_NUMBER_CAP_NO_SPACE or "K";    --Reserved for Asian languages that have words for 10,000
@@ -330,11 +362,13 @@ L["Match Stat Agility"] = "([,%d%.]+) agilidad";
 L["Match Stat Intellect"] = "([,%d%.]+) intelecto";
 L["Match Stat Spirit"] = "([,%d%.]+) espíritu";
 L["Match Stat DPS"] = "([,%d%.]+) daño por segundo";
+
 L["Show Answer"] = "Mostrar solución.";
 L["Quest Failed Pattern"] = "^Error al completar";
 L["AutoCompleteQuest HallowsEnd"] = "Cubo de caramelos";     --Quest:28981
 L["AutoCompleteQuest Midsummer"] = "Honrar la llama";   --Quest:29031
 L["AutoCompleteQuest Midsummer2"] = "¡Profana este fuego!";     --Quest:11580
+
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "Casa de Subastas";
 L["Pin Bank"] = "Banco";
@@ -352,18 +386,8 @@ L["Pin Profession Trainer"] = "Instructor de profesión";
 L["Pin Rostrum"] = "Podio de transformación";
 L["Pin Stable Master"] = "Maestro de establos";
 L["Pin Trading Post"] = "Puesto comercial";
-L["Pin Transmogrifier"] = MINIMAP_TRACKING_TRANSMOGRIFIER or "Transmogrifier";
+L["Pin Transmogrifier"] = MINIMAP_TRACKING_TRANSMOGRIFIER or "Transfigurador";
 L["Pin Class Trainer"] = MINIMAP_TRACKING_TRAINER_CLASS or "Instructor de clase";
 L["Pin Transmogrification"] = TRANSMOGRIFICATION or "Transfiguración";
 L["Pin Void Storage"] = VOID_STORAGE or "Depósito del Vacío";
 L["Pin Vendor"] = BATTLE_PET_SOURCE_3 or "Vendedor";
-L["Block Auto Pushed Quest Alert Format"] = "YUI-Dialogue ha bloqueado la misión automática %s porque la rechazaste dos veces en esta sesión.";
-L["Click To Unblock Quest"] = "Haz clic para desbloquear";
-L["Format RP Name Example"] = "Se te referirán como:\n%s";
-L["HelpTip Alt Completed Quest"] = "Este icono indica que ya completaste esta misión con otro personaje.";
-L["No Available Choice"] = "No hay opciones disponibles";
-L["Press Key To Use Item Desc Generic"] = "Pulsa el botón de confirmación (actual: %s) para usar el objeto cuando no estés en combate.";
-L["Quest Completed On Alt"] = "Ya completaste esta misión con otro personaje.";
-L["Quest Unblocked Alert"] = "Misión desbloqueada. La ventana de misión aparecerá la próxima vez que el juego te ofrezca esta misión automáticamente.";
-L["Translator Click To Hide Original"] = "Haz clic derecho para ocultar los textos originales.";
-L["Translator Click To Show Original"] = "Haz clic derecho para mostrar los textos originales.";
