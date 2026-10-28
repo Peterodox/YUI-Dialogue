@@ -773,16 +773,15 @@ function QuestItemDisplay:OnItemLooted(itemID)
     --Some readable items are not Quest Type (e.g. Secrets of Azeroth). We don't support these items
 
     if SEEN_ITEMS_SESSION[itemID] then return end;
-
     SEEN_ITEMS_SESSION[itemID] = true;
-    if IsQuestLoreItem(itemID) then
-        if ONE_TIME_ITEM[itemID] and SEEN_ITEMS_ALL[itemID] then
+
+    local isQuestItem, isPotentialQuestItem = IsQuestLoreItem(itemID);
+    if isQuestItem or isPotentialQuestItem then
+        if (IGNORE_SEEN_ITEM or ONE_TIME_ITEM[itemID] or isPotentialQuestItem) and SEEN_ITEMS_ALL[itemID] then
             return
         end
-        if (not IGNORE_SEEN_ITEM) or (not SEEN_ITEMS_ALL[itemID]) then
-            SEEN_ITEMS_ALL[itemID] = true;
-            self:TryDisplayItem(itemID);
-        end
+        SEEN_ITEMS_ALL[itemID] = true;
+        self:TryDisplayItem(itemID);
     end
 end
 

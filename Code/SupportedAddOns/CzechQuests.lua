@@ -30,7 +30,7 @@ do
 
         local translator = {
             name = ADDON_NAME,
-            font = "Interface/AddOns/CzechQuests/Assets/Fonts/frizquadratatt_cz.ttf",
+            font = "Interface/AddOns/CzechQuests/Addon/Assets/Fonts/source_sans_3.ttf",
             questDataGetter = function(questID)
                 local duiQuestData;
                 local questData = GetQuestData(questID);
