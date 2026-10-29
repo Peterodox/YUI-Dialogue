@@ -124,7 +124,7 @@ local Schematic = {
     ["FrontFrame.Header.Title"] = {point = "LEFT", relativePoint = "LEFT", x = 53, y = 2},
     ["FrontFrame.Header.TopLight"] = {width = 358, height = 34},
     ["FrontFrame.Header.WarbandCompleteAlert"] = {width = 44, height = 44, point = "CENTER", relativePoint = "TOPRIGHT", x = -25, y = -20},
-    ["FrontFrame.Header.ForeverQuestAlert"] = {width = 44, height = 44, point = "CENTER", relativePoint = "TOPRIGHT", x = -25, y = -16},
+    ["FrontFrame.Header.ForeverQuestAlert"] = {width = 44, height = 44, point = "CENTER", relativePoint = "TOPRIGHT", x = -25, y = -15},
 
     ["FrontFrame.QuestPortrait"] = {maxSizeMultiplier = 1.1, width = 170, height = 170, point = "TOP", relativePoint = "TOPRIGHT", x = 66, y = -64},
     ["FrontFrame.QuestPortrait.Model"] = {maxSizeMultiplier = 1.1, width = 78, height = 78, point = "CENTER", relativePoint = "TOP", x = 0, y = -71},
