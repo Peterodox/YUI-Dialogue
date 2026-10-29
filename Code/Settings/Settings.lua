@@ -35,8 +35,6 @@ local ARROWOTPION_CYCLING = false;
 local HOTKEYFRAME_VALUETEXT_GAP = 4;
 local TAB_BUTTON_GAP = 4;
 
-local DISABLED_TEXTURE_ALPHA = 0.2;
-
 local PREVIEW_PATH = "Interface/AddOns/DialogueUI/Art/PreviewPicture/";
 
 local MainFrame;
@@ -1642,7 +1640,7 @@ do  --ArrowOption
     end
 
     local function ArrowButton_OnDisable(self)
-        self:SetAlpha(DISABLED_TEXTURE_ALPHA);
+        self:SetAlpha(0.2);
     end
 
     local function RemoveBar(bar)
@@ -1743,11 +1741,13 @@ do  --ArrowOption
 
         self.selectedID = id;
 
+        local isDarkMode = ThemeUtil:IsDarkMode();
+
         for i, bar in ipairs(self.bars) do
             if i == id then
                 bar:SetAlpha(1);
             else
-                bar:SetAlpha(DISABLED_TEXTURE_ALPHA);
+                bar:SetAlpha(isDarkMode and 0.5 or 0.2);
             end
         end
 
