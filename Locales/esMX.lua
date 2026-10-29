@@ -1,4 +1,4 @@
---Contributors: HectorZaGa
+--Contributors: HectorZaGa, anon1231823
 if not (GetLocale() == "esMX") then return end;
 
 local _, addon = ...
@@ -247,7 +247,7 @@ L["Nameplate Dialog"] = "Mostrar diálogo en Placas de nombre";
 L["Nameplate Dialog Desc"] = "Muestra el diálogo en las Placas de nombre de los NPCs si no ofrecen opciones.\n\nEsta opción modifica la CVar \"SoftTarget Nameplate Interact\".";
 L["Compatibility"] = "Compatibilidad";
 L["Disable DUI In Instance"] = "Usar IU predeterminada de WoW en instancias";
-L["Disable DUI In Instance Desc"] = "Desactiva YUI-Dialogue y usa la IU predeterminada de WoW en calabozos o bandas.";
+L["Disable DUI In Instance Desc"] = "Desactiva DialogueUI y usa la IU predeterminada de WoW en calabozos o bandas.";
 
 L["Disable UI Motions"] = "Reducir movimientos de IU";
 L["Disable UI Motions Desc"] = "Reduce los movimientos de IU (despliegue, animaciones, etc.).";
@@ -309,7 +309,7 @@ L["BookUI TTS Click To Read"] = "Clic para leer párrafo";
 L["BookUI TTS Click To Read Desc"] = "Haz clic en un párrafo para leerlo.\n\nHaz clic en el párrafo que se está leyendo para detenerlo.";
 
 --Quest Popups
-L["Block Auto Pushed Quest Alert Format"] = "YUI-Dialogue bloqueó la misión automática %s porque la rechazaste dos veces en esta sesión.";
+L["Block Auto Pushed Quest Alert Format"] = "DialogueUI bloqueó la misión automática %s porque la rechazaste dos veces en esta sesión.";
 L["Quest Unblocked Alert"] = "Misión desbloqueada. La ventana de misión aparecerá la próxima vez que el juego te ofrezca esta misión automáticamente.";
 L["Click To Unblock Quest"] = "Haz clic para desbloquear";   --Will be used in a clickable link []
 

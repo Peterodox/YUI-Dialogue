@@ -1,4 +1,4 @@
---Translators: Wefin & cathtail ♡
+--Translators: Wefin & cathtail ♡, anon1231823
 if not (GetLocale() == "ptBR") then return end;
 
 local _, addon = ...
@@ -309,7 +309,7 @@ L["BookUI TTS Click To Read"] = "Clique para ler parágrafo";
 L["BookUI TTS Click To Read Desc"] = "Clique no parágrafo para lê-lo.\n\nClique no parágrafo que está sendo lido atualmente para parar de ler.";
 
 --Quest Popups
-L["Block Auto Pushed Quest Alert Format"] = "YUI-Dialogue bloqueou a missão automática %s porque você recusou duas vezes nesta sessão.";
+L["Block Auto Pushed Quest Alert Format"] = "DialogueUI bloqueou a missão automática %s porque você recusou duas vezes nesta sessão.";
 L["Quest Unblocked Alert"] = "Missão desbloqueada. A janela de missão aparecerá na próxima vez que o jogo oferecer automaticamente esta missão.";
 L["Click To Unblock Quest"] = "Clique para desbloquear";   --Will be used in a clickable link []
 

@@ -1,4 +1,4 @@
---Contributors: Brainc3ll, Zazou89
+--Contributors: Brainc3ll, Zazou89, anon1231823
 if not (GetLocale() == "frFR") then return end;
 
 local _, addon = ...
@@ -309,7 +309,7 @@ L["BookUI TTS Click To Read"] = "Cliquer sur un paragraphe pour le lire";
 L["BookUI TTS Click To Read Desc"] = "Cliquez sur un paragraphe pour le lire.\n\nCliquez sur un paragraphe en cours de lecture pour l'arrêter.";
 
 --Quest Popups
-L["Block Auto Pushed Quest Alert Format"] = "YUI-Dialogue a bloqué la quête automatique %s car vous l'avez refusée deux fois cette session.";
+L["Block Auto Pushed Quest Alert Format"] = "DialogueUI a bloqué la quête automatique %s car vous l'avez refusée deux fois cette session.";
 L["Quest Unblocked Alert"] = "Quête débloquée. La fenêtre de quête apparaîtra la prochaine fois que le jeu vous proposera automatiquement cette quête.";
 L["Click To Unblock Quest"] = "Cliquez pour débloquer";   --Will be used in a clickable link []
 

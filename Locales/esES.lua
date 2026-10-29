@@ -103,6 +103,7 @@ L["Move Position"] = "Mover";
 L["Reset Position"] = RESET_POSITION or "Reiniciar posición";
 L["Drag To Move"] = "Clic izquierdo y arrastrar para mover la ventana.";
 L["Middle Click To Reset Position"] = "Click central para reiniciar la posición.";
+L["No Available Choice"] = "No hay opciones disponibles";
 
 L["Quest"] = "Misión";
 L["Gossip"] = "Charla";
@@ -247,6 +248,7 @@ L["Nameplate Dialog Desc"] = "Muestra el diálogo en la Placa de Unidades del PN
 L["Compatibility"] = "Compatibilidad";
 L["Disable DUI In Instance"] = "Usar la interfaz predeterminada del juego en estancias";
 L["Disable DUI In Instance Desc"] = "Desactiva la interfaz de diálogo y usa la predeterminada del juego cuando estás en una mazmorra o banda.";
+
 L["Disable UI Motions"] = "Reducir movimientos de la interfaz de usuario";
 L["Disable UI Motions Desc"] = "Reduce los movimientos de la interfaz de usuario, como desplegar la interfaz o mover el texto de los botones.";
 
