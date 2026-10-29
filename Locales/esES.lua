@@ -1,5 +1,5 @@
+--Contributors: anon1231823
 if not (GetLocale() == "esES") then return end;
-
 
 local _, addon = ...
 local L = addon.L;
@@ -54,6 +54,7 @@ L["TTS Button Tooltip"] = "Click izquierdo: Iniciar/Parar lectura.\nClick derech
 L["Item Is An Upgrade"] = "Este objeto es una mejora para ti";
 L["Identical Stats"] = "Los dos objetos tienen las mismas estadísticas.";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Tu Banda Guerrera ya ha completado esta misión.");
+L["Quest Completed On Alt"] = "Você já completou esta missão com outro personagem."; -- The pre-Warband version
 L["New Quest Available"] = "Nueva Misión Disponible";
 L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "Campaña";
 L["Click To Open BtWQuests"] = "Click para ver esta misión en la ventana BtWQuests.";
@@ -87,6 +88,7 @@ L["Format Your Progress"] = "Your progress: |cffffffff%d/%d|r";
 L["Format And More"] = LFG_LIST_AND_MORE or "y %d más...";
 L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d Capítulos";
 L["Format Quest Progress"] = "%d/%d Misiones";
+L["Format RP Name Example"] = "Se te referirán como:\n%s";
 
 --Settings
 L["UI"] = "Interfaz";
@@ -117,7 +119,7 @@ L["Size Large"] = "Grande";
 L["Font Size"] = "Tamaño de Fuente";
 L["Font Size Desc"] = "Establece el tamaño de la fuente de la interfaz.\n\nPor defecto: 12";
 L["Font"] = "Fuente";
-L["Font Desc"] = "Establecer la fuente para la UI.";
+L["Font Desc"] = "Establecer la fuente para la IU.";
 L["Font Tooltip Normal"] = "Fuente actual: ";
 L["Font Tooltip Missing"] = "La fuente que has elegido no está disponible. Ahora se está utilizando la fuente predeterminada.";
 L["Default"] = "Default";
@@ -226,6 +228,7 @@ L["Valuable Reward Popup Desc"] = "Cuando recibes un objeto valioso como una mej
 L["Auto Complete Quest"] = "Autocompletar misión";
 L["Auto Complete Quest Desc"] = "Completa automáticamente la siguiente misión y muestra el diálogo y las recompensas en una ventana separada. Si las recompensas contienen un cofre, puedes hacer click para abrirlo.\n\n- Candy Bucket (Hallow's End)\n- Khaz Algar Weekly\n- Midsummer Bonfire";
 L["Press Key To Use Item"] = "Presionar el botón para usar";
+L["Press Key To Use Item Desc Generic"] = "Pressione o botão de confirmação (atual: %s) para usar o item quando estiver fora de combate.";
 L["Press Key To Use Item Desc PC"] = "Presiona [KEY:PC:SPACE] para usar el item cuando estás fuera de combate.";
 L["Press Key To Use Item Desc Xbox"] = "Presiona [KEY:XBOX:PAD3] para usar el item cuando estás fuera de combate.";
 L["Press Key To Use Item Desc PlayStation"] = "Presiona [KEY:PS:PAD3] para usar el item cuando estás fuera de combate.";
@@ -244,7 +247,6 @@ L["Nameplate Dialog Desc"] = "Muestra el diálogo en la Placa de Unidades del PN
 L["Compatibility"] = "Compatibilidad";
 L["Disable DUI In Instance"] = "Usar la interfaz predeterminada del juego en estancias";
 L["Disable DUI In Instance Desc"] = "Desactiva la interfaz de diálogo y usa la predeterminada del juego cuando estás en una mazmorra o banda.";
-
 L["Disable UI Motions"] = "Reducir movimientos de la interfaz de usuario";
 L["Disable UI Motions Desc"] = "Reduce los movimientos de la interfaz de usuario, como desplegar la interfaz o mover el texto de los botones.";
 
@@ -290,7 +292,7 @@ L["Readables"] = "Legibles";   --Readable Objects
 L["Readable Objects"] = "Objetos legibles";     --Used as a label for a setting in Accessibility-TTS
 L["BookUI Enable"] = "Usar la nueva interfaz de usuario para objetos legibles";
 L["BookUI Enable Desc"] = "Utiliza la nueva interfaz de usuario para objetos legibles, como libros, cartas y notas.";
-L["BookUI Frame Size Desc"] = "Establecer el tamaño del libro de la UI.";
+L["BookUI Frame Size Desc"] = "Establecer el tamaño del libro de la IU.";
 L["BookUI Keep UI Open"] = "Mantener la ventana abierta";
 L["BookUI Keep UI Open Desc"] = "Mantiene la ventana abierta cuando te alejas del objeto.\n\nPresiona Escape o has click derecho en la interfaz de usuario para cerrarla.";
 L["BookUI Show Location"] = "Mostrar ubicación";
@@ -303,6 +305,11 @@ L["BookUI TTS Voice"] = "Voz";
 L["BookUI TTS Voice Desc"] = "Utilizar esta voz para objetos legibles:";
 L["BookUI TTS Click To Read"] = "Click en el párrafo para leer";
 L["BookUI TTS Click To Read Desc"] = "Click en un párrafo para leerlo.\n\nClick en un párrafo que se está leyendo actualmente para detener la lectura.";
+
+--Quest Popups
+L["Block Auto Pushed Quest Alert Format"] = "YUI-Dialogue bloqueou a missão automática %s porque você recusou duas vezes nesta sessão.";
+L["Quest Unblocked Alert"] = "Missão desbloqueada. A janela de missão aparecerá na próxima vez que o jogo oferecer automaticamente esta missão.";
+L["Click To Unblock Quest"] = "Clique para desbloquear";   --Will be used in a clickable link []
 
 --Keybinding Action
 L["Bound To"] = "Vinculado a: ";
@@ -328,6 +335,7 @@ L["Instruction Open Settings Console"] = "Para abrir la configuración, presiona
 L["Instruction Open Settings Keybind Format"] = "Puedes abrir la configuración presionando [%s] cuando la ventana de diálogo esté activa.";
 L["Instruction Open Settings No Keybind"] = "No has configurado ninguna tecla para abrir la configuración.";
 L["HelpTip Warband Completed Quest"] = "Este icono indica que tu banda guerrera ha completado la misión.";
+L["HelpTip Alt Completed Quest"] = "Este icono indica que ya completaste esta misión con otro personaje.";
 L["Got It"] = HELP_TIP_BUTTON_GOT_IT or "Entendido";
 L["Open Settings"] = "Abrir configuración";
 
@@ -337,6 +345,8 @@ L["Translator Source"] = "Fuente: ";
 L["Translator No Quest Data Format"] = "No se encontró ninguna entrada para [Quest: %s]";
 L["Translator Click To Hide Translation"] = "Click para ocultar la traducción";
 L["Translator Click To Show Translation"] = "Click para mostrar la traducción";
+L["Translator Click To Hide Original"] = "Clique com o botão direito para ocultar textos originais.";
+L["Translator Click To Show Original"] = "Clique com o botão direito para mostrar textos originais.";
 
 --AddOn Compatibility for Voiceover AddOns
 L["VO Provider Format"] = "|cffffffff%s|r se encarga de la voz en off";
@@ -376,7 +386,7 @@ L["Pin Profession Trainer"] = "Instructor de profesión";
 L["Pin Rostrum"] = "Podio de transformación";
 L["Pin Stable Master"] = "Maestro de establos";
 L["Pin Trading Post"] = "Puesto comercial";
-L["Pin Transmogrifier"] = MINIMAP_TRACKING_TRANSMOGRIFIER or "Transmogrifier";
+L["Pin Transmogrifier"] = MINIMAP_TRACKING_TRANSMOGRIFIER or "Transfigurador";
 L["Pin Class Trainer"] = MINIMAP_TRACKING_TRAINER_CLASS or "Instructor de clase";
 L["Pin Transmogrification"] = TRANSMOGRIFICATION or "Transfiguración";
 L["Pin Void Storage"] = VOID_STORAGE or "Depósito del Vacío";
