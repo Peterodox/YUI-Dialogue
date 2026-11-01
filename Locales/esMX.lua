@@ -331,7 +331,8 @@ L["Action Option9"] = "Opción 9";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para alternar al menú de Ajustes";
-L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para alternar al menú de Ajustes";   --Usa esto si el gamepad está habilitado
+L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para alternar al menú de Ajustes";
+L["Tutorial Choose Input Device"] = "Seleccionar dispositivo de entrada";
 L["Instruction Open Settings"] = "Para abrir Ajustes, presiona [KEY:PC:F1] mientras interactúas con un NPC.";
 L["Instruction Open Settings Console"] = "Para abrir Ajustes, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un NPC.";
 L["Instruction Open Settings Keybind Format"] = "Puedes abrir la configuración pulsando [%s] cuando la ventana de diálogo esté activa.";

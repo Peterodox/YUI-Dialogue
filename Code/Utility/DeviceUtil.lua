@@ -179,3 +179,30 @@ function DeviceUtil:GetActiveProduct()
     return productKey;
 end
 
+function DeviceUtil:QuestOrBookUIOnShow()
+    local isUsingControllerLayout = self:IsUsingControllerLayout();
+
+    -- Show splash when the device and layout don't match
+    --if self.isGamePadActive == isUsingControllerLayout then return; end
+
+    -- Show splash when gamepad is active but not using contoller layout
+    if (not self.isGamePadActive) or (self.isGamePadActive == isUsingControllerLayout) then return; end
+
+    local success = addon.TryShowGamepadSplashScreen();
+    if success then
+        self:SetLayoutByProduct(self:GetActiveProduct());
+    end
+end
+
+function DeviceUtil:RegisterDeviceChangedCallback()
+    if self.devicedChangedRegistered then return; end
+    self.devicedChangedRegistered = true;
+    CallbackRegistry:Register("DialogueUI.PreShow", DeviceUtil.QuestOrBookUIOnShow, DeviceUtil);
+    CallbackRegistry:Register("BookUI.PreShow", DeviceUtil.QuestOrBookUIOnShow, DeviceUtil);
+end
+
+CallbackRegistry:Register("PLAYER_ENTERING_WORLD", function()
+    if C_GamePad.IsEnabled() then
+        DeviceUtil:RegisterDeviceChangedCallback();
+    end
+end);

@@ -324,6 +324,7 @@ L["Action Option9"] = "옵션 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "[KEY:PC:F1]을 눌러 설정을 전환합니다";     --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "[KEY:PC:F1] 또는 [KEY:CONSOLE:MENU]를 눌러 설정을 전환합니다";   --Use this if gamepad enabled
+L["Tutorial Choose Input Device"] = "입력 장치 선택";
 L["Instruction Open Settings"] = "설정을 열려면 NPC와 상호 작용하는 동안 [KEY:PC:F1]을 누릅니다.";    --Used in Game Menu - AddOns
 L["Instruction Open Settings Console"] = "설정을 열려면 NPC와 상호 작용하는 동안 [KEY:PC:F1] 또는 [KEY:CONSOLE:MENU]를 누릅니다.";
 L["Instruction Open Settings Keybind Format"] = "대화 화면이 표시되면 [%s]를 눌러 열 수 있습니다.";

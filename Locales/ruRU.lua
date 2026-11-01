@@ -323,6 +323,7 @@ L["Action Option9"] = "Вариант 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Нажмите [KEY:PC:F1] для открытия настроек";   --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Нажмите [KEY:PC:F1] или [KEY:CONSOLE:MENU] для открытия настроек";   --Use this if gamepad enabled
+L["Tutorial Choose Input Device"] = "Выбор устройства ввода";
 L["Instruction Open Settings"] = "Чтобы открыть настройки, нажмите [KEY:PC:F1] во время взаимодействия с NPC.";    --Used in Game Menu - AddOns
 L["Instruction Open Settings Console"] = "Чтобы открыть настройки, нажмите [KEY:PC:F1] или [KEY:CONSOLE:MENU] во время взаимодействия с NPC.";
 L["Instruction Open Settings Keybind Format"] = "Вы можете открыть настройки, нажав на [%s], когда открыто окно диалога.";

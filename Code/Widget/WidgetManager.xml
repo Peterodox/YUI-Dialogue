@@ -6,6 +6,7 @@
     <Script file="Widget_QuickSlot.lua"/>
 
     <Script file="HelpTip.lua"/>
+    <Script file="SplashScreen_Gamepad.lua"/>
 
     <Frame name="DUIQuestPopupTemplate" virtual="true">
         <Size x="536" y="88"/>

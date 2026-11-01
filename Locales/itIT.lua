@@ -7,6 +7,7 @@ local L = addon.L;
 
 
 L["Renown Level Label"] = "Fama ";
+L["Tutorial Choose Input Device"] = "Seleziona dispositivo di input";
 
 
 --DO NOT TRANSLATE (Italian Missing on Cata Classic)

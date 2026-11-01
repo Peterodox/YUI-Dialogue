@@ -11,6 +11,7 @@ local ThrottleDuration = {
     --[ActionName] = second,
 
     GamePadChooseQuestReward = 0.5,
+    SplashScreenNext = 0.5,
 };
 
 local Counter = {};
