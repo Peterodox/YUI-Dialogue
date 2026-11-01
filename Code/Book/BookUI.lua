@@ -1522,6 +1522,7 @@ do  --Main UI
         self:RebuildContentFromCache();
 
         if not self:IsShown() then
+            CallbackRegistry:Trigger("BookUI.PreShow");
             self.t = 0;
             self:SetAlpha(0);
             self:Show();

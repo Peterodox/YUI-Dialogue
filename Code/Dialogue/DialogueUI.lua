@@ -2405,6 +2405,7 @@ function DUIDialogBaseMixin:ShowUI(event, ...)
     end
 
     if not self:IsShown() then
+        CallbackRegistry:Trigger("DialogueUI.PreShow");
         CameraUtil:InitiateInteraction();
         self:PlayIntroAnimation();
         self:OnEvent(event);
@@ -3094,7 +3095,6 @@ do  --Quest Rewards
         local baseOffsetX = PADDING_H * FRAME_SIZE_MULTIPLIER;
         local chooseItems = self.chooseItems;
 
-        local itemButtonWidth = self.halfFrameWidth;
         local itemButtonHeight = 36;
         local gridWidth = self.quarterFrameWidth;
         local smallItemButtonHeight = 15;

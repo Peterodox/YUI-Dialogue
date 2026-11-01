@@ -217,6 +217,10 @@ do  --Control Used in KeyboardControl.lua
             return L["Not Bound"]
         end
     end
+
+    function BindingUtil:GetActiveConfirmKey()
+        return self:GetActiveActionKey("Confirm");
+    end
 end
 
 local function DialogueUI_Loaded(savedVariable)
