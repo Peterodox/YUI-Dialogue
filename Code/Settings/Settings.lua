@@ -217,7 +217,6 @@ function DUIDialogSettingsMixin:LoadTheme()
         self.BackgroundDecor:SetVertexColor(173/255, 114/255, 65/255);
     end
 
-    self.BackgroundFrame:SetTheme(themeID);
     self.ScrollBar:SetTheme(themeID);
 
     for i, button in ipairs(self.tabButtons) do

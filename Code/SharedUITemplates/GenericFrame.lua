@@ -69,6 +69,11 @@ do  --DUIGenericTitledFrameMixin
         self.RealArea = self.Background;
         self.EffectiveArea = self;
 
-        self:SetTheme(1);
+        addon.CallbackRegistry:Register("ThemeChanged", self.OnThemeChanged, self);
+        self:SetTheme(addon.ThemeUtil:GetThemeID());
+    end
+
+    function DUIGenericTitledFrameMixin:OnThemeChanged(themeID)
+        self:SetTheme(themeID);
     end
 end
