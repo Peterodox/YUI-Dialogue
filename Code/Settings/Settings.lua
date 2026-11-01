@@ -1374,6 +1374,10 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     if GAME_PAD_ACTIVE then
         self:FocusObjectByIndex(self["tab"..self.tabID.."gamepadFocusIndex"] or 1);
     end
+
+    if self:IsVisible() and not forceUpdate then
+        PlaySound("CHECKBOX_ON");
+    end
 end
 
 function DUIDialogSettingsMixin:SelectTabByDelta(delta)
@@ -1456,7 +1460,6 @@ end
 
 function DUIDialogSettingsTabButtonMixin:OnClick()
     MainFrame:SelectTabByID(self.tabID);
-    PlaySound("CHECKBOX_ON");
 end
 
 function DUIDialogSettingsTabButtonMixin:SetName(name)
@@ -1643,7 +1646,6 @@ do  --ArrowOption
 
     local function ArrowButton_OnClick(self)
         self:GetParent():SelectChoiceByDelta(self.delta);
-        PlaySound("CHECKBOX_ON");
     end
 
     local function ArrowButton_OnEnter(self)
@@ -1836,6 +1838,9 @@ do  --ArrowOption
 
         if anyChange then
             self:PostClick();
+            if self:IsVisible() then
+                PlaySound("CHECKBOX_ON");
+            end
         end
     end
 
