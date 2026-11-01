@@ -187,6 +187,26 @@
         </Scripts>
     </Frame>
 
+    <Frame name="DUIDialogueOptionButtonHighlightTemplate" hidden="true" virtual="true">
+        <Size x="32" y="32"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="BackTexture" setAllPoints="true">
+                    <TextureSliceMode mode="Stretched"/>
+                    <TextureSliceMargins left="40" right="16" top="8" bottom="8"/>
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY" textureSubLevel="7">
+                <Texture parentKey="FrontTexture">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="0"/>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="8" y="0"/>
+                    </Anchors>    
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
+
     <Button name="DUIDialogItemButtonTemplate" mixin="DUIDialogItemButtonMixin" flattenRenderLayers="true" hidden="true" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true"> <!--Display Items-->
         <Size x="174" y="36"/>
         <Frames>
@@ -533,27 +553,7 @@
 
             <Frame parentKey="ContentFrame" clipChildren="false">
                 <Frames>
-                    <Frame parentKey="ButtonHighlight" hidden="true">
-                        <Size x="32" y="32"/>
-                        <Layers>
-                            <Layer level="ARTWORK">
-                                <Texture parentKey="BackTexture" setAllPoints="true">
-                                    <TextureSliceMode mode="Stretched"/>
-                                    <TextureSliceMargins left="40" right="16" top="8" bottom="8"/>
-                                </Texture>
-                            </Layer>
-                            <Layer level="OVERLAY" textureSubLevel="7">
-                                <Texture parentKey="FrontTexture">
-                                    <!--TextureSliceMode mode="Stretched"/>
-                                    <TextureSliceMargins left="8" right="8" top="8" bottom="8"/-->
-                                    <Anchors>
-                                        <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="8" y="0"/>
-                                        <Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT" x="8" y="0"/>
-                                    </Anchors>    
-                                </Texture>
-                            </Layer>
-                        </Layers>
-                    </Frame>
+                    <Frame parentKey="ButtonHighlight" inherits="DUIDialogueOptionButtonHighlightTemplate"/>
 
                     <Frame parentKey="RewardSelection" hidden="true">
                         <Size x="32" y="32"/>
