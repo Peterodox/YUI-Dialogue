@@ -1024,8 +1024,16 @@ function ScrollFrameMixin:ScrollBy(offset)
     self:SetScrollOffset(self:GetScrollOffset() + offset);
 end
 
+function ScrollFrameMixin:ScrollToTop()
+    self:SetScrollOffset(0);
+end
+
 function ScrollFrameMixin:ScrollToBottom()
     self:SetScrollOffset(self:GetScrollRange());
+end
+
+function ScrollFrameMixin:GetDistanceToBottom()
+    return math.max(0, self:GetScrollRange() - self:GetScrollOffset());
 end
 
 function ScrollFrameMixin:OnMouseWheel(delta)
@@ -2203,14 +2211,20 @@ do  --GamePad/Controller
         self.gamepadFocus = optionButton;
     end
 
+    ---@return boolean currentObjectExists Found object at index
+    ---@return boolean preObjectExists
+    ---@return boolean nextObjectExists
     function DUIDialogSettingsMixin:FocusObjectByIndex(index)
         local object = self.gamepadObjects[index];
-        if object then
+        local currentObjectExists = object ~= nil;
+        local preObjectExists = self.gamepadObjects[index - 1] ~= nil;
+        local nextObjectExists = self.gamepadObjects[index + 1] ~= nil;
+        if currentObjectExists then
             self.gamepadFocusIndex = index;
             self.gamepadFocus = object;
             self.gamepadFocus:OnEnter();
-            return true
         end
+        return currentObjectExists, preObjectExists, nextObjectExists;
     end
 
     function DUIDialogSettingsMixin:FocusObjectByDelta(delta)
@@ -2233,17 +2247,23 @@ do  --GamePad/Controller
 
         self:ClearGamePadFocus();
 
-        if self:FocusObjectByIndex(index) then
-            local threshold = 2 * OPTIONBUTTON_HEIGHT;
+        local currentObjectExists, preObjectExists, nextObjectExists = self:FocusObjectByIndex(index);
+        if currentObjectExists then
+            local step = OPTIONBUTTON_HEIGHT;
+            local threshold = 2 * step;
             if delta > 0 then
                 local top = self.gamepadFocus:GetTop();
-                if top + threshold >= self.scrollFrameTop then
-                    self.ScrollFrame:ScrollBy(-OPTIONBUTTON_HEIGHT);
+                if not preObjectExists then
+                    self.ScrollFrame:ScrollToTop();
+                elseif top + threshold >= self.scrollFrameTop then
+                    self.ScrollFrame:ScrollBy(-step);
                 end
             else
                 local bottom = self.gamepadFocus:GetBottom();
-                if bottom - threshold <= self.scrollFrameBottom then
-                    self.ScrollFrame:ScrollBy(OPTIONBUTTON_HEIGHT);
+                if not nextObjectExists then
+                    self.ScrollFrame:ScrollToBottom();
+                elseif bottom - threshold <= self.scrollFrameBottom then
+                    self.ScrollFrame:ScrollBy(step);
                 end
             end
             return true
