@@ -611,6 +611,16 @@ local function UseItemHotkey_Tooltip()
     end
 end
 
+local InputDeviceOption = {
+    type = "ArrowOption", name = L["Input Device"], dbKey = "InputDevice", description = L["Input Device Desc"],
+    choices = {
+        {dbValue = 1, valueText = L["Input Device KBM"]},
+        {dbValue = 2, valueText = L["Input Device Xbox"], tooltip = L["Input Device Xbox Tooltip"]},
+        {dbValue = 3, valueText = L["Input Device PlayStation"], tooltip = L["Input Device PlayStation Tooltip"]},
+        {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"]},
+    }
+};
+
 local Schematic = { --Scheme
     {
         tabName = L["UI"],  --Cate1
@@ -715,14 +725,7 @@ local Schematic = { --Scheme
     {
         tabName = L["Control"],  --Cate3
         options = {
-            {type = "ArrowOption", name = L["Input Device"], dbKey = "InputDevice", description = L["Input Device Desc"],
-                choices = {
-                    {dbValue = 1, valueText = L["Input Device KBM"]},
-                    {dbValue = 2, valueText = L["Input Device Xbox"], tooltip = L["Input Device Xbox Tooltip"]},
-                    {dbValue = 3, valueText = L["Input Device PlayStation"], tooltip = L["Input Device PlayStation Tooltip"]},
-                    {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"]},
-                },
-            },
+            InputDeviceOption,
 
             {type = "Checkbox", name = L["Use Custom Bindings"], description = L["Use Custom Bindings Desc"], dbKey = "UseCustomBindings", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Keybinding", branchLevel = 2, action = "Confirm", name = L["Action Confirm"], description = L["Primary Control Key Desc"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true}},
@@ -2324,9 +2327,9 @@ do
         FONT_HEIGHT_LARGE = baseFontSize;
         FONT_HEIGHT_NORMAL = baseFontSize;
 
-        BUTTON_PADDING_LARGE = FONT_HEIGHT_NORMAL;
-        OPTIONBUTTON_HEIGHT = 3*FONT_HEIGHT_NORMAL;
-        OPTION_WIDGET_SIZE = 2 * FONT_HEIGHT_NORMAL;
+        BUTTON_PADDING_LARGE =    FONT_HEIGHT_NORMAL;
+        OPTIONBUTTON_HEIGHT = 3 * FONT_HEIGHT_NORMAL;
+        OPTION_WIDGET_SIZE =  2 * FONT_HEIGHT_NORMAL;
 
         local widthMultiplier;
 
@@ -2492,5 +2495,37 @@ do  --Create an entrance to settings in Blizzard addon settings window
                 SetupInstruction();
             end
         end);
+    end
+end
+
+do -- Share size info with other modules
+    local SettingsUtil = {};
+    addon.SettingsUtil = SettingsUtil;
+
+    function SettingsUtil.GetLayoutInfo()
+        return {
+            optionButtonHeight = OPTIONBUTTON_HEIGHT,
+            optionButtonWidth = OPTIONBUTTON_WIDTH,
+            widgetHeight = OPTION_WIDGET_SIZE,
+        };
+    end
+
+    function SettingsUtil.CreateInputDeviceSelector(parent)
+        local widget = CreateFrame("Frame", nil, parent, "DUIDialogSettingsArrowOptionTemplate");
+        widget:LoadTexture(ThemeUtil:GetTextureFile("Settings-ArrowOption.png"));
+        widget:SetWidgetHeight(OPTION_WIDGET_SIZE);
+        widget:SetData(InputDeviceOption);
+
+        function widget:OnThemeChanged()
+            local file = ThemeUtil:GetTextureFile("Settings-ArrowOption.png");
+            widget:LoadTexture(file);
+            widget.barPool:ProcessAllObjects(function(bar)
+                bar:SetTexture(file);
+            end);
+        end
+
+        widget:OnThemeChanged();
+
+        return widget;
     end
 end
