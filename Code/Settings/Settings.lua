@@ -126,12 +126,11 @@ function DUIDialogSettingsMixin:OnKeyDown(key)
     end
 end
 
-function DUIDialogSettingsMixin:OnGamePadButtonDown(button)
-    --print(button)
-
+function DUIDialogSettingsMixin:OnGamePadButtonDown(button, fromRepeat)
     GAME_PAD_ACTIVE = true;
 
     local valid = false;
+    local repeatButton;
 
     if button == "PADFORWARD" or button == "PADBACK" or button == "PADMENU" or button == "PAD2" then
         self:Hide();
@@ -144,9 +143,11 @@ function DUIDialogSettingsMixin:OnGamePadButtonDown(button)
         valid = true;
     elseif button == "PADDUP" then
         self:FocusObjectByDelta(1);
+        repeatButton = button;
         valid = true;
     elseif button == "PADDDOWN" then
         self:FocusObjectByDelta(-1);
+        repeatButton = button;
         valid = true;
     elseif button == "PADDLEFT" or button == "PADDRIGHT" or button == "PAD1" then
         self:ClickFocusedObject(button);
@@ -155,7 +156,39 @@ function DUIDialogSettingsMixin:OnGamePadButtonDown(button)
 
     if not InCombatLockdown() then
         self:SetPropagateKeyboardInput(not valid);
+        self:RepeatAction(repeatButton, fromRepeat);
     end
+end
+
+function DUIDialogSettingsMixin:OnGamePadButtonUp(button)
+    self:StopRepeatingAction();
+end
+
+local function RepeatGamePadButton_OnUpdate(self, elapsed)
+    self.repeatElapsed = self.repeatElapsed + elapsed;
+    if self.repeatElapsed >= 0.125 then
+        self.repeatElapsed = 0;
+        if self.repeatButton then
+            self:OnGamePadButtonDown(self.repeatButton, true);
+        else
+            self:StopRepeatingAction();
+        end
+    end
+end
+
+function DUIDialogSettingsMixin:RepeatAction(button, fromRepeat)
+    if button then
+        self.repeatElapsed = (fromRepeat and -0.125) or -0.375; -- Extra delay before repeating starts
+        self.repeatButton = button;
+        self:SetScript("OnUpdate", RepeatGamePadButton_OnUpdate);
+    elseif self.repeatElapsed then
+        self:StopRepeatingAction();
+    end
+end
+
+function DUIDialogSettingsMixin:StopRepeatingAction()
+    self:SetScript("OnUpdate", nil);
+    self.repeatElapsed = nil;
 end
 
 function DUIDialogSettingsMixin:OnMouseWheel(delta)
@@ -256,6 +289,7 @@ function DUIDialogSettingsMixin:OnHide()
     self:EnableGamePadButton(false);
     self:UnregisterEvent("GAME_PAD_ACTIVE_CHANGED");
     self:UnregisterEvent("GAME_PAD_DISCONNECTED");
+    self:StopRepeatingAction();
     CallbackRegistry:Trigger("SettingsUI.Hide");
 end
 
