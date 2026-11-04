@@ -611,13 +611,29 @@ local function UseItemHotkey_Tooltip()
     end
 end
 
+local function GetDetectedDeviceNames()
+    local devices = addon.DeviceUtil:GetDetectedDevices();
+    if devices then
+        local extraTooltip;
+        if #devices > 1 then
+            extraTooltip = L["Detected Devices Colon"];
+        else
+            extraTooltip = L["Detected Device Colon"];
+        end
+        for _, info in ipairs(devices) do
+            extraTooltip = extraTooltip .. "\n- "..info.name;
+        end
+        return extraTooltip;
+    end
+end
+
 local InputDeviceOption = {
     type = "ArrowOption", name = L["Input Device"], dbKey = "InputDevice", description = L["Input Device Desc"],
     choices = {
-        {dbValue = 1, valueText = L["Input Device KBM"]},
-        {dbValue = 2, valueText = L["Input Device Xbox"], tooltip = L["Input Device Xbox Tooltip"]},
-        {dbValue = 3, valueText = L["Input Device PlayStation"], tooltip = L["Input Device PlayStation Tooltip"]},
-        {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"]},
+        {dbValue = 1, valueText = L["Input Device KBM"], tooltip = GetDetectedDeviceNames},
+        {dbValue = 2, valueText = L["Input Device Xbox"], tooltip = L["Input Device Xbox Tooltip"], extraTooltip = GetDetectedDeviceNames},
+        {dbValue = 3, valueText = L["Input Device PlayStation"], tooltip = L["Input Device PlayStation Tooltip"], extraTooltip = GetDetectedDeviceNames},
+        {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"], extraTooltip = GetDetectedDeviceNames},
     }
 };
 
@@ -1652,6 +1668,16 @@ function DUIDialogSettingsOptionMixin:AdjustScroll()
     MainFrame:AdjustScrollToObject(self);
 end
 
+
+local function GetTooltipText(tooltip, ...)
+    if type(tooltip) == "function" then
+        return tooltip(...);
+    else
+        return tooltip;
+    end
+end
+
+
 do  --ArrowOption
     DUIDialogSettingsArrowOptionMixin = {};
 
@@ -1914,17 +1940,26 @@ do  --ArrowOption
     end
 
     function DUIDialogSettingsArrowOptionMixin:GetSelectedChoiceTooltip()
-        if self.selectedID and self.choices and self.choices[self.selectedID] then
-            local tooltip = self.choices[self.selectedID].tooltip;
+        local choiceInfo = self.selectedID and self.choices and self.choices[self.selectedID];
+        if choiceInfo then
+            local tooltip = choiceInfo.tooltip;
             if not tooltip then
                 local optionButton = self:GetParent();
                 tooltip = optionButton.optionData and optionButton.optionData.tooltip;
             end
-            if type(tooltip) == "function" then
-                return tooltip()
-            else
-                return tooltip
+
+            local tooltipText = GetTooltipText(tooltip);
+            if choiceInfo.extraTooltip then
+                local extraTooltipText = GetTooltipText(choiceInfo.extraTooltip);
+                if extraTooltipText then
+                    if tooltipText then
+                        tooltipText = tooltipText.."\n\n"..extraTooltipText;
+                    else
+                        tooltipText = extraTooltipText;
+                    end
+                end
             end
+            return tooltipText;
         end
     end
 end
@@ -2008,13 +2043,7 @@ do  --Checkbox
     function DUIDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
         local optionButton = self:GetParent();
         local tooltip = optionButton.optionData and optionButton.optionData.tooltip;
-        if tooltip then
-            if type(tooltip) == "function" then
-                return tooltip(self.checked)
-            else
-                return tooltip
-            end
-        end
+        return GetTooltipText(tooltip, self.checked);
     end
 end
 
@@ -2166,13 +2195,7 @@ do  --DropdownButton
     function DUIDialogSettingsDropdownButtonMixin:GetSelectedChoiceTooltip()
         local optionButton = self:GetParent();
         local tooltip = optionButton.optionData and optionButton.optionData.tooltip;
-        if tooltip then
-            if type(tooltip) == "function" then
-                return tooltip(self)
-            else
-                return tooltip
-            end
-        end
+        return GetTooltipText(tooltip, self);
     end
 
     function DUIDialogSettingsDropdownButtonMixin:IsInRange()
