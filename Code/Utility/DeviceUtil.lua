@@ -1,7 +1,8 @@
 local _, addon = ...
 local GetDBValue = addon.GetDBValue;
+local CallbackRegistry = addon.CallbackRegistry;
 
-local DeviceUtil = {};
+local DeviceUtil = CreateFrame("Frame");
 addon.DeviceUtil = DeviceUtil;
 
 local Mapping = {
@@ -37,23 +38,47 @@ local Mapping = {
     },
 };
 
+local DeviceIndex = {
+    KBM = 1,
+    XBOX = 2,
+    PS = 3,
+    SWITCH = 4,
+};
 
-function DeviceUtil:IsUsingController()
-    local deviceID = GetDBValue("InputDevice");
-    return (deviceID == 2 or deviceID == 3 or deviceID == 4)
+
+function DeviceUtil:IsUsingControllerLayout()
+    local deviceIndex = GetDBValue("InputDevice");
+    for _productKey, index in pairs(DeviceIndex) do
+        if deviceIndex == index and deviceIndex ~= DeviceIndex.KBM then
+            return true;
+        end
+    end
+    return false;
+end
+
+---@param productKey "KBM"|"XBOX"|"PS"|"SWITCH"
+function DeviceUtil:SetLayoutByProduct(productKey)
+    local deviceIndex;
+    for key, index in pairs(DeviceIndex) do
+        if key == productKey then
+            deviceIndex = index;
+        end
+    end
+    if deviceIndex then
+        addon.SetDBValue("InputDevice", deviceIndex, true);
+        return true;
+    end
+    return false;
 end
 
 function DeviceUtil:GetDeviceMapping()
-    local deviceID = GetDBValue("InputDevice");
-    if deviceID == 2 then
-        return Mapping.XBOX
-    elseif deviceID == 3 then
-        return Mapping.KBM
-    elseif deviceID == 4 then
-        return Mapping.PS
-    else
-        return Mapping.KBM
+    local deviceIndex = GetDBValue("InputDevice");
+    for productKey, index in pairs(DeviceIndex) do
+        if deviceIndex == index then
+            return Mapping[productKey];
+        end
     end
+    return Mapping.KBM;
 end
 
 function DeviceUtil:GetConfirmKey()
@@ -65,7 +90,7 @@ function DeviceUtil:GetCancelKey()
 end
 
 function DeviceUtil:GetActionKey()
-    if self:IsUsingController() then
+    if self:IsUsingControllerLayout() then
         return self:GetDeviceMapping()[3]
     else
         return addon.BindingUtil:GetActiveActionKey("Confirm");
@@ -100,4 +125,126 @@ end
 
 function DeviceUtil.IsAltDown(key, down)
     return down == 1 and (key == "LALT" or key == "RALT")
+end
+
+
+--- Game pad detection
+DeviceUtil:RegisterEvent("GAME_PAD_CONNECTED");
+DeviceUtil:RegisterEvent("GAME_PAD_DISCONNECTED");
+DeviceUtil:RegisterEvent("GAME_PAD_ACTIVE_CHANGED");
+DeviceUtil.isGamePadActive = false;
+
+function DeviceUtil:OnEvent(event, ...)
+    if event == "GAME_PAD_ACTIVE_CHANGED" then
+        ---triggers when pressing any controller button
+        self.isGamePadActive = ...
+    elseif event == "GAME_PAD_CONNECTED" then
+        self.isGamePadActive = true;
+        DeviceUtil:RegisterDeviceChangedCallback();
+        if not self.gamePadConnected then
+            self.gamePadConnected = true;
+            self:QuestOrBookUIOnShow();
+        end
+    end
+end
+DeviceUtil:SetScript("OnEvent", DeviceUtil.OnEvent);
+
+local ProductNameXProductKey = {
+    XBOX = "XBOX",
+    PLAYSTATION = "PS",
+    DUALSENSE = "PS",
+};
+
+function DeviceUtil:GetActiveProduct()
+    local productKey;
+
+    if self.isGamePadActive then
+        productKey = "XBOX";
+        for _, deviceID in pairs(C_GamePad.GetAllDeviceIDs()) do
+            local rawState = C_GamePad.GetDeviceRawState(deviceID);
+            if rawState and rawState.name then
+                local name = string.upper(rawState.name);
+                for productName, key in pairs(ProductNameXProductKey) do
+                    if string.find(name, productName) then
+                        productKey = key;
+                        break;
+                    end
+                end
+            end
+        end
+    else
+        productKey = "KBM";
+    end
+
+    return productKey;
+end
+
+function DeviceUtil:GetDetectedDevices()
+    local n = 0;
+    local devices;
+
+    for _, deviceID in pairs(C_GamePad.GetAllDeviceIDs()) do
+        local rawState = C_GamePad.GetDeviceRawState(deviceID);
+        if rawState and rawState.name then
+            if not devices then
+                devices = {};
+            end
+            n = n + 1;
+            devices[n] = {name = rawState.name, productID = rawState.productID, vendorID = rawState.vendorID};
+        end
+    end
+
+    return devices;
+end
+
+function DeviceUtil:QuestOrBookUIOnShow()
+    local isUsingControllerLayout = self:IsUsingControllerLayout();
+
+    -- Show splash when the device and layout don't match
+    --if self.isGamePadActive == isUsingControllerLayout then return; end
+
+    -- Show splash when gamepad is active but not using contoller layout
+    if (not self.isGamePadActive) or (self.isGamePadActive == isUsingControllerLayout) then return; end
+
+    local success = addon.TryShowGamepadSplashScreen();
+    if success then
+        self:SetLayoutByProduct(self:GetActiveProduct());
+    end
+end
+
+function DeviceUtil:RegisterDeviceChangedCallback()
+    if self.devicedChangedRegistered then return; end
+    self.devicedChangedRegistered = true;
+    CallbackRegistry:Register("DialogueUI.PreShow", DeviceUtil.QuestOrBookUIOnShow, DeviceUtil);
+    CallbackRegistry:Register("BookUI.PreShow", DeviceUtil.QuestOrBookUIOnShow, DeviceUtil);
+end
+
+CallbackRegistry:Register("PLAYER_ENTERING_WORLD", function()
+    if C_GamePad.IsEnabled() then
+        DeviceUtil:RegisterDeviceChangedCallback();
+    end
+end);
+
+
+---API for testing
+---/run DialogueUIAPI.ShowDevices()
+function DialogueUIAPI.ShowDevices()
+    local keys = {"name", "productID", "vendorID"};
+    local devices = DeviceUtil:GetDetectedDevices();
+    if devices then
+        for _, info in ipairs(devices) do
+            local line;
+            for _, key in ipairs(keys) do
+                local seg = string.format("|cffffd100%s:|r %s", key, info[key] or "none");
+                if line then
+                    line = line.."  "..seg;
+                else
+                    line = seg;
+                end
+            end
+            print(line);
+        end
+    else
+        print("No device detected");
+    end
 end

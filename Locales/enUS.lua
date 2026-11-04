@@ -195,6 +195,8 @@ L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "Confirm Button: [KEY:PS:PAD1]\nCancel Button: [KEY:PS:PAD2]";
 L["Input Device Switch"] = "Switch";
 L["Input Device Switch Tooltip"] = "Confirm Button: [KEY:SWITCH:PAD1]\nCancel Button: [KEY:SWITCH:PAD2]";
+L["Detected Device Colon"] = "Detected Device:";
+L["Detected Devices Colon"] = "Detected Devices:";
 L["Use Custom Bindings"] = "Use Custom Bindings";
 L["Use Custom Bindings Desc"] = "Enable this option to use your own bindings.";
 L["Primary Control Key"] = "Confirm Button";
@@ -346,6 +348,7 @@ L["Action Option9"] = "Option 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";     --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Press [KEY:PC:F1] or [KEY:CONSOLE:MENU] to toggle Settings";   --Use this if gamepad enabled
+L["Tutorial Choose Input Device"] = "Choose your Input Device";
 L["Instruction Open Settings"] = "You can open settings by pressing [KEY:PC:F1] when the dialogue window is active.";    --Used in Game Menu - AddOns
 L["Instruction Open Settings Console"] = "You can open settings by pressing [KEY:PC:F1] or [KEY:CONSOLE:MENU] when the dialogue window is active.";
 L["Instruction Open Settings Keybind Format"] = "You can open settings by pressing [%s] when the dialogue window is active.";

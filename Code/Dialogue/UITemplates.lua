@@ -312,7 +312,7 @@ function DUIDialogOptionButtonMixin:OnEnter()
 end
 
 function DUIDialogOptionButtonMixin:OnLeave()
-    if self:IsMouseOver() then return end;
+    if self:IsMouseMotionFocus() then return end;
     self.owner:HighlightButton(nil);
     self.t = 0;
     self:SetScript("OnUpdate", Anim_ResetButtonCentent_OnUpdate);

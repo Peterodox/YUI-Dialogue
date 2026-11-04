@@ -126,12 +126,11 @@ function DUIDialogSettingsMixin:OnKeyDown(key)
     end
 end
 
-function DUIDialogSettingsMixin:OnGamePadButtonDown(button)
-    --print(button)
-
+function DUIDialogSettingsMixin:OnGamePadButtonDown(button, fromRepeat)
     GAME_PAD_ACTIVE = true;
 
     local valid = false;
+    local repeatButton;
 
     if button == "PADFORWARD" or button == "PADBACK" or button == "PADMENU" or button == "PAD2" then
         self:Hide();
@@ -144,9 +143,11 @@ function DUIDialogSettingsMixin:OnGamePadButtonDown(button)
         valid = true;
     elseif button == "PADDUP" then
         self:FocusObjectByDelta(1);
+        repeatButton = button;
         valid = true;
     elseif button == "PADDDOWN" then
         self:FocusObjectByDelta(-1);
+        repeatButton = button;
         valid = true;
     elseif button == "PADDLEFT" or button == "PADDRIGHT" or button == "PAD1" then
         self:ClickFocusedObject(button);
@@ -155,7 +156,39 @@ function DUIDialogSettingsMixin:OnGamePadButtonDown(button)
 
     if not InCombatLockdown() then
         self:SetPropagateKeyboardInput(not valid);
+        self:RepeatAction(repeatButton, fromRepeat);
     end
+end
+
+function DUIDialogSettingsMixin:OnGamePadButtonUp(button)
+    self:StopRepeatingAction();
+end
+
+local function RepeatGamePadButton_OnUpdate(self, elapsed)
+    self.repeatElapsed = self.repeatElapsed + elapsed;
+    if self.repeatElapsed >= 0.125 then
+        self.repeatElapsed = 0;
+        if self.repeatButton then
+            self:OnGamePadButtonDown(self.repeatButton, true);
+        else
+            self:StopRepeatingAction();
+        end
+    end
+end
+
+function DUIDialogSettingsMixin:RepeatAction(button, fromRepeat)
+    if button then
+        self.repeatElapsed = (fromRepeat and -0.125) or -0.375; -- Extra delay before repeating starts
+        self.repeatButton = button;
+        self:SetScript("OnUpdate", RepeatGamePadButton_OnUpdate);
+    elseif self.repeatElapsed then
+        self:StopRepeatingAction();
+    end
+end
+
+function DUIDialogSettingsMixin:StopRepeatingAction()
+    self:SetScript("OnUpdate", nil);
+    self.repeatElapsed = nil;
 end
 
 function DUIDialogSettingsMixin:OnMouseWheel(delta)
@@ -217,7 +250,6 @@ function DUIDialogSettingsMixin:LoadTheme()
         self.BackgroundDecor:SetVertexColor(173/255, 114/255, 65/255);
     end
 
-    self.BackgroundFrame:SetTheme(themeID);
     self.ScrollBar:SetTheme(themeID);
 
     for i, button in ipairs(self.tabButtons) do
@@ -257,6 +289,7 @@ function DUIDialogSettingsMixin:OnHide()
     self:EnableGamePadButton(false);
     self:UnregisterEvent("GAME_PAD_ACTIVE_CHANGED");
     self:UnregisterEvent("GAME_PAD_DISCONNECTED");
+    self:StopRepeatingAction();
     CallbackRegistry:Trigger("SettingsUI.Hide");
 end
 
@@ -578,6 +611,32 @@ local function UseItemHotkey_Tooltip()
     end
 end
 
+local function GetDetectedDeviceNames()
+    local devices = addon.DeviceUtil:GetDetectedDevices();
+    if devices then
+        local extraTooltip;
+        if #devices > 1 then
+            extraTooltip = L["Detected Devices Colon"];
+        else
+            extraTooltip = L["Detected Device Colon"];
+        end
+        for _, info in ipairs(devices) do
+            extraTooltip = extraTooltip .. "\n- "..info.name;
+        end
+        return extraTooltip;
+    end
+end
+
+local InputDeviceOption = {
+    type = "ArrowOption", name = L["Input Device"], dbKey = "InputDevice", description = L["Input Device Desc"],
+    choices = {
+        {dbValue = 1, valueText = L["Input Device KBM"], tooltip = GetDetectedDeviceNames},
+        {dbValue = 2, valueText = L["Input Device Xbox"], tooltip = L["Input Device Xbox Tooltip"], extraTooltip = GetDetectedDeviceNames},
+        {dbValue = 3, valueText = L["Input Device PlayStation"], tooltip = L["Input Device PlayStation Tooltip"], extraTooltip = GetDetectedDeviceNames},
+        {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"], extraTooltip = GetDetectedDeviceNames},
+    }
+};
+
 local Schematic = { --Scheme
     {
         tabName = L["UI"],  --Cate1
@@ -682,14 +741,7 @@ local Schematic = { --Scheme
     {
         tabName = L["Control"],  --Cate3
         options = {
-            {type = "ArrowOption", name = L["Input Device"], dbKey = "InputDevice", description = L["Input Device Desc"],
-                choices = {
-                    {dbValue = 1, valueText = L["Input Device KBM"]},
-                    {dbValue = 2, valueText = L["Input Device Xbox"], tooltip = L["Input Device Xbox Tooltip"]},
-                    {dbValue = 3, valueText = L["Input Device PlayStation"], tooltip = L["Input Device PlayStation Tooltip"]},
-                    {dbValue = 4, valueText = L["Input Device Switch"], tooltip = L["Input Device Switch Tooltip"]},
-                },
-            },
+            InputDeviceOption,
 
             {type = "Checkbox", name = L["Use Custom Bindings"], description = L["Use Custom Bindings Desc"], dbKey = "UseCustomBindings", requiredParentValueAnd = {InputDevice = 1}},
             {type = "Keybinding", branchLevel = 2, action = "Confirm", name = L["Action Confirm"], description = L["Primary Control Key Desc"], requiredParentValueAnd = {InputDevice = 1, UseCustomBindings = true}},
@@ -991,8 +1043,16 @@ function ScrollFrameMixin:ScrollBy(offset)
     self:SetScrollOffset(self:GetScrollOffset() + offset);
 end
 
+function ScrollFrameMixin:ScrollToTop()
+    self:SetScrollOffset(0);
+end
+
 function ScrollFrameMixin:ScrollToBottom()
     self:SetScrollOffset(self:GetScrollRange());
+end
+
+function ScrollFrameMixin:GetDistanceToBottom()
+    return math.max(0, self:GetScrollRange() - self:GetScrollOffset());
 end
 
 function ScrollFrameMixin:OnMouseWheel(delta)
@@ -1341,6 +1401,10 @@ function DUIDialogSettingsMixin:SelectTabByID(tabID, forceUpdate)
     if GAME_PAD_ACTIVE then
         self:FocusObjectByIndex(self["tab"..self.tabID.."gamepadFocusIndex"] or 1);
     end
+
+    if self:IsVisible() and not forceUpdate then
+        PlaySound("CHECKBOX_ON");
+    end
 end
 
 function DUIDialogSettingsMixin:SelectTabByDelta(delta)
@@ -1423,7 +1487,6 @@ end
 
 function DUIDialogSettingsTabButtonMixin:OnClick()
     MainFrame:SelectTabByID(self.tabID);
-    PlaySound("CHECKBOX_ON");
 end
 
 function DUIDialogSettingsTabButtonMixin:SetName(name)
@@ -1605,12 +1668,21 @@ function DUIDialogSettingsOptionMixin:AdjustScroll()
     MainFrame:AdjustScrollToObject(self);
 end
 
+
+local function GetTooltipText(tooltip, ...)
+    if type(tooltip) == "function" then
+        return tooltip(...);
+    else
+        return tooltip;
+    end
+end
+
+
 do  --ArrowOption
     DUIDialogSettingsArrowOptionMixin = {};
 
     local function ArrowButton_OnClick(self)
         self:GetParent():SelectChoiceByDelta(self.delta);
-        PlaySound("CHECKBOX_ON");
     end
 
     local function ArrowButton_OnEnter(self)
@@ -1803,6 +1875,9 @@ do  --ArrowOption
 
         if anyChange then
             self:PostClick();
+            if self:IsVisible() then
+                PlaySound("CHECKBOX_ON");
+            end
         end
     end
 
@@ -1865,17 +1940,26 @@ do  --ArrowOption
     end
 
     function DUIDialogSettingsArrowOptionMixin:GetSelectedChoiceTooltip()
-        if self.selectedID and self.choices and self.choices[self.selectedID] then
-            local tooltip = self.choices[self.selectedID].tooltip;
+        local choiceInfo = self.selectedID and self.choices and self.choices[self.selectedID];
+        if choiceInfo then
+            local tooltip = choiceInfo.tooltip;
             if not tooltip then
                 local optionButton = self:GetParent();
                 tooltip = optionButton.optionData and optionButton.optionData.tooltip;
             end
-            if type(tooltip) == "function" then
-                return tooltip()
-            else
-                return tooltip
+
+            local tooltipText = GetTooltipText(tooltip);
+            if choiceInfo.extraTooltip then
+                local extraTooltipText = GetTooltipText(choiceInfo.extraTooltip);
+                if extraTooltipText then
+                    if tooltipText then
+                        tooltipText = tooltipText.."\n\n"..extraTooltipText;
+                    else
+                        tooltipText = extraTooltipText;
+                    end
+                end
             end
+            return tooltipText;
         end
     end
 end
@@ -1959,13 +2043,7 @@ do  --Checkbox
     function DUIDialogSettingsCheckboxMixin:GetSelectedChoiceTooltip()
         local optionButton = self:GetParent();
         local tooltip = optionButton.optionData and optionButton.optionData.tooltip;
-        if tooltip then
-            if type(tooltip) == "function" then
-                return tooltip(self.checked)
-            else
-                return tooltip
-            end
-        end
+        return GetTooltipText(tooltip, self.checked);
     end
 end
 
@@ -2117,13 +2195,7 @@ do  --DropdownButton
     function DUIDialogSettingsDropdownButtonMixin:GetSelectedChoiceTooltip()
         local optionButton = self:GetParent();
         local tooltip = optionButton.optionData and optionButton.optionData.tooltip;
-        if tooltip then
-            if type(tooltip) == "function" then
-                return tooltip(self)
-            else
-                return tooltip
-            end
-        end
+        return GetTooltipText(tooltip, self);
     end
 
     function DUIDialogSettingsDropdownButtonMixin:IsInRange()
@@ -2165,14 +2237,20 @@ do  --GamePad/Controller
         self.gamepadFocus = optionButton;
     end
 
+    ---@return boolean currentObjectExists Found object at index
+    ---@return boolean preObjectExists
+    ---@return boolean nextObjectExists
     function DUIDialogSettingsMixin:FocusObjectByIndex(index)
         local object = self.gamepadObjects[index];
-        if object then
+        local currentObjectExists = object ~= nil;
+        local preObjectExists = self.gamepadObjects[index - 1] ~= nil;
+        local nextObjectExists = self.gamepadObjects[index + 1] ~= nil;
+        if currentObjectExists then
             self.gamepadFocusIndex = index;
             self.gamepadFocus = object;
             self.gamepadFocus:OnEnter();
-            return true
         end
+        return currentObjectExists, preObjectExists, nextObjectExists;
     end
 
     function DUIDialogSettingsMixin:FocusObjectByDelta(delta)
@@ -2195,17 +2273,23 @@ do  --GamePad/Controller
 
         self:ClearGamePadFocus();
 
-        if self:FocusObjectByIndex(index) then
-            local threshold = 2 * OPTIONBUTTON_HEIGHT;
+        local currentObjectExists, preObjectExists, nextObjectExists = self:FocusObjectByIndex(index);
+        if currentObjectExists then
+            local step = OPTIONBUTTON_HEIGHT;
+            local threshold = 2 * step;
             if delta > 0 then
                 local top = self.gamepadFocus:GetTop();
-                if top + threshold >= self.scrollFrameTop then
-                    self.ScrollFrame:ScrollBy(-OPTIONBUTTON_HEIGHT);
+                if not preObjectExists then
+                    self.ScrollFrame:ScrollToTop();
+                elseif top + threshold >= self.scrollFrameTop then
+                    self.ScrollFrame:ScrollBy(-step);
                 end
             else
                 local bottom = self.gamepadFocus:GetBottom();
-                if bottom - threshold <= self.scrollFrameBottom then
-                    self.ScrollFrame:ScrollBy(OPTIONBUTTON_HEIGHT);
+                if not nextObjectExists then
+                    self.ScrollFrame:ScrollToBottom();
+                elseif bottom - threshold <= self.scrollFrameBottom then
+                    self.ScrollFrame:ScrollBy(step);
                 end
             end
             return true
@@ -2266,9 +2350,9 @@ do
         FONT_HEIGHT_LARGE = baseFontSize;
         FONT_HEIGHT_NORMAL = baseFontSize;
 
-        BUTTON_PADDING_LARGE = FONT_HEIGHT_NORMAL;
-        OPTIONBUTTON_HEIGHT = 3*FONT_HEIGHT_NORMAL;
-        OPTION_WIDGET_SIZE = 2 * FONT_HEIGHT_NORMAL;
+        BUTTON_PADDING_LARGE =    FONT_HEIGHT_NORMAL;
+        OPTIONBUTTON_HEIGHT = 3 * FONT_HEIGHT_NORMAL;
+        OPTION_WIDGET_SIZE =  2 * FONT_HEIGHT_NORMAL;
 
         local widthMultiplier;
 
@@ -2434,5 +2518,37 @@ do  --Create an entrance to settings in Blizzard addon settings window
                 SetupInstruction();
             end
         end);
+    end
+end
+
+do -- Share size info with other modules
+    local SettingsUtil = {};
+    addon.SettingsUtil = SettingsUtil;
+
+    function SettingsUtil.GetLayoutInfo()
+        return {
+            optionButtonHeight = OPTIONBUTTON_HEIGHT,
+            optionButtonWidth = OPTIONBUTTON_WIDTH,
+            widgetHeight = OPTION_WIDGET_SIZE,
+        };
+    end
+
+    function SettingsUtil.CreateInputDeviceSelector(parent)
+        local widget = CreateFrame("Frame", nil, parent, "DUIDialogSettingsArrowOptionTemplate");
+        widget:LoadTexture(ThemeUtil:GetTextureFile("Settings-ArrowOption.png"));
+        widget:SetWidgetHeight(OPTION_WIDGET_SIZE);
+        widget:SetData(InputDeviceOption);
+
+        function widget:OnThemeChanged()
+            local file = ThemeUtil:GetTextureFile("Settings-ArrowOption.png");
+            widget:LoadTexture(file);
+            widget.barPool:ProcessAllObjects(function(bar)
+                bar:SetTexture(file);
+            end);
+        end
+
+        widget:OnThemeChanged();
+
+        return widget;
     end
 end

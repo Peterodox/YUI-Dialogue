@@ -332,6 +332,7 @@ L["Action Option9"] = "Option 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Utilisez [KEY:PC:F1] pour afficher les options";
 L["Tutorial Settings Hotkey Console"] = "Utilisez [KEY:PC:F1] ou [KEY:CONSOLE:MENU] pour afficher les options";   --Use this if gamepad enabled
+L["Tutorial Choose Input Device"] = "Choisir le périphérique d'entrée";
 L["Instruction Open Settings"] = "Pour ouvrir les paramètres, appuyez sur [KEY:PC:F1] pendant que vous interagissez avec un PNJ.";    --Used in Game Menu - AddOns
 L["Instruction Open Settings Console"] = "Pour ouvrir les paramètres, appuyez sur [KEY:PC:F1] ou [KEY:CONSOLE:MENU] pendant que vous interagissez avec un PNJ.";
 L["Instruction Open Settings Keybind Format"] = "Vous pouvez ouvrir les paramètres en appuyant sur [%s] lorsque la fenêtre de dialogue est active.";

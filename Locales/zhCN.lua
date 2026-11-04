@@ -195,6 +195,8 @@ L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "确认键： [KEY:PS:PAD1]\n取消键： [KEY:PS:PAD2]";
 L["Input Device Switch"] = "Switch";
 L["Input Device Switch Tooltip"] = "确认键： [KEY:SWITCH:PAD1]\n取消键： [KEY:SWITCH:PAD2]";
+L["Detected Device Colon"] = "检测到设备：";
+L["Detected Devices Colon"] = "检测到设备：";
 L["Use Custom Bindings"] = "使用自定义按键";
 L["Use Custom Bindings Desc"] = "勾选此选项以启用自定义按键。";
 L["Primary Control Key"] = "确认键";
@@ -346,6 +348,7 @@ L["Action Option9"] = "对话选项 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 来打开或关闭设置";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开或关闭设置";   --Use this if gamepad enabled
+L["Tutorial Choose Input Device"] = "选择输入设备";
 L["Instruction Open Settings"] = "在对话界面可见时按 [KEY:PC:F1] 来打开设置";    --Used in Game Menu - AddOns
 L["Instruction Open Settings Console"] = "在对话界面可见时按 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 来打开设置";
 L["Instruction Open Settings Keybind Format"] = "在对话界面可见时按 [%s] 来打开设置";

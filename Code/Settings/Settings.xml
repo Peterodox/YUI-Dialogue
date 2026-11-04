@@ -491,6 +491,7 @@
             <OnEvent method="OnEvent"/>
             <OnKeyDown method="OnKeyDown"/>
             <OnGamePadButtonDown method="OnGamePadButtonDown"/>
+            <OnGamePadButtonUp method="OnGamePadButtonUp"/>
             <OnMouseWheel method="OnMouseWheel"/>
         </Scripts>
     </Frame>

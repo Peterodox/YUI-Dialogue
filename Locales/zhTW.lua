@@ -7,6 +7,7 @@ local L = addon.L;
 
 
 L["Renown Level Label"] = "名望 ";
+L["Tutorial Choose Input Device"] = "選擇輸入設備";
 
 
 --DO NOT TRANSLATE

@@ -323,6 +323,7 @@ L["Action Option9"] = "Option 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Benutzt [KEY:PC:F1] um das Optionsmenü entweder zu öffnen oder zu schließen";    --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Benutzt [KEY:PC:F1] oder [KEY:CONSOLE:MENU] um das Optionsmenü entweder zu öffnen oder zu schließen";    --Use this if gamepad enabled
+L["Tutorial Choose Input Device"] = "Eingabegerät auswählen";
 L["Instruction Open Settings"] = "Öffnet das Optionsmenü via [KEY:PC:F1] wenn das Dialogfenster angezeigt wird.";    --Used in Game Menu - AddOns
 L["Instruction Open Settings Console"] = "Öffnet das Optionsmenü via [KEY:PC:F1] oder [KEY:CONSOLE:MENU] wenn das Dialogfenster angezeigt wird.";
 L["Instruction Open Settings Keybind Format"] = "Öffnet das Optionsmenü via [%s] wenn das Dialogfenster angezeigt wird.";

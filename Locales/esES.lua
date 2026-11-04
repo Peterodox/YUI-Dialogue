@@ -332,6 +332,7 @@ L["Action Option9"] = "Opción 9";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Presiona [KEY:PC:F1] para abrir la configuración";     --Shown when interacting with an NPC with this addon for the first time
 L["Tutorial Settings Hotkey Console"] = "Presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] para abrir la configuración";   --Use this if gamepad enabled
+L["Tutorial Choose Input Device"] = "Seleccionar dispositivo de entrada";
 L["Instruction Open Settings"] = "Para abrir la configuración, presiona [KEY:PC:F1] mientras interactúas con un PNJ.";    --Used in Game Menu - AddOns
 L["Instruction Open Settings Console"] = "Para abrir la configuración, presiona [KEY:PC:F1] o [KEY:CONSOLE:MENU] mientras interactúas con un PNJ.";
 L["Instruction Open Settings Keybind Format"] = "Puedes abrir la configuración presionando [%s] cuando la ventana de diálogo esté activa.";

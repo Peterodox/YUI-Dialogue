@@ -16,7 +16,9 @@ do  --Teach players how to open Settings
             if not TUTORIAL_SHOWN then
                 local delay = 1;
                 if C_CVar.GetCVarBool("GamePadEnable") then
-                    Banner:DisplayAutoFadeMessage(addon.L["Tutorial Settings Hotkey Console"], delay);
+                    -- We no longer show this when gamepad is enabled. SplashScreen_Gamepad will handle it.
+                    --Banner:DisplayAutoFadeMessage(addon.L["Tutorial Settings Hotkey Console"], delay);
+                    return;
                 else
                     Banner:DisplayAutoFadeMessage(addon.L["Tutorial Settings Hotkey"], delay);
                 end
