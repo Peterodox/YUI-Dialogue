@@ -8,6 +8,9 @@ local CAN_SHOW_QUEST_LEVEL = (not addon.IS_RETAIL) and UnitQuestTrivialLevelRang
 addon.CAN_SHOW_QUEST_LEVEL = CAN_SHOW_QUEST_LEVEL; -- Determines if we should add quest level option to the settings
 
 
+-- No use for: C_PlayerInfo.GetContentDifficultyQuestForPlayer
+
+
 local Def = {
     LevelFormatNoBracket = "|cff%s%d|r ",
     LevelFormatBrackets = "|cff%s[%d]|r",
@@ -25,8 +28,6 @@ local function GetDifficultyIndex(levelDiff)
     elseif levelDiff >= 3 then
         return 1;
     elseif levelDiff >= -1 then
-        -- WoW Classic treats quest below your level as Easy
-        -- But you might out-level the current step so we change this level cutoff to -1
         return 0;
     elseif levelDiff >= -5 then
         return -1;
