@@ -35,17 +35,20 @@ end
 
 local function CheckActionThrottled(actionName)
     --Query puts the action on timer
+    local isThrottled = false;
 
     if not Throttler then
         Throttler = CreateFrame("Frame");
     end
 
-    if not Counter[actionName] then
+    if Counter[actionName] then
+        isThrottled = true;
+    else
+        isThrottled = false;
         Counter[actionName] = 0;
-        return false
     end
 
     Throttler:SetScript("OnUpdate", Throttler_OnUpdate);
-    return true
+    return isThrottled;
 end
 API.CheckActionThrottled = CheckActionThrottled;
