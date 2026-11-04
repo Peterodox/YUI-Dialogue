@@ -25,6 +25,7 @@ local DefaultValues = {
         HideUnitNames = false,
     ShowCopyTextButton = false,
     ShowNPCNameOnPage = false,
+    QuestDifficultyStyle = 1,
     MarkHighestSellPrice = false,
     QuestTypeText = false,
     SimplifyCurrencyReward = false,

@@ -35,8 +35,6 @@ local ARROWOTPION_CYCLING = false;
 local HOTKEYFRAME_VALUETEXT_GAP = 4;
 local TAB_BUTTON_GAP = 4;
 
-local DISABLED_TEXTURE_ALPHA = 0.2;
-
 local PREVIEW_PATH = "Interface/AddOns/DialogueUI/Art/PreviewPicture/";
 
 local MainFrame;
@@ -509,6 +507,18 @@ local function QuickSlot_Validation()
     return addon.QuickSlotManager:IsUsingCustomPosition();
 end
 
+local function QuestDifficulty_Validation()
+    return addon.CAN_SHOW_QUEST_LEVEL;
+end
+
+local function QuestDifficultyStyle_Tooltip()
+    local index = GetDBValue("QuestDifficultyStyle");
+    if index == 2 then
+        return L["QuestDifficultyStyle Name Desc"];
+    else
+        return L["QuestDifficultyStyle Level Desc"];
+    end
+end
 
 local function RPAddOn_Validation()
     return addon.GetInstalledRPAddOnName() ~= nil
@@ -609,6 +619,12 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["Show NPC Name On Page"], description = L["Show NPC Name On Page Desc"], dbKey = "ShowNPCNameOnPage"},
 
             {type = "Subheader", name = L["Quest"]},    --Quest
+            {type = "ArrowOption", name = L["Quest Difficulty Option"], description = L["Quest Difficulty Option Desc"], tooltip = QuestDifficultyStyle_Tooltip, dbKey = "QuestDifficultyStyle", validationFunc = QuestDifficulty_Validation, preview = "QuestDifficultyStyle", ratio = 2,
+                choices = {
+                    {dbValue = 1, valueText = L["QuestDifficultyStyle Level"]},
+                    {dbValue = 2, valueText = L["QuestDifficultyStyle Name"]},
+                },
+            },
             {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
             {type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},
@@ -1624,7 +1640,7 @@ do  --ArrowOption
     end
 
     local function ArrowButton_OnDisable(self)
-        self:SetAlpha(DISABLED_TEXTURE_ALPHA);
+        self:SetAlpha(0.2);
     end
 
     local function RemoveBar(bar)
@@ -1725,11 +1741,13 @@ do  --ArrowOption
 
         self.selectedID = id;
 
+        local isDarkMode = ThemeUtil:IsDarkMode();
+
         for i, bar in ipairs(self.bars) do
             if i == id then
                 bar:SetAlpha(1);
             else
-                bar:SetAlpha(DISABLED_TEXTURE_ALPHA);
+                bar:SetAlpha(isDarkMode and 0.5 or 0.2);
             end
         end
 

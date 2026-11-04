@@ -140,6 +140,15 @@ do  --HeaderWidgetManger
         self:RemoveWidgetByType("QuestLine");
     end
 
+    function HeaderWidgetManger:AddQuestDifficulty(questID)
+        local label = API.GetQuestDifficultyLabel(questID);
+        if label then
+            local f = self.buttonPool:Acquire();
+            f:SetQuestDifficulty(questID, label);
+            return true;
+        end
+    end
+
     function HeaderWidgetManger:OnFontSizeChanged()
         --Unused. We reload the QuestDetail after font change
         if self.parent and self.parent:IsShown() then
@@ -185,7 +194,9 @@ do  --HeaderWidgetManger
         self:OnHide();
         self.questID = questID;
 
+        local needRequery;
         local anyChange;
+
         if (not self:DoesWidgetExist("Account")) and API.IsAccountQuest(questID) then
             self:AddAccountQuest();
             anyChange = true;
@@ -198,14 +209,26 @@ do  --HeaderWidgetManger
                     self:AddQuestLineQuest(questLineName, questLineID, questID, uiMapID, achievementID);
                     anyChange = true;
                 end
-            elseif not isRequery then
-                local function OnQuestLoaded(id)
-                    if self.questID == id then
-                        self:RequestQuestData(questID, true);
-                    end
-                end
-                addon.CallbackRegistry:LoadQuest(questID, OnQuestLoaded);
+            else
+                needRequery = true;
             end
+        end
+
+        if API.IsQuestLevelCached(questID) then
+            if self:AddQuestDifficulty(questID) then
+                anyChange = true;
+            end
+        else
+            needRequery = true;
+        end
+
+        if needRequery and not isRequery then
+            local function OnQuestLoaded(id)
+                if self.questID == id then
+                    self:RequestQuestData(questID, true);
+                end
+            end
+            addon.CallbackRegistry:LoadQuest(questID, OnQuestLoaded);
         end
 
         if anyChange then
@@ -410,7 +433,7 @@ do  --ButtonMixin
         self:SetText(ACCOUNT_QUEST_LABEL);
         self:SetClickable(false);
     end
-    
+
     local function QuestLineQuest_OnEnter(self)
         if not self.args then return end;
 
@@ -479,5 +502,29 @@ do  --ButtonMixin
         self:SetClickable(true);
         self.onEnterFunc = onEnterFunc;
         self.onClickFunc = onclickFunc;
+    end
+
+    local function QuestDifficulty_OnEnter(self)
+        if not self.questID then return end;
+
+        local playerLevel = UnitLevel("player");
+        local questLevel = API.GetQuestLevel(self.questID);
+        local title = API.GetQuestDifficultyLabel(self.questID);
+
+        TooltipFrame:SetOwner(self, "ANCHOR_NONE");
+        TooltipFrame:SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0, 0);
+        TooltipFrame:SetTitle(title, 1, 1, 1, true);
+        TooltipFrame:AddDoubleLine(L["Your Level"], playerLevel, 1, 0.82, 0, 1, 1, 1);
+        TooltipFrame:AddDoubleLine(L["Quest Level"], questLevel, 1, 0.82, 0, 1, 1, 1);
+        TooltipFrame:Show();
+    end
+
+    function ButtonMixin:SetQuestDifficulty(questID, label)
+        self.type = "Difficulty";
+        self.uiOrder = 5;
+        self.questID = questID;
+        self:SetText(label);
+        self:SetClickable(false);
+        self.onEnterFunc = QuestDifficulty_OnEnter;
     end
 end

@@ -978,20 +978,32 @@ do  -- Quest
     local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysNil;
     local IsAccountQuest = C_QuestLog.IsAccountQuest or AlwaysFalse;
 
-    API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
     API.ReadyForTurnIn = ReadyForTurnIn;
 
-    local function IsPlayerOnQuest(questID)
-        if questID then
-            return IsOnQuest(questID)
-        end
+    function API.IsPlayerOnQuest(questID)
+        return questID and IsOnQuest(questID);
     end
-    API.IsPlayerOnQuest = IsPlayerOnQuest;
 
     if AcknowledgeAutoAcceptQuest then
         API.AcknowledgeAutoAcceptQuest = AcknowledgeAutoAcceptQuest;
     else    --Classic
         API.AcknowledgeAutoAcceptQuest = AcceptQuest;
+    end
+
+    if addon.IS_RETAIL then
+        function API.ShouldShowWarbandCompletedIcon(questID)
+            return questID and IsQuestFlaggedCompletedOnAccount(questID);
+        end
+    else
+        API.ShouldShowWarbandCompletedIcon = AlwaysFalse;
+    end
+
+    if addon.IS_Forever then
+        function API.IsForeverNewQuest(questID)
+            return questID and questID > 9665;
+        end
+    else
+        API.IsForeverNewQuest = AlwaysFalse;
     end
 
     --TWW

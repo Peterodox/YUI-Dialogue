@@ -13,6 +13,13 @@ L["Quest Type Trivial"] = "Trivial";    --Low-level quest
 L["Quest Type Dungeon"] = LFG_TYPE_DUNGEON or "Dungeon";
 L["Quest Type Raid"] = LFG_TYPE_RAID or "Raid";
 L["Quest Type Covenant Calling"] = "Covenant Calling";
+L["Quest Difficulty VeryHard"] = "Very Hard";
+L["Quest Difficulty Hard"] = "Hard";
+L["Quest Difficulty Normal"] = "Normal";
+L["Quest Difficulty Easy"] = "Easy";
+L["Quest Difficulty Trivial"] = "Low Level";
+L["Your Level"] = "Your Level";
+L["Quest Level"] = "Quest Level";
 
 L["Accept"] = ACCEPT or "Accpet";
 L["Continue"] = CONTINUE or "Continue";
@@ -62,6 +69,7 @@ L["Story Progress"] = STORY_PROGRESS or "Story Progress";
 L["Quest Complete Alert"] = QUEST_WATCH_POPUP_QUEST_COMPLETE or "Quest Complete!";
 L["Item Equipped"] = "Equipped";
 L["Collection Collected"] = COLLECTED or "Collected";
+L["Forever New Quest"] = "This is a new quest in WoW: Forever";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -156,6 +164,12 @@ L["Use Blizzard Tooltip Desc"] = "Use Blizzard tooltip for the quest reward butt
 L["Roleplaying"] = GDAPI_REALMTYPE_RP or "Roleplaying";
 L["Use RP Name In Dialogues"] = "Use RP Name In Dialogues";
 L["Use RP Name In Dialogues Desc"] = "Replace your character's name in dialogue texts with your RP name.";
+L["Quest Difficulty Option"] = "Quest Difficulty";
+L["Quest Difficulty Option Desc"] = "Choose how quest difficulty is displayed when the NPC offers you a list of quests.";
+L["QuestDifficultyStyle Level"] = "Level";
+L["QuestDifficultyStyle Level Desc"] = "Display the quest level to the left of the quest title.";
+L["QuestDifficultyStyle Name"] = "Name";
+L["QuestDifficultyStyle Name Desc"] = "Display the difficulty name on the right of the quest button if the quest level is outside the recommended range.\n(The quest level is +3 or -1 from your character level)";
 
 L["Camera Movement"] = "Camera Movement";
 L["Camera Movement Off"] = "OFF";
