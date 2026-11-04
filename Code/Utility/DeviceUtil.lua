@@ -179,6 +179,24 @@ function DeviceUtil:GetActiveProduct()
     return productKey;
 end
 
+function DeviceUtil:GetDetectedDevices()
+    local n = 0;
+    local devices;
+
+    for _, deviceID in pairs(C_GamePad.GetAllDeviceIDs()) do
+        local rawState = C_GamePad.GetDeviceRawState(deviceID);
+        if rawState and rawState.name then
+            if not devices then
+                devices = {};
+            end
+            n = n + 1;
+            devices[n] = {name = rawState.name, productID = rawState.productID, vendorID = rawState.vendorID};
+        end
+    end
+
+    return devices;
+end
+
 function DeviceUtil:QuestOrBookUIOnShow()
     local isUsingControllerLayout = self:IsUsingControllerLayout();
 
@@ -206,3 +224,27 @@ CallbackRegistry:Register("PLAYER_ENTERING_WORLD", function()
         DeviceUtil:RegisterDeviceChangedCallback();
     end
 end);
+
+
+---API for testing
+---/run DialogueUIAPI.ShowDevices()
+function DialogueUIAPI.ShowDevices()
+    local keys = {"name", "productID", "vendorID"};
+    local devices = DeviceUtil:GetDetectedDevices();
+    if devices then
+        for _, info in ipairs(devices) do
+            local line;
+            for _, key in ipairs(keys) do
+                local seg = string.format("|cffffd100%s:|r %s", key, info[key] or "none");
+                if line then
+                    line = line.."  "..seg;
+                else
+                    line = seg;
+                end
+            end
+            print(line);
+        end
+    else
+        print("No device detected");
+    end
+end
