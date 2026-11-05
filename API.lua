@@ -204,6 +204,17 @@ do  -- Pixel
     end
     API.GetBestViewportSize = GetBestViewportSize;
 
+    local function GetUIScale()
+        --Our top-level frames are not parented to UIParent (it gets hidden during dialogue),
+        --so they don't inherit the game's UI Scale. Use this to apply it manually.
+        local scale = UIParent and UIParent:GetEffectiveScale();
+        if not scale or scale <= 0 then
+            scale = 1;
+        end
+        return scale
+    end
+    API.GetUIScale = GetUIScale;
+
     local PixelUtil = CreateFrame("Frame");
     addon.PixelUtil = PixelUtil;
 
