@@ -158,7 +158,8 @@ function DUIDialogBaseMixin:UpdateFrameBaseOffset(viewportWidth)
     end
 
     local offsetRatio = FRAME_OFFSET_RATIO;
-    local frameOffsetX = Round(viewportWidth*(offsetRatio - 0.5));
+    --Offset is in this frame's (scaled) coordinate space, so convert from screen units
+    local frameOffsetX = Round(viewportWidth*(offsetRatio - 0.5) / API.GetUIScale());
     ChatFrame:ClearAllPoints();
 
     if addon.IsDBValue("FrameOrientation", 1) then
@@ -176,12 +177,22 @@ end
 function DUIDialogBaseMixin:UpdateFrameSize()
     local viewportWidth, viewportHeight = API.GetBestViewportSize();
 
+    --Apply the game's UI Scale (these frames aren't children of UIParent)
+    local uiScale = API.GetUIScale();
+    self:SetScale(uiScale);
+    AlertFrame:SetScale(uiScale);
+    ExperienceBar:SetScale(uiScale);
+    ChatFrame:SetScale(uiScale);
+    FriendshipBar:SetScale(uiScale);
+    local scaledViewportWidth = viewportWidth / uiScale;
+    local scaledViewportHeight = viewportHeight / uiScale;
+
     AlertFrame:ClearAllPoints();
     local alertFrameOffset = 36;
-    AlertFrame:SetPoint("TOPRIGHT", nil, "CENTER", 0.5*viewportWidth - alertFrameOffset, 0.5*viewportHeight - alertFrameOffset);
+    AlertFrame:SetPoint("TOPRIGHT", nil, "CENTER", 0.5*scaledViewportWidth - alertFrameOffset, 0.5*scaledViewportHeight - alertFrameOffset);
 
     ExperienceBar:SetPoint("BOTTOM", nil, "BOTTOM", 0, -2);
-    ExperienceBar:SetBarWidth(viewportWidth);
+    ExperienceBar:SetBarWidth(scaledViewportWidth);
     ExperienceBar:SetHeight(8);
     ExperienceBar:SetNumCompartment(20);
 
@@ -3597,6 +3608,29 @@ do  --Generic Settings Registry
         end
     end
     CallbackRegistry:Register("SettingChanged.FrameSize", Settings_FrameSize);
+
+    local UIScaleWatcher = CreateFrame("Frame");
+    UIScaleWatcher:RegisterEvent("UI_SCALE_CHANGED");
+    UIScaleWatcher:RegisterEvent("DISPLAY_SIZE_CHANGED");
+    UIScaleWatcher:RegisterEvent("PLAYER_ENTERING_WORLD");
+    UIScaleWatcher:SetScript("OnEvent", function(self, event)
+        if event == "PLAYER_REGEN_ENABLED" then
+            self:UnregisterEvent(event);
+        elseif InCombatLockdown() then
+            --Secure buttons may be anchored to our frame; resize after combat
+            self:RegisterEvent("PLAYER_REGEN_ENABLED");
+            return
+        end
+        --UIParent's scale is updated by Blizzard's own handler; wait a frame
+        After(0, function()
+            if not MainFrame then return end;
+            MainFrame:UpdateFrameSize();
+            MainFrame:OnSettingsChanged();
+            if addon.SettingsUI and addon.SettingsUI:IsShown() then
+                addon.SettingsUI:MoveToBestPosition();
+            end
+        end);
+    end);
 
     local function Settings_HideUI(dbValue, useInput)
         ExperienceBar:SetShown(dbValue == true);
