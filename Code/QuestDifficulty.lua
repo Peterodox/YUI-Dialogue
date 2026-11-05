@@ -92,7 +92,7 @@ if CAN_SHOW_QUEST_LEVEL then
             elseif index >= 1 then
                 return L["Quest Difficulty Hard"];
             elseif index >= 0 then
-                return L["Quest Difficulty Normal"];
+                --return L["Quest Difficulty Normal"];
             elseif index >= -1 then
                 return L["Quest Difficulty Easy"];
             else
