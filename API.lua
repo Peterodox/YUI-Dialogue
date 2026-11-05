@@ -998,7 +998,7 @@ do  -- Quest
         API.ShouldShowWarbandCompletedIcon = AlwaysFalse;
     end
 
-    if addon.IS_Forever then
+    if addon.IS_FOREVER then
         function API.IsForeverNewQuest(questID)
             return questID and questID > 9665;
         end
