@@ -169,7 +169,7 @@ L["Quest Difficulty Option Desc"] = "Choose how quest difficulty is displayed wh
 L["QuestDifficultyStyle Level"] = "Level";
 L["QuestDifficultyStyle Level Desc"] = "Display the quest level to the left of the quest title.";
 L["QuestDifficultyStyle Name"] = "Name";
-L["QuestDifficultyStyle Name Desc"] = "Display the difficulty name on the right of the quest button if the quest level is outside the recommended range.\n(The quest level is +3 or -1 from your character level)";
+L["QuestDifficultyStyle Name Desc"] = "Display the difficulty name on the right of the quest button if the quest level is outside the recommended range.\n(The quest level is +3 or -3 from your character level)";
 
 L["Camera Movement"] = "Camera Movement";
 L["Camera Movement Off"] = "OFF";

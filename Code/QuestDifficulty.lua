@@ -27,7 +27,7 @@ local function GetDifficultyIndex(levelDiff)
         return 2;
     elseif levelDiff >= 3 then
         return 1;
-    elseif levelDiff >= -1 then
+    elseif levelDiff >= -2 then
         return 0;
     elseif levelDiff >= -5 then
         return -1;
