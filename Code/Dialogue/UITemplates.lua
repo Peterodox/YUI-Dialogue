@@ -362,13 +362,16 @@ end
 function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self.gossipOptionID = data.gossipOptionID;
 
+    local added = data.onClick ~= nil;
     local name = GossipDataProvider:GetOverrideName(self.gossipOptionID) or data.name;
     local shouldShowUIOnClick;
 
     local hasColor = false;
     name, hasColor = ThemeUtil:AdjustTextColor(name);
 
-    if hasColor then
+    if added then
+        self.Icon:SetTexture(data.overrideIconID);
+    elseif hasColor then
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Red"));
     elseif data.flags == 1 then
         self.Icon:SetTexture(GossipDataProvider:GetGossipIcon(data.icon, "Gossip Quest"));
@@ -386,8 +389,8 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
 
     self.showIcon = true;
     self.id = data.orderIndex or 0;
-    self.type = "gossip";
-    self.onClickFunc = OnClickFunc_SelectOption;
+    self.type = added and "addedGossip" or "gossip";
+    self.onClickFunc = data.onClick or OnClickFunc_SelectOption;
 
     self:SetHotkey(false);  --Put Key in name (1. Options 1)
     if hotkey then
@@ -397,7 +400,7 @@ function DUIDialogOptionButtonMixin:SetGossip(data, hotkey)
     self:RemoveQuestTypeText();
     self:SetButtonText(name, false);
     self:SetButtonArt(0);
-    self:Enable();
+    self:SetEnabled(not added or data.enabled);
 
     self.shouldShowUIOnClick = shouldShowUIOnClick or data.icon ~= 132053; --Classic Trainer
 end
