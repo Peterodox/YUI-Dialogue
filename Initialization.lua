@@ -21,6 +21,7 @@ local DefaultValues = {
     FrameOrientation = 2,                       --1:Left  2:Right(Default)
     HideUI = true,
         ShowChatWindow = true,
+        ShowEXPBar = true,
         HideOutlineSparkles = true,
         HideUnitNames = false,
     ShowCopyTextButton = false,

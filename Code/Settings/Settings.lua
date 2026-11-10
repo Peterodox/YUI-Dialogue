@@ -679,6 +679,7 @@ local Schematic = { --Scheme
             },
             {type = "Checkbox", name = L["Hide UI"], description = L["Hide UI Desc"], dbKey = "HideUI"},
             {type = "Checkbox", name = L["Show Chat Window"], tooltip = ChatWindowTooltip, dbKey = "ShowChatWindow", requiredParentValueAnd = {HideUI = true}},
+            {type = "Checkbox", name = L["Show EXP Bar"], description = L["Show EXP Bar Desc"], dbKey = "ShowEXPBar", requiredParentValueAnd = {HideUI = true}},
             {type = "Checkbox", name = L["Hide Sparkles"], description = L["Hide Sparkles Desc"], preview = "HideOutlineSparkles.jpg", ratio = 2, dbKey = "HideOutlineSparkles", requiredParentValueAnd = {HideUI = true}, validationFunc = OutlineSparklesSupported_Validation},
             {type = "Checkbox", name = L["Hide Unit Names"], description = L["Hide Unit Names Desc"], dbKey = "HideUnitNames", requiredParentValueAnd = {HideUI = true}},
             {type = "Checkbox", name = L["Show Copy Text Button"], description = L["Show Copy Text Button Desc"], preview = "CopyTextButton", ratio = 1, dbKey = "ShowCopyTextButton"},
