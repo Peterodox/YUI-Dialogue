@@ -175,6 +175,7 @@ L["Camera Movement"] = "Camera Movement";
 L["Camera Movement Off"] = "OFF";
 L["Camera Movement Zoom In"] = "Zoom In";
 L["Camera Movement Horizontal"] = "Horizontal";
+L["Camera Movement Invalid Due To Gamepad UI"] = "The camera cannot move horizontally when Blizzard\'s Gamepad UI is enabled.";
 L["Maintain Camera Position"] = "Maintain Camera Position";
 L["Maintain Camera Position Desc"] = "Maintain camera position briefly after NPC interaction ends.\n\nEnabling this option will reduce the camera's sudden movement caused by the latency between dialogs.";
 L["Change FOV"] = "Change FOV";

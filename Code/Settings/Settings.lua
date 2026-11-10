@@ -580,6 +580,13 @@ local function OptionHasNoEffectDueToMobile()
     end
 end
 
+local function CameraMovement_Tooltip()
+    if addon.IS_FOREVER and InputUtil.IsGamepadUIEnabled() then
+        --ActionCam is ignored when the native gamepad UI is enabled
+        return ThemeUtil:PrependWarningIcon(L["Camera Movement Invalid Due To Gamepad UI"]);
+    end
+end
+
 local function ChatWindowTooltip()
     if GetDBValue("FrameOrientation") == 1 then
         --Dialogue on the left, Chat on the right
@@ -714,7 +721,7 @@ local Schematic = { --Scheme
     {
         tabName = L["Camera"],  --Cate2
         options = {
-            {type = "ArrowOption", name = L["Camera Movement"], dbKey="CameraMovement",
+            {type = "ArrowOption", name = L["Camera Movement"], dbKey="CameraMovement", tooltip = CameraMovement_Tooltip,
                 choices = {
                     {dbValue = 0, valueText = L["Camera Movement Off"]},
                     {dbValue = 1, valueText = L["Camera Movement Zoom In"]},

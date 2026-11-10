@@ -175,6 +175,7 @@ L["Camera Movement"] = "镜头运动";
 L["Camera Movement Off"] = "关";
 L["Camera Movement Zoom In"] = "拉近";
 L["Camera Movement Horizontal"] = "平移";
+L["Camera Movement Invalid Due To Gamepad UI"] = "在使用暴雪自带的手柄界面时，镜头不支持水平移动。";
 L["Maintain Camera Position"] = "保持镜头位置";
 L["Maintain Camera Position Desc"] = "在NPC交互结束后短暂地保持镜头位置。\n\n勾选此选项可以减少由任务对话延迟等原因导致的镜头快速变化的情况。";
 L["Change FOV"] = "改变视角";
