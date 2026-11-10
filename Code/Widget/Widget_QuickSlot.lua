@@ -415,7 +415,9 @@ do  --QuestRewardItemButtonMixin
         self:ClearAllPoints();
 
         if useCustomPosition then
-            self:SetPoint("CENTER", nil, "BOTTOMLEFT", x, y);
+            --Saved in screen units; convert into this frame's (UI-scaled) units
+            local scale = self:GetEffectiveScale();
+            self:SetPoint("CENTER", nil, "BOTTOMLEFT", x / scale, y / scale);
         else
             self:SetPoint("BOTTOM", nil, "BOTTOM", Def.PopupOffsetX, Def.PopupOffsetY);
         end
@@ -451,8 +453,14 @@ do  --QuestRewardItemButtonMixin
             RewardItemButton = API.CreateItemActionButton(nil, QuestRewardItemButtonMixin);
             RewardItemButton:Hide();
             RewardItemButton:SetFrameStrata("FULLSCREEN_DIALOG");
-            RewardItemButton:LoadPosition();
             RewardItemButton:SetIgnoreParentScale(true);
+            --Not a child of UIParent, so copy the game's UI Scale. The saved position is in screen units, so reload it when the scale changes.
+            API.RegisterUIScaleFrame(RewardItemButton, function(f)
+                if not f.isMoving then
+                    f:LoadPosition();
+                end
+            end);
+            RewardItemButton:LoadPosition();
             RewardItemButton:SetIgnoreParentAlpha(true);
         end
         return RewardItemButton

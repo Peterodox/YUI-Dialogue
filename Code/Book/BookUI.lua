@@ -680,7 +680,8 @@ do  --Background Calculation \ Theme
     end
 
     function DUIBookUIMixin:Reposition()
-        local viewportWidth, viewportHeight = API.GetBestViewportSize();
+        --This frame is scaled with the UI Scale, so use the screen size in its own units
+        local viewportWidth, viewportHeight = API.GetBestViewportSizeForFrame(self);
         local distanceToEdge = 48;
         local defaultOffsetX, anchor;
         local vignetteOffset = viewportWidth * 128/896;
@@ -1303,6 +1304,13 @@ do  --Main UI
         addon.BookUI = self;
         self.OnLoad = nil;
         self:SetScript("OnLoad", nil);
+
+        --Not a child of UIParent, so copy the game's UI Scale
+        API.RegisterUIScaleFrame(self, function()
+            if not self.Init then   --Init runs Reposition the first time the book is shown
+                self:Reposition();
+            end
+        end);
 
         addon.SharedVignette:AddOwner(self);    --"SharedVignette" defined in DialogueUI.lua
 

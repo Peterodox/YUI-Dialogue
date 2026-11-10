@@ -428,6 +428,10 @@ do
             end
         end
 
+        --The cursor position is in screen units. MainFrame inherits the UI Scale from UIParent, so convert into its units.
+        local frameScale = MainFrame:GetEffectiveScale();
+        x, y = x / frameScale, y / frameScale;
+
         y = y + cursorOffset;
         MainFrame:ClearAllPoints();
         MainFrame:SetPoint("BOTTOM", UIParent, "BOTTOMLEFT", x, y);
@@ -440,6 +444,8 @@ do
 
     function QuestFlyout:ShowLoadingIndicator()
         local x, y = GetCursorPosition();
+        local scale = LoadingIndicator:GetEffectiveScale();    --Screen units to the indicator's (UI-scaled) units
+        x, y = x / scale, y / scale;
         LoadingIndicator:ClearAllPoints();
         LoadingIndicator:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y);
         LoadingIndicator:Show();
@@ -453,9 +459,8 @@ do
 
     function QuestFlyout:SetQuestData(questData)
         if not MainFrame then
-            MainFrame = addon.CreateResizableBackground(UIParent, QuestFlyoutFrameMixin);
+            MainFrame = addon.CreateResizableBackground(UIParent, QuestFlyoutFrameMixin);  --Inherits the game's UI Scale from UIParent
             MainFrame:Hide();
-            MainFrame:SetIgnoreParentScale(true);
             MainFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
             MainFrame:Init();
             MainFrame:SetAlpha(0);
@@ -466,8 +471,7 @@ do
         end
 
         if not LoadingIndicator then
-            LoadingIndicator = addon.CreateLoadingIndicator(UIParent);
-            LoadingIndicator:SetIgnoreParentScale(true);
+            LoadingIndicator = addon.CreateLoadingIndicator(UIParent);    --Inherits the game's UI Scale from UIParent
             LoadingIndicator:SetMaxShownTime(3);
         end
 

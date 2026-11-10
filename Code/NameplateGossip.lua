@@ -146,7 +146,8 @@ end
 
 function NameplateGossip:Init()
     self:SetFrameStrata("HIGH");
-    self:SetIgnoreParentScale(true);
+    self:SetIgnoreParentScale(true);    --Unaffected by nameplate scaling...
+    addon.API.RegisterUIScaleFrame(self);  --...but still follows the game's UI Scale
     self:SetIgnoreParentAlpha(false);
 
     self.Text = self:CreateFontString(nil, "OVERLAY", "DUIFont_NameplateGossip");

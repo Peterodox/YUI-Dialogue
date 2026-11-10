@@ -114,7 +114,9 @@ do
         self.isDragging = true;
         self.scale = self.owner:GetEffectiveScale();
         self._x, self.y0 = GetCursorPosition();
-        self._x, self.y = GetCursorPosition();
+        --Cursor positions are in screen units; convert into the owner's (UI-scaled) units so the content follows the cursor
+        self.y0 = self.y0 / self.scale;
+        self.y = self.y0;
         self.range = self.owner.range or 0;
         self.fromY = self.owner:GetVerticalScroll();
         self.sampleT = 0;
@@ -133,6 +135,7 @@ do
 
     function SwipeEmulator:HandleDrag()
         self._x , self.newY = GetCursorPosition();
+        self.newY = self.newY / self.scale;
         self.dy = self.newY - self.y;
         self.y = self.newY;
 

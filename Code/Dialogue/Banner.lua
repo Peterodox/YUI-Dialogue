@@ -74,7 +74,8 @@ function Banner:Layout()
     self:SetWidth(math.max(width, self.minWidth));
     self.frameWidth = width;
 
-    local offsetY = WorldFrame:GetHeight() * 0.1;
+    --Screen height is in unscaled units, but the Banner inherits the UI Scale from DialogueUI
+    local offsetY = WorldFrame:GetHeight() * 0.1 / self:GetEffectiveScale();
     self.frameOffsetY = -offsetY;
     self.fromOffsetY = self.frameOffsetY - 40;
 

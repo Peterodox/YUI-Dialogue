@@ -210,17 +210,6 @@ do  -- Pixel
     end
     API.GetBestViewportSize = GetBestViewportSize;
 
-    local function GetUIScale()
-        --Our top-level frames are not parented to UIParent (it gets hidden during dialogue),
-        --so they don't inherit the game's UI Scale. Use this to apply it manually.
-        local scale = UIParent and UIParent:GetEffectiveScale();
-        if not scale or scale <= 0 then
-            scale = 1;
-        end
-        return scale
-    end
-    API.GetUIScale = GetUIScale;
-
     local PixelUtil = CreateFrame("Frame");
     addon.PixelUtil = PixelUtil;
 
@@ -275,6 +264,133 @@ do  -- Pixel
         return x*UI_SCALE_RATIO, y*UI_SCALE_RATIO
     end
     API.GetScaledCursorPosition = GetScaledCursorPosition;
+end
+
+do  -- UI Scale
+    --Most of our frames can't be children of UIParent, because UIParent gets hidden during dialogue.
+    --So they don't inherit the game's UI Scale, and have to copy it instead.
+    --Register each top-level frame (no parent, or set to ignore its parent's scale) with API.RegisterUIScaleFrame:
+    --the UI Scale is applied right away, and again whenever it changes.
+    --Don't register a frame whose parent is already scaled, or it gets scaled twice.
+
+    local pairs = pairs;
+    local InCombatLockdown = InCombatLockdown;
+    local PixelUtil = addon.PixelUtil;
+
+    local ScaledFrames = {};    --[frame] = {scale = number, onScaleChanged = function}
+    local ScaleUpdater = CreateFrame("Frame");
+
+    local function GetUIScale()
+        local scale = UIParent and UIParent:GetEffectiveScale();
+        if not scale or scale <= 0 then
+            scale = 1;
+        end
+        return scale
+    end
+    API.GetUIScale = GetUIScale;
+
+    local function CanChangeFrame(frame)
+        --A frame with protected children can't be rescaled or moved during combat
+        return not (InCombatLockdown() and frame:IsProtected())
+    end
+
+    function ScaleUpdater:Update()
+        self.isPending = nil;
+        local forceLayout = self.forceLayout;
+        self.forceLayout = nil;
+
+        local scale = GetUIScale();
+        local changedFrames;
+        local anyDeferred;
+
+        --Rescale every frame before running any callback, so each callback sees up-to-date scales on all frames
+        for frame, info in pairs(ScaledFrames) do
+            if CanChangeFrame(frame) then
+                if info.scale ~= scale then
+                    info.scale = scale;
+                    frame:SetScale(scale);
+                    changedFrames = changedFrames or {};
+                    changedFrames[frame] = info;
+                elseif forceLayout then
+                    changedFrames = changedFrames or {};
+                    changedFrames[frame] = info;
+                end
+            else
+                anyDeferred = true;
+            end
+        end
+
+        if anyDeferred then
+            --Finish the rest after combat
+            self.forceLayout = forceLayout;
+            self:RegisterEvent("PLAYER_REGEN_ENABLED");
+        end
+
+        if changedFrames then
+            for frame, info in pairs(changedFrames) do
+                if info.onScaleChanged then
+                    info.onScaleChanged(frame, scale);
+                end
+            end
+            PixelUtil:MarkScaleDirty();
+        end
+    end
+
+    function ScaleUpdater:RequestUpdate(forceLayout)
+        if forceLayout then
+            self.forceLayout = true;
+        end
+
+        if not self.isPending then
+            self.isPending = true;
+            C_Timer.After(0, function()
+                self:Update();
+            end);
+        end
+    end
+
+    ScaleUpdater:SetScript("OnEvent", function(self, event)
+        if event == "PLAYER_REGEN_ENABLED" then
+            self:UnregisterEvent(event);
+        end
+        --A new resolution changes screen-relative positions even if the scale stays the same
+        self:RequestUpdate(event == "DISPLAY_SIZE_CHANGED");
+    end);
+
+    ScaleUpdater:RegisterEvent("UI_SCALE_CHANGED");
+    ScaleUpdater:RegisterEvent("DISPLAY_SIZE_CHANGED");
+    ScaleUpdater:RegisterEvent("PLAYER_ENTERING_WORLD");
+
+    --Some players set the scale directly (/run UIParent:SetScale(x)) to go below the slider's minimum.
+    --That doesn't fire UI_SCALE_CHANGED.
+    hooksecurefunc(UIParent, "SetScale", function()
+        ScaleUpdater:RequestUpdate();
+    end);
+
+    local function RegisterUIScaleFrame(frame, onScaleChanged)
+        --onScaleChanged(frame, scale): Optional. Use it to re-position anything placed using the screen size.
+        local info = {
+            onScaleChanged = onScaleChanged,
+        };
+        ScaledFrames[frame] = info;
+
+        if CanChangeFrame(frame) then
+            info.scale = GetUIScale();
+            frame:SetScale(info.scale);
+        else
+            ScaleUpdater:RegisterEvent("PLAYER_REGEN_ENABLED");
+        end
+    end
+    API.RegisterUIScaleFrame = RegisterUIScaleFrame;
+
+    local function GetBestViewportSizeForFrame(frame)
+        --API.GetBestViewportSize is in unscaled (screen) units. This converts it into the frame's own units,
+        --for positioning a frame that's scaled with the UI Scale.
+        local viewportWidth, viewportHeight = API.GetBestViewportSize();
+        local scale = frame:GetEffectiveScale();
+        return viewportWidth / scale, viewportHeight / scale
+    end
+    API.GetBestViewportSizeForFrame = GetBestViewportSizeForFrame;
 end
 
 do  -- Object Pool (Pool needs to Release all objects before reusing) / DynamicPoolMixin (can reuse any inactive object without Releasing All objects)

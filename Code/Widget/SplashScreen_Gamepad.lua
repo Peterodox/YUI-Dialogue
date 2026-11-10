@@ -36,6 +36,7 @@ local function CreateSplashScreen()
 
     local f = CreateFrame("Frame");
     SplashScreen = f;
+    addon.API.RegisterUIScaleFrame(f);  --Not a child of UIParent, so copy the game's UI Scale
     f:Hide();
     f:SetSize(frameWidth, frameHeight);
     f:SetPoint("CENTER", 0, 0);
