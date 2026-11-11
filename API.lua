@@ -30,6 +30,12 @@ local function AlwaysZero(arg)
     return 0
 end
 
+
+function addon.IsAnyDUIWindowShown()
+    return (addon.DialogueUI and addon.DialogueUI:IsShown()) or (addon.BookUI and addon.BookUI:IsShown());
+end
+
+
 --12.0 Secrets
 local issecurevalue = issecurevalue or AlwaysFalse;
 local canaccessvalue = canaccessvalue or AlwaysTrue;

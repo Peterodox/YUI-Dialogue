@@ -1098,7 +1098,7 @@ do  --Update Parameters Based On Player Form
         if self.isModern then
             local shouldRefreshUIVisiblity;
             if userInput then
-                shouldRefreshUIVisiblity = (addon.DialogueUI:IsShown() or addon.BookUI:IsShown()) and not InCombatLockdown();
+                shouldRefreshUIVisiblity = addon.IsAnyDUIWindowShown() and not InCombatLockdown();
                 if shouldRefreshUIVisiblity then
                     SetGameUIShown(true);
                 end
