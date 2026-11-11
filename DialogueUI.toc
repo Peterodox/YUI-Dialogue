@@ -38,4 +38,5 @@ Code\Core.lua
 
 #Code\Skimmer\Skimmer.xml
 
+Code\DialogueUIAPI\API.xml
 Code\SupportedAddOns\SupportedAddOns.xml

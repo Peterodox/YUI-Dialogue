@@ -2,7 +2,7 @@
 
 --[[
     local provider = {
-        name = "AddOn Name",                                            --string: Your addon's name
+        name = "AddOn Name",    --string: Your addon's name
         doesFileExist = function(interactionType, id, optionalArg1, optionalArg2)
             --interactionType: "quest", "gossip"
             --id (quest): questID, id (gossip): npcID
