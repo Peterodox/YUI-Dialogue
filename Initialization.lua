@@ -24,6 +24,7 @@ local DefaultValues = {
         ShowEXPBar = true,
         HideOutlineSparkles = true,
         HideUnitNames = false,
+        HideUI_EnhancedMode = false,
     ShowCopyTextButton = false,
     ShowNPCNameOnPage = false,
     QuestDifficultyStyle = 1,
