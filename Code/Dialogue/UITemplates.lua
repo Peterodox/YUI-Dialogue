@@ -13,7 +13,6 @@ local BindingUtil = addon.BindingUtil;
 local IsCtrlDown = addon.DeviceUtil.IsCtrlDown;
 
 -- User Settings
-local SHOW_QUEST_TYPE_TEXT = true;
 local INPUT_DEVICE_GAME_PAD = false;
 ------------------
 
@@ -455,21 +454,23 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     elseif questInfo.isTrivial then
         typeText = L["Quest Type Trivial"];
     else
-        if SHOW_QUEST_TYPE_TEXT then
-            if questInfo.repeatable and not (questInfo.isWeekly or questInfo.isDaily) then
-                typeText = L["Quest Type Repeatable"];
-            else
-                local isRecurring, seconds = API.GetRecurringQuestTimeLeft(questInfo.questID);
-                if isRecurring and seconds and not questInfo.frequency == 3 then
-                    --The remaining time of meta quest isn't always accurate
-                    typeText = API.SecondsToTime(seconds, true, true);
-                elseif questInfo.isDaily == 1 then
-                    typeText = L["Quest Frequency Daily"];
-                elseif questInfo.isWeekly == 2 then
-                    typeText = L["Quest Frequency Weekly"];
-                elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
+        if questInfo.repeatable and not (questInfo.isWeekly or questInfo.isDaily) then
+            typeText = L["Quest Type Repeatable"];
+        else
+            -- We don't show "Daily" or "Weekly" anymore.
+            -- As of 12.1.5, the frequency is no longer reliable.
+            -- Example: PvP weekly quests in Silvermoon: "Enshrouded in Teamwork" and "Something Different" are both repeatable weekly, game categorizes them as "recurring"
 
-                end
+            local isRecurring, seconds = API.GetRecurringQuestTimeLeft(questInfo.questID);
+            if isRecurring and seconds and not questInfo.frequency == 3 then
+                --The remaining time of meta quest isn't always accurate
+                typeText = API.SecondsToTime(seconds, true, true);
+            elseif questInfo.isDaily then
+                --typeText = L["Quest Frequency Daily"];
+            elseif questInfo.isWeekly then
+                --typeText = L["Quest Frequency Weekly"];
+            elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
+
             end
         end
     end
@@ -2822,14 +2823,6 @@ do  --Loading Indicator
 end
 
 do  --Settings, CallbackRegistry
-    local function Settings_QuestTypeText(dbValue)
-        SHOW_QUEST_TYPE_TEXT = dbValue == true;
-        addon.DialogueUI:OnSettingsChanged();
-    end
-
-    CallbackRegistry:Register("SettingChanged.QuestTypeText", Settings_QuestTypeText);
-
-
     local function Settings_InputDevice(dbValue)
         INPUT_DEVICE_GAME_PAD = dbValue ~= 1;
 
@@ -2878,15 +2871,6 @@ do  --Settings, CallbackRegistry
     end
     CallbackRegistry:Register("SettingChanged.InputDevice", Settings_InputDevice);
 
-
-    local DEFAULT_FONT_SIZE_ID = 1;
-
-    local FONT_SIZE_INDEX = {
-        --[sizeIndex] = {BUTTON_HEIGHT_LARGE, HOTKEYFRAME_PADDING, BUTTON_PADDING_SMALL, BUTTON_PADDING_LARGE};
-        [1] = {36, 8, 6, 12},
-        [2] = {42, 8, 6, 12},
-        [3] = {48, 8, 6, 12},
-    };
 
     local function OnFontSizeChanged(baseFontSize, fontSizeID)
         BUTTON_HEIGHT_LARGE = 3*baseFontSize;
