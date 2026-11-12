@@ -3,6 +3,7 @@
 
 ## Title: Dialogue UI
 ## Notes: Quest Dialogue UI
+## Notes-zhTW: 沉浸式任務與 NPC 對話介面，支援快捷鍵、搖桿與自訂外觀
 
 ## Author: Raenore, Peterodox
 ## SavedVariables: DialogueUI_DB, DialogueUI_Saves
