@@ -30,6 +30,12 @@ local function AlwaysZero(arg)
     return 0
 end
 
+
+function addon.IsAnyDUIWindowShown()
+    return (addon.DialogueUI and addon.DialogueUI:IsShown()) or (addon.BookUI and addon.BookUI:IsShown());
+end
+
+
 --12.0 Secrets
 local issecurevalue = issecurevalue or AlwaysFalse;
 local canaccessvalue = canaccessvalue or AlwaysTrue;
@@ -2588,16 +2594,14 @@ do  -- Tooltip
     end
     API.GetRewardItemLevelDelta = GetRewardItemLevelDelta;
 
-    local function IsItemAnUpgrade(newLink)
+    function API.IsItemAnUpgrade_Internal(newLink)
         local delta, isReady = GetMaxEquippedItemLevelDelta(newLink)
         return (delta and delta > 0), isReady
     end
-    API.IsItemAnUpgrade = IsItemAnUpgrade;
-    API.IsItemAnUpgrade_External = IsItemAnUpgrade;     --Override our API if Pawn is installed (see SupportedAddOns/Pawn.lua)
 
     local function IsRewardItemUpgrade(questInfoType, index)
         local newLink = GetQuestItemLink(questInfoType, index);
-        return API.IsItemAnUpgrade_External(newLink)
+        return addon.ItemEvaluator:IsUpgrade(newLink);
     end
     API.IsRewardItemUpgrade = IsRewardItemUpgrade;
 

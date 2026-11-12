@@ -36,7 +36,6 @@ local GetCameraZoom = GetCameraZoom;
 local CameraZoomIn = CameraZoomIn;
 local CameraZoomOut = CameraZoomOut;
 local ConsoleExec = ConsoleExec;
-local SetGameUIShown = SetUIVisibility;
 local InCombatLockdown = InCombatLockdown;
 local IsMounted = IsMounted;
 local IsInInstance = IsInInstance;
@@ -48,14 +47,18 @@ UIParent:UnregisterEvent("EXPERIMENTAL_CVAR_CONFIRMATION_NEEDED");  --Disable EX
 local FadeHelper = CreateFrame("Frame");
 addon.UIParentFadeHelper = FadeHelper;
 
-CameraUtil.isMidnight = addon.IS_MODERN;
+CameraUtil.isModern = addon.IS_MODERN;
 
 local IsDynamicFlying; -- Avoid changing FOV when mounted to prevent FOV stuck at over normal max due to Skyriding Speed Effects
 
-if CameraUtil.isMidnight then
-    SetGameUIShown = function(state)
+local SetGameUIShownMethods = {
+    Everything = SetUIVisibility,
+
+    UIParentVisiblity = function (state)
         UIParent:SetShown(state);
-        --[[
+    end,
+
+    UIParentTransparency = function (state)
         if state then
             UIParent:SetAlpha(1);
             Minimap:Show();
@@ -63,9 +66,12 @@ if CameraUtil.isMidnight then
             UIParent:SetAlpha(0);
             Minimap:Hide();
         end
-        --]]
-    end
+    end,
+};
 
+local SetGameUIShown = SetGameUIShownMethods.Everything;
+
+if CameraUtil.isModern then
     IsDynamicFlying = function()
         if IsMounted() then
             return true
@@ -375,7 +381,7 @@ function CameraUtil:ListenEvent(state)
         if PLAYER_IS_SHAPESHIFTER then
             self:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
         end
-        if self.isMidnight then
+        if self.isModern then
             self:RegisterEvent("PLAYER_IS_GLIDING_CHANGED");
         end
         self:SetScript("OnEvent", self.OnEvent);
@@ -387,7 +393,7 @@ function CameraUtil:ListenEvent(state)
         if PLAYER_IS_SHAPESHIFTER then
             self:UnregisterEvent("UPDATE_SHAPESHIFT_FORM");
         end
-        if self.isMidnight then
+        if self.isModern then
             self:UnregisterEvent("PLAYER_IS_GLIDING_CHANGED");
         end
         self:SetScript("OnEvent", nil);
@@ -943,7 +949,7 @@ do
             CameraUtil.oldZoom = oldZoom;
         end
     end
-    addon.CallbackRegistry:Register("SettingChanged.CameraZoomMultiplier", Settings_CameraZoomMultiplier);
+    CallbackRegistry:Register("SettingChanged.CameraZoomMultiplier", Settings_CameraZoomMultiplier);
 end
 
 
@@ -1087,6 +1093,32 @@ do  --Update Parameters Based On Player Form
         self.updator.t = delay;
         self.updator:SetScript("OnUpdate", Updator_OnUpdate);
     end
+
+    function CameraUtil:UpdateGameUIShownMethod(useEnhancedMode, userInput)
+        if self.isModern then
+            local shouldRefreshUIVisiblity;
+            if userInput then
+                shouldRefreshUIVisiblity = addon.IsAnyDUIWindowShown() and not InCombatLockdown();
+                if shouldRefreshUIVisiblity then
+                    SetGameUIShown(true);
+                end
+            end
+
+            if useEnhancedMode then
+                SetGameUIShown = SetGameUIShownMethods.Everything;
+                self:TryDisableCloseAllWindows();
+            else
+                SetGameUIShown = SetGameUIShownMethods.ChangeRoleset or SetGameUIShownMethods.UIParentTransparency;
+            end
+
+            if userInput and shouldRefreshUIVisiblity then
+                SetGameUIShown(false);
+            end
+        else
+            SetGameUIShown = SetGameUIShownMethods.Everything;
+        end
+    end
+    CallbackRegistry:Register("SettingChanged.HideUI_EnhancedMode", CameraUtil.UpdateGameUIShownMethod, CameraUtil);
 end
 
 
@@ -1102,23 +1134,36 @@ do  -- For 12.1.0: Disable "CloseAllWindows()" for "UI.TopLevelParentShown" (See
     -- Systems that uses "UI.TopLevelParentShown" seem to be of low importance:
     -- LowHealthFrame and ActionStatus (the container that shows Screen Captured)
 
-    -- UNUSED!!! ---
 
-    --[[
     local function UnregisterCallbackWidthNoOwner(callbackType, event)
+        local numCallbackRemoved = 0;
         if EventRegistry.callbackTables and EventRegistry.callbackTables[callbackType] then
             local callbacks = EventRegistry.callbackTables[callbackType][event];
             if callbacks then
                 for owner in pairs(EventRegistry.callbackTables[callbackType][event]) do
                     if type(owner) == "number" then
+                        numCallbackRemoved = numCallbackRemoved + 1;
                         callbacks[owner] = nil;
                     end
                 end
             end
         end
+        return numCallbackRemoved;
     end
-    UnregisterCallbackWidthNoOwner(2, "UI.TopLevelParentShown");
-    --]]
+
+    function CameraUtil:TryDisableCloseAllWindows()
+        if self.closeAllWindowsDisabled then return; end
+        self.closeAllWindowsDisabled = true;
+
+        local numCallbackRemoved = UnregisterCallbackWidthNoOwner(2, "UI.TopLevelParentShown");
+        if numCallbackRemoved > 2 then
+            -- Without other addons, there should be only 2 anonymous callbacks
+        end
+    end
+
+    function CameraUtil:DoesGameSupportRoleset()
+        return false;
+    end
 end
 
 
@@ -1146,7 +1191,7 @@ if UIModeUtil and UIModeUtil.RegisterMode and UIModeUtil.SetModeActive then
         },
     });
 
-    SetGameUIShown = function(state)
+    SetGameUIShownMethods.ChangeRoleset = function(state)
         UIModeUtil.SetModeActive(modeName, not state);
         if state then
             UIParent:SetAlpha(1);
@@ -1161,8 +1206,14 @@ if UIModeUtil and UIModeUtil.RegisterMode and UIModeUtil.SetModeActive then
     Dummy.isDialogueUI = true;
 
     function Dummy:OnUIParentShown()
-        SetGameUIShown(true);
+        SetGameUIShownMethods.ChangeRoleset(true);
     end
 
     EventRegistry:RegisterCallback("UI.TopLevelParentHidden", Dummy.OnUIParentShown, Dummy);
+
+    function CameraUtil:DoesGameSupportRoleset()
+        return true;
+    end
 end
+
+CameraUtil:UpdateGameUIShownMethod();

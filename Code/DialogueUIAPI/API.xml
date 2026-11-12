@@ -1,0 +1,5 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+    <Script file="Translator.lua"/>
+    <Script file="Voiceover.lua"/>
+    <Script file="ItemEvaluator.lua"/>
+</Ui>

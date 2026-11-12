@@ -358,25 +358,33 @@ function PlayerXPDataProvider:OnLoad(bar)
 end
 
 function PlayerXPDataProvider:OnShow(bar)
-    if self.isCapped then
-        bar:Hide();
-        return
-    end
-
     self.isCapped = API.IsPlayerAtMaxLevel();
 
-    if self.isCapped then
+    if self.isCapped or (not addon.GetDBBool("ShowEXPBar")) then
         bar:Hide();
         --ChatFrame is anchored to this frame so we move it down
-        bar:ClearAllPoints();
-        bar:SetPoint("TOP", nil, "BOTTOM", 0, 0);
+        self:UpdatePosition();
         return
+    else
+        self:UpdatePosition();
     end
 
     bar:RegisterUnitEvent("PLAYER_XP_UPDATE", "player");
     bar:RegisterEvent("PLAYER_LEVEL_UP");
     bar:SetScript("OnEvent", self.OnEvent);
     bar:Update();
+end
+
+function PlayerXPDataProvider:UpdatePosition()
+    local bar = self.owner;
+    if bar then
+        bar:ClearAllPoints();
+        if bar:IsShown() then
+            bar:SetPoint("BOTTOM", nil, "BOTTOM", 0, -2);
+        else
+            bar:SetPoint("TOP", nil, "BOTTOM", 0, 0);
+        end
+    end
 end
 
 function PlayerXPDataProvider:OnEvent(event, ...)
@@ -443,6 +451,16 @@ function PlayerXPDataProvider:getRangeFunc()
     return 0, maxXP
 end
 
+function PlayerXPDataProvider:OnSettingsChanged(value, userInput)
+    if userInput then
+        local bar = self.owner;
+        if bar then
+            bar:SetShown(value);
+            self:UpdatePosition();
+        end
+    end
+end
+addon.CallbackRegistry:Register("SettingChanged.ShowEXPBar", PlayerXPDataProvider.OnSettingsChanged, PlayerXPDataProvider);
 
 
 local DataProviderPresets = {

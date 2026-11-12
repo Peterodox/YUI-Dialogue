@@ -15,26 +15,26 @@ do
     local function OnAddOnLoaded()
         local ShouldShowUpgrade = PawnShouldItemLinkHaveUpgradeArrow;   --2nd arg: CheckLevel
         local AddValuesToTooltip = PawnAddValuesToTooltip;
-        local tooltip = addon.SharedTooltip;
         local TooltipCapture = addon.TooltipCapture;
 
-        API.IsItemAnUpgrade_External = function(itemLink)
-            local result = ShouldShowUpgrade(itemLink, false);
-            return result, result ~= nil
+        local function isItemUpgrade(itemLink)
+            local isUpgrade = ShouldShowUpgrade(itemLink, false);
+            local isDataReady = isUpgrade ~= nil;
+            return isUpgrade, isDataReady;
         end
 
-        function tooltip:ProcessItemExternal(itemLink)
-            TooltipCapture:ClearLines();
+        local function tooltipWritter(tooltipCapture, itemLink)
             if ShouldShowUpgrade(itemLink, false) then
                 local Item = PawnGetItemData(itemLink)
                 if Item then
-                    self:AddBlankLine();
                     local UpgradeInfo, ItemLevelIncrease, BestItemFor, SecondBestItemFor, NeedsEnhancements = PawnIsItemAnUpgrade(Item);
                     AddValuesToTooltip(TooltipCapture, Item.Values, UpgradeInfo, BestItemFor, SecondBestItemFor, NeedsEnhancements, Item.InvType);
-                    TooltipCapture:SendToProcess(self);
+                    return true;
                 end
             end
         end
+
+        addon.ItemEvaluator:AddThirdPartyEvaluator(ADDON_NAME, isItemUpgrade, tooltipWritter);
     end
 
     addon.AddSupportedAddOn(ADDON_NAME, OnAddOnLoaded, requiredMethods);

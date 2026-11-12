@@ -546,11 +546,43 @@ end
 
 local function QuestDifficultyStyle_Tooltip()
     local index = GetDBValue("QuestDifficultyStyle");
-    if index == 2 then
-        return L["QuestDifficultyStyle Name Desc"];
-    else
+    if index == 0 then
+        return L["QuestDifficultyStyle Off Desc"];
+    elseif index == 1 then
         return L["QuestDifficultyStyle Level Desc"];
+    elseif index == 2 then
+        return L["QuestDifficultyStyle Name Desc"];
     end
+end
+
+local function IsForever_Validation()
+    return addon.IS_FOREVER;
+end
+
+local function ItemEvaluatorTooltip()
+    local ItemEvaluator = addon.ItemEvaluator;
+    local enabled = GetDBValue("ShowUpgradeArrow");
+    local desc = L["Evaluate Item Rewards Desc Format"]:format("|TInterface/AddOns/DialogueUI/Art/Icons/UpgradeArrowSmall:0:0:0:-6|t");
+    local thirdPartyName = ItemEvaluator:GetCurrentThirdPartyName();
+    if enabled then
+        if thirdPartyName then
+            desc = desc.."\n\n"..L["Format Functionality Handled By"]:format(thirdPartyName);
+        else
+            desc = desc.."\n\n"..L["ItemEvaluator ItemLevel Desc"];
+            local lastName = ItemEvaluator:GetLastThirdPartyName();
+            if lastName then
+                desc = desc.."\n\n"..L["ItemEvaluator ThirdParty Missing Format"]:format(lastName);
+            else
+                desc = desc.."\n\n"..L["ItemEvaluator ThirdParty None"];
+            end
+        end
+    else
+        desc = desc.."\n\n"..L["ItemEvaluator Off Desc"];
+        if thirdPartyName then
+            desc = desc.."\n\n"..L["ItemEvaluator ThirdParty Found Format"]:format(thirdPartyName);
+        end
+    end
+    return desc;
 end
 
 local function RPAddOn_Validation()
@@ -580,6 +612,13 @@ local function OptionHasNoEffectDueToMobile()
     end
 end
 
+local function CameraMovement_Tooltip()
+    if addon.IS_FOREVER and InputUtil.IsGamepadUIEnabled() then
+        --ActionCam is ignored when the native gamepad UI is enabled
+        return ThemeUtil:PrependWarningIcon(L["Camera Movement Invalid Due To Gamepad UI"]);
+    end
+end
+
 local function ChatWindowTooltip()
     if GetDBValue("FrameOrientation") == 1 then
         --Dialogue on the left, Chat on the right
@@ -591,6 +630,14 @@ end
 
 local function OutlineSparklesSupported_Validation()
     return addon.IS_RETAIL  --Forever has no NPC outline for now
+end
+
+local function HideUIEnchancedMode_Tooltip()
+    return ThemeUtil:PrependWarningIcon(L["Hide UI Enhanced Mode Warning"]);
+end
+
+local function HideUIEnchancedMode_Validation()
+    return addon.CameraUtil:DoesGameSupportRoleset();
 end
 
 local function UseItemHotkey_Tooltip()
@@ -672,20 +719,25 @@ local Schematic = { --Scheme
             },
             {type = "Checkbox", name = L["Hide UI"], description = L["Hide UI Desc"], dbKey = "HideUI"},
             {type = "Checkbox", name = L["Show Chat Window"], tooltip = ChatWindowTooltip, dbKey = "ShowChatWindow", requiredParentValueAnd = {HideUI = true}},
+            {type = "Checkbox", name = L["Show EXP Bar"], description = L["Show EXP Bar Desc"], dbKey = "ShowEXPBar", requiredParentValueAnd = {HideUI = true}},
             {type = "Checkbox", name = L["Hide Sparkles"], description = L["Hide Sparkles Desc"], preview = "HideOutlineSparkles.jpg", ratio = 2, dbKey = "HideOutlineSparkles", requiredParentValueAnd = {HideUI = true}, validationFunc = OutlineSparklesSupported_Validation},
             {type = "Checkbox", name = L["Hide Unit Names"], description = L["Hide Unit Names Desc"], dbKey = "HideUnitNames", requiredParentValueAnd = {HideUI = true}},
+            {type = "Checkbox", name = L["Hide UI Enhanced Mode"], description = L["Hide UI Enhanced Mode Desc"], tooltip = HideUIEnchancedMode_Tooltip, dbKey = "HideUI_EnhancedMode", requiredParentValueAnd = {HideUI = true}, validationFunc = HideUIEnchancedMode_Validation},
             {type = "Checkbox", name = L["Show Copy Text Button"], description = L["Show Copy Text Button Desc"], preview = "CopyTextButton", ratio = 1, dbKey = "ShowCopyTextButton"},
             {type = "Checkbox", name = L["Show NPC Name On Page"], description = L["Show NPC Name On Page Desc"], dbKey = "ShowNPCNameOnPage"},
 
             {type = "Subheader", name = L["Quest"]},    --Quest
             {type = "ArrowOption", name = L["Quest Difficulty Option"], description = L["Quest Difficulty Option Desc"], tooltip = QuestDifficultyStyle_Tooltip, dbKey = "QuestDifficultyStyle", validationFunc = QuestDifficulty_Validation, preview = "QuestDifficultyStyle", ratio = 2,
                 choices = {
+                    {dbValue = 0, valueText = L["QuestDifficultyStyle Off"]},
                     {dbValue = 1, valueText = L["QuestDifficultyStyle Level"]},
                     {dbValue = 2, valueText = L["QuestDifficultyStyle Name"]},
                 },
             },
+            {type = "Checkbox", name = L["Distinguish Forever Quest"], description = L["Distinguish Forever Quest Desc"], dbKey = "ShowForeverQuestIcon", validationFunc = IsForever_Validation, preview = "ShowForeverQuestIcon", ratio = 2},
+            {type = "Checkbox", name = L["Evaluate Item Rewards"], tooltip = ItemEvaluatorTooltip, dbKey = "ShowUpgradeArrow"},
             {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
-            {type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
+            --{type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},
             {type = "Checkbox", name = L["Use Blizzard Tooltip"], description = L["Use Blizzard Tooltip Desc"], dbKey = "UseBlizzardTooltip"},
             {type = "Subheader", name = L["Roleplaying"], validationFunc = RPAddOn_Validation},
@@ -714,7 +766,7 @@ local Schematic = { --Scheme
     {
         tabName = L["Camera"],  --Cate2
         options = {
-            {type = "ArrowOption", name = L["Camera Movement"], dbKey="CameraMovement",
+            {type = "ArrowOption", name = L["Camera Movement"], dbKey="CameraMovement", tooltip = CameraMovement_Tooltip,
                 choices = {
                     {dbValue = 0, valueText = L["Camera Movement Off"]},
                     {dbValue = 1, valueText = L["Camera Movement Zoom In"]},

@@ -143,7 +143,9 @@ function DeviceUtil:OnEvent(event, ...)
         DeviceUtil:RegisterDeviceChangedCallback();
         if not self.gamePadConnected then
             self.gamePadConnected = true;
-            self:QuestOrBookUIOnShow();
+            if addon.IsAnyDUIWindowShown() then
+                self:QuestOrBookUIOnShow();
+            end
         end
     end
 end

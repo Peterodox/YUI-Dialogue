@@ -215,6 +215,10 @@ function ThemeUtil:UpdateMultiLanguageFontColor(showOriginal)
     SetFontColor(_G[fontName], colors[colorIndex]);
 end
 
+function ThemeUtil:PrependWarningIcon(text)
+    return string.format("|T%s:0:0:0:-6|t %s", TEXTURE_PATH.."WarningIcon.png", text);
+end
+
 
 do
     ThemeUtil:SetThemeByID(1);
