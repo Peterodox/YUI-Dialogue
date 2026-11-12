@@ -19,7 +19,7 @@ L["Quest Difficulty Normal"] = "普通";
 L["Quest Difficulty Easy"] = "简单";
 L["Quest Difficulty Trivial"] = "低等级";
 L["Your Level"] = "你的等级";
-L["Quest Level"] = "人物等级";
+L["Quest Level"] = "任务等级";
 
 L["Accept"] = "接受"
 L["Continue"] = "继续";
