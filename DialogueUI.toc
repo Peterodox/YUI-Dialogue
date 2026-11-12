@@ -1,5 +1,5 @@
 ## Interface: 120107, 120105, 50504, 20506, 11509, 16001
-## Version: 1.0.7 b
+## Version: 1.0.7 c
 
 ## Title: Dialogue UI
 ## Notes: Quest Dialogue UI
