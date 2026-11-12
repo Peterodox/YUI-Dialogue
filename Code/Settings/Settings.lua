@@ -553,6 +553,32 @@ local function QuestDifficultyStyle_Tooltip()
     end
 end
 
+local function ItemEvaluatorTooltip()
+    local ItemEvaluator = addon.ItemEvaluator;
+    local enabled = GetDBValue("ShowUpgradeArrow");
+    local desc = L["Evaluate Item Rewards Desc Format"]:format("|TInterface/AddOns/DialogueUI/Art/Icons/UpgradeArrowSmall:0:0:0:-6|t");
+    local thirdPartyName = ItemEvaluator:GetCurrentThirdPartyName();
+    if enabled then
+        if thirdPartyName then
+            desc = desc.."\n\n"..L["Format Functionality Handled By"]:format(thirdPartyName);
+        else
+            desc = desc.."\n\n"..L["ItemEvaluator ItemLevel Desc"];
+            local lastName = ItemEvaluator:GetLastThirdPartyName();
+            if lastName then
+                desc = desc.."\n\n"..L["ItemEvaluator ThirdParty Missing Format"]:format(lastName);
+            else
+                desc = desc.."\n\n"..L["ItemEvaluator ThirdParty None"];
+            end
+        end
+    else
+        desc = desc.."\n\n"..L["ItemEvaluator Off Desc"];
+        if thirdPartyName then
+            desc = desc.."\n\n"..L["ItemEvaluator ThirdParty Found Format"]:format(thirdPartyName);
+        end
+    end
+    return desc;
+end
+
 local function RPAddOn_Validation()
     return addon.GetInstalledRPAddOnName() ~= nil
 end
@@ -701,6 +727,7 @@ local Schematic = { --Scheme
                     {dbValue = 2, valueText = L["QuestDifficultyStyle Name"]},
                 },
             },
+            {type = "Checkbox", name = L["Evaluate Item Rewards"], tooltip = ItemEvaluatorTooltip, dbKey = "ShowUpgradeArrow"},
             {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
             --{type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},
             {type = "Checkbox", name = L["Simplify Currency Rewards"], description = L["Simplify Currency Rewards Desc"], dbKey = "SimplifyCurrencyReward", preview = "SimplifyCurrencyReward", ratio = 2},

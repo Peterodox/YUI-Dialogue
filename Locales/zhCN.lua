@@ -175,6 +175,13 @@ L["QuestDifficultyStyle Level"] = "任务等级";
 L["QuestDifficultyStyle Level Desc"] = "在任务名称的左侧显示任务等级。";
 L["QuestDifficultyStyle Name"] = "难度名称";
 L["QuestDifficultyStyle Name Desc"] = "如果任务不在推荐等级范围内，在任务按钮的最右侧显示难度名称。\n（推荐范围为只比你角色高两级或只低两级）";
+L["Evaluate Item Rewards"] = "显示升级箭头";
+L["Evaluate Item Rewards Desc Format"] = "如果某件装备对你的角色可能有提升，在其图标旁显示一个绿色箭头 %s 。";
+L["ItemEvaluator Off Desc"] = "当前已禁用。";
+L["ItemEvaluator ItemLevel Desc"] = "物品等级更高的装备将被视为有提升。";
+L["ItemEvaluator ThirdParty Missing Format"] = "未找到你之前使用的“%s”。";
+L["ItemEvaluator ThirdParty None"] = "未找到兼容的第三方插件。";
+L["ItemEvaluator ThirdParty Found Format"] = "你有一个兼容的插件：%s";
 
 L["Camera Movement"] = "镜头运动";
 L["Camera Movement Off"] = "关";

@@ -13,13 +13,13 @@
         local anyChanges = false;  -- Change it to true if any changes were made so our tooltip can process the added lines.
         if isItemUpgrade(itemLink) then
             anyChanges = true;
-            tooltipCapture:AddLine(tooltipText, r, g, b, wrapText);
+            tooltipCapture:AddLine(text, r, g, b, wrapText);
             tooltipCapture:AddDoubleLine(leftText, rightText, leftR, leftG, leftB, rightR, rightG, rightB);
         end
         return anyChanges;
     end
 
-    DialogueUIAPI.AddItemUpgradeEvaluator(addonName, isItemUpgrade, tooltipWritter);
+    DialogueUIAPI.AddItemEvaluator(addonName, isItemUpgrade, tooltipWritter);
 --]]
 
 
@@ -32,10 +32,14 @@ local API = addon.API;
 local ExternalEvaluatorName;
 
 
+local ItemEvaluator = {};
+addon.ItemEvaluator = ItemEvaluator;
+
+
 ---@param addonName string Your addon's name. Preferably in English to avoid font issue.
 ---@param isItemUpgrade function A function that accepts an itemLink then return true/false.
 ---@param tooltipWritter function? [Optional] tooltipWritter(tooltipCapture, itemLink) return true. Add stuff to DUI's item tooltip; must return true if you add anything. See "Code/Tooltip/Tooltip_Capture.lua" for supported methods.
-local function AddItemUpgradeEvaluator(addonName, isItemUpgrade, tooltipWritter)
+local function AddItemEvaluator(addonName, isItemUpgrade, tooltipWritter)
     local success = true;
 
     if type(addonName) ~= "string" then
@@ -65,7 +69,7 @@ local function AddItemUpgradeEvaluator(addonName, isItemUpgrade, tooltipWritter)
 
     ExternalEvaluatorName = addonName;
 
-    API.IsItemAnUpgrade_External = function(itemLink)
+    local thirdPartyEvaluatorFunc = function(itemLink)
         local isUpgrade, isDataReady = isItemUpgrade(itemLink);
         if isDataReady == nil then
             return isUpgrade, isUpgrade ~= nil;
@@ -79,6 +83,7 @@ local function AddItemUpgradeEvaluator(addonName, isItemUpgrade, tooltipWritter)
         local TooltipCapture = addon.TooltipCapture;
 
         function tooltip:ProcessItemExternal(itemLink)
+            if not addon.GetDBBool("ShowUpgradeArrow") then return; end
             TooltipCapture:ClearLines();
             if tooltipWritter(TooltipCapture, itemLink) then
                 tooltip:AddBlankLine();
@@ -86,6 +91,58 @@ local function AddItemUpgradeEvaluator(addonName, isItemUpgrade, tooltipWritter)
             end
         end
     end
+
+    ItemEvaluator.thirdPartyEvaluatorFunc = thirdPartyEvaluatorFunc;
+
+    return true;
 end
-DialogueUIAPI.AddItemUpgradeEvaluator = AddItemUpgradeEvaluator;
-addon.AddItemUpgradeEvaluator = AddItemUpgradeEvaluator;
+DialogueUIAPI.AddItemEvaluator = AddItemEvaluator;
+
+
+
+
+ItemEvaluator.evaluateFunc = API.IsItemAnUpgrade_Internal;
+
+function ItemEvaluator:AddThirdPartyEvaluator(addonName, isItemUpgrade, tooltipWritter)
+    if AddItemEvaluator(addonName, isItemUpgrade, tooltipWritter) then
+        self:RefreshSettings();
+    end
+end
+
+function ItemEvaluator:GetCurrentThirdPartyName()
+    return ExternalEvaluatorName;
+end
+
+function ItemEvaluator:GetLastThirdPartyName()
+    local name = addon.GetDBValue("LastThirdPartyItemEvaluatorName");
+    if type(name) == "string" then
+        return name;
+    end
+end
+
+function ItemEvaluator:SetLastThirdPartyName(name)
+    if name == nil or type(name) == "string" then
+        addon.SetDBValue("LastThirdPartyItemEvaluatorName", name);
+    end
+end
+
+function ItemEvaluator:IsUpgrade(itemLink)
+    return self.evaluateFunc(itemLink);
+end
+
+function ItemEvaluator:RefreshSettings(_, userInput)
+    if addon.GetDBBool("ShowUpgradeArrow") then
+        self.evaluateFunc = self.thirdPartyEvaluatorFunc or API.IsItemAnUpgrade_Internal;
+        if self.thirdPartyEvaluatorFunc ~= nil then
+            self:SetLastThirdPartyName(self:GetCurrentThirdPartyName());
+        end
+    else
+        self.evaluateFunc = API.IsItemAnUpgrade_Internal;
+        self:SetLastThirdPartyName(nil);
+    end
+    if userInput then
+        addon.DialogueUI:OnSettingsChanged();
+    end
+end
+
+addon.CallbackRegistry:Register("SettingChanged.ShowUpgradeArrow", ItemEvaluator.RefreshSettings, ItemEvaluator);

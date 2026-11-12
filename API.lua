@@ -2594,16 +2594,14 @@ do  -- Tooltip
     end
     API.GetRewardItemLevelDelta = GetRewardItemLevelDelta;
 
-    local function IsItemAnUpgrade(newLink)
+    function API.IsItemAnUpgrade_Internal(newLink)
         local delta, isReady = GetMaxEquippedItemLevelDelta(newLink)
         return (delta and delta > 0), isReady
     end
-    API.IsItemAnUpgrade = IsItemAnUpgrade;
-    API.IsItemAnUpgrade_External = IsItemAnUpgrade;     --Override our API if Pawn is installed (see SupportedAddOns/Pawn.lua)
 
     local function IsRewardItemUpgrade(questInfoType, index)
         local newLink = GetQuestItemLink(questInfoType, index);
-        return API.IsItemAnUpgrade_External(newLink)
+        return addon.ItemEvaluator:IsUpgrade(newLink);
     end
     API.IsRewardItemUpgrade = IsRewardItemUpgrade;
 

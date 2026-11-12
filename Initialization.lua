@@ -28,6 +28,7 @@ local DefaultValues = {
     ShowCopyTextButton = false,
     ShowNPCNameOnPage = false,
     QuestDifficultyStyle = 1,
+    ShowUpgradeArrow = true,
     MarkHighestSellPrice = false,
     --QuestTypeText = false,                    --Removed due to Daily/Weekly QuestClassification changes
     SimplifyCurrencyReward = false,
