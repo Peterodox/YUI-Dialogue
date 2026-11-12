@@ -546,10 +546,12 @@ end
 
 local function QuestDifficultyStyle_Tooltip()
     local index = GetDBValue("QuestDifficultyStyle");
-    if index == 2 then
-        return L["QuestDifficultyStyle Name Desc"];
-    else
+    if index == 0 then
+        return L["QuestDifficultyStyle Off Desc"];
+    elseif index == 1 then
         return L["QuestDifficultyStyle Level Desc"];
+    elseif index == 2 then
+        return L["QuestDifficultyStyle Name Desc"];
     end
 end
 
@@ -723,6 +725,7 @@ local Schematic = { --Scheme
             {type = "Subheader", name = L["Quest"]},    --Quest
             {type = "ArrowOption", name = L["Quest Difficulty Option"], description = L["Quest Difficulty Option Desc"], tooltip = QuestDifficultyStyle_Tooltip, dbKey = "QuestDifficultyStyle", validationFunc = QuestDifficulty_Validation, preview = "QuestDifficultyStyle", ratio = 2,
                 choices = {
+                    {dbValue = 0, valueText = L["QuestDifficultyStyle Off"]},
                     {dbValue = 1, valueText = L["QuestDifficultyStyle Level"]},
                     {dbValue = 2, valueText = L["QuestDifficultyStyle Name"]},
                 },

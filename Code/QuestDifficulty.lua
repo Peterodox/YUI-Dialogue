@@ -18,6 +18,8 @@ local Def = {
     -- If true, show level on the quest list (on the left of the quest title)
     -- If false, show the difficulty name on the right of the quest button.
     ShowQuestLevel = true,
+
+    ShowQuestDifficulty = true,
 };
 
 
@@ -84,6 +86,8 @@ if CAN_SHOW_QUEST_LEVEL then
     end
 
     function GetQuestDifficultyLabel(questID)
+        if not Def.ShowQuestDifficulty then return; end
+
         local _, diff = GetQuestLevel(questID);
         if diff then
             local index = GetDifficultyIndex(diff);
@@ -102,7 +106,7 @@ if CAN_SHOW_QUEST_LEVEL then
     end
 
     function GetQuestDifficultyLabelForQuestButton(questID)
-        if Def.ShowQuestLevel then return; end
+        if (not Def.ShowQuestDifficulty) or Def.ShowQuestLevel then return; end
         return GetQuestDifficultyLabel(questID);
     end
 else
@@ -156,7 +160,8 @@ addon.CallbackRegistry:Register("ThemeChanged", function(themeID)
 end);
 
 addon.CallbackRegistry:Register("SettingChanged.QuestDifficultyStyle", function(dbValue, userInput)
-    Def.ShowQuestLevel = dbValue ~= 2;
+    Def.ShowQuestDifficulty = dbValue ~= 0;
+    Def.ShowQuestLevel = dbValue == 1;
     if userInput then
         addon.DialogueUI:OnSettingsChanged();
     end
