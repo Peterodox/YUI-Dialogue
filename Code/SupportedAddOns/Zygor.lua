@@ -27,10 +27,10 @@ do
             end
         end
 
-        -- Override upgrade detection for reward item arrows
-        API.IsItemAnUpgrade_External = function(itemLink)
+        -- Upgrade detection for reward item arrows (registered via ItemEvaluator below)
+        local function isItemUpgrade(itemLink)
             if not ItemScore.ActiveRuleSet then
-                return API.IsItemAnUpgrade(itemLink)
+                return API.IsItemAnUpgrade_Internal(itemLink)
             end
             local isUpgrade, slot, change, score, comment = Upgrades:IsUpgrade(itemLink);
             if comment == "not scored" or comment == "no link" then
@@ -39,7 +39,7 @@ do
                 -- This does not imply full stat/effect evaluation.
                 local itemDetails = ItemScore:GetItemDetails(itemLink, "temporary");
                 if itemDetails and itemDetails.type == "INVTYPE_TRINKET" then
-                    return API.IsItemAnUpgrade(itemLink)
+                    return API.IsItemAnUpgrade_Internal(itemLink)
                 end
                 return nil, false
             end
@@ -148,6 +148,8 @@ do
 
             self:Show();
         end
+
+        addon.ItemEvaluator:AddThirdPartyEvaluator(ADDON_NAME, isItemUpgrade);
     end
 
     addon.AddSupportedAddOn(ADDON_NAME, OnAddOnLoaded, requiredMethods);
