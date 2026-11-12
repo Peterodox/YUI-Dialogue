@@ -555,6 +555,10 @@ local function QuestDifficultyStyle_Tooltip()
     end
 end
 
+local function IsForever_Validation()
+    return addon.IS_FOREVER;
+end
+
 local function ItemEvaluatorTooltip()
     local ItemEvaluator = addon.ItemEvaluator;
     local enabled = GetDBValue("ShowUpgradeArrow");
@@ -730,6 +734,7 @@ local Schematic = { --Scheme
                     {dbValue = 2, valueText = L["QuestDifficultyStyle Name"]},
                 },
             },
+            {type = "Checkbox", name = L["Distinguish Forever Quest"], description = L["Distinguish Forever Quest Desc"], dbKey = "ShowForeverQuestIcon", validationFunc = IsForever_Validation, preview = "ShowForeverQuestIcon", ratio = 2},
             {type = "Checkbox", name = L["Evaluate Item Rewards"], tooltip = ItemEvaluatorTooltip, dbKey = "ShowUpgradeArrow"},
             {type = "Checkbox", name = L["Mark Highest Sell Price"], description = L["Mark Highest Sell Price Desc"], dbKey = "MarkHighestSellPrice", preview = "MarkHighestSellPrice", ratio = 1},
             --{type = "Checkbox", name = L["Show Quest Type Text"], description = L["Show Quest Type Text Desc"], dbKey = "QuestTypeText", preview = "QuestTypeText", ratio = 1},

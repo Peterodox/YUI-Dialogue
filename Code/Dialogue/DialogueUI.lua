@@ -771,7 +771,7 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         --WarbandCompleted or ForeverNewQuest
         local anyRightIcon;
 
-        if API.IsForeverNewQuest(questID) then
+        if GetDBBool("ShowForeverQuestIcon") and API.IsForeverNewQuest(questID) then
             anyRightIcon = true;
             self.ForeverQuestAlert:Show();
         else
@@ -3615,9 +3615,12 @@ do  --Generic Settings Registry
     end
     CallbackRegistry:Register("UseRoleplayName", Settings_UseRoleplayName);
 
-    local function GenericOnSettingsChanged(dbValue)
-        MainFrame:OnSettingsChanged();
+    local function GenericOnSettingsChanged(dbValue, userInput)
+        if userInput then
+            MainFrame:OnSettingsChanged();
+        end
     end
+    CallbackRegistry:Register("SettingChanged.ShowForeverQuestIcon", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.MarkHighestSellPrice", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.ShowNPCNameOnPage", GenericOnSettingsChanged);
     CallbackRegistry:Register("SettingChanged.ForceGossip", GenericOnSettingsChanged);
