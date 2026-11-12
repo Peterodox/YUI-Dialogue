@@ -23,18 +23,24 @@ do
             return result, result ~= nil
         end
 
-        function tooltip:ProcessItemExternal(itemLink)
-            TooltipCapture:ClearLines();
+        local function isItemUpgrade(itemLink)
+            local isUpgrade = ShouldShowUpgrade(itemLink, false);
+            local isDataReady = isUpgrade ~= nil;
+            return isUpgrade, isDataReady;
+        end
+
+        local function tooltipWritter(tooltipCapture, itemLink)
             if ShouldShowUpgrade(itemLink, false) then
                 local Item = PawnGetItemData(itemLink)
                 if Item then
-                    self:AddBlankLine();
                     local UpgradeInfo, ItemLevelIncrease, BestItemFor, SecondBestItemFor, NeedsEnhancements = PawnIsItemAnUpgrade(Item);
                     AddValuesToTooltip(TooltipCapture, Item.Values, UpgradeInfo, BestItemFor, SecondBestItemFor, NeedsEnhancements, Item.InvType);
-                    TooltipCapture:SendToProcess(self);
+                    return true;
                 end
             end
         end
+
+        addon.AddItemUpgradeEvaluator(ADDON_NAME, isItemUpgrade, tooltipWritter);
     end
 
     addon.AddSupportedAddOn(ADDON_NAME, OnAddOnLoaded, requiredMethods);
