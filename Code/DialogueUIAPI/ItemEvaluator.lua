@@ -96,7 +96,6 @@ local function AddItemEvaluator(addonName, isItemUpgrade, tooltipWritter)
 
     return true;
 end
-DialogueUIAPI.AddItemEvaluator = AddItemEvaluator;
 
 
 
@@ -106,7 +105,14 @@ ItemEvaluator.evaluateFunc = API.IsItemAnUpgrade_Internal;
 function ItemEvaluator:AddThirdPartyEvaluator(addonName, isItemUpgrade, tooltipWritter)
     if AddItemEvaluator(addonName, isItemUpgrade, tooltipWritter) then
         self:RefreshSettings();
+        return true;
     end
+end
+
+--3rd-party addons load after our settings were applied, so the evaluator must be applied right away (like Pawn's),
+--not on the next "ShowUpgradeArrow" change.
+DialogueUIAPI.AddItemEvaluator = function(addonName, isItemUpgrade, tooltipWritter)
+    return ItemEvaluator:AddThirdPartyEvaluator(addonName, isItemUpgrade, tooltipWritter);
 end
 
 function ItemEvaluator:GetCurrentThirdPartyName()
