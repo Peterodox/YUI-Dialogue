@@ -46,6 +46,7 @@ do  --HeaderWidgetManger
     local function RemoveButton(button)
         button:Hide();
         button:ClearAllPoints();
+        button:SetIcon(nil);
         button.uiOrder = nil;
         button.onEnterFunc = nil;
         button.onClickFunc = nil;
@@ -523,6 +524,7 @@ do  --ButtonMixin
         self.type = "Difficulty";
         self.uiOrder = 5;
         self.questID = questID;
+        self:SetIcon(nil);
         self:SetText(label);
         self:SetClickable(false);
         self.onEnterFunc = QuestDifficulty_OnEnter;
