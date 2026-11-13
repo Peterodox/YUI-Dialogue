@@ -14,6 +14,7 @@ local GetCursorPosition = GetCursorPosition;
 local UIParent = UIParent;
 
 local MainAnchor = CreateFrame("Frame");    --Used as the anchor for docking/chaining pop-ups
+API.RegisterUIScaleFrame(MainAnchor);       --Not a child of UIParent, so copy the game's UI Scale
 MainAnchor:SetSize(268, 44);
 MainAnchor:SetClampedToScreen(true);
 MainAnchor:SetPoint("CENTER", UIParent, "LEFT", 24, 32);
@@ -151,9 +152,13 @@ do  --Draggable Widget
 
         local x = self.useCenterAsOrigin and x2 or x1;
 
+        --Save in screen units, so the position stays put when the UI Scale changes.
+        --(Positions saved before widgets followed the UI Scale were at scale 1, which is the same as screen units.)
+        local scale = self:GetEffectiveScale();
+
         local position = {
-            Round(x),
-            Round(y);
+            Round(x * scale),
+            Round(y * scale);
         };
 
         addon.SetDBValue(self.dbkeyPosition, position);
@@ -184,12 +189,14 @@ do  --Draggable Widget
         local position = GetDBValue(self.dbkeyPosition);
         self:ClearAllPoints();
         if position then
-            self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", position[1], position[2]);
+            --Saved in screen units; convert into this frame's (UI-scaled) units
+            local scale = self:GetEffectiveScale();
+            self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", position[1] / scale, position[2] / scale);
         else
             if self.isChainable and self:IsVisible() then
                 WidgetManager:ChainAdd(self);
             else
-                local viewportWidth = API.GetBestViewportSize();
+                local viewportWidth = API.GetBestViewportSizeForFrame(self);
                 self:SetPoint("LEFT", nil, "CENTER", Round(-0.5*viewportWidth + 24), 32);
             end
         end
@@ -213,6 +220,13 @@ do  --Draggable Widget
 
     WidgetManager.WidgetBaseMixin = WidgetBaseMixin;
 
+    local function Widget_OnUIScaleChanged(f)
+        --Saved and default positions are both worked out from screen units, so redo them for the new scale.
+        --Docked widgets are anchored to MainAnchor and follow it instead.
+        if f.isMoving or WidgetManager:ChainContain(f) then return end;
+        f:LoadPosition();
+    end
+
     function WidgetManager:CreateWidget(dbkeyPosition, widgetName)
         local f = CreateFrame("Frame");
         f:SetClampedToScreen(true);
@@ -222,6 +236,7 @@ do  --Draggable Widget
         f.widgetName = widgetName;
         f:SetScript("OnMouseDown", WidgetBaseMixin.OnMouseDown);
         f:SetScript("OnMouseUp", WidgetBaseMixin.OnMouseUp);
+        API.RegisterUIScaleFrame(f, Widget_OnUIScaleChanged);  --Not a child of UIParent, so copy the game's UI Scale
         return f
     end
 end

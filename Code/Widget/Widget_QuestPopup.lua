@@ -340,8 +340,7 @@ do
     end
 
     function CreateQuestPopup()
-        local f = CreateFrame("Frame", nil, UIParent, "DUIQuestPopupTemplate");
-        f:SetIgnoreParentScale(true);
+        local f = CreateFrame("Frame", nil, UIParent, "DUIQuestPopupTemplate");    --Inherits the game's UI Scale from UIParent
         f:SetIgnoreParentAlpha(true);
         f:Hide();
         API.Mixin(f, QuestPopupFrameMixin);

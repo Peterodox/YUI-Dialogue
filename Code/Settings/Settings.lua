@@ -66,6 +66,13 @@ function DUIDialogSettingsMixin:OnLoad()
     addon.SettingsUI = self;
     addon.PixelUtil:AddPixelPerfectObject(self);
 
+    --Not a child of UIParent, so copy the game's UI Scale
+    API.RegisterUIScaleFrame(self, function()
+        if self:IsShown() then
+            self:MoveToBestPosition();
+        end
+    end);
+
     SetupRepositionObject(self.Header);
 end
 
@@ -93,7 +100,8 @@ end
 function DUIDialogSettingsMixin:MoveToBestPosition()
     if addon.DialogueUI:IsShown() then
         local viewportWidth, viewportHeight = WorldFrame:GetSize(); --height unaffected by screen resolution
-        viewportWidth = math.min(viewportWidth, viewportHeight * 16/9);
+        --This frame is scaled with the UI Scale, so convert the width from screen units into its own units
+        viewportWidth = math.min(viewportWidth, viewportHeight * 16/9) / self:GetEffectiveScale();
         local frameWidth = self:GetWidth();
         local offset = 0.5*frameWidth -0.5 * viewportWidth +16;
         if addon.IsDBValue("FrameOrientation", 1) then

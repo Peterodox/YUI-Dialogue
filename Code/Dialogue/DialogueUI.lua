@@ -158,7 +158,8 @@ function DUIDialogBaseMixin:UpdateFrameBaseOffset(viewportWidth)
     end
 
     local offsetRatio = FRAME_OFFSET_RATIO;
-    local frameOffsetX = Round(viewportWidth*(offsetRatio - 0.5));
+    --This frame is scaled with the UI Scale, so convert the offset from screen units into its own units
+    local frameOffsetX = Round(viewportWidth*(offsetRatio - 0.5) / self:GetEffectiveScale());
     ChatFrame:ClearAllPoints();
 
     if addon.IsDBValue("FrameOrientation", 1) then
@@ -173,15 +174,39 @@ function DUIDialogBaseMixin:UpdateFrameBaseOffset(viewportWidth)
     self:SetPoint("CENTER", nil, "CENTER", frameOffsetX, 0);
 end
 
-function DUIDialogBaseMixin:UpdateFrameSize()
-    local viewportWidth, viewportHeight = API.GetBestViewportSize();
+function DUIDialogBaseMixin:OnUIScaleChanged()
+    --Our size comes from WorldFrame's height, so it rarely changes with the UI Scale.
+    --Only rebuild the content when it does: re-running the handler resets the scroll position mid-dialogue.
+    local frameHeight = Round(self:CalculateBestFrameHeight() * FRAME_SIZE_MULTIPLIER);
+    if frameHeight ~= self.frameHeight then
+        self:UpdateFrameSize();
+        self:OnSettingsChanged();
+    else
+        self:UpdateScreenAnchors();
+        self:UpdateFrameBaseOffset();
+    end
 
+    if addon.Banner:IsShown() then
+        addon.Banner:Layout();
+    end
+end
+
+function DUIDialogBaseMixin:UpdateScreenAnchors()
+    --AlertFrame and ExperienceBar are scaled with the UI Scale, so use the screen size in their own units
+    local alertViewportWidth, alertViewportHeight = API.GetBestViewportSizeForFrame(AlertFrame);
     AlertFrame:ClearAllPoints();
     local alertFrameOffset = 36;
-    AlertFrame:SetPoint("TOPRIGHT", nil, "CENTER", 0.5*viewportWidth - alertFrameOffset, 0.5*viewportHeight - alertFrameOffset);
+    AlertFrame:SetPoint("TOPRIGHT", nil, "CENTER", 0.5*alertViewportWidth - alertFrameOffset, 0.5*alertViewportHeight - alertFrameOffset);
 
+    local barViewportWidth = API.GetBestViewportSizeForFrame(ExperienceBar);
     ExperienceBar:SetPoint("BOTTOM", nil, "BOTTOM", 0, -2);
-    ExperienceBar:SetBarWidth(viewportWidth);
+    ExperienceBar:SetBarWidth(barViewportWidth);
+end
+
+function DUIDialogBaseMixin:UpdateFrameSize()
+    local viewportWidth = API.GetBestViewportSize();
+
+    self:UpdateScreenAnchors();
     ExperienceBar:SetHeight(8);
     ExperienceBar:SetNumCompartment(20);
 
@@ -287,6 +312,10 @@ function DUIDialogBaseMixin:OnLoad()
 
     MainFrame = self;
     addon.DialogueUI = self;
+
+    --Not a child of UIParent (it gets hidden during dialogue), so copy the game's UI Scale.
+    --AlertFrame, ChatFrame, FriendshipBar, ExperienceBar and Banner become our children below, so they inherit it.
+    API.RegisterUIScaleFrame(self, self.OnUIScaleChanged);
 
     --TooltipFrame:SetParent(self);
     TooltipFrame:SetShowDelay(0.25);

@@ -15,6 +15,7 @@ local SCROLLBAR_WIDTH = 12;
 
 local Clipboard = CreateFrame("Frame");
 addon.Clipboard = Clipboard;
+API.RegisterUIScaleFrame(Clipboard);    --Not a child of UIParent, so copy the game's UI Scale
 Clipboard:Hide();
 Clipboard:EnableMouse(true);
 Clipboard:SetToplevel(true);
@@ -136,6 +137,7 @@ function Clipboard:OnUpdate(elapsed)
     if self.t >= self.interval then
         local delta;
         local _, cursorY = GetCursorPosition();
+        cursorY = cursorY / self:GetEffectiveScale();   --Screen units to this frame's units
         if cursorY > self.cursorTop then
             if self.t > 0.25 then
                 self.t = elapsed;

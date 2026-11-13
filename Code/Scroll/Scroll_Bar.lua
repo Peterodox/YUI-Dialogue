@@ -52,7 +52,7 @@ do
     end
 
     function SharedUpdater:SetParentWidget(widget)
-        self.scale = 1;
+        self.scale = widget:GetEffectiveScale();   --Cursor positions are in screen units; the widget may be scaled with the UI Scale
         self:Stop();
         self.widget = widget;
         self.t = 0;

@@ -759,7 +759,9 @@ do
         end
         self.x = self.DeltaLerp(self.x, self.targetX, 0.15, elapsed);
         self.y = self.DeltaLerp(self.y, self.targetY, 0.15, elapsed);
-        self.obj:SetPoint("BOTTOM", nil, "BOTTOMLEFT", self.x + self.offsetY, self.y + self.offsetY);
+        --Cursor position is in screen units, but the tooltip is scaled with the UI Scale
+        local scale = self.obj:GetEffectiveScale();
+        self.obj:SetPoint("BOTTOM", nil, "BOTTOMLEFT", self.x / scale + self.offsetY, self.y / scale + self.offsetY);
     end
 
     function CursorFollower:OnHide()
@@ -787,6 +789,7 @@ local function CreateTooltipBase()
     f:Hide();
     f:SetSize(16, 16);
     f:SetIgnoreParentScale(true);
+    API.RegisterUIScaleFrame(f);    --Ignores its parent's scale, so copy the game's UI Scale
     f:SetIgnoreParentAlpha(true);
     f:SetFrameStrata("TOOLTIP");
     f:SetFixedFrameStrata(true);
