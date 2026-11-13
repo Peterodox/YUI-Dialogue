@@ -640,6 +640,14 @@ local function HideUIEnchancedMode_Validation()
     return addon.CameraUtil:DoesGameSupportRoleset();
 end
 
+local function Zygor_Validation()
+    return ZygorGuidesViewerFrameMaster ~= nil
+end
+
+local function TomTomArrow_Validation()
+    return TomTomCrazyArrow ~= nil
+end
+
 local function UseItemHotkey_Tooltip()
     local deviceID = GetDBValue("InputDevice");
     if deviceID == 2 then
@@ -723,6 +731,8 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["Hide Sparkles"], description = L["Hide Sparkles Desc"], preview = "HideOutlineSparkles.jpg", ratio = 2, dbKey = "HideOutlineSparkles", requiredParentValueAnd = {HideUI = true}, validationFunc = OutlineSparklesSupported_Validation},
             {type = "Checkbox", name = L["Hide Unit Names"], description = L["Hide Unit Names Desc"], dbKey = "HideUnitNames", requiredParentValueAnd = {HideUI = true}},
             {type = "Checkbox", name = L["Hide UI Enhanced Mode"], description = L["Hide UI Enhanced Mode Desc"], tooltip = HideUIEnchancedMode_Tooltip, dbKey = "HideUI_EnhancedMode", requiredParentValueAnd = {HideUI = true}, validationFunc = HideUIEnchancedMode_Validation},
+            {type = "Checkbox", name = L["Keep Zygor Visible"], description = L["Keep Zygor Visible Desc"], dbKey = "KeepZygorVisible", requiredParentValueAnd = {HideUI = true}, validationFunc = Zygor_Validation},
+            {type = "Checkbox", name = L["Keep TomTom Arrow Visible"], description = L["Keep TomTom Arrow Visible Desc"], dbKey = "KeepTomTomArrowVisible", requiredParentValueAnd = {HideUI = true}, validationFunc = TomTomArrow_Validation},
             {type = "Checkbox", name = L["Show Copy Text Button"], description = L["Show Copy Text Button Desc"], preview = "CopyTextButton", ratio = 1, dbKey = "ShowCopyTextButton"},
             {type = "Checkbox", name = L["Show NPC Name On Page"], description = L["Show NPC Name On Page Desc"], dbKey = "ShowNPCNameOnPage"},
 
