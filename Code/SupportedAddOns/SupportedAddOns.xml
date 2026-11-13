@@ -11,6 +11,8 @@
     <Script file="CzechQuests.lua"/>
     <Script file="WowUkrainizer.lua"/>
     <Script file="ChattyLittleNpc.lua"/>
+    <Script file="ZygorGuidesViewer.lua"/>
+    <Script file="TomTom.lua"/>
     <Script file="WorldFrameAddOns.lua"/>
 
     <Script file="Platine1AddOns.lua"/>
