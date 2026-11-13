@@ -1651,14 +1651,19 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
 
     local AcceptButton = self:AcquireAcceptButton(true);
     local ExitButton = self:AcquireExitButton();
+    local isQuestFailed = IsCurrentQuestFailed();
 
-    if API.IsQuestAutoAccepted() or API.IsPlayerOnQuest(self.questID) then
+    if (API.IsQuestAutoAccepted() or API.IsPlayerOnQuest(self.questID)) and (not isQuestFailed) then
         AcceptButton:SetButtonAlreadyOnQuest();
         ExitButton:SetButtonCloseAutoAcceptQuest();
         KeyboardControl:SetAction("Confirm", ExitButton);
         self.acknowledgeAutoAcceptQuest = true;
     else
-        AcceptButton:SetButtonAcceptQuest();
+        if isQuestFailed then
+            AcceptButton:SetButtonRestartFailedQuest();
+        else
+            AcceptButton:SetButtonAcceptQuest();
+        end
         ExitButton:SetButtonDeclineQuest(self.questIsFromGossip);
     end
 

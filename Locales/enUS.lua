@@ -29,6 +29,7 @@ L["Cancel"] = CANCEL or "Cancel";
 L["Goodbye"] = GOODBYE or "Goodbye";
 L["Decline"] = DECLINE or "Decline";
 L["OK"] = "OK";
+L["Restart Quest"] = "Restart";
 L["Quest Objectives"] = OBJECTIVES_LABEL or "Objectives";   --We use the shorter one, not QUEST_OBJECTIVES
 L["Reward"] = REWARD or "Reward";
 L["Rewards"] = REWARDS or "Rewards";

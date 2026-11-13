@@ -659,6 +659,18 @@ function DUIDialogOptionButtonMixin:SetButtonAcceptQuest()
     end
 end
 
+function DUIDialogOptionButtonMixin:SetButtonRestartFailedQuest()
+    self.showIcon = false;
+    self.id = 0;
+    self.type = "restart";
+    self.Icon:SetTexture(nil);
+    self.onClickFunc = OnClickFunc_AcceptQuest;
+    self:Enable();
+    self:SetButtonArt(1);
+    self:SetHotkey("PRIMARY");
+    self:SetButtonText(L["Restart Quest"], true);
+end
+
 function DUIDialogOptionButtonMixin:SetButtonAlreadyOnQuest()
     self.showIcon = false;
     self.id = 0;

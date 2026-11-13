@@ -29,6 +29,7 @@ L["Cancel"] = "取消";
 L["Goodbye"] = "再见";
 L["Decline"] = "拒绝";
 L["OK"] = "OK";
+L["Restart Quest"] = "重新开始";
 L["Quest Objectives"] = "任务目标";   --We use the shorter one, not QUEST_OBJECTIVES
 L["Reward"] = "奖励";
 L["Rewards"] = "奖励";
