@@ -175,13 +175,23 @@ function DUIDialogBaseMixin:UpdateFrameBaseOffset(viewportWidth)
 end
 
 function DUIDialogBaseMixin:OnUIScaleChanged()
-    self:UpdateFrameSize();
-    self:OnSettingsChanged();
+    --Our size comes from WorldFrame's height, so it rarely changes with the UI Scale.
+    --Only rebuild the content when it does: re-running the handler resets the scroll position mid-dialogue.
+    local frameHeight = Round(self:CalculateBestFrameHeight() * FRAME_SIZE_MULTIPLIER);
+    if frameHeight ~= self.frameHeight then
+        self:UpdateFrameSize();
+        self:OnSettingsChanged();
+    else
+        self:UpdateScreenAnchors();
+        self:UpdateFrameBaseOffset();
+    end
+
+    if addon.Banner:IsShown() then
+        addon.Banner:Layout();
+    end
 end
 
-function DUIDialogBaseMixin:UpdateFrameSize()
-    local viewportWidth, viewportHeight = API.GetBestViewportSize();
-
+function DUIDialogBaseMixin:UpdateScreenAnchors()
     --AlertFrame and ExperienceBar are scaled with the UI Scale, so use the screen size in their own units
     local alertViewportWidth, alertViewportHeight = API.GetBestViewportSizeForFrame(AlertFrame);
     AlertFrame:ClearAllPoints();
@@ -191,6 +201,12 @@ function DUIDialogBaseMixin:UpdateFrameSize()
     local barViewportWidth = API.GetBestViewportSizeForFrame(ExperienceBar);
     ExperienceBar:SetPoint("BOTTOM", nil, "BOTTOM", 0, -2);
     ExperienceBar:SetBarWidth(barViewportWidth);
+end
+
+function DUIDialogBaseMixin:UpdateFrameSize()
+    local viewportWidth = API.GetBestViewportSize();
+
+    self:UpdateScreenAnchors();
     ExperienceBar:SetHeight(8);
     ExperienceBar:SetNumCompartment(20);
 

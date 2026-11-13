@@ -221,10 +221,10 @@ do  --Draggable Widget
     WidgetManager.WidgetBaseMixin = WidgetBaseMixin;
 
     local function Widget_OnUIScaleChanged(f)
-        --A saved position is in screen units, so it has to be converted again for the new scale
-        if f:IsUsingCustomPosition() and not f.isMoving then
-            f:LoadPosition();
-        end
+        --Saved and default positions are both worked out from screen units, so redo them for the new scale.
+        --Docked widgets are anchored to MainAnchor and follow it instead.
+        if f.isMoving or WidgetManager:ChainContain(f) then return end;
+        f:LoadPosition();
     end
 
     function WidgetManager:CreateWidget(dbkeyPosition, widgetName)
