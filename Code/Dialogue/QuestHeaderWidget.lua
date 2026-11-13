@@ -215,7 +215,7 @@ do  --HeaderWidgetManger
         end
 
         if API.IsQuestLevelCached(questID) then
-            if self:AddQuestDifficulty(questID) then
+            if (not self:DoesWidgetExist("Difficulty")) and self:AddQuestDifficulty(questID) then
                 anyChange = true;
             end
         else

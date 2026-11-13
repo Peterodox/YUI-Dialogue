@@ -109,8 +109,6 @@ function ItemEvaluator:AddThirdPartyEvaluator(addonName, isItemUpgrade, tooltipW
     end
 end
 
---3rd-party addons load after our settings were applied, so the evaluator must be applied right away (like Pawn's),
---not on the next "ShowUpgradeArrow" change.
 DialogueUIAPI.AddItemEvaluator = function(addonName, isItemUpgrade, tooltipWritter)
     return ItemEvaluator:AddThirdPartyEvaluator(addonName, isItemUpgrade, tooltipWritter);
 end
