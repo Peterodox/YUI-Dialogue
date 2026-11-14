@@ -1176,7 +1176,7 @@ function DUIDialogBaseMixin:IsGossipHandledExternally()
     return false
 end
 
-local function HandleAutoSelect(options, activeQuests, availableQuests, anyOption, anyActiveQuest, anyAvailableQuest, numAvailableQuests)
+local function HandleAutoSelect(options, activeQuests, availableQuests, anyOption, anyActiveQuest, anyAvailableQuest, numAvailableQuests, anyAddedOption)
     --If returning true, the main UI should not be shown
 
     if anyOption == nil then
@@ -1204,7 +1204,7 @@ local function HandleAutoSelect(options, activeQuests, availableQuests, anyOptio
         end
     end
 
-    local onlyOption = #options == 1;
+    local onlyOption = #options == 1 and not anyAddedOption;
 
     if (not (anyActiveQuest or anyAvailableQuest)) and (onlyOption) and ( (not GetDBBool("ForceGossip")) or (GetDBBool("ForceGossipSkipGameObject") and API.IsInteractingWithGameObject()) ) and (not ForceGossip()) then
         if options[1].selectOptionWhenOnlyOption then
@@ -1239,8 +1239,9 @@ local LowPriorityQuestGossip = {
 };
 
 
-function DUIDialogBaseMixin:HandleGossip()
+function DUIDialogBaseMixin:HandleGossip(_, refreshAddedOptions)
     if self:IsGossipHandledExternally() then
+        GossipDataProvider:EndAddedGossip();
         if self:IsShown() then
             CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
             self.interactionIsContinuing = true;
@@ -1254,14 +1255,19 @@ function DUIDialogBaseMixin:HandleGossip()
     local availableQuests = GetAvailableQuests();
     local activeQuests = GetActiveQuests();
     local options = GetOptions() or {};
-
     tsort(options, SortFunc_GossipPrioritizeQuest);
+
+    if not refreshAddedOptions then
+        GossipDataProvider:BeginAddedGossip(self, options);
+    end
+    local addedOptions, addedGreeting = GossipDataProvider:GetAddedGossip();
+    local anyAddedOption = #addedOptions > 0;
 
     local numAvailableQuests = availableQuests and #availableQuests or 0;
     local anyActiveQuest = activeQuests and #activeQuests > 0;
     local anyAvailableQuest = numAvailableQuests > 0;
     local anyQuest = anyActiveQuest or anyAvailableQuest;
-    local anyOption = options and #options > 0;
+    local anyOption = #options > 0 or anyAddedOption;
 
     self.hasActiveGossipQuests = anyActiveQuest;
     self.numAvailableQuests = numAvailableQuests;
@@ -1276,10 +1282,22 @@ function DUIDialogBaseMixin:HandleGossip()
     end
     --]]
 
-    local autoCompleteQuest = GetDBBool("AutoCompleteQuest");
+    local autoCompleteQuest = not refreshAddedOptions and GetDBBool("AutoCompleteQuest");
 
-    if HandleAutoSelect(options, activeQuests, availableQuests, anyOption, anyActiveQuest, anyAvailableQuest, numAvailableQuests) then
+    if not refreshAddedOptions and HandleAutoSelect(options, activeQuests, availableQuests,
+        anyOption, anyActiveQuest, anyAvailableQuest, numAvailableQuests, anyAddedOption) then
         return false
+    end
+
+    if anyAddedOption then
+        local combined = {};
+        for i, option in ipairs(options) do
+            combined[i] = option;
+        end
+        for _, option in ipairs(addedOptions) do
+            tinsert(combined, option);
+        end
+        options = combined;
     end
 
     local fromOffsetY = 0;
@@ -1314,7 +1332,7 @@ function DUIDialogBaseMixin:HandleGossip()
     local button;
 
     --Welcome text
-    local gossipText = GetGossipText();
+    local gossipText = addedGreeting or GetGossipText();
     if self.hintText then
         gossipText = self.hintText.."\n\n"..gossipText;
         self.hintText = nil;
@@ -1519,7 +1537,7 @@ function DUIDialogBaseMixin:HandleGossip()
     local GoodbyeButton = self:AcquireExitButton();
     GoodbyeButton:SetButtonExitGossip();
 
-    if not (#options > 0 or anyQuest) then
+    if not (anyOption or anyQuest) then
         --If there is no options, allow pressing SPACE to goodbye
         KeyboardControl:SetAction("Confirm", GoodbyeButton);
     end
@@ -2394,6 +2412,10 @@ function DUIDialogBaseMixin:ShowUI(event, ...)
         return
     end
 
+    if event ~= "GOSSIP_SHOW" then
+        GossipDataProvider:EndAddedGossip();
+    end
+
     local shouldShowUI;
     local handler = DialogHandlers[event];
     if handler then
@@ -2404,6 +2426,7 @@ function DUIDialogBaseMixin:ShowUI(event, ...)
     end
 
     if not shouldShowUI then
+        GossipDataProvider:EndAddedGossip();
         self.handler = nil;
         self.handlerArgs = nil;
         return
@@ -2518,6 +2541,7 @@ function DUIDialogBaseMixin:OnHide()
     if GhostCatcher:MainFrameStartHiding() then return end;
 
     self:Hide();
+    GossipDataProvider:EndAddedGossip();
     CameraUtil:Restore();
 
     self:CloseDialogInteraction();
@@ -2646,6 +2670,7 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
     elseif event == "GOSSIP_SHOW" then
         self.keepGossipHistory = true;
     elseif event == "GOSSIP_CLOSED" then
+        GossipDataProvider:EndAddedGossip();
         self.keepGossipHistory = false;
         self.selectedGossipIndex = nil;
     elseif event == "QUEST_ACCEPTED" then
