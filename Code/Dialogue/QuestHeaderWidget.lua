@@ -143,6 +143,13 @@ do  --HeaderWidgetManger
 
     function HeaderWidgetManger:AddQuestDifficulty(questID)
         local label = API.GetQuestDifficultyLabel(questID);
+        if API.GetColorizedQuestLevel(questID) then    --"Level" style: show the level for every quest, not only ones 3+ levels away
+            local questLevel = API.GetQuestLevel(questID);
+            if questLevel then
+                local levelText = string.format(L["Format Unit Level"], questLevel);
+                label = label and (levelText .. " - " .. label) or levelText;
+            end
+        end
         if label then
             local f = self.buttonPool:Acquire();
             f:SetQuestDifficulty(questID, label);
