@@ -725,10 +725,17 @@ function QuestItemDisplay:OnHide()
 end
 
 function QuestItemDisplay:OnEnter()
+    if self.isEditMode then
+        self.tooltipText = L["Drag To Move"].."\n"..L["Right Click To Dismiss"];
+        addon.SharedTooltip.ShowWidgetTooltip(self);
+    end
     self.CloseButton:PauseAutoCloseTimer(true);
 end
 
 function QuestItemDisplay:OnLeave()
+    if self.isEditMode then
+        addon.SharedTooltip.HideTooltip();
+    end
     self.CloseButton:PauseAutoCloseTimer(false);
 end
 
